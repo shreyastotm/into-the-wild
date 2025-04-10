@@ -122,18 +122,21 @@ export default function ProfileForm() {
         profileError = error;
       } else {
         // Create new profile if it doesn't exist
+        // Make sure to include all required fields
         const { error } = await supabase
           .from('users')
           .insert({
             user_id: user.id,
             full_name: formData.full_name,
+            email: user.email || '',  // Required field
+            subscription_type: 'free', // Default to free subscription
             phone_number: formData.phone,
             address: formData.address,
             date_of_birth: formData.date_of_birth,
             health_data: formData.health_data,
             trekking_experience: formData.trekking_experience,
             interests: formData.interests,
-            pet_details: formData.pet_details,
+            pet_details: formData.pet_details
           });
         
         profileError = error;
