@@ -88,7 +88,6 @@ export default function ProfileForm() {
           trekking_experience: formData.trekking_experience,
           interests: formData.interests,
           pet_details: formData.pet_details,
-          updated_at: new Date().toISOString(),
         })
         .eq('user_id', user.id);
 
@@ -104,6 +103,7 @@ export default function ProfileForm() {
         description: error.message || "An error occurred while updating your profile",
         variant: "destructive",
       });
+      console.error("Profile update error:", error);
     } finally {
       setUpdating(false);
     }

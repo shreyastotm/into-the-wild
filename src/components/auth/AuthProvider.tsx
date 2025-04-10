@@ -29,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // Set up auth state listener first
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
+        console.log("Auth event:", event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
         
@@ -62,6 +63,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchUserProfile(userId: string) {
     try {
+      console.log("Fetching user profile for ID:", userId);
+      
       const { data, error } = await supabase
         .from('users')
         .select('*')
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         return;
       }
 
+      console.log("User profile data:", data);
       setUserProfile(data);
     } catch (error) {
       console.error('Error in fetchUserProfile:', error);

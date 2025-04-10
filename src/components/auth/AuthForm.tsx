@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -58,13 +59,18 @@ export default function AuthForm() {
 
         if (error) throw error;
 
-        // The profile will be created automatically by the database trigger
-        // We don't need to manually insert it here anymore
-
         toast({
           title: "Account created successfully!",
           description: "Please check your email to verify your account.",
         });
+        
+        // Clear form fields
+        setEmail('');
+        setPassword('');
+        setFullName('');
+        setPhone('');
+        
+        // Optional: Auto-login the user after signup
         navigate('/profile');
       } else {
         // Handle signin
@@ -87,6 +93,7 @@ export default function AuthForm() {
         description: error?.message || "An error occurred during authentication",
         variant: "destructive",
       });
+      console.error("Auth error:", error);
     } finally {
       setLoading(false);
     }
