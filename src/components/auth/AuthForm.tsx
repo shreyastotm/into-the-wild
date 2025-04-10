@@ -5,6 +5,22 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from '@/components/ui/use-toast';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue
+} from '@/components/ui/select';
+import { 
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle 
+} from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -43,6 +59,26 @@ export default function AuthForm() {
 
         if (error) throw error;
 
+        // Create a record in the users table
+        const { error: insertError } = await (supabase as any)
+          .from('users')
+          .insert([
+            {
+              id: data.user?.id,
+              full_name: fullName,
+              email: email,
+              phone_number: phone,
+              subscription_type: subscriptionType,
+              // Add default values for required fields that might not have input yet
+              password_hash: 'managed_by_auth'  // This is just a placeholder as auth handles passwords
+            }
+          ]);
+
+        if (insertError) {
+          console.error('Error creating user profile:', insertError);
+          // Still allow user to proceed as auth was successful
+        }
+
         toast({
           title: "Account created successfully!",
           description: "Please check your email to verify your account.",
@@ -75,114 +111,98 @@ export default function AuthForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold text-center mb-6">
-        {mode === 'signin' ? 'Sign In' : 'Create Account'}
-      </h2>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
-        {mode === 'signup' && (
-          <>
-            <div>
-              <label htmlFor="fullName" className="block text-sm font-medium text-gray-700">
-                Full Name
-              </label>
-              <Input
-                id="fullName"
-                type="text"
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                required
-              />
-            </div>
-            <div>
-              <label htmlFor="phone" className="block text-sm font-medium text-gray-700">
-                Phone Number
-              </label>
-              <Input
-                id="phone"
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="block text-sm font-medium text-gray-700">
-                Subscription Type
-              </label>
-              <div className="flex flex-col space-y-2">
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id="community"
-                    name="subscriptionType"
-                    value="community"
-                    checked={subscriptionType === 'community'}
-                    onChange={() => setSubscriptionType('community')}
-                    className="h-4 w-4"
-                  />
-                  <label htmlFor="community" className="text-sm">
-                    Community (₹499/year)
-                  </label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <input
-                    type="radio"
-                    id="self_service"
-                    name="subscriptionType"
-                    value="self_service"
-                    checked={subscriptionType === 'self_service'}
-                    onChange={() => setSubscriptionType('self_service')}
-                    className="h-4 w-4"
-                  />
-                  <label htmlFor="self_service" className="text-sm">
-                    Self-Service (₹99/month)
-                  </label>
-                </div>
+    <Card className="w-full max-w-md mx-auto">
+      <CardHeader>
+        <CardTitle className="text-2xl font-bold text-center">
+          {mode === 'signin' ? 'Sign In' : 'Create Account'}
+        </CardTitle>
+        <CardDescription className="text-center">
+          {mode === 'signin' 
+            ? 'Enter your credentials to access your account' 
+            : 'Join the trekking community today'
+          }
+        </CardDescription>
+      </CardHeader>
+      
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {mode === 'signup' && (
+            <>
+              <div className="space-y-2">
+                <Label htmlFor="fullName">Full Name</Label>
+                <Input
+                  id="fullName"
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  required
+                />
               </div>
-            </div>
-          </>
-        )}
+              
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone Number</Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="subscriptionType">Subscription Type</Label>
+                <Select 
+                  value={subscriptionType}
+                  onValueChange={(value) => setSubscriptionType(value as 'community' | 'self_service')}
+                >
+                  <SelectTrigger id="subscriptionType">
+                    <SelectValue placeholder="Select a subscription type" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="community">Community (₹499/year)</SelectItem>
+                    <SelectItem value="self_service">Self-Service (₹99/month)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </>
+          )}
 
-        <div>
-          <label htmlFor="email" className="block text-sm font-medium text-gray-700">
-            Email
-          </label>
-          <Input
-            id="email"
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="password" className="block text-sm font-medium text-gray-700">
-            Password
-          </label>
-          <Input
-            id="password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-        </div>
+          <div className="space-y-2">
+            <Label htmlFor="password">Password</Label>
+            <Input
+              id="password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+          </div>
 
-        <Button type="submit" className="w-full" disabled={loading}>
-          {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
-        </Button>
-      </form>
+          <Button type="submit" className="w-full" disabled={loading}>
+            {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
+          </Button>
+        </form>
+      </CardContent>
 
-      <div className="mt-4 text-center">
+      <CardFooter className="justify-center">
         <button onClick={toggleMode} className="text-sm text-blue-600 hover:underline">
           {mode === 'signin'
             ? "Don't have an account? Sign up"
             : 'Already have an account? Sign in'}
         </button>
-      </div>
-    </div>
+      </CardFooter>
+    </Card>
   );
 }
