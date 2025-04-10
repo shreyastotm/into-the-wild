@@ -67,7 +67,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const { data, error } = await (supabase as any)
         .from('users')
         .select('*')
-        .eq('id', userId)
+        .eq('user_id', userId) // Changed from 'id' to 'user_id'
         .single();
 
       if (error) {

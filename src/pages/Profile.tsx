@@ -93,10 +93,11 @@ export default function Profile() {
       if (metadataError) throw metadataError;
 
       // Update or insert user profile in the users table
+      // Fix: Use "user_id" instead of "id" to match the column name in the database
       const { error: profileError } = await (supabase as any)
         .from('users')
         .upsert({
-          id: user.id,
+          user_id: user.id, // Changed from "id" to "user_id"
           full_name: formData.full_name,
           phone_number: formData.phone,
           address: formData.address,
@@ -107,7 +108,7 @@ export default function Profile() {
           pet_details: formData.pet_details,
           updated_at: new Date().toISOString(),
         }, {
-          onConflict: 'id',
+          onConflict: 'user_id', // Changed from "id" to "user_id"
         });
 
       if (profileError) throw profileError;
