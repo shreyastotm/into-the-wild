@@ -101,7 +101,7 @@ export default function CreateTrekEvent() {
         transport_mode: formData.transport_mode || null,
         pickup_time_window: formData.pickup_time_window || null,
         cancellation_policy: formData.cancellation_policy || null,
-        event_creator_type: 'internal'
+        event_creator_type: 'internal' as 'internal' | 'external'
       };
       
       // Quick validation

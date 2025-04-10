@@ -46,7 +46,8 @@ export default function TrekEvents() {
       }
       
       if (data) {
-        setTrekEvents(data);
+        // Use type assertion to ensure compatibility
+        setTrekEvents(data as TrekEvent[]);
       }
     } catch (error: any) {
       toast({

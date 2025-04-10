@@ -69,7 +69,7 @@ export default function TrekEventDetails() {
       }
       
       if (data) {
-        setTrekEvent(data);
+        setTrekEvent(data as TrekEvent);
       }
     } catch (error: any) {
       toast({
@@ -99,7 +99,7 @@ export default function TrekEventDetails() {
       }
       
       if (data) {
-        setUserRegistration(data);
+        setUserRegistration(data as Registration);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
