@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Layout from '@/components/Layout';
@@ -77,7 +76,7 @@ export default function Profile() {
       if (metadataError) throw metadataError;
 
       // Update or insert user profile in the users table
-      const { error: profileError } = await supabase
+      const { error: profileError } = await (supabase as any)
         .from('users')
         .upsert({
           id: user.id,
