@@ -122,6 +122,8 @@ export default function ProfileForm() {
         profileError = error;
       } else {
         // Create new profile if it doesn't exist
+        // Only include fields that are available in the database schema and required
+        // We'll omit password_hash since it should be managed by the auth system, not directly by us
         const { error } = await supabase
           .from('users')
           .insert({
@@ -132,10 +134,10 @@ export default function ProfileForm() {
             phone_number: formData.phone,
             address: formData.address,
             date_of_birth: formData.date_of_birth,
-            health_data: formData.health_data,
-            trekking_experience: formData.trekking_experience,
-            interests: formData.interests,
-            pet_details: formData.pet_details
+            health_data: formData.health_data || null,
+            trekking_experience: formData.trekking_experience || null,
+            interests: formData.interests || null,
+            pet_details: formData.pet_details || null,
           });
         
         profileError = error;
