@@ -129,7 +129,7 @@ export default function ProfileForm() {
             user_id: user.id,
             full_name: formData.full_name,
             email: user.email || '',  // Required field
-            subscription_type: 'free', // Default to free subscription
+            subscription_type: 'community', // Use valid enum value from the database
             phone_number: formData.phone,
             address: formData.address,
             date_of_birth: formData.date_of_birth,
