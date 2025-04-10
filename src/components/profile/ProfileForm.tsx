@@ -122,14 +122,13 @@ export default function ProfileForm() {
         profileError = error;
       } else {
         // Create new profile if it doesn't exist
-        // Make sure to include all required fields
         const { error } = await supabase
           .from('users')
           .insert({
             user_id: user.id,
             full_name: formData.full_name,
-            email: user.email || '',  // Required field
-            subscription_type: 'community', // Use valid enum value from the database
+            email: user.email || '',
+            subscription_type: 'community', // Valid enum value
             phone_number: formData.phone,
             address: formData.address,
             date_of_birth: formData.date_of_birth,
