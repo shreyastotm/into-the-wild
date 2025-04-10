@@ -31,9 +31,12 @@ interface TrekEvent {
 interface Registration {
   registration_id: number;
   trek_id: number;
-  user_id: string;
+  user_id: string; // This should be a string to match the auth user ID type
   booking_datetime: string;
   payment_status: 'Pending' | 'Paid' | 'Cancelled';
+  cancellation_datetime?: string | null;
+  penalty_applied?: number | null;
+  created_at?: string | null;
 }
 
 export default function TrekEventDetails() {
@@ -99,7 +102,12 @@ export default function TrekEventDetails() {
       }
       
       if (data) {
-        setUserRegistration(data as Registration);
+        // Convert data to Registration type and ensure user_id is string
+        const registration = {
+          ...data,
+          user_id: data.user_id.toString()
+        } as Registration;
+        setUserRegistration(registration);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
@@ -137,7 +145,7 @@ export default function TrekEventDetails() {
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: user.id,
+          user_id: user.id, // user.id is a string from auth
           payment_status: 'Pending'
         });
       
