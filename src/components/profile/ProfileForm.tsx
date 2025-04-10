@@ -36,6 +36,14 @@ export default function ProfileForm() {
 
   // Update form data when userProfile changes
   useEffect(() => {
+    if (user) {
+      // Always set email from user object
+      setFormData(prev => ({
+        ...prev,
+        email: user.email || '',
+      }));
+    }
+    
     if (userProfile) {
       setFormData({
         full_name: userProfile?.full_name || '',
@@ -64,7 +72,17 @@ export default function ProfileForm() {
     setUpdating(true);
 
     try {
-      if (!user) return;
+      if (!user) {
+        toast({
+          title: "Error",
+          description: "You need to be logged in to update your profile",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      console.log("Updating profile for user:", user.id);
+      console.log("Profile data:", formData);
 
       // Update user metadata
       const { error: metadataError } = await supabase.auth.updateUser({
@@ -76,20 +94,50 @@ export default function ProfileForm() {
 
       if (metadataError) throw metadataError;
 
-      // Update the users table
-      const { error: profileError } = await supabase
+      // Check if profile exists
+      const { data: existingProfile } = await supabase
         .from('users')
-        .update({
-          full_name: formData.full_name,
-          phone_number: formData.phone,
-          address: formData.address,
-          date_of_birth: formData.date_of_birth,
-          health_data: formData.health_data,
-          trekking_experience: formData.trekking_experience,
-          interests: formData.interests,
-          pet_details: formData.pet_details,
-        })
-        .eq('user_id', user.id);
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      let profileError;
+      
+      if (existingProfile) {
+        // Update existing profile
+        const { error } = await supabase
+          .from('users')
+          .update({
+            full_name: formData.full_name,
+            phone_number: formData.phone,
+            address: formData.address,
+            date_of_birth: formData.date_of_birth,
+            health_data: formData.health_data,
+            trekking_experience: formData.trekking_experience,
+            interests: formData.interests,
+            pet_details: formData.pet_details,
+          })
+          .eq('user_id', user.id);
+        
+        profileError = error;
+      } else {
+        // Create new profile if it doesn't exist
+        const { error } = await supabase
+          .from('users')
+          .insert({
+            user_id: user.id,
+            full_name: formData.full_name,
+            phone_number: formData.phone,
+            address: formData.address,
+            date_of_birth: formData.date_of_birth,
+            health_data: formData.health_data,
+            trekking_experience: formData.trekking_experience,
+            interests: formData.interests,
+            pet_details: formData.pet_details,
+          });
+        
+        profileError = error;
+      }
 
       if (profileError) throw profileError;
 
