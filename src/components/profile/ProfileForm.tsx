@@ -76,11 +76,10 @@ export default function ProfileForm() {
 
       if (metadataError) throw metadataError;
 
-      // Update or insert user profile in the users table
+      // Update the users table
       const { error: profileError } = await supabase
         .from('users')
-        .upsert({
-          user_id: user.id,
+        .update({
           full_name: formData.full_name,
           phone_number: formData.phone,
           address: formData.address,
@@ -90,9 +89,8 @@ export default function ProfileForm() {
           interests: formData.interests,
           pet_details: formData.pet_details,
           updated_at: new Date().toISOString(),
-        }, {
-          onConflict: 'user_id'
-        });
+        })
+        .eq('user_id', user.id);
 
       if (profileError) throw profileError;
 
