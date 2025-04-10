@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -22,17 +22,34 @@ interface FormData {
 export default function ProfileForm() {
   const { user, userProfile } = useAuth();
   const [formData, setFormData] = useState<FormData>({
-    full_name: userProfile?.full_name || '',
-    email: user?.email || '',
-    phone: userProfile?.phone_number || '',
-    address: userProfile?.address || '',
-    date_of_birth: userProfile?.date_of_birth || '',
-    health_data: userProfile?.health_data || '',
-    trekking_experience: userProfile?.trekking_experience || '',
-    interests: userProfile?.interests || '',
-    pet_details: userProfile?.pet_details || '',
+    full_name: '',
+    email: '',
+    phone: '',
+    address: '',
+    date_of_birth: '',
+    health_data: '',
+    trekking_experience: '',
+    interests: '',
+    pet_details: '',
   });
   const [updating, setUpdating] = useState(false);
+
+  // Update form data when userProfile changes
+  useEffect(() => {
+    if (userProfile) {
+      setFormData({
+        full_name: userProfile?.full_name || '',
+        email: user?.email || '',
+        phone: userProfile?.phone_number || '',
+        address: userProfile?.address || '',
+        date_of_birth: userProfile?.date_of_birth || '',
+        health_data: userProfile?.health_data || '',
+        trekking_experience: userProfile?.trekking_experience || '',
+        interests: userProfile?.interests || '',
+        pet_details: userProfile?.pet_details || '',
+      });
+    }
+  }, [userProfile, user]);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -60,7 +77,7 @@ export default function ProfileForm() {
       if (metadataError) throw metadataError;
 
       // Update or insert user profile in the users table
-      const { error: profileError } = await (supabase as any)
+      const { error: profileError } = await supabase
         .from('users')
         .upsert({
           user_id: user.id,
@@ -74,7 +91,7 @@ export default function ProfileForm() {
           pet_details: formData.pet_details,
           updated_at: new Date().toISOString(),
         }, {
-          onConflict: 'user_id',
+          onConflict: 'user_id'
         });
 
       if (profileError) throw profileError;

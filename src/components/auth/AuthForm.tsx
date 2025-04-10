@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -59,25 +58,8 @@ export default function AuthForm() {
 
         if (error) throw error;
 
-        // Create a record in the users table
-        const { error: insertError } = await (supabase as any)
-          .from('users')
-          .insert([
-            {
-              id: data.user?.id,
-              full_name: fullName,
-              email: email,
-              phone_number: phone,
-              subscription_type: subscriptionType,
-              // Add default values for required fields that might not have input yet
-              password_hash: 'managed_by_auth'  // This is just a placeholder as auth handles passwords
-            }
-          ]);
-
-        if (insertError) {
-          console.error('Error creating user profile:', insertError);
-          // Still allow user to proceed as auth was successful
-        }
+        // The profile will be created automatically by the database trigger
+        // We don't need to manually insert it here anymore
 
         toast({
           title: "Account created successfully!",

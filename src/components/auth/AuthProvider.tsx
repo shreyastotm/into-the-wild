@@ -62,12 +62,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchUserProfile(userId: string) {
     try {
-      // Use the type-safe approach by casting to any for now
-      // since we're fixing the type issues
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('users')
         .select('*')
-        .eq('user_id', userId) // Changed from 'id' to 'user_id'
+        .eq('user_id', userId)
         .single();
 
       if (error) {

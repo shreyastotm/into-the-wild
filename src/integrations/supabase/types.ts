@@ -39,13 +39,6 @@ export type Database = {
             referencedRelation: "community_posts"
             referencedColumns: ["post_id"]
           },
-          {
-            foreignKeyName: "comments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       community_posts: {
@@ -79,15 +72,7 @@ export type Database = {
           user_id?: number
           visibility?: Database["public"]["Enums"]["visibility"]
         }
-        Relationships: [
-          {
-            foreignKeyName: "community_posts_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       expense_sharing: {
         Row: {
@@ -124,13 +109,6 @@ export type Database = {
           trek_id?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "expense_sharing_payer_id_fkey"
-            columns: ["payer_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
           {
             foreignKeyName: "expense_sharing_trek_id_fkey"
             columns: ["trek_id"]
@@ -247,13 +225,6 @@ export type Database = {
             referencedRelation: "trek_events"
             referencedColumns: ["trek_id"]
           },
-          {
-            foreignKeyName: "registrations_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
         ]
       }
       roles_assignments: {
@@ -294,13 +265,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "trek_events"
             referencedColumns: ["trek_id"]
-          },
-          {
-            foreignKeyName: "roles_assignments_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -362,15 +326,7 @@ export type Database = {
           subscription_type?: string
           user_id?: number | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_billing_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
       trek_events: {
         Row: {
@@ -466,7 +422,7 @@ export type Database = {
           subscription_type: Database["public"]["Enums"]["subscription_type"]
           trekking_experience: string | null
           updated_at: string | null
-          user_id: number
+          user_id: string | null
         }
         Insert: {
           address?: string | null
@@ -486,7 +442,7 @@ export type Database = {
           subscription_type: Database["public"]["Enums"]["subscription_type"]
           trekking_experience?: string | null
           updated_at?: string | null
-          user_id?: number
+          user_id?: string | null
         }
         Update: {
           address?: string | null
@@ -506,7 +462,7 @@ export type Database = {
           subscription_type?: Database["public"]["Enums"]["subscription_type"]
           trekking_experience?: string | null
           updated_at?: string | null
-          user_id?: number
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -535,15 +491,7 @@ export type Database = {
           vote_value?: number
           voter_id?: number
         }
-        Relationships: [
-          {
-            foreignKeyName: "votes_voter_id_fkey"
-            columns: ["voter_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["user_id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
