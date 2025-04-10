@@ -122,14 +122,16 @@ export default function ProfileForm() {
         profileError = error;
       } else {
         // Create new profile if it doesn't exist
-        // Only include fields that are available in the database schema and required
-        // We'll omit password_hash since it should be managed by the auth system, not directly by us
+        // Note: We need to include all required fields based on the database schema
         const { error } = await supabase
           .from('users')
           .insert({
             user_id: user.id,
             full_name: formData.full_name,
             email: user.email || '',
+            // Include a default password_hash value since it's required by the schema
+            // This is just a placeholder as authentication is handled by Supabase Auth
+            password_hash: 'handled_by_auth_system',
             subscription_type: 'community', // Valid enum value
             phone_number: formData.phone,
             address: formData.address,
