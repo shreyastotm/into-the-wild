@@ -1,10 +1,14 @@
-
 import { Link } from 'react-router-dom';
 import { useAuth } from './auth/AuthProvider';
 
 const Header = () => {
   const { user, loading, signOut } = useAuth();
   
+  const navLinks = [
+    { to: '/', label: 'Home' },
+    { to: '/trek-events', label: 'Trek Events' },
+  ];
+
   return (
     <header className="bg-white shadow-sm">
       <div className="container mx-auto px-4 py-4">
@@ -14,9 +18,11 @@ const Header = () => {
           </Link>
           
           <nav className="flex items-center space-x-4">
-            <Link to="/" className="text-gray-600 hover:text-gray-900">
-              Home
-            </Link>
+            {navLinks.map((link) => (
+              <Link key={link.to} to={link.to} className="text-gray-600 hover:text-gray-900">
+                {link.label}
+              </Link>
+            ))}
             
             {!loading && (
               user ? (
