@@ -45,6 +45,8 @@ export default function AuthForm() {
     try {
       if (mode === 'signup') {
         // Handle signup
+        console.log('Attempting to sign up with:', { email, fullName, phone, subscriptionType });
+        
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
@@ -59,6 +61,8 @@ export default function AuthForm() {
 
         if (error) throw error;
 
+        console.log('Signup successful:', data);
+        
         toast({
           title: "Account created successfully!",
           description: "Please check your email to verify your account.",
@@ -70,7 +74,7 @@ export default function AuthForm() {
         setFullName('');
         setPhone('');
         
-        // Optional: Auto-login the user after signup
+        // Navigate to profile page
         navigate('/profile');
       } else {
         // Handle signin
@@ -88,12 +92,12 @@ export default function AuthForm() {
         navigate('/');
       }
     } catch (error: any) {
+      console.error("Auth error details:", error);
       toast({
         title: "Error",
         description: error?.message || "An error occurred during authentication",
         variant: "destructive",
       });
-      console.error("Auth error:", error);
     } finally {
       setLoading(false);
     }
