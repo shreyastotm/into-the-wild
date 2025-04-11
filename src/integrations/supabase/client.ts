@@ -12,4 +12,6 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
 // Helper type that converts UUID strings to string in Supabase responses
-export type WithStringId<T> = Omit<T, 'user_id'> & { user_id: string };
+export type WithStringId<T> = {
+  [K in keyof T]: K extends 'user_id' ? string : T[K];
+};

@@ -28,16 +28,20 @@ interface TrekEvent {
   partner_id: number | null;
 }
 
-interface Registration {
+// Define the database registration type - this matches the actual DB schema
+interface DbRegistration {
   registration_id: number;
   trek_id: number;
-  user_id: string; // This is a string to match the auth user ID type
+  user_id: number; // In the database this is a number
   booking_datetime: string;
   payment_status: 'Pending' | 'Paid' | 'Cancelled';
   cancellation_datetime?: string | null;
   penalty_applied?: number | null;
   created_at?: string | null;
 }
+
+// Define the application registration type - this is what we use in our app
+type Registration = WithStringId<DbRegistration>;
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -90,20 +94,24 @@ export default function TrekEventDetails() {
     if (!user) return;
     
     try {
+      // Get the user's registration for this trek
       const { data, error } = await supabase
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
-      if (error && error.code !== 'PGRST116') { // PGRST116 is "no rows returned" which is expected if not registered
+      if (error) {
         throw error;
       }
       
       if (data) {
-        // We know user_id is a string in our app context
-        setUserRegistration(data as Registration);
+        // Convert the user_id to string to match our Application type
+        setUserRegistration({
+          ...data,
+          user_id: String(data.user_id)
+        } as Registration);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
@@ -136,12 +144,12 @@ export default function TrekEventDetails() {
         return;
       }
 
-      // Create a registration
+      // Create a registration - use a type assertion for the user.id conversion
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: user.id, // user.id is a string from auth
+          user_id: parseInt(user.id), // Convert string ID to number for DB
           payment_status: 'Pending'
         });
       
