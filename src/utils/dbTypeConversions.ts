@@ -5,13 +5,17 @@
  */
 
 /**
- * Converts a user ID (which may be a UUID string in auth but number in database) to a number
+ * Converts a user ID (which may be a string in auth but number in database) to a number
  * Gracefully handles potential parsing errors
  */
 export const userIdToNumber = (userId: string | number): number => {
   if (typeof userId === 'number') return userId;
   try {
-    return parseInt(userId);
+    const parsed = parseInt(userId);
+    if (isNaN(parsed)) {
+      throw new Error('Invalid user ID format');
+    }
+    return parsed;
   } catch (e) {
     console.error('Error converting userId to number:', e);
     throw new Error('Invalid user ID format');
@@ -35,4 +39,23 @@ export const isValidUserId = (userId: any): boolean => {
     return !isNaN(parseInt(userId));
   }
   return false;
+};
+
+/**
+ * A helper function to standardize ID types in API responses
+ * Useful for maintaining consistent types throughout the application
+ */
+export const standardizeIds = <T extends Record<string, any>>(data: T): T => {
+  const result = { ...data };
+  
+  // Convert ID fields to their expected types
+  // Add more fields as needed
+  for (const key in result) {
+    if (key.endsWith('_id') && result[key] !== null && result[key] !== undefined) {
+      // For frontend use, convert to string
+      result[key] = String(result[key]);
+    }
+  }
+  
+  return result;
 };

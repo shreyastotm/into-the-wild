@@ -1,11 +1,12 @@
 
 import React, { useEffect, useState } from 'react';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, convertDbRecordToStringIds } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/use-toast';
 import { ExpenseCard } from './ExpenseCard';
 import { AddExpenseForm } from './AddExpenseForm';
 import { Button } from '@/components/ui/button';
 import { PlusCircle } from 'lucide-react';
+import { userIdToString } from '@/utils/dbTypeConversions';
 
 interface Expense {
   expense_id: number;
@@ -61,8 +62,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
           amount: item.amount,
           expense_date: item.expense_date,
           settlement_status: item.settlement_status,
-          payer_id: item.payer_id?.toString() || '', // Convert to string to match the interface
-          payer_name: item.profiles ? (item.profiles as any).full_name : 'Unknown' // Type assertion to handle the relation
+          payer_id: userIdToString(item.payer_id || ''), // Convert to string consistently
+          payer_name: item.profiles ? (item.profiles as any).full_name : 'Unknown'
         }));
         
         setExpenses(transformedData);
@@ -96,8 +97,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
         const participantsList = data
           .filter(item => item.users) // Filter out any null users
           .map(item => ({
-            user_id: item.user_id?.toString() || '', // Convert to string to ensure type consistency
-            full_name: item.users ? (item.users as any).full_name : 'Unknown' // Type assertion for the relation
+            user_id: userIdToString(item.user_id || ''), // Convert consistently using utility
+            full_name: item.users ? (item.users as any).full_name : 'Unknown'
           }));
         
         setParticipants(participantsList);

@@ -26,11 +26,15 @@ export type WithStringId<T> = {
  */
 export const convertDbRecordToStringIds = <T extends Record<string, any>>(record: T): WithStringId<T> => {
   const result = { ...record } as WithStringId<T>;
+  
+  // Check if properties exist in record before accessing them
   if ('user_id' in record) {
-    result.user_id = String(record.user_id);
+    (result as any).user_id = String(record.user_id);
   }
+  
   if ('payer_id' in record) {
-    result.payer_id = String(record.payer_id);
+    (result as any).payer_id = String(record.payer_id);
   }
+  
   return result;
 };
