@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase, WithStringId } from "@/integrations/supabase/client";
@@ -28,7 +27,6 @@ interface TrekEvent {
   partner_id: number | null;
 }
 
-// Define the database registration type - this matches the actual DB schema
 interface DbRegistration {
   registration_id: number;
   trek_id: number;
@@ -40,7 +38,6 @@ interface DbRegistration {
   created_at?: string | null;
 }
 
-// Define the application registration type - this is what we use in our app
 type Registration = WithStringId<DbRegistration>;
 
 export default function TrekEventDetails() {
@@ -94,12 +91,11 @@ export default function TrekEventDetails() {
     if (!user) return;
     
     try {
-      // Get the user's registration for this trek
       const { data, error } = await supabase
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', user.id)
+        .eq('user_id', parseInt(user.id))
         .maybeSingle();
       
       if (error) {
@@ -107,7 +103,6 @@ export default function TrekEventDetails() {
       }
       
       if (data) {
-        // Convert the user_id to string to match our Application type
         setUserRegistration({
           ...data,
           user_id: String(data.user_id)
@@ -134,7 +129,6 @@ export default function TrekEventDetails() {
     try {
       setRegistering(true);
       
-      // First check if the trek is full
       if (trekEvent.current_participants && trekEvent.current_participants >= trekEvent.max_participants) {
         toast({
           title: "Registration failed",
@@ -144,12 +138,11 @@ export default function TrekEventDetails() {
         return;
       }
 
-      // Create a registration - use a type assertion for the user.id conversion
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: parseInt(user.id), // Convert string ID to number for DB
+          user_id: parseInt(user.id),
           payment_status: 'Pending'
         });
       
@@ -157,7 +150,6 @@ export default function TrekEventDetails() {
         throw registrationError;
       }
 
-      // Update current participants count
       const newParticipantCount = (trekEvent.current_participants || 0) + 1;
       const { error: updateError } = await supabase
         .from('trek_events')
@@ -168,13 +160,11 @@ export default function TrekEventDetails() {
         throw updateError;
       }
 
-      // Update local state
       setTrekEvent({
         ...trekEvent,
         current_participants: newParticipantCount
       });
       
-      // Fetch the created registration
       await checkUserRegistration(trekEvent.trek_id);
       
       toast({
@@ -200,7 +190,6 @@ export default function TrekEventDetails() {
     try {
       setRegistering(true);
       
-      // Update registration to cancelled
       const { error: updateRegError } = await supabase
         .from('registrations')
         .update({ 
@@ -213,7 +202,6 @@ export default function TrekEventDetails() {
         throw updateRegError;
       }
 
-      // Update current participants count
       const newParticipantCount = Math.max((trekEvent.current_participants || 0) - 1, 0);
       const { error: updateTrekError } = await supabase
         .from('trek_events')
@@ -224,13 +212,11 @@ export default function TrekEventDetails() {
         throw updateTrekError;
       }
 
-      // Update local state
       setTrekEvent({
         ...trekEvent,
         current_participants: newParticipantCount
       });
       
-      // Update registration status
       setUserRegistration({
         ...userRegistration,
         payment_status: 'Cancelled'
