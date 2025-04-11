@@ -80,7 +80,7 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
         .from('expense_sharing')
         .insert({
           trek_id: trekId,
-          payer_id: user.id, // This should be a string UUID
+          payer_id: user.id, // This is already a UUID string
           amount,
           description: formData.description,
           settlement_status: 'Pending',
