@@ -134,7 +134,7 @@ export function useTrekEvent(trekId: string | undefined) {
         return false;
       }
 
-      // Insert registration with explicit type for user_id
+      // Insert registration with explicit type cast for user_id
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
