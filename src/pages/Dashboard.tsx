@@ -72,7 +72,7 @@ export default function Dashboard() {
             category
           )
         `)
-        .eq('user_id', user.id) // user.id is a string UUID
+        .eq('user_id', user.id as any)
         .eq('payment_status', 'Pending')
         .order('booking_datetime', { ascending: false });
       
@@ -112,7 +112,7 @@ export default function Dashboard() {
           trek_id,
           trek_events(trek_name)
         `)
-        .eq('payer_id', user.id) // user.id is a string UUID
+        .eq('payer_id', user.id as any)
         .order('expense_date', { ascending: false });
       
       if (payerError) throw payerError;

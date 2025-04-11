@@ -86,12 +86,11 @@ export function useTrekEvent(trekId: string | undefined) {
     if (!user) return;
     
     try {
-      // Using string for user_id and explicitly casting trekId to number
       const { data, error } = await supabase
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', user.id) // user.id is a string UUID
+        .eq('user_id', user.id as any) // Using type assertion to bypass the string/number type mismatch
         .maybeSingle();
       
       if (error) {
@@ -140,9 +139,10 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: user.id, // This is already a string UUID
-          payment_status: 'Pending'
-        } as any); // Using 'any' to bypass type checking for now
+          user_id: user.id as any, // Using type assertion to bypass type checking
+          payment_status: 'Pending',
+          booking_datetime: new Date().toISOString()
+        } as any);
       
       if (registrationError) {
         throw registrationError;
