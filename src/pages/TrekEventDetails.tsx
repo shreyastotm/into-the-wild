@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase } from "@/integrations/supabase/client";
+import { supabase, WithStringId } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -102,11 +102,11 @@ export default function TrekEventDetails() {
       }
       
       if (data) {
-        // Convert data to Registration type and ensure user_id is string
-        const registration = {
+        // Ensure user_id is treated as string
+        const registration: Registration = {
           ...data,
           user_id: data.user_id.toString()
-        } as Registration;
+        };
         setUserRegistration(registration);
       }
     } catch (error: any) {
@@ -141,6 +141,7 @@ export default function TrekEventDetails() {
       }
 
       // Create a registration
+      // Need to cast user.id as unknown first before converting to number to avoid direct string-to-number conversion error
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
