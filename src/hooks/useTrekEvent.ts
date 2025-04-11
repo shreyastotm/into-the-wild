@@ -27,7 +27,7 @@ interface TrekEvent {
 interface DbRegistration {
   registration_id: number;
   trek_id: number;
-  user_id: number;
+  user_id: string; // Changed to string to match the UUID format
   booking_datetime: string;
   payment_status: 'Pending' | 'Paid' | 'Cancelled';
   cancellation_datetime?: string | null;
@@ -90,7 +90,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', user.id)
+        .eq('user_id', user.id) // user.id is already a string UUID
         .maybeSingle();
       
       if (error) {
@@ -98,10 +98,7 @@ export function useTrekEvent(trekId: string | undefined) {
       }
       
       if (data) {
-        setUserRegistration({
-          ...data,
-          user_id: String(data.user_id)
-        } as Registration);
+        setUserRegistration(data as Registration);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
@@ -136,7 +133,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: user.id,
+          user_id: user.id, // This is already a string UUID
           payment_status: 'Pending'
         });
       

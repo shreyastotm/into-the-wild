@@ -73,7 +73,7 @@ export default function Dashboard() {
             category
           )
         `)
-        .eq('user_id', user.id)
+        .eq('user_id', user.id) // user.id is already a string UUID
         .eq('payment_status', 'Pending')
         .order('booking_datetime', { ascending: false });
       
@@ -113,7 +113,7 @@ export default function Dashboard() {
           trek_id,
           trek_events(trek_name)
         `)
-        .eq('payer_id', user.id)
+        .eq('payer_id', user.id) // user.id is already a string UUID
         .order('expense_date', { ascending: false });
       
       if (payerError) throw payerError;

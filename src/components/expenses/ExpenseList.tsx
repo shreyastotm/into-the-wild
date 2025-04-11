@@ -61,7 +61,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
           amount: item.amount,
           expense_date: item.expense_date,
           settlement_status: item.settlement_status,
-          payer_id: item.payer_id,
+          payer_id: item.payer_id.toString(), // Convert to string to match our interface
           payer_name: item.payer?.full_name || 'Unknown'
         }));
         
