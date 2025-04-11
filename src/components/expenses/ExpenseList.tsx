@@ -46,7 +46,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
           expense_date,
           settlement_status,
           payer_id,
-          payer:users(full_name)
+          users:payer_id (full_name)
         `)
         .eq('trek_id', trekId)
         .order('expense_date', { ascending: false });
@@ -62,7 +62,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
           expense_date: item.expense_date,
           settlement_status: item.settlement_status,
           payer_id: item.payer_id?.toString() || '', // Convert to string to match the interface
-          payer_name: item.payer ? item.payer.full_name : 'Unknown' // Handle potential null safely
+          payer_name: item.users ? (item.users as any).full_name : 'Unknown' // Type assertion to handle the relation
         }));
         
         setExpenses(transformedData);
@@ -85,7 +85,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
         .from('registrations')
         .select(`
           user_id,
-          users(full_name)
+          profiles:user_id (full_name)
         `)
         .eq('trek_id', trekId)
         .eq('payment_status', 'Pending');
@@ -94,10 +94,10 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
       
       if (data) {
         const participantsList = data
-          .filter(item => item.users) // Filter out any null users
+          .filter(item => item.profiles) // Filter out any null profiles
           .map(item => ({
             user_id: item.user_id?.toString() || '', // Convert to string to ensure type consistency
-            full_name: item.users ? item.users.full_name : 'Unknown' // Handle potential null safely
+            full_name: item.profiles ? (item.profiles as any).full_name : 'Unknown' // Type assertion for the relation
           }));
         
         setParticipants(participantsList);
