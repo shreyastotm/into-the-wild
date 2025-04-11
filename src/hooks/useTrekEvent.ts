@@ -90,7 +90,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', user.id as any) // Using type assertion to bypass the string/number type mismatch
+        .eq('user_id', user.id as string) // Explicit cast to string
         .maybeSingle();
       
       if (error) {
@@ -134,15 +134,15 @@ export function useTrekEvent(trekId: string | undefined) {
         return false;
       }
 
-      // Using type assertion to handle the string/number type mismatch
+      // Insert registration with explicit type for user_id
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: user.id as any, // Using type assertion to bypass type checking
+          user_id: user.id as string,
           payment_status: 'Pending',
           booking_datetime: new Date().toISOString()
-        } as any);
+        });
       
       if (registrationError) {
         throw registrationError;

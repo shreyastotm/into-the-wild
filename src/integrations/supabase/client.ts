@@ -13,7 +13,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 
 // Helper type that converts UUID strings to string in Supabase responses
 export type WithStringId<T> = {
-  [K in keyof T]: K extends 'user_id' ? string : T[K];
+  [K in keyof T]: K extends 'user_id' | 'payer_id' ? string : T[K];
 };
 
 // Helper functions for working with UUIDs - we no longer need these since
