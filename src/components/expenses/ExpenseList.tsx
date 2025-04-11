@@ -13,7 +13,7 @@ interface Expense {
   amount: number;
   expense_date: string;
   settlement_status: string;
-  payer_id: string;  // Changed from number to string to match Supabase UUID format
+  payer_id: string;  // String to match Supabase UUID format
   payer_name?: string;
 }
 
@@ -46,7 +46,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
           expense_date,
           settlement_status,
           payer_id,
-          users:payer_id (full_name)
+          profiles:payer_id (full_name)
         `)
         .eq('trek_id', trekId)
         .order('expense_date', { ascending: false });
@@ -62,7 +62,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
           expense_date: item.expense_date,
           settlement_status: item.settlement_status,
           payer_id: item.payer_id?.toString() || '', // Convert to string to match the interface
-          payer_name: item.users ? (item.users as any).full_name : 'Unknown' // Type assertion to handle the relation
+          payer_name: item.profiles ? (item.profiles as any).full_name : 'Unknown' // Type assertion to handle the relation
         }));
         
         setExpenses(transformedData);
@@ -85,7 +85,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
         .from('registrations')
         .select(`
           user_id,
-          profiles:user_id (full_name)
+          users:user_id (full_name)
         `)
         .eq('trek_id', trekId)
         .eq('payment_status', 'Pending');
@@ -94,10 +94,10 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
       
       if (data) {
         const participantsList = data
-          .filter(item => item.profiles) // Filter out any null profiles
+          .filter(item => item.users) // Filter out any null users
           .map(item => ({
             user_id: item.user_id?.toString() || '', // Convert to string to ensure type consistency
-            full_name: item.profiles ? (item.profiles as any).full_name : 'Unknown' // Type assertion for the relation
+            full_name: item.users ? (item.users as any).full_name : 'Unknown' // Type assertion for the relation
           }));
         
         setParticipants(participantsList);

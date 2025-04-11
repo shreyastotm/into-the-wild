@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -72,7 +73,7 @@ export default function Dashboard() {
             category
           )
         `)
-        .eq('user_id', user.id) // user.id is already a string UUID
+        .eq('user_id', user.id) // user.id is a string UUID
         .eq('payment_status', 'Pending')
         .order('booking_datetime', { ascending: false });
       
@@ -112,7 +113,7 @@ export default function Dashboard() {
           trek_id,
           trek_events(trek_name)
         `)
-        .eq('payer_id', user.id) // user.id is already a string UUID
+        .eq('payer_id', user.id) // user.id is a string UUID
         .order('expense_date', { ascending: false });
       
       if (payerError) throw payerError;

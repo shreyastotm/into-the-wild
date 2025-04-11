@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase, WithStringId } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -139,7 +140,7 @@ export function useTrekEvent(trekId: string | undefined) {
           trek_id: trekEvent.trek_id,
           user_id: user.id, // This is already a string UUID
           payment_status: 'Pending'
-        });
+        } as any); // Type assertion to bypass type checking
       
       if (registrationError) {
         throw registrationError;
