@@ -1,8 +1,8 @@
-
 import { useState, useEffect } from 'react';
-import { supabase, WithStringId } from "@/integrations/supabase/client";
+import { supabase, WithStringId, convertDbRecordToStringIds } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
+import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 interface TrekEvent {
   trek_id: number;
@@ -24,11 +24,10 @@ interface TrekEvent {
   partner_id: number | null;
 }
 
-// Update the DbRegistration interface to use number for user_id to match the database
 interface DbRegistration {
   registration_id: number;
   trek_id: number;
-  user_id: number; // Changed to number to match database schema
+  user_id: number;
   booking_datetime: string;
   payment_status: 'Pending' | 'Paid' | 'Cancelled';
   cancellation_datetime?: string | null;
@@ -91,7 +90,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', parseInt(user.id)) // Parse user.id to number
+        .eq('user_id', userIdToNumber(user.id))
         .maybeSingle();
       
       if (error) {
@@ -99,8 +98,7 @@ export function useTrekEvent(trekId: string | undefined) {
       }
       
       if (data) {
-        // The WithStringId utility should handle the string conversion
-        setUserRegistration(data as unknown as Registration);
+        setUserRegistration(convertDbRecordToStringIds(data as DbRegistration));
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
@@ -131,12 +129,11 @@ export function useTrekEvent(trekId: string | undefined) {
         return false;
       }
 
-      // Insert registration with explicit conversion to number for user_id
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: parseInt(user.id), // Convert user.id to number
+          user_id: userIdToNumber(user.id),
           payment_status: 'Pending',
           booking_datetime: new Date().toISOString()
         });

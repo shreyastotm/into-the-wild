@@ -11,10 +11,26 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
 
-// Helper type that converts UUID strings to string in Supabase responses
+/**
+ * Helper type that converts numeric IDs to string in Supabase responses
+ * This is useful for fields like user_id that might come as numbers from the database
+ * but need to be treated as strings in the application
+ */
 export type WithStringId<T> = {
   [K in keyof T]: K extends 'user_id' | 'payer_id' ? string : T[K];
 };
 
-// Helper functions for working with UUIDs - we no longer need these since
-// we're treating all IDs as strings throughout the application
+/**
+ * Converts database record ID fields to strings for frontend usage
+ * This ensures consistent type handling across the application
+ */
+export const convertDbRecordToStringIds = <T extends Record<string, any>>(record: T): WithStringId<T> => {
+  const result = { ...record } as WithStringId<T>;
+  if ('user_id' in record) {
+    result.user_id = String(record.user_id);
+  }
+  if ('payer_id' in record) {
+    result.payer_id = String(record.payer_id);
+  }
+  return result;
+};
