@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase, parseUserId } from "@/integrations/supabase/client";
@@ -7,8 +6,9 @@ import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowRight, CalendarCheck, UserCircle } from 'lucide-react';
+import { ArrowRight, CalendarCheck, IndianRupee, UserCircle } from 'lucide-react';
 import { UpcomingTreks } from '@/components/trek/UpcomingTreks';
+import { formatCurrency } from '@/lib/utils';
 
 interface Registration {
   registration_id: number;
@@ -22,11 +22,24 @@ interface Registration {
   };
 }
 
+interface Expense {
+  expense_id: number;
+  description: string;
+  amount: number;
+  trek_id: number;
+  trek_name: string;
+  expense_date: string;
+  settlement_status: string;
+  payer_name: string;
+}
+
 export default function Dashboard() {
   const { user, userProfile, loading } = useAuth();
   const navigate = useNavigate();
   const [registrations, setRegistrations] = useState<Registration[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
   const [loadingRegistrations, setLoadingRegistrations] = useState(true);
+  const [loadingExpenses, setLoadingExpenses] = useState(true);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -36,6 +49,7 @@ export default function Dashboard() {
 
     if (user) {
       fetchUserRegistrations();
+      fetchUserExpenses();
     }
   }, [user, loading]);
 
@@ -81,6 +95,54 @@ export default function Dashboard() {
     }
   };
 
+  const fetchUserExpenses = async () => {
+    if (!user) return;
+    
+    try {
+      setLoadingExpenses(true);
+      
+      const { data: payerExpenses, error: payerError } = await supabase
+        .from('expense_sharing')
+        .select(`
+          expense_id,
+          description,
+          amount,
+          expense_date,
+          settlement_status,
+          trek_id,
+          trek_events(trek_name)
+        `)
+        .eq('payer_id', user.id)
+        .order('expense_date', { ascending: false });
+      
+      if (payerError) throw payerError;
+      
+      if (payerExpenses) {
+        const transformedExpenses = payerExpenses.map(expense => ({
+          expense_id: expense.expense_id,
+          description: expense.description,
+          amount: expense.amount,
+          trek_id: expense.trek_id,
+          trek_name: expense.trek_events?.trek_name || 'Unknown Trek',
+          expense_date: expense.expense_date,
+          settlement_status: expense.settlement_status,
+          payer_name: userProfile?.full_name || user.email || 'You'
+        }));
+        
+        setExpenses(transformedExpenses);
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error loading expenses",
+        description: error.message || "Failed to load your expenses",
+        variant: "destructive",
+      });
+      console.error("Error fetching expenses:", error);
+    } finally {
+      setLoadingExpenses(false);
+    }
+  };
+
   if (loading) {
     return <div className="container mx-auto px-4 py-8 text-center">Loading...</div>;
   }
@@ -100,6 +162,7 @@ export default function Dashboard() {
             <TabsList className="mb-4">
               <TabsTrigger value="upcoming">Upcoming Treks</TabsTrigger>
               <TabsTrigger value="registered">Your Registrations</TabsTrigger>
+              <TabsTrigger value="expenses">Your Expenses</TabsTrigger>
             </TabsList>
             
             <TabsContent value="upcoming">
@@ -174,6 +237,60 @@ export default function Dashboard() {
                 </CardContent>
               </Card>
             </TabsContent>
+            
+            <TabsContent value="expenses">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Your Expenses</CardTitle>
+                  <CardDescription>
+                    Track expenses you've shared for treks
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  {loadingExpenses ? (
+                    <div className="text-center py-4">Loading your expenses...</div>
+                  ) : expenses.length === 0 ? (
+                    <div className="text-center py-4">
+                      <p className="text-gray-500 mb-4">You haven't added any expenses yet</p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4">
+                      {expenses.map((expense) => (
+                        <div 
+                          key={expense.expense_id}
+                          className="border rounded-lg p-4 hover:bg-gray-50 cursor-pointer"
+                          onClick={() => navigate(`/trek-events/${expense.trek_id}`)}
+                        >
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-semibold">{expense.description}</h3>
+                            <span className={`text-xs px-2 py-1 rounded-full ${
+                              expense.settlement_status === 'Settled' 
+                                ? 'bg-green-100 text-green-800' 
+                                : 'bg-yellow-100 text-yellow-800'
+                            }`}>
+                              {expense.settlement_status}
+                            </span>
+                          </div>
+                          <div className="text-sm text-gray-600">
+                            <p className="flex items-center font-medium">
+                              <IndianRupee className="h-4 w-4 mr-2" />
+                              {formatCurrency(expense.amount)}
+                            </p>
+                            <p className="mt-1">Trek: {expense.trek_name}</p>
+                            <p className="mt-1">Date: {new Date(expense.expense_date).toLocaleDateString()}</p>
+                          </div>
+                          <div className="mt-3 flex justify-end">
+                            <Button variant="ghost" size="sm" className="text-xs">
+                              View Details <ArrowRight className="ml-1 h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
           </Tabs>
         </div>
 
@@ -214,4 +331,4 @@ export default function Dashboard() {
       </div>
     </div>
   );
-};
+}

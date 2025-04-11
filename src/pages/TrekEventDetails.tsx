@@ -1,16 +1,19 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTrekEvent } from '@/hooks/useTrekEvent';
 import { TrekEventHeader } from '@/components/trek/TrekEventHeader';
 import { TrekEventDetailsComponent } from '@/components/trek/TrekEventDetails';
 import { RegistrationCard } from '@/components/trek/RegistrationCard';
+import { ExpenseList } from '@/components/expenses/ExpenseList';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState("details");
   
   const {
     trekEvent,
@@ -45,18 +48,31 @@ export default function TrekEventDetails() {
         <div className="md:col-span-2">
           <Card>
             <CardHeader>
-              {/* Header is now part of the TrekEventHeader component shown above the grid */}
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                <TabsList className="grid grid-cols-2">
+                  <TabsTrigger value="details">Details</TabsTrigger>
+                  <TabsTrigger value="expenses">Expenses</TabsTrigger>
+                </TabsList>
+              </Tabs>
             </CardHeader>
             <CardContent>
-              <TrekEventDetailsComponent 
-                description={trekEvent.description}
-                duration={trekEvent.duration}
-                transportMode={trekEvent.transport_mode}
-                maxParticipants={trekEvent.max_participants}
-                currentParticipants={trekEvent.current_participants}
-                pickupTimeWindow={trekEvent.pickup_time_window}
-                cancellationPolicy={trekEvent.cancellation_policy}
-              />
+              <TabsContent value="details" className="mt-0">
+                <TrekEventDetailsComponent 
+                  description={trekEvent.description}
+                  duration={trekEvent.duration}
+                  transportMode={trekEvent.transport_mode}
+                  maxParticipants={trekEvent.max_participants}
+                  currentParticipants={trekEvent.current_participants}
+                  pickupTimeWindow={trekEvent.pickup_time_window}
+                  cancellationPolicy={trekEvent.cancellation_policy}
+                />
+              </TabsContent>
+              <TabsContent value="expenses" className="mt-0">
+                <ExpenseList 
+                  trekId={trekEvent.trek_id} 
+                  isRegistered={isRegistered && !isCancelled} 
+                />
+              </TabsContent>
             </CardContent>
           </Card>
         </div>
