@@ -1,6 +1,7 @@
+
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { supabase, WithStringId } from "@/integrations/supabase/client";
+import { supabase, WithStringId, parseUserId } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
@@ -95,7 +96,7 @@ export default function TrekEventDetails() {
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', parseInt(user.id))
+        .eq('user_id', parseUserId(user.id))
         .maybeSingle();
       
       if (error) {
@@ -142,7 +143,7 @@ export default function TrekEventDetails() {
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: parseInt(user.id),
+          user_id: parseUserId(user.id),
           payment_status: 'Pending'
         });
       

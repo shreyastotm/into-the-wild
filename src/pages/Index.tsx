@@ -1,6 +1,5 @@
 
 import { useNavigate } from 'react-router-dom';
-import Layout from '../components/Layout';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
 
@@ -17,7 +16,7 @@ const Index = () => {
   };
 
   return (
-    <Layout>
+    <div className="container mx-auto px-4">
       <div className="flex flex-col items-center justify-center py-12">
         <h1 className="text-4xl font-bold text-center mb-4">Into the Wild</h1>
         <h2 className="text-2xl font-semibold text-center mb-6">Trekking Community Platform</h2>
@@ -60,7 +59,7 @@ const Index = () => {
           </div>
         </div>
       </div>
-    </Layout>
+    </div>
   );
 };
 

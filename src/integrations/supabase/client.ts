@@ -15,3 +15,12 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
 export type WithStringId<T> = {
   [K in keyof T]: K extends 'user_id' ? string : T[K];
 };
+
+// Helper functions for converting between database and application types
+export const parseUserId = (userId: string): number => {
+  return parseInt(userId);
+};
+
+export const stringifyUserId = (userId: number): string => {
+  return String(userId);
+};
