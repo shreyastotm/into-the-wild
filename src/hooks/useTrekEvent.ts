@@ -90,7 +90,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', user.id as string) // Explicit cast to string
+        .eq('user_id', user.id)
         .maybeSingle();
       
       if (error) {
@@ -98,12 +98,7 @@ export function useTrekEvent(trekId: string | undefined) {
       }
       
       if (data) {
-        // Ensure we're working with a string user_id
-        const registration = {
-          ...data,
-          user_id: data.user_id.toString()
-        } as Registration;
-        setUserRegistration(registration);
+        setUserRegistration(data as Registration);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
@@ -139,10 +134,10 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: user.id as string,
+          user_id: user.id,
           payment_status: 'Pending',
           booking_datetime: new Date().toISOString()
-        } as any); // Type assertion to bypass TypeScript checking
+        });
       
       if (registrationError) {
         throw registrationError;
