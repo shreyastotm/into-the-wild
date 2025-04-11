@@ -24,10 +24,11 @@ interface TrekEvent {
   partner_id: number | null;
 }
 
+// Update the DbRegistration interface to use number for user_id to match the database
 interface DbRegistration {
   registration_id: number;
   trek_id: number;
-  user_id: string; // Changed to string to match the UUID format
+  user_id: number; // Changed to number to match database schema
   booking_datetime: string;
   payment_status: 'Pending' | 'Paid' | 'Cancelled';
   cancellation_datetime?: string | null;
@@ -90,7 +91,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', user.id)
+        .eq('user_id', parseInt(user.id)) // Parse user.id to number
         .maybeSingle();
       
       if (error) {
@@ -98,7 +99,8 @@ export function useTrekEvent(trekId: string | undefined) {
       }
       
       if (data) {
-        setUserRegistration(data as Registration);
+        // The WithStringId utility should handle the string conversion
+        setUserRegistration(data as unknown as Registration);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
@@ -129,12 +131,12 @@ export function useTrekEvent(trekId: string | undefined) {
         return false;
       }
 
-      // Insert registration with explicit type cast for user_id
+      // Insert registration with explicit conversion to number for user_id
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: user.id,
+          user_id: parseInt(user.id), // Convert user.id to number
           payment_status: 'Pending',
           booking_datetime: new Date().toISOString()
         });
