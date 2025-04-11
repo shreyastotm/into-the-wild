@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { supabase, parseUserId, WithStringId } from "@/integrations/supabase/client";
+import { supabase, WithStringId } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
 
@@ -90,7 +90,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', parseUserId(user.id))
+        .eq('user_id', user.id)
         .maybeSingle();
       
       if (error) {
@@ -136,7 +136,7 @@ export function useTrekEvent(trekId: string | undefined) {
         .from('registrations')
         .insert({
           trek_id: trekEvent.trek_id,
-          user_id: parseUserId(user.id),
+          user_id: user.id,
           payment_status: 'Pending'
         });
       

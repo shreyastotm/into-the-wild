@@ -96,7 +96,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
         const participantsList = data
           .filter(item => item.users) // Filter out any null users
           .map(item => ({
-            user_id: item.user_id,
+            user_id: item.user_id.toString(), // Convert to string to ensure type consistency
             full_name: item.users?.full_name || 'Unknown'
           }));
         

@@ -42,7 +42,7 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
         description: "You must be logged in to add expenses",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     if (!formData.description || !formData.amount) {
@@ -51,7 +51,7 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
         description: "Please provide a description and amount",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     const amount = parseFloat(formData.amount);
@@ -61,7 +61,7 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
         description: "Please enter a valid amount greater than zero",
         variant: "destructive",
       });
-      return;
+      return false;
     }
 
     try {
