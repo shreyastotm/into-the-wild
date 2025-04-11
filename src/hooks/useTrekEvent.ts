@@ -86,11 +86,12 @@ export function useTrekEvent(trekId: string | undefined) {
     if (!user) return;
     
     try {
+      // Using string for user_id and explicitly casting trekId to number
       const { data, error } = await supabase
         .from('registrations')
         .select('*')
         .eq('trek_id', trekId)
-        .eq('user_id', user.id) // user.id is already a string UUID
+        .eq('user_id', user.id) // user.id is a string UUID
         .maybeSingle();
       
       if (error) {
