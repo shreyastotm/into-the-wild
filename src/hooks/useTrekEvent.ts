@@ -140,7 +140,7 @@ export function useTrekEvent(trekId: string | undefined) {
           trek_id: trekEvent.trek_id,
           user_id: user.id, // This is already a string UUID
           payment_status: 'Pending'
-        } as any); // Type assertion to bypass type checking
+        } as Omit<DbRegistration, 'registration_id' | 'booking_datetime'>);
       
       if (registrationError) {
         throw registrationError;
