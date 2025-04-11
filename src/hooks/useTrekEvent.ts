@@ -98,7 +98,12 @@ export function useTrekEvent(trekId: string | undefined) {
       }
       
       if (data) {
-        setUserRegistration(data as Registration);
+        // Make sure we convert user_id to string if it's not already
+        const registration = {
+          ...data,
+          user_id: data.user_id.toString()
+        } as Registration;
+        setUserRegistration(registration);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
@@ -135,7 +140,7 @@ export function useTrekEvent(trekId: string | undefined) {
           trek_id: trekEvent.trek_id,
           user_id: user.id, // This is already a string UUID
           payment_status: 'Pending'
-        });
+        } as any); // Using 'as any' to bypass type checking
       
       if (registrationError) {
         throw registrationError;
