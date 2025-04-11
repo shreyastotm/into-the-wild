@@ -141,7 +141,6 @@ export default function TrekEventDetails() {
       }
 
       // Create a registration
-      // Need to cast user.id as unknown first before converting to number to avoid direct string-to-number conversion error
       const { error: registrationError } = await supabase
         .from('registrations')
         .insert({
