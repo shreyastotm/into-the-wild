@@ -13,7 +13,7 @@ interface Expense {
   amount: number;
   expense_date: string;
   settlement_status: string;
-  payer_id: string;
+  payer_id: string;  // Changed from number to string to match Supabase UUID format
   payer_name?: string;
 }
 
@@ -46,7 +46,7 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
           expense_date,
           settlement_status,
           payer_id,
-          users:payer_id (full_name)
+          payer:users(full_name)
         `)
         .eq('trek_id', trekId)
         .order('expense_date', { ascending: false });
@@ -55,14 +55,14 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
       
       if (data) {
         // Transform the data to match our Expense interface
-        const transformedData = data.map(item => ({
+        const transformedData: Expense[] = data.map(item => ({
           expense_id: item.expense_id,
           description: item.description,
           amount: item.amount,
           expense_date: item.expense_date,
           settlement_status: item.settlement_status,
           payer_id: item.payer_id,
-          payer_name: item.users?.full_name || 'Unknown'
+          payer_name: item.payer?.full_name || 'Unknown'
         }));
         
         setExpenses(transformedData);
@@ -84,10 +84,8 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
       const { data, error } = await supabase
         .from('registrations')
         .select(`
-          users:user_id (
-            user_id,
-            full_name
-          )
+          user_id,
+          users(full_name)
         `)
         .eq('trek_id', trekId)
         .eq('payment_status', 'Pending');
@@ -96,11 +94,10 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }
       
       if (data) {
         const participantsList = data
-          .map(item => item.users)
-          .filter(Boolean)
-          .map(user => ({
-            user_id: user.user_id,
-            full_name: user.full_name
+          .filter(item => item.users) // Filter out any null users
+          .map(item => ({
+            user_id: item.user_id,
+            full_name: item.users?.full_name || 'Unknown'
           }));
         
         setParticipants(participantsList);

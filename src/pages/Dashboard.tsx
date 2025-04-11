@@ -72,7 +72,7 @@ export default function Dashboard() {
             category
           )
         `)
-        .eq('user_id', parseUserId(user.id))
+        .eq('user_id', user.id)
         .eq('payment_status', 'Pending')
         .order('booking_datetime', { ascending: false });
       
