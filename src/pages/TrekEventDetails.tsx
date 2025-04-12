@@ -37,6 +37,13 @@ export default function TrekEventDetails() {
   const isRegistered = userRegistration !== null;
   const isCancelled = userRegistration?.payment_status === 'Cancelled';
 
+  // Sample pickup locations - in a real app, this would come from the API
+  const samplePickupLocations = [
+    { id: '1', location: 'City Center Bus Stand (6:00 AM)' },
+    { id: '2', location: 'Railway Station Entrance (6:30 AM)' },
+    { id: '3', location: 'Airport Terminal 2 (7:00 AM)' }
+  ];
+
   return (
     <div className="container mx-auto px-4 py-8">
       <TrekEventHeader 
@@ -73,6 +80,8 @@ export default function TrekEventDetails() {
                 <TravelCoordination
                   transportMode={trekEvent.transport_mode}
                   pickupTimeWindow={trekEvent.pickup_time_window}
+                  pickupLocations={isRegistered && !isCancelled ? samplePickupLocations : null}
+                  additionalNotes={isRegistered && !isCancelled ? "Please arrive 15 minutes before the scheduled pickup time. Carry water and light snacks for the journey." : null}
                   isRegistered={isRegistered && !isCancelled}
                 />
               </TabsContent>
