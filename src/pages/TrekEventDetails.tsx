@@ -9,6 +9,7 @@ import { TrekEventHeader } from '@/components/trek/TrekEventHeader';
 import { TrekEventDetailsComponent } from '@/components/trek/TrekEventDetails';
 import { RegistrationCard } from '@/components/trek/RegistrationCard';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
+import { TravelCoordination } from '@/components/trek/TravelCoordination';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -49,8 +50,9 @@ export default function TrekEventDetails() {
           <Card>
             <CardHeader>
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <TabsList className="grid grid-cols-2">
+                <TabsList className="grid grid-cols-3">
                   <TabsTrigger value="details">Details</TabsTrigger>
+                  <TabsTrigger value="travel">Travel</TabsTrigger>
                   <TabsTrigger value="expenses">Expenses</TabsTrigger>
                 </TabsList>
               </Tabs>
@@ -65,6 +67,13 @@ export default function TrekEventDetails() {
                   currentParticipants={trekEvent.current_participants}
                   pickupTimeWindow={trekEvent.pickup_time_window}
                   cancellationPolicy={trekEvent.cancellation_policy}
+                />
+              </TabsContent>
+              <TabsContent value="travel" className="mt-0">
+                <TravelCoordination
+                  transportMode={trekEvent.transport_mode}
+                  pickupTimeWindow={trekEvent.pickup_time_window}
+                  isRegistered={isRegistered && !isCancelled}
                 />
               </TabsContent>
               <TabsContent value="expenses" className="mt-0">
