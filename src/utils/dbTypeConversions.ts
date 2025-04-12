@@ -46,6 +46,7 @@ export const isValidUserId = (userId: any): boolean => {
  * Useful for maintaining consistent types throughout the application
  */
 export const standardizeIds = <T extends Record<string, any>>(data: T): T => {
+  // Create an intermediate result object without type restrictions
   const result: Record<string, any> = { ...data };
   
   // Convert ID fields to their expected types
@@ -57,5 +58,6 @@ export const standardizeIds = <T extends Record<string, any>>(data: T): T => {
     }
   }
   
+  // Cast back to the original type
   return result as T;
 };
