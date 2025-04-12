@@ -45,12 +45,11 @@ export const isValidUserId = (userId: any): boolean => {
  * A helper function to standardize ID types in API responses
  * Useful for maintaining consistent types throughout the application
  */
-export const standardizeIds = <T extends Record<string, any>>(data: T): Record<string, any> => {
-  // Create an intermediate result object without type restrictions
+export const standardizeIds = <T extends Record<string, any>>(data: T): T => {
+  // Create an intermediate result object with a more flexible type
   const result: Record<string, any> = { ...data };
   
   // Convert ID fields to their expected types
-  // Add more fields as needed
   for (const key in result) {
     if (key.endsWith('_id') && result[key] !== null && result[key] !== undefined) {
       // For frontend use, convert to string
