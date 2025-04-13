@@ -17,18 +17,16 @@ function App() {
   return (
     <AuthProvider>
       <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/profile" element={<Profile />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-            <Route path="/trek-events" element={<TrekEvents />} />
-            <Route path="/trek-events/:id" element={<TrekEventDetails />} />
-            <Route path="/trek-events/create" element={<CreateTrekEvent />} />
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </Layout>
+        <Routes>
+          <Route path="/" element={<Layout><Index /></Layout>} />
+          <Route path="/auth" element={<Layout><Auth /></Layout>} />
+          <Route path="/profile" element={<Layout><Profile /></Layout>} />
+          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
+          <Route path="/trek-events" element={<Layout><TrekEvents /></Layout>} />
+          <Route path="/trek-events/:id" element={<Layout><TrekEventDetails /></Layout>} />
+          <Route path="/trek-events/create" element={<Layout><CreateTrekEvent /></Layout>} />
+          <Route path="*" element={<Layout><NotFound /></Layout>} />
+        </Routes>
         <Toaster />
       </Router>
     </AuthProvider>
