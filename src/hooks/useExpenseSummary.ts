@@ -9,9 +9,6 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Using a simple primitive type instead of an interface to avoid deep type inference
-type ExpenseAmountRecord = { amount: number | null };
-
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -38,7 +35,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid - Using explicit any to avoid type inference issues
+      // Calculate total paid - Use the most basic approach possible
       const paidResponse = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -46,19 +43,22 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (paidResponse.error) throw paidResponse.error;
       
-      // Use simple primitive-based approach to sum amounts
+      // Manual summation without any complex type handling
       let totalPaid = 0;
       if (paidResponse.data) {
-        // Cast to a simple array without complex type inference
-        const data = paidResponse.data as any[];
-        for (let i = 0; i < data.length; i++) {
-          if (data[i] && data[i].amount != null) {
-            totalPaid += Number(data[i].amount);
+        const dataArray = paidResponse.data;
+        for (let i = 0; i < dataArray.length; i++) {
+          const item = dataArray[i];
+          if (item && typeof item === 'object' && 'amount' in item) {
+            const amount = item.amount;
+            if (amount !== null && amount !== undefined) {
+              totalPaid += Number(amount);
+            }
           }
         }
       }
       
-      // Calculate total owed - Using explicit any to avoid type inference issues
+      // Calculate total owed - Use the most basic approach possible
       const owedResponse = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -67,14 +67,17 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (owedResponse.error) throw owedResponse.error;
       
-      // Use simple primitive-based approach to sum amounts
+      // Manual summation without any complex type handling
       let totalOwed = 0;
       if (owedResponse.data) {
-        // Cast to a simple array without complex type inference
-        const data = owedResponse.data as any[];
-        for (let i = 0; i < data.length; i++) {
-          if (data[i] && data[i].amount != null) {
-            totalOwed += Number(data[i].amount);
+        const dataArray = owedResponse.data;
+        for (let i = 0; i < dataArray.length; i++) {
+          const item = dataArray[i];
+          if (item && typeof item === 'object' && 'amount' in item) {
+            const amount = item.amount;
+            if (amount !== null && amount !== undefined) {
+              totalOwed += Number(amount);
+            }
           }
         }
       }
