@@ -35,42 +35,40 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid using raw query
-      const paidQuery = await supabase
+      // Calculate total paid
+      const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
         
-      if (paidQuery.error) throw paidQuery.error;
+      if (paidError) throw paidError;
       
-      // Explicitly define the type to avoid deep type instantiation
-      type ExpenseRecord = { amount: number | null };
-      const paidData = (paidQuery.data || []) as ExpenseRecord[];
-      
+      // Manually calculate sum without complex typing
       let totalPaid = 0;
-      for (let i = 0; i < paidData.length; i++) {
-        const item = paidData[i];
-        if (item && item.amount != null) {
-          totalPaid += Number(item.amount);
+      if (paidData && Array.isArray(paidData)) {
+        for (let i = 0; i < paidData.length; i++) {
+          if (paidData[i] && typeof paidData[i].amount !== 'undefined' && paidData[i].amount !== null) {
+            totalPaid += Number(paidData[i].amount);
+          }
         }
       }
       
-      // Calculate total owed using raw query
-      const owedQuery = await supabase
+      // Calculate total owed
+      const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
         
-      if (owedQuery.error) throw owedQuery.error;
+      if (owedError) throw owedError;
       
-      const owedData = (owedQuery.data || []) as ExpenseRecord[];
-      
+      // Manually calculate sum without complex typing
       let totalOwed = 0;
-      for (let i = 0; i < owedData.length; i++) {
-        const item = owedData[i];
-        if (item && item.amount != null) {
-          totalOwed += Number(item.amount);
+      if (owedData && Array.isArray(owedData)) {
+        for (let i = 0; i < owedData.length; i++) {
+          if (owedData[i] && typeof owedData[i].amount !== 'undefined' && owedData[i].amount !== null) {
+            totalOwed += Number(owedData[i].amount);
+          }
         }
       }
       
