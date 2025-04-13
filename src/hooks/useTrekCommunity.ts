@@ -77,7 +77,7 @@ export function useTrekCommunity(trekId: string | undefined) {
         // Fetch user details for all participants
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('user_id, full_name, avatar_url')
+          .select('user_id, full_name')
           .in('user_id', userIdsAsStrings);
           
         if (userError) {
@@ -86,7 +86,7 @@ export function useTrekCommunity(trekId: string | undefined) {
         }
         
         // Create a map of user IDs to user data for easy lookup
-        const userMap = {};
+        const userMap: Record<string, any> = {};
         
         if (userData && Array.isArray(userData)) {
           userData.forEach(user => {
@@ -105,7 +105,7 @@ export function useTrekCommunity(trekId: string | undefined) {
           return {
             id: String(item.user_id),
             name: userDetails.full_name || null,
-            avatar: userDetails.avatar_url || null,
+            avatar: null, // Since avatar_url doesn't exist, we'll set it to null
             joinedAt: item.booking_datetime,
             isEventCreator: isCreator || false
           };
@@ -159,7 +159,7 @@ export function useTrekCommunity(trekId: string | undefined) {
         // Fetch user details for comment authors
         const { data: userData, error: userError } = await supabase
           .from('users')
-          .select('user_id, full_name, avatar_url')
+          .select('user_id, full_name')
           .in('user_id', userIdsAsStrings);
           
         if (userError) {
@@ -168,7 +168,7 @@ export function useTrekCommunity(trekId: string | undefined) {
         }
         
         // Create a map of user IDs to user data for easy lookup
-        const userMap = {};
+        const userMap: Record<string, any> = {};
         
         if (userData && Array.isArray(userData)) {
           userData.forEach(user => {
@@ -187,7 +187,7 @@ export function useTrekCommunity(trekId: string | undefined) {
             id: String(item.comment_id),
             userId: String(item.user_id),
             userName: userDetails.full_name || 'Anonymous User',
-            userAvatar: userDetails.avatar_url || null,
+            userAvatar: null, // Since avatar_url doesn't exist, we'll set it to null
             content: item.body,
             createdAt: item.created_at,
             isEventCreator: isCreator
