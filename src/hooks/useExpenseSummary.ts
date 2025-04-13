@@ -35,49 +35,39 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid - Use the most basic approach possible
-      const paidResponse = await supabase
+      // Calculate total paid
+      const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
         
-      if (paidResponse.error) throw paidResponse.error;
+      if (paidError) throw paidError;
       
-      // Manual summation without any complex type handling
+      // Simple summation with explicit type casting
       let totalPaid = 0;
-      if (paidResponse.data) {
-        const dataArray = paidResponse.data;
-        for (let i = 0; i < dataArray.length; i++) {
-          const item = dataArray[i];
-          if (item && typeof item === 'object' && 'amount' in item) {
-            const amount = item.amount;
-            if (amount !== null && amount !== undefined) {
-              totalPaid += Number(amount);
-            }
+      if (paidData && Array.isArray(paidData)) {
+        for (const item of paidData) {
+          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
+            totalPaid += Number(item.amount);
           }
         }
       }
       
-      // Calculate total owed - Use the most basic approach possible
-      const owedResponse = await supabase
+      // Calculate total owed
+      const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
         
-      if (owedResponse.error) throw owedResponse.error;
+      if (owedError) throw owedError;
       
-      // Manual summation without any complex type handling
+      // Simple summation with explicit type casting
       let totalOwed = 0;
-      if (owedResponse.data) {
-        const dataArray = owedResponse.data;
-        for (let i = 0; i < dataArray.length; i++) {
-          const item = dataArray[i];
-          if (item && typeof item === 'object' && 'amount' in item) {
-            const amount = item.amount;
-            if (amount !== null && amount !== undefined) {
-              totalOwed += Number(amount);
-            }
+      if (owedData && Array.isArray(owedData)) {
+        for (const item of owedData) {
+          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
+            totalOwed += Number(item.amount);
           }
         }
       }
@@ -89,9 +79,9 @@ export const useExpenseSummary = (userId: string | undefined) => {
         netBalance: totalPaid - totalOwed
       });
       
-    } catch (error: any) {
-      console.error("Error fetching expense summary:", error);
-      setError(error);
+    } catch (err: any) {
+      console.error("Error fetching expense summary:", err);
+      setError(err);
     } finally {
       setLoading(false);
     }
