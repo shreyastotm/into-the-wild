@@ -35,52 +35,33 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Step 1: Calculate total paid by the user
+      // Use simple, direct queries to avoid complex type inference
+      
+      // Calculate total paid by the user
       let totalPaid = 0;
-      const { data: paidExpenses, error: paidError } = await supabase
+      const paidResult = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
       
-      if (paidError) throw paidError;
+      if (paidResult.error) throw paidResult.error;
       
-      // Manually sum up the paid amounts
-      if (paidExpenses && paidExpenses.length > 0) {
-        for (const expense of paidExpenses) {
-          totalPaid += Number(expense.amount) || 0;
-        }
+      if (paidResult.data) {
+        totalPaid = paidResult.data.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
       }
       
-      // Step 2: Get user's trek IDs
-      let trekIds: number[] = [];
-      const { data: userTreks, error: trekError } = await supabase
-        .from('registrations')
-        .select('trek_id')
-        .eq('user_id', numericUserId);
-      
-      if (trekError) throw trekError;
-      
-      if (userTreks && userTreks.length > 0) {
-        trekIds = userTreks.map(trek => trek.trek_id);
-      }
-      
-      // Step 3: Calculate what user owes
+      // Calculate total owed by the user
       let totalOwed = 0;
-      
-      // Instead of processing trek by trek with complex queries,
-      // let's just get all expenses the user owes in one simple query
-      const { data: owedExpenses, error: owedError } = await supabase
+      const owedResult = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
       
-      if (owedError) throw owedError;
+      if (owedResult.error) throw owedResult.error;
       
-      if (owedExpenses && owedExpenses.length > 0) {
-        for (const expense of owedExpenses) {
-          totalOwed += Number(expense.amount) || 0;
-        }
+      if (owedResult.data) {
+        totalOwed = owedResult.data.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
       }
       
       // Update the summary state
