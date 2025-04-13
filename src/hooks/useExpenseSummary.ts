@@ -14,6 +14,12 @@ interface ExpenseRecord {
   amount: number | null;
 }
 
+// Create a basic interface for raw response data to avoid deep inference
+interface RawExpenseData {
+  amount: number | null;
+  [key: string]: any;
+}
+
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -40,7 +46,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid amount - explicitly typing the response
+      // Calculate total paid amount with explicit typing to avoid deep inference
       const paidResponse = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -49,18 +55,19 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Handle errors
       if (paidResponse.error) throw paidResponse.error;
       
-      // Calculate the total paid amount using a basic approach
+      // Calculate the total paid amount using a basic approach with explicit typing
       let totalPaid = 0;
       if (paidResponse.data) {
-        const records = paidResponse.data as ExpenseRecord[];
-        for (let i = 0; i < records.length; i++) {
-          if (records[i] && records[i].amount !== null) {
-            totalPaid += Number(records[i].amount);
+        // Force the type to avoid deep type inference
+        const rawData = paidResponse.data as unknown as RawExpenseData[];
+        for (let i = 0; i < rawData.length; i++) {
+          if (rawData[i] && rawData[i].amount !== null) {
+            totalPaid += Number(rawData[i].amount);
           }
         }
       }
       
-      // Calculate total owed amount - explicitly typing the response
+      // Calculate total owed amount with explicit typing to avoid deep inference
       const owedResponse = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -70,13 +77,14 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Handle errors
       if (owedResponse.error) throw owedResponse.error;
       
-      // Calculate the total owed amount using a basic approach
+      // Calculate the total owed amount using a basic approach with explicit typing
       let totalOwed = 0;
       if (owedResponse.data) {
-        const records = owedResponse.data as ExpenseRecord[];
-        for (let i = 0; i < records.length; i++) {
-          if (records[i] && records[i].amount !== null) {
-            totalOwed += Number(records[i].amount);
+        // Force the type to avoid deep type inference
+        const rawData = owedResponse.data as unknown as RawExpenseData[];
+        for (let i = 0; i < rawData.length; i++) {
+          if (rawData[i] && rawData[i].amount !== null) {
+            totalOwed += Number(rawData[i].amount);
           }
         }
       }
