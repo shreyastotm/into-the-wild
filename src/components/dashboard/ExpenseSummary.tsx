@@ -43,12 +43,33 @@ export const ExpenseSummary = () => {
       
       if (paidError) throw paidError;
       
-      // Get total amount owed by the user (this is simplified - in a real app you'd have a more complex split calculation)
+      // Get registrations for the user to find their treks
+      const { data: registrations, error: regError } = await supabase
+        .from('registrations')
+        .select('trek_id')
+        .eq('user_id', userId);
+      
+      if (regError) throw regError;
+      
+      if (!registrations || registrations.length === 0) {
+        setSummary({
+          totalPaid: 0,
+          totalOwed: 0,
+          netBalance: 0
+        });
+        setLoading(false);
+        return;
+      }
+      
+      // Extract trek IDs
+      const trekIds = registrations.map(reg => reg.trek_id);
+      
+      // Get expenses where the user is not the payer but is part of the trek
       const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .neq('payer_id', userId)
-        .eq('trek_id', 'ANY(SELECT trek_id FROM registrations WHERE user_id = $1)')
+        .in('trek_id', trekIds)
         .eq('user_id', userId);
       
       if (owedError) throw owedError;
