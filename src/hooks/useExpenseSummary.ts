@@ -40,33 +40,33 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid by the user - with explicit typing
+      // Calculate total paid by the user - avoiding complex type inference by using manual typing
       let totalPaid = 0;
-      const { data: paidExpenses, error: paidError } = await supabase
+      const paidResult = await supabase
         .from('expense_sharing')
-        .select<string, ExpenseAmount>('amount')
+        .select('amount')
         .eq('payer_id', numericUserId);
       
-      if (paidError) throw paidError;
+      if (paidResult.error) throw paidResult.error;
       
-      if (paidExpenses) {
-        totalPaid = paidExpenses.reduce((sum, expense) => {
+      if (paidResult.data) {
+        totalPaid = paidResult.data.reduce((sum, expense) => {
           return sum + (typeof expense.amount === 'number' ? expense.amount : 0);
         }, 0);
       }
       
-      // Calculate total owed by the user - with explicit typing
+      // Calculate total owed by the user - avoiding complex type inference
       let totalOwed = 0;
-      const { data: owedExpenses, error: owedError } = await supabase
+      const owedResult = await supabase
         .from('expense_sharing')
-        .select<string, ExpenseAmount>('amount')
+        .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
       
-      if (owedError) throw owedError;
+      if (owedResult.error) throw owedResult.error;
       
-      if (owedExpenses) {
-        totalOwed = owedExpenses.reduce((sum, expense) => {
+      if (owedResult.data) {
+        totalOwed = owedResult.data.reduce((sum, expense) => {
           return sum + (typeof expense.amount === 'number' ? expense.amount : 0);
         }, 0);
       }
