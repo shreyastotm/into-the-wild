@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Calendar, Users, AlertCircle } from 'lucide-react';
 import { WithStringId } from "@/integrations/supabase/client";
+import { formatCurrency } from '@/lib/utils';
 
 interface DbRegistration {
   registration_id: number;
@@ -47,7 +48,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
       <CardHeader className="bg-gray-50 rounded-t-lg">
         <CardTitle className="text-xl flex items-center justify-between">
           <span>Registration</span>
-          <span className="text-2xl">${trek.cost}</span>
+          <span className="text-2xl">{formatCurrency(trek.cost)}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-6 space-y-6">

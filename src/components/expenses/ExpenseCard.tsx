@@ -2,6 +2,8 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatCurrency } from '@/lib/utils';
+import { format } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 
 interface ExpenseCardProps {
   description: string;
@@ -21,6 +23,9 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
   const statusColor = status === 'Settled' 
     ? 'bg-green-100 text-green-800' 
     : 'bg-yellow-100 text-yellow-800';
+    
+  // Convert to Indian Standard Time
+  const indianTime = utcToZonedTime(new Date(date), 'Asia/Kolkata');
 
   return (
     <Card className="mb-4">
@@ -44,7 +49,7 @@ export const ExpenseCard: React.FC<ExpenseCardProps> = ({
           </div>
           <div>
             <p className="text-gray-500">Date</p>
-            <p>{new Date(date).toLocaleDateString()}</p>
+            <p>{format(indianTime, 'dd MMM yyyy')}</p>
           </div>
         </div>
       </CardContent>

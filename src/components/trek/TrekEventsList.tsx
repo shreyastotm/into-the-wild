@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Calendar, MapPin, Users, Clock } from 'lucide-react';
 import { formatDistanceToNow, isPast, isToday, isTomorrow, format } from 'date-fns';
+import { formatCurrency } from '@/lib/utils';
 
 // Define type for Trek Events
 interface TrekEvent {

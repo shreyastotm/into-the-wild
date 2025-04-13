@@ -8,6 +8,8 @@ import { MapPin, Calendar, Users, Navigation } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
+import { format, formatRelative } from 'date-fns';
+import { utcToZonedTime } from 'date-fns-tz';
 
 interface Trek {
   trek_id: number;
@@ -58,6 +60,12 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  // Function to convert UTC time to Indian Standard Time
+  const toIndianTime = (utcDateString: string) => {
+    const date = new Date(utcDateString);
+    return utcToZonedTime(date, 'Asia/Kolkata');
   };
 
   // Get the appropriate color for a category
@@ -145,12 +153,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>{new Date(trek.start_datetime).toLocaleDateString(undefined, {
-                  weekday: 'short',
-                  day: 'numeric',
-                  month: 'short',
-                  year: 'numeric'
-                })}</span>
+                <span>{format(toIndianTime(trek.start_datetime), 'E, d MMM yyyy, h:mm a')}</span>
               </div>
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-2 flex-shrink-0" />
