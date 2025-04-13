@@ -67,7 +67,8 @@ export function useTrekCommunity(trekId: string | undefined) {
         // Transform data into the format we need
         const transformedParticipants: Participant[] = data.map(item => {
           // Check if this user is the event creator
-          const isCreator = item.trek_events && item.trek_events.user_id === item.user_id;
+          const isCreator = item.trek_events && 
+                            item.trek_events.user_id === item.user_id;
           
           return {
             id: String(item.user_id),
@@ -127,7 +128,8 @@ export function useTrekCommunity(trekId: string | undefined) {
         
         // Transform data into the format we need
         const transformedComments: Comment[] = data.map(item => {
-          const isCreator = eventCreatorId !== null && item.user_id === eventCreatorId;
+          const isCreator = eventCreatorId !== null && 
+                           item.user_id === eventCreatorId;
           
           return {
             id: String(item.comment_id),
