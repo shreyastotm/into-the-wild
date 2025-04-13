@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
-import { MapPin, Calendar, Users } from 'lucide-react';
+import { MapPin, Calendar, Users, Navigation } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 
 interface Trek {
@@ -59,6 +60,49 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     }
   };
 
+  // Get the appropriate color for a category
+  const getCategoryColor = (category: string | null): string => {
+    if (!category) return 'bg-gray-100 text-gray-800';
+    
+    const colorMap: Record<string, string> = {
+      'Mountain': 'bg-amber-100 text-amber-800',
+      'Hiking': 'bg-green-100 text-green-800',
+      'Camping': 'bg-blue-100 text-blue-800',
+      'Wildlife': 'bg-emerald-100 text-emerald-800',
+      'Beach': 'bg-cyan-100 text-cyan-800',
+      'Adventure': 'bg-red-100 text-red-800',
+      'Cultural': 'bg-purple-100 text-purple-800'
+    };
+    
+    return colorMap[category] || 'bg-gray-100 text-gray-800';
+  };
+
+  // Get gradient colors based on category for placeholders
+  const getCategoryGradient = (category: string | null): string => {
+    if (!category) return 'from-gray-200 to-gray-300';
+    
+    const gradientMap: Record<string, string> = {
+      'Mountain': 'from-amber-200 to-amber-300',
+      'Hiking': 'from-green-200 to-green-300',
+      'Camping': 'from-blue-200 to-blue-300',
+      'Wildlife': 'from-emerald-200 to-emerald-300',
+      'Beach': 'from-cyan-200 to-cyan-300',
+      'Adventure': 'from-red-200 to-red-300',
+      'Cultural': 'from-purple-200 to-purple-300'
+    };
+    
+    return gradientMap[category] || 'from-gray-200 to-gray-300';
+  };
+
+  // Get an icon appropriate for the category
+  const getCategoryIcon = (category: string | null) => {
+    if (!category) return <Navigation className="h-12 w-12 opacity-40" />;
+    
+    // We're using Navigation for all categories for simplicity
+    // In a real app, you might want different icons for different categories
+    return <Navigation className="h-12 w-12 opacity-40" />;
+  };
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -74,7 +118,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
       {treks.map((trek) => (
         <div 
           key={trek.trek_id} 
@@ -82,24 +126,31 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
           onClick={() => navigate(`/trek-events/${trek.trek_id}`)}
         >
           <div className="h-48 bg-gray-200 relative">
-            {/* We'll display a placeholder until we have real images */}
-            <div className="absolute inset-0 flex items-center justify-center bg-gradient-to-b from-gray-200 to-gray-300">
-              <span className="text-2xl font-bold text-gray-400">
-                {trek.category || "Trek"}
-              </span>
+            <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-b ${getCategoryGradient(trek.category)}`}>
+              <div className="flex flex-col items-center text-center px-4">
+                {getCategoryIcon(trek.category)}
+                <span className="mt-2 text-lg font-medium text-gray-700">
+                  {trek.category || "Trek"}
+                </span>
+              </div>
             </div>
           </div>
           <div className="p-4">
             <h3 className="font-semibold text-lg mb-2 line-clamp-1">{trek.trek_name}</h3>
             {trek.category && (
-              <span className="inline-block bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded-full mb-2">
+              <Badge variant="outline" className={`${getCategoryColor(trek.category)} border-0 mb-2`}>
                 {trek.category}
-              </span>
+              </Badge>
             )}
             <div className="space-y-2 text-sm text-gray-600">
               <div className="flex items-center">
                 <Calendar className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>{new Date(trek.start_datetime).toLocaleDateString()}</span>
+                <span>{new Date(trek.start_datetime).toLocaleDateString(undefined, {
+                  weekday: 'short',
+                  day: 'numeric',
+                  month: 'short',
+                  year: 'numeric'
+                })}</span>
               </div>
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-2 flex-shrink-0" />
