@@ -9,10 +9,8 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Define explicit interface for expense records from database
-interface ExpenseRecord {
-  amount: number | null;
-}
+// Simple type for database results
+type RawExpenseData = { amount: number | null }[];
 
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
@@ -40,27 +38,26 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid with explicit typing
-      const { data: rawPaidData, error: paidError } = await supabase
+      // Calculate total paid with simplified typing
+      const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
         
       if (paidError) throw paidError;
       
-      // Cast the data to our explicit type
-      const paidData = (rawPaidData || []) as ExpenseRecord[];
-      
-      // Calculate sum with explicit null checks
+      // Calculate sum with safe type handling
       let totalPaid = 0;
-      for (const item of paidData) {
-        if (item && item.amount !== null) {
-          totalPaid += Number(item.amount);
+      if (paidData) {
+        for (const item of paidData) {
+          if (item && item.amount !== null) {
+            totalPaid += Number(item.amount);
+          }
         }
       }
       
-      // Calculate total owed with explicit typing
-      const { data: rawOwedData, error: owedError } = await supabase
+      // Calculate total owed with simplified typing
+      const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
@@ -68,14 +65,13 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (owedError) throw owedError;
       
-      // Cast the data to our explicit type
-      const owedData = (rawOwedData || []) as ExpenseRecord[];
-      
-      // Calculate sum with explicit null checks
+      // Calculate sum with safe type handling
       let totalOwed = 0;
-      for (const item of owedData) {
-        if (item && item.amount !== null) {
-          totalOwed += Number(item.amount);
+      if (owedData) {
+        for (const item of owedData) {
+          if (item && item.amount !== null) {
+            totalOwed += Number(item.amount);
+          }
         }
       }
       
