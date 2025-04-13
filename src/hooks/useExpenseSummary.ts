@@ -54,8 +54,13 @@ export const useExpenseSummary = (userId: string | undefined) => {
       if (owedError) throw owedError;
       
       // Calculate the totals
-      const totalPaid = paidExpenses?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
-      const totalOwed = owedExpenses?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
+      const totalPaid = paidExpenses && paidExpenses.length > 0
+        ? paidExpenses.reduce((sum, item) => sum + (parseFloat(item.amount?.toString() || '0') || 0), 0)
+        : 0;
+        
+      const totalOwed = owedExpenses && owedExpenses.length > 0
+        ? owedExpenses.reduce((sum, item) => sum + (parseFloat(item.amount?.toString() || '0') || 0), 0)
+        : 0;
       
       setSummary({
         totalPaid,
