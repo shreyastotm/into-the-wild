@@ -1,6 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
+import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 export interface ExpenseSummary {
   totalPaid: number;
@@ -36,11 +37,14 @@ export const useExpenseSummary = (userId: string | undefined) => {
     try {
       setLoading(true);
       
+      // Convert string userId to number for database compatibility
+      const numericUserId = userIdToNumber(userId);
+      
       // Query for expenses paid by the user
       const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
-        .eq('payer_id', userId);
+        .eq('payer_id', numericUserId);
       
       if (paidError) throw paidError;
       
@@ -48,8 +52,8 @@ export const useExpenseSummary = (userId: string | undefined) => {
       const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
-        .eq('user_id', userId)
-        .neq('payer_id', userId);
+        .eq('user_id', numericUserId)
+        .neq('payer_id', numericUserId);
       
       if (owedError) throw owedError;
       
