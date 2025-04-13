@@ -165,7 +165,10 @@ const TrekEvents = () => {
       ) : treks.length > 0 ? (
         <TrekEventsList treks={treks} />
       ) : (
-        <NoTreksFound onReset={resetFilters} />
+        <NoTreksFound 
+          filterOptions={filterOptions} 
+          onReset={resetFilters} 
+        />
       )}
     </div>
   );
