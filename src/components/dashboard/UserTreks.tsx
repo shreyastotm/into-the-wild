@@ -1,3 +1,4 @@
+
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -11,6 +12,7 @@ import { toast } from '@/components/ui/use-toast';
 import { CalendarDays, MapPin, Clock, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 interface TrekRegistration {
   trek_id: number;
@@ -41,6 +43,8 @@ export const UserTreks = () => {
     try {
       setLoading(true);
       
+      const userId = user?.id ? userIdToNumber(user.id) : 0;
+      
       const { data, error } = await supabase
         .from('registrations')
         .select(`
@@ -56,7 +60,7 @@ export const UserTreks = () => {
             max_participants
           )
         `)
-        .eq('user_id', user?.id || '');
+        .eq('user_id', userId);
       
       if (error) throw error;
       

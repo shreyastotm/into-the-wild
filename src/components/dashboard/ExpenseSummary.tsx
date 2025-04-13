@@ -6,6 +6,7 @@ import { toast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/lib/utils';
 import { ArrowDownRight, ArrowUpRight, Wallet } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 interface ExpenseSummary {
   totalPaid: number;
@@ -32,11 +33,13 @@ export const ExpenseSummary = () => {
     try {
       setLoading(true);
       
+      const userId = user?.id ? userIdToNumber(user.id) : 0;
+      
       // Get total amount paid by the user
       const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
-        .eq('payer_id', user?.id || '');
+        .eq('payer_id', userId);
       
       if (paidError) throw paidError;
       
@@ -44,9 +47,9 @@ export const ExpenseSummary = () => {
       const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
-        .neq('payer_id', user?.id || '')
+        .neq('payer_id', userId)
         .eq('trek_id', 'ANY(SELECT trek_id FROM registrations WHERE user_id = $1)')
-        .match({ user_id: user?.id || '' });
+        .eq('user_id', userId);
       
       if (owedError) throw owedError;
       

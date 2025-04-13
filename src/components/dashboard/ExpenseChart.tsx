@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { formatCurrency } from '@/lib/utils';
+import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 interface ExpenseData {
   name: string;
@@ -28,6 +29,24 @@ export const ExpenseChart = () => {
     try {
       setLoading(true);
       
+      const userId = user?.id ? userIdToNumber(user.id) : 0;
+      
+      // Get trek IDs the user is registered for
+      const { data: registrations, error: regError } = await supabase
+        .from('registrations')
+        .select('trek_id')
+        .eq('user_id', userId);
+        
+      if (regError) throw regError;
+      
+      if (!registrations || registrations.length === 0) {
+        setExpenses([]);
+        return;
+      }
+      
+      // Extract trek IDs from registrations
+      const trekIds = registrations.map(reg => reg.trek_id);
+      
       // Get expense data grouped by category/purpose
       const { data, error } = await supabase
         .from('expense_sharing')
@@ -37,8 +56,7 @@ export const ExpenseChart = () => {
           trek_id,
           trek_events(trek_name)
         `)
-        .in('trek_id', 'SELECT trek_id FROM registrations WHERE user_id = $1')
-        .match({ user_id: user?.id || '' });
+        .in('trek_id', trekIds);
       
       if (error) throw error;
       
