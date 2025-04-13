@@ -9,8 +9,10 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Simple type for database results
-type RawExpenseData = { amount: number | null }[];
+// Define a simple interface for expense records
+interface ExpenseRecord {
+  amount: number | null;
+}
 
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
@@ -38,7 +40,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid with simplified typing
+      // Get total paid expenses
       const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -46,17 +48,19 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (paidError) throw paidError;
       
-      // Calculate sum with safe type handling
+      // Calculate total paid with safe type handling
       let totalPaid = 0;
       if (paidData) {
-        for (const item of paidData) {
+        // Manually calculate the sum to avoid deep typing issues
+        for (let i = 0; i < paidData.length; i++) {
+          const item = paidData[i] as ExpenseRecord;
           if (item && item.amount !== null) {
             totalPaid += Number(item.amount);
           }
         }
       }
       
-      // Calculate total owed with simplified typing
+      // Get total owed expenses
       const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -65,10 +69,12 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (owedError) throw owedError;
       
-      // Calculate sum with safe type handling
+      // Calculate total owed with safe type handling
       let totalOwed = 0;
       if (owedData) {
-        for (const item of owedData) {
+        // Manually calculate the sum to avoid deep typing issues
+        for (let i = 0; i < owedData.length; i++) {
+          const item = owedData[i] as ExpenseRecord;
           if (item && item.amount !== null) {
             totalOwed += Number(item.amount);
           }
