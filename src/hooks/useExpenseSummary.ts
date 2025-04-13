@@ -40,34 +40,40 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid by the user with explicit casting
+      // Calculate total paid by the user using a simpler query pattern
       let totalPaid = 0;
-      const { data: paidData, error: paidError } = await supabase
+      const paidQuery = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
       
-      if (paidError) throw paidError;
+      if (paidQuery.error) throw paidQuery.error;
       
-      if (paidData) {
+      if (paidQuery.data) {
+        // Cast the data to the simple interface to avoid deep type inference
+        const paidData = paidQuery.data as ExpenseRecord[];
         totalPaid = paidData.reduce((sum, item) => {
-          return sum + (item.amount !== null ? Number(item.amount) : 0);
+          // Use a simple calculation with null check
+          return sum + (item.amount ? Number(item.amount) : 0);
         }, 0);
       }
       
-      // Calculate total owed by the user with explicit casting
+      // Calculate total owed by the user using a simpler query pattern
       let totalOwed = 0;
-      const { data: owedData, error: owedError } = await supabase
+      const owedQuery = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
       
-      if (owedError) throw owedError;
+      if (owedQuery.error) throw owedQuery.error;
       
-      if (owedData) {
+      if (owedQuery.data) {
+        // Cast the data to the simple interface to avoid deep type inference
+        const owedData = owedQuery.data as ExpenseRecord[];
         totalOwed = owedData.reduce((sum, item) => {
-          return sum + (item.amount !== null ? Number(item.amount) : 0);
+          // Use a simple calculation with null check
+          return sum + (item.amount ? Number(item.amount) : 0);
         }, 0);
       }
       
