@@ -7,6 +7,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Separator } from '@/components/ui/separator';
 import { toast } from '@/components/ui/use-toast';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import data from '@emoji-mart/data';
+import Picker from '@emoji-mart/react';
 
 export interface Comment {
   id: string;
@@ -82,6 +85,10 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
     }
   };
   
+  const handleEmojiSelect = (emoji: any) => {
+    setNewComment(prev => prev + emoji.native);
+  };
+  
   return (
     <div className="space-y-4">
       <h3 className="text-xl font-semibold flex items-center">
@@ -107,9 +114,21 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
               disabled={isSubmitting}
             />
             <div className="flex justify-between">
-              <Button variant="outline" size="icon" type="button">
-                <Smile className="h-4 w-4" />
-              </Button>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button variant="outline" size="icon" type="button" className="hover:bg-muted">
+                    <Smile className="h-4 w-4" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="p-0 border-none" side="top" align="start">
+                  <Picker 
+                    data={data} 
+                    onEmojiSelect={handleEmojiSelect}
+                    theme="light"
+                    previewPosition="none"
+                  />
+                </PopoverContent>
+              </Popover>
               <Button 
                 onClick={handleAddComment} 
                 disabled={isSubmitting || !newComment.trim() || isLoading}
