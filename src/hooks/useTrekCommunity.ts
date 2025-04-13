@@ -92,14 +92,14 @@ export function useTrekCommunity(trekId: string | undefined) {
         
         // Transform data into the format we need
         const transformedParticipants: Participant[] = data.map(item => {
-          const userData = userMap[item.user_id];
+          const user = userMap[item.user_id];
           // Check if this user is the event creator
           const isCreator = creatorId !== null && item.user_id === creatorId;
           
           return {
             id: String(item.user_id),
-            name: userData?.full_name || null,
-            avatar: userData?.avatar_url || null,
+            name: user?.full_name || null,
+            avatar: user?.avatar_url || null,
             joinedAt: item.booking_datetime,
             isEventCreator: isCreator || false
           };
@@ -168,14 +168,14 @@ export function useTrekCommunity(trekId: string | undefined) {
         
         // Transform data into the format we need
         const transformedComments: Comment[] = data.map(item => {
-          const userData = userMap[item.user_id];
+          const user = userMap[item.user_id];
           const isCreator = eventCreatorId !== null && item.user_id === eventCreatorId;
           
           return {
             id: String(item.comment_id),
             userId: String(item.user_id),
-            userName: userData?.full_name || 'Anonymous User',
-            userAvatar: userData?.avatar_url || null,
+            userName: user?.full_name || 'Anonymous User',
+            userAvatar: user?.avatar_url || null,
             content: item.body,
             createdAt: item.created_at,
             isEventCreator: isCreator
