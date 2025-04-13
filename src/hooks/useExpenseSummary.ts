@@ -9,6 +9,11 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
+// Define explicit types for our expense data
+interface ExpenseAmount {
+  amount: number | null;
+}
+
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -35,33 +40,35 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Use simple, direct queries to avoid complex type inference
-      
-      // Calculate total paid by the user
+      // Calculate total paid by the user - with explicit typing
       let totalPaid = 0;
-      const paidResult = await supabase
+      const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
-        .select('amount')
+        .select<string, ExpenseAmount>('amount')
         .eq('payer_id', numericUserId);
       
-      if (paidResult.error) throw paidResult.error;
+      if (paidError) throw paidError;
       
-      if (paidResult.data) {
-        totalPaid = paidResult.data.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
+      if (paidExpenses) {
+        totalPaid = paidExpenses.reduce((sum, expense) => {
+          return sum + (typeof expense.amount === 'number' ? expense.amount : 0);
+        }, 0);
       }
       
-      // Calculate total owed by the user
+      // Calculate total owed by the user - with explicit typing
       let totalOwed = 0;
-      const owedResult = await supabase
+      const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
-        .select('amount')
+        .select<string, ExpenseAmount>('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
       
-      if (owedResult.error) throw owedResult.error;
+      if (owedError) throw owedError;
       
-      if (owedResult.data) {
-        totalOwed = owedResult.data.reduce((sum, expense) => sum + Number(expense.amount || 0), 0);
+      if (owedExpenses) {
+        totalOwed = owedExpenses.reduce((sum, expense) => {
+          return sum + (typeof expense.amount === 'number' ? expense.amount : 0);
+        }, 0);
       }
       
       // Update the summary state
