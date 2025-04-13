@@ -40,38 +40,40 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Get total paid by user (simpler approach without deep type inference)
+      // Calculate total paid by user
       let totalPaid = 0;
-      const { data: paidRawData, error: paidError } = await supabase
+      const paidResult = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
+        
+      if (paidResult.error) throw paidResult.error;
       
-      if (paidError) throw paidError;
-      
-      if (paidRawData && Array.isArray(paidRawData)) {
-        // Use explicit array iteration instead of reduce to avoid deep type inference
-        for (const item of paidRawData) {
-          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
+      // Process data array directly without type inference
+      if (paidResult.data) {
+        for (let i = 0; i < paidResult.data.length; i++) {
+          const item = paidResult.data[i];
+          if (item && item.amount !== null) {
             totalPaid += Number(item.amount);
           }
         }
       }
       
-      // Get total owed by user (simpler approach without deep type inference)
+      // Calculate total owed by user
       let totalOwed = 0;
-      const { data: owedRawData, error: owedError } = await supabase
+      const owedResult = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
+        
+      if (owedResult.error) throw owedResult.error;
       
-      if (owedError) throw owedError;
-      
-      if (owedRawData && Array.isArray(owedRawData)) {
-        // Use explicit array iteration instead of reduce to avoid deep type inference
-        for (const item of owedRawData) {
-          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
+      // Process data array directly without type inference
+      if (owedResult.data) {
+        for (let i = 0; i < owedResult.data.length; i++) {
+          const item = owedResult.data[i];
+          if (item && item.amount !== null) {
             totalOwed += Number(item.amount);
           }
         }
