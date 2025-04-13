@@ -45,35 +45,39 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Break down the query steps to avoid complex type inference
-      const paidQuery = supabase
+      // Handle paid expenses with explicit typing to avoid deep type inferencing
+      let paidExpenses: ExpenseRecord[] = [];
+      let owedExpenses: ExpenseRecord[] = [];
+      
+      // First query - completely separate from type system
+      const paidResponse = await supabase
         .from('expense_sharing')
         .select('amount');
       
-      // Execute query with minimal type complexity
-      const paidResult = await paidQuery;
-      const paidExpenses = paidResult.data as ExpenseRecord[] | null;
-      const paidError = paidResult.error;
+      if (paidResponse.error) throw paidResponse.error;
       
-      if (paidError) throw paidError;
+      // Cast the response data to our simple type
+      if (paidResponse.data) {
+        paidExpenses = paidResponse.data as ExpenseRecord[];
+      }
       
-      // Similarly break down the second query
-      const owedQuery = supabase
+      // Second query - also isolated from complex type inferencing
+      const owedResponse = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
       
-      // Execute query with minimal type complexity
-      const owedResult = await owedQuery;
-      const owedExpenses = owedResult.data as ExpenseRecord[] | null;
-      const owedError = owedResult.error;
+      if (owedResponse.error) throw owedResponse.error;
       
-      if (owedError) throw owedError;
+      // Cast the response data to our simple type
+      if (owedResponse.data) {
+        owedExpenses = owedResponse.data as ExpenseRecord[];
+      }
       
       // Calculate totals with simplified type handling
-      const totalPaid = calculateTotal(paidExpenses || []);
-      const totalOwed = calculateTotal(owedExpenses || []);
+      const totalPaid = calculateTotal(paidExpenses);
+      const totalOwed = calculateTotal(owedExpenses);
       
       setSummary({
         totalPaid,
