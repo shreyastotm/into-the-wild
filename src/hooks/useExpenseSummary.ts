@@ -35,7 +35,8 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Step 1: Calculate total paid by the user (simple query)
+      // Step 1: Calculate total paid by the user using simple approach
+      let totalPaid = 0;
       const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -43,10 +44,15 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (paidError) throw paidError;
       
-      const totalPaid = paidExpenses?.reduce((sum, item) => 
-        sum + (Number(item.amount) || 0), 0) || 0;
+      // Manual calculation to avoid complex type inference
+      if (paidExpenses && paidExpenses.length > 0) {
+        for (const expense of paidExpenses) {
+          totalPaid += Number(expense.amount) || 0;
+        }
+      }
       
-      // Step 2: Get user's trek IDs (simple query)
+      // Step 2: Get user's trek IDs
+      let trekIds: number[] = [];
       const { data: userTreks, error: trekError } = await supabase
         .from('registrations')
         .select('trek_id')
@@ -54,30 +60,48 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (trekError) throw trekError;
       
+      if (userTreks && userTreks.length > 0) {
+        trekIds = userTreks.map(trek => trek.trek_id);
+      }
+      
       // Step 3: Calculate what user owes
       let totalOwed = 0;
       
-      if (userTreks && userTreks.length > 0) {
-        // We'll execute simple queries one at a time
-        for (const trek of userTreks) {
-          // For each trek, get expenses where user is not the payer
-          const { data, error: expenseError } = await supabase
+      // Process each trek individually to avoid deep type chains
+      for (let i = 0; i < trekIds.length; i++) {
+        const trekId = trekIds[i];
+        
+        // Simple approach to avoid complex type inference
+        const { data: expenses } = await supabase
+          .rpc('get_expenses_for_trek', { 
+            trek_id_param: trekId,
+            user_id_param: numericUserId
+          })
+          .catch(err => {
+            console.error(`Error with RPC call for trek ${trekId}:`, err);
+            return { data: null };
+          });
+          
+        // If RPC doesn't exist, fallback to direct query
+        if (!expenses) {
+          const { data: expensesData, error: expenseError } = await supabase
             .from('expense_sharing')
             .select('amount')
-            .eq('trek_id', trek.trek_id)
+            .eq('trek_id', trekId)
             .eq('user_id', numericUserId)
             .neq('payer_id', numericUserId);
-          
-          if (expenseError) {
-            console.error(`Error getting expenses for trek ${trek.trek_id}:`, expenseError);
-            continue; // Skip this trek if there's an error
+            
+          if (!expenseError && expensesData) {
+            for (const expense of expensesData) {
+              totalOwed += Number(expense.amount) || 0;
+            }
+          } else if (expenseError) {
+            console.error(`Error fetching expenses for trek ${trekId}:`, expenseError);
           }
-          
-          // Add up the expenses for this trek
-          if (data && data.length > 0) {
-            const trekOwed = data.reduce((sum, item) => 
-              sum + (Number(item.amount) || 0), 0);
-            totalOwed += trekOwed;
+        } else {
+          // Process RPC results
+          for (const expense of expenses) {
+            totalOwed += Number(expense.amount) || 0;
           }
         }
       }
