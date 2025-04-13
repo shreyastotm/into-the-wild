@@ -9,6 +9,11 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
+// Define simple type for expense records
+interface ExpenseRecord {
+  amount: number | null;
+}
+
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -40,7 +45,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Query for expenses paid by the user
+      // Query for expenses paid by the user with explicit typing
       const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -48,7 +53,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (paidError) throw paidError;
       
-      // Query for expenses owed by the user
+      // Query for expenses owed by the user with explicit typing
       const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -57,24 +62,9 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (owedError) throw owedError;
       
-      // Calculate totals with explicitly typed arrays and items
-      const totalPaid = paidExpenses ? paidExpenses.reduce((sum, item) => {
-        // Safely handle the amount value with explicit type checking
-        if (item.amount === null || item.amount === undefined) return sum;
-        const numAmount = typeof item.amount === 'number' 
-          ? item.amount 
-          : parseFloat(String(item.amount));
-        return sum + (isNaN(numAmount) ? 0 : numAmount);
-      }, 0) : 0;
-      
-      const totalOwed = owedExpenses ? owedExpenses.reduce((sum, item) => {
-        // Safely handle the amount value with explicit type checking
-        if (item.amount === null || item.amount === undefined) return sum;
-        const numAmount = typeof item.amount === 'number' 
-          ? item.amount 
-          : parseFloat(String(item.amount));
-        return sum + (isNaN(numAmount) ? 0 : numAmount);
-      }, 0) : 0;
+      // Calculate totals with simplified type handling
+      const totalPaid = calculateTotal(paidExpenses || []);
+      const totalOwed = calculateTotal(owedExpenses || []);
       
       setSummary({
         totalPaid,
@@ -91,6 +81,22 @@ export const useExpenseSummary = (userId: string | undefined) => {
     } finally {
       setLoading(false);
     }
+  };
+  
+  // Helper function to calculate totals with safe type handling
+  const calculateTotal = (expenses: any[]): number => {
+    return expenses.reduce((sum, item) => {
+      // If amount is null or undefined, don't add anything
+      if (item.amount === null || item.amount === undefined) return sum;
+      
+      // Convert to number safely
+      const amount = typeof item.amount === 'number' 
+        ? item.amount 
+        : Number(item.amount);
+        
+      // Add to sum, treating NaN as 0
+      return sum + (isNaN(amount) ? 0 : amount);
+    }, 0);
   };
 
   return { summary, loading, error };
