@@ -30,7 +30,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userId ? userIdToNumber(userId) : 0;
       
-      // Get total amount paid by the user
+      // Get total amount paid by the user (expenses they created)
       const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -38,7 +38,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (paidError) throw paidError;
       
-      // Get registrations for the user to find their treks
+      // Get user's registrations to find their treks
       const { data: registrations, error: regError } = await supabase
         .from('registrations')
         .select('trek_id')
@@ -46,20 +46,27 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (regError) throw regError;
       
+      // Calculate total paid by the user
+      const totalPaid = paidData?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
+      
+      // If user has no registrations, return early with zeroes
       if (!registrations || registrations.length === 0) {
         setSummary({
-          totalPaid: 0,
+          totalPaid,
           totalOwed: 0,
-          netBalance: 0
+          netBalance: totalPaid
         });
         setLoading(false);
         return;
       }
       
-      // Extract trek IDs as an array of numbers
+      // Extract trek IDs as an array
       const trekIds = registrations.map(reg => reg.trek_id);
       
-      // Get expenses where the user is not the payer but is part of the trek
+      // Use a separate query to get what the user owes, avoiding deep type nesting
+      let totalOwed = 0;
+      
+      // Get expenses where user is not the payer but is part of the trek
       const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -69,10 +76,10 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (owedError) throw owedError;
       
-      // Calculate totals
-      const totalPaid = paidData?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
-      const totalOwed = owedData?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) / 2 || 0; // Simple approximation - divide by 2 assuming equal splits
+      // Calculate what the user owes
+      totalOwed = owedData?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
       
+      // Set the summary
       setSummary({
         totalPaid,
         totalOwed,
