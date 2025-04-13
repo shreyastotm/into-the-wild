@@ -43,6 +43,13 @@ export default function TrekEventDetails() {
     { id: '2', location: 'Railway Station Entrance (6:30 AM)' },
     { id: '3', location: 'Airport Terminal 2 (7:00 AM)' }
   ];
+  
+  // Sample vendor contacts - in a real app, this would come from the API
+  const sampleVendorContacts = [
+    { id: '1', name: 'Rahul Sharma', role: 'Trek Coordinator', phone: '+91 98765 43210' },
+    { id: '2', name: 'Aditya Singh', role: 'Driver', phone: '+91 99887 76655' },
+    { id: '3', name: 'Priya Patel', role: 'Medical Support', phone: '+91 90001 23456' }
+  ];
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -83,6 +90,7 @@ export default function TrekEventDetails() {
                   pickupLocations={isRegistered && !isCancelled ? samplePickupLocations : null}
                   additionalNotes={isRegistered && !isCancelled ? "Please arrive 15 minutes before the scheduled pickup time. Carry water and light snacks for the journey." : null}
                   isRegistered={isRegistered && !isCancelled}
+                  vendorContacts={isRegistered && !isCancelled ? sampleVendorContacts : null}
                 />
               </TabsContent>
               <TabsContent value="expenses" className="mt-0">
