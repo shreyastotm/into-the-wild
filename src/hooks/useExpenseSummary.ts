@@ -45,19 +45,29 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Use type assertion to avoid deep type instantiation
-      const { data: paidExpenses, error: paidError } = await supabase
+      // Break down the query steps to avoid complex type inference
+      const paidQuery = supabase
         .from('expense_sharing')
-        .select('amount') as { data: ExpenseRecord[] | null, error: any };
+        .select('amount');
+      
+      // Execute query with minimal type complexity
+      const paidResult = await paidQuery;
+      const paidExpenses = paidResult.data as ExpenseRecord[] | null;
+      const paidError = paidResult.error;
       
       if (paidError) throw paidError;
       
-      // Use type assertion to avoid deep type instantiation
-      const { data: owedExpenses, error: owedError } = await supabase
+      // Similarly break down the second query
+      const owedQuery = supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
-        .neq('payer_id', numericUserId) as { data: ExpenseRecord[] | null, error: any };
+        .neq('payer_id', numericUserId);
+      
+      // Execute query with minimal type complexity
+      const owedResult = await owedQuery;
+      const owedExpenses = owedResult.data as ExpenseRecord[] | null;
+      const owedError = owedResult.error;
       
       if (owedError) throw owedError;
       
