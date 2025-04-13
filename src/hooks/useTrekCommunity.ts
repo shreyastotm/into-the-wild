@@ -42,30 +42,25 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setLoading(true);
       
-      // First, get the event creator's ID
-      const { data: trekEvent, error: trekError } = await supabase
-        .from('trek_events')
+      // Get the event creator ID from the roles_assignments table
+      // The creator will have a role_type of 'organizer'
+      const { data: roleData, error: roleError } = await supabase
+        .from('roles_assignments')
         .select('user_id')
         .eq('trek_id', trekId)
+        .eq('role_type', 'organizer')
         .single();
       
-      if (trekError) {
-        console.error("Error fetching trek event:", trekError);
+      if (roleError) {
+        console.error("Error fetching event creator role:", roleError);
       }
 
-      const creatorId = trekEvent?.user_id || null;
+      const creatorId = roleData?.user_id || null;
       
-      // Get participants with user profiles
+      // Get participants from registrations table
       const { data, error } = await supabase
         .from('registrations')
-        .select(`
-          user_id,
-          booking_datetime,
-          users (
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('registration_id, user_id, booking_datetime')
         .eq('trek_id', trekId)
         .eq('payment_status', 'Pending'); // Only show confirmed participants
       
@@ -74,16 +69,35 @@ export function useTrekCommunity(trekId: string | undefined) {
       }
       
       if (data) {
+        // Need to get user details separately
+        const userIds = data.map(item => item.user_id);
+        
+        // Fetch user details for all participants
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', userIds);
+          
+        if (userError) {
+          console.error("Error fetching participant user details:", userError);
+        }
+        
+        // Create a map of user IDs to user data for easy lookup
+        const userMap = (userData || []).reduce((acc, user) => {
+          acc[user.user_id] = user;
+          return acc;
+        }, {} as Record<string, any>);
+        
         // Transform data into the format we need
         const transformedParticipants: Participant[] = data.map(item => {
+          const userData = userMap[item.user_id];
           // Check if this user is the event creator
-          const isCreator = creatorId !== null && 
-                           item.user_id === creatorId;
+          const isCreator = creatorId !== null && item.user_id === creatorId;
           
           return {
             id: String(item.user_id),
-            name: item.users?.full_name || null,
-            avatar: item.users?.avatar_url || null,
+            name: userData?.full_name || null,
+            avatar: userData?.avatar_url || null,
             joinedAt: item.booking_datetime,
             isEventCreator: isCreator || false
           };
@@ -102,32 +116,24 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setCommentsLoading(true);
       
-      // Get the event creator ID for comparison
-      const { data: eventData, error: eventError } = await supabase
-        .from('trek_events')
+      // Get the event creator ID from the roles_assignments table
+      const { data: roleData, error: roleError } = await supabase
+        .from('roles_assignments')
         .select('user_id')
         .eq('trek_id', trekId)
+        .eq('role_type', 'organizer')
         .single();
       
-      if (eventError) {
-        console.error("Error fetching event creator:", eventError);
+      if (roleError) {
+        console.error("Error fetching event creator role:", roleError);
       }
       
-      const eventCreatorId = eventData?.user_id || null;
+      const eventCreatorId = roleData?.user_id || null;
       
-      // Get comments with user profiles joined
+      // Fetch comments
       const { data, error } = await supabase
         .from('comments')
-        .select(`
-          comment_id,
-          user_id,
-          body,
-          created_at,
-          users (
-            full_name,
-            avatar_url
-          )
-        `)
+        .select('comment_id, user_id, body, created_at')
         .eq('post_id', trekId)
         .order('created_at', { ascending: false });
       
@@ -135,17 +141,36 @@ export function useTrekCommunity(trekId: string | undefined) {
         throw error;
       }
       
-      if (data) {
+      if (data && data.length > 0) {
+        // Need to get user details separately
+        const userIds = data.map(item => item.user_id);
+        
+        // Fetch user details for comment authors
+        const { data: userData, error: userError } = await supabase
+          .from('users')
+          .select('user_id, full_name, avatar_url')
+          .in('user_id', userIds);
+          
+        if (userError) {
+          console.error("Error fetching comment user details:", userError);
+        }
+        
+        // Create a map of user IDs to user data for easy lookup
+        const userMap = (userData || []).reduce((acc, user) => {
+          acc[user.user_id] = user;
+          return acc;
+        }, {} as Record<string, any>);
+        
         // Transform data into the format we need
         const transformedComments: Comment[] = data.map(item => {
-          const isCreator = eventCreatorId !== null && 
-                           item.user_id === eventCreatorId;
+          const userData = userMap[item.user_id];
+          const isCreator = eventCreatorId !== null && item.user_id === eventCreatorId;
           
           return {
             id: String(item.comment_id),
             userId: String(item.user_id),
-            userName: item.users?.full_name || 'Anonymous User',
-            userAvatar: item.users?.avatar_url || null,
+            userName: userData?.full_name || 'Anonymous User',
+            userAvatar: userData?.avatar_url || null,
             content: item.body,
             createdAt: item.created_at,
             isEventCreator: isCreator
@@ -153,6 +178,8 @@ export function useTrekCommunity(trekId: string | undefined) {
         });
         
         setComments(transformedComments);
+      } else {
+        setComments([]);
       }
     } catch (error: any) {
       console.error("Error fetching trek comments:", error);
