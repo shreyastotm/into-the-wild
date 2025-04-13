@@ -11,6 +11,7 @@ import { AuthProvider } from './components/auth/AuthProvider';
 import TrekEvents from './pages/TrekEvents';
 import TrekEventDetails from './pages/TrekEventDetails';
 import CreateTrekEvent from './pages/CreateTrekEvent';
+import { Toaster } from './components/ui/toaster';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="*" element={<NotFound />} />
           </Routes>
         </Layout>
+        <Toaster />
       </Router>
     </AuthProvider>
   );
