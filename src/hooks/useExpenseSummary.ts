@@ -9,16 +9,8 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Define a simple interface for expense record with amount
-interface ExpenseRecord {
-  amount: number | null;
-}
-
-// Create a basic interface for raw response data to avoid deep inference
-interface RawExpenseData {
-  amount: number | null;
-  [key: string]: any;
-}
+// Using a simple primitive type instead of an interface to avoid deep type inference
+type ExpenseAmountRecord = { amount: number | null };
 
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
@@ -46,45 +38,43 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid amount with explicit typing to avoid deep inference
+      // Calculate total paid - Using explicit any to avoid type inference issues
       const paidResponse = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
         
-      // Handle errors
       if (paidResponse.error) throw paidResponse.error;
       
-      // Calculate the total paid amount using a basic approach with explicit typing
+      // Use simple primitive-based approach to sum amounts
       let totalPaid = 0;
       if (paidResponse.data) {
-        // Force the type to avoid deep type inference
-        const rawData = paidResponse.data as unknown as RawExpenseData[];
-        for (let i = 0; i < rawData.length; i++) {
-          if (rawData[i] && rawData[i].amount !== null) {
-            totalPaid += Number(rawData[i].amount);
+        // Cast to a simple array without complex type inference
+        const data = paidResponse.data as any[];
+        for (let i = 0; i < data.length; i++) {
+          if (data[i] && data[i].amount != null) {
+            totalPaid += Number(data[i].amount);
           }
         }
       }
       
-      // Calculate total owed amount with explicit typing to avoid deep inference
+      // Calculate total owed - Using explicit any to avoid type inference issues
       const owedResponse = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
         
-      // Handle errors
       if (owedResponse.error) throw owedResponse.error;
       
-      // Calculate the total owed amount using a basic approach with explicit typing
+      // Use simple primitive-based approach to sum amounts
       let totalOwed = 0;
       if (owedResponse.data) {
-        // Force the type to avoid deep type inference
-        const rawData = owedResponse.data as unknown as RawExpenseData[];
-        for (let i = 0; i < rawData.length; i++) {
-          if (rawData[i] && rawData[i].amount !== null) {
-            totalOwed += Number(rawData[i].amount);
+        // Cast to a simple array without complex type inference
+        const data = owedResponse.data as any[];
+        for (let i = 0; i < data.length; i++) {
+          if (data[i] && data[i].amount != null) {
+            totalOwed += Number(data[i].amount);
           }
         }
       }
