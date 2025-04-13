@@ -9,11 +9,6 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Define explicit types for our expense data
-interface ExpenseAmount {
-  amount: number | null;
-}
-
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -40,7 +35,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid by the user - avoiding complex type inference by using manual typing
+      // Calculate total paid by the user
       let totalPaid = 0;
       const paidResult = await supabase
         .from('expense_sharing')
@@ -50,12 +45,15 @@ export const useExpenseSummary = (userId: string | undefined) => {
       if (paidResult.error) throw paidResult.error;
       
       if (paidResult.data) {
-        totalPaid = paidResult.data.reduce((sum, expense) => {
-          return sum + (typeof expense.amount === 'number' ? expense.amount : 0);
+        // Use explicit type checking in the reducer
+        totalPaid = paidResult.data.reduce((sum, item) => {
+          // Safely access amount with type guard
+          const amount = item.amount;
+          return sum + (amount !== null ? Number(amount) : 0);
         }, 0);
       }
       
-      // Calculate total owed by the user - avoiding complex type inference
+      // Calculate total owed by the user
       let totalOwed = 0;
       const owedResult = await supabase
         .from('expense_sharing')
@@ -66,8 +64,11 @@ export const useExpenseSummary = (userId: string | undefined) => {
       if (owedResult.error) throw owedResult.error;
       
       if (owedResult.data) {
-        totalOwed = owedResult.data.reduce((sum, expense) => {
-          return sum + (typeof expense.amount === 'number' ? expense.amount : 0);
+        // Use explicit type checking in the reducer
+        totalOwed = owedResult.data.reduce((sum, item) => {
+          // Safely access amount with type guard
+          const amount = item.amount;
+          return sum + (amount !== null ? Number(amount) : 0);
         }, 0);
       }
       
