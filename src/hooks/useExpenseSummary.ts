@@ -36,7 +36,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
     try {
       setLoading(true);
       
-      // Query for expenses paid by the user - use userId directly without type conversion
+      // Query for expenses paid by the user
       const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -44,7 +44,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (paidError) throw paidError;
       
-      // Query for expenses owed by the user - use userId directly without type conversion
+      // Query for expenses owed by the user
       const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -54,15 +54,19 @@ export const useExpenseSummary = (userId: string | undefined) => {
       if (owedError) throw owedError;
       
       // Calculate totals with safe type handling
-      const totalPaid = paidExpenses?.reduce((sum, item) => {
-        const amount = item.amount ? parseFloat(String(item.amount)) : 0;
+      const totalPaid = paidExpenses ? paidExpenses.reduce((sum, item) => {
+        const amount = item.amount !== null && item.amount !== undefined 
+          ? parseFloat(String(item.amount)) 
+          : 0;
         return sum + (isNaN(amount) ? 0 : amount);
-      }, 0) || 0;
+      }, 0) : 0;
       
-      const totalOwed = owedExpenses?.reduce((sum, item) => {
-        const amount = item.amount ? parseFloat(String(item.amount)) : 0;
+      const totalOwed = owedExpenses ? owedExpenses.reduce((sum, item) => {
+        const amount = item.amount !== null && item.amount !== undefined 
+          ? parseFloat(String(item.amount)) 
+          : 0;
         return sum + (isNaN(amount) ? 0 : amount);
-      }, 0) || 0;
+      }, 0) : 0;
       
       setSummary({
         totalPaid,
