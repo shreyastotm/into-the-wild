@@ -67,24 +67,19 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Step 3: Calculate what user owes
       let totalOwed = 0;
       
-      // Process each trek individually
-      for (let i = 0; i < trekIds.length; i++) {
-        const trekId = trekIds[i];
-        
-        // Simplify the query approach to avoid TypeScript errors
-        const { data: expensesData, error: expenseError } = await supabase
-          .from('expense_sharing')
-          .select('amount')
-          .eq('trek_id', trekId)
-          .eq('user_id', numericUserId)
-          .neq('payer_id', numericUserId);
-            
-        if (!expenseError && expensesData) {
-          for (const expense of expensesData) {
-            totalOwed += Number(expense.amount) || 0;
-          }
-        } else if (expenseError) {
-          console.error(`Error fetching expenses for trek ${trekId}:`, expenseError);
+      // Instead of processing trek by trek with complex queries,
+      // let's just get all expenses the user owes in one simple query
+      const { data: owedExpenses, error: owedError } = await supabase
+        .from('expense_sharing')
+        .select('amount')
+        .eq('user_id', numericUserId)
+        .neq('payer_id', numericUserId);
+      
+      if (owedError) throw owedError;
+      
+      if (owedExpenses && owedExpenses.length > 0) {
+        for (const expense of owedExpenses) {
+          totalOwed += Number(expense.amount) || 0;
         }
       }
       
