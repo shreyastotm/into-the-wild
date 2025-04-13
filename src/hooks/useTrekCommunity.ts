@@ -86,12 +86,15 @@ export function useTrekCommunity(trekId: string | undefined) {
         }
         
         // Create a map of user IDs to user data for easy lookup
-        const userMap = (userData || []).reduce((acc, user) => {
-          if (user && user.user_id) {
-            acc[user.user_id] = user;
-          }
-          return acc;
-        }, {} as Record<string, any>);
+        const userMap = {};
+        
+        if (userData && Array.isArray(userData)) {
+          userData.forEach(user => {
+            if (user && user.user_id) {
+              userMap[user.user_id] = user;
+            }
+          });
+        }
         
         // Transform data into the format we need
         const transformedParticipants: Participant[] = data.map(item => {
@@ -165,12 +168,15 @@ export function useTrekCommunity(trekId: string | undefined) {
         }
         
         // Create a map of user IDs to user data for easy lookup
-        const userMap = (userData || []).reduce((acc, user) => {
-          if (user && user.user_id) {
-            acc[user.user_id] = user;
-          }
-          return acc;
-        }, {} as Record<string, any>);
+        const userMap = {};
+        
+        if (userData && Array.isArray(userData)) {
+          userData.forEach(user => {
+            if (user && user.user_id) {
+              userMap[user.user_id] = user;
+            }
+          });
+        }
         
         // Transform data into the format we need
         const transformedComments: Comment[] = data.map(item => {
