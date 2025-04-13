@@ -35,50 +35,35 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Get total paid expenses
+      // Use aggregate queries instead of fetching all records and summing in JavaScript
+      // This avoids deep type instantiation by letting the database do the work
       const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
-        .select('amount')
-        .eq('payer_id', numericUserId);
+        .select('SUM(amount)')
+        .eq('payer_id', numericUserId)
+        .single();
         
       if (paidError) throw paidError;
       
-      // Calculate total paid - avoid complex type inference
-      let totalPaid = 0;
-      if (paidData && Array.isArray(paidData)) {
-        for (let i = 0; i < paidData.length; i++) {
-          const amount = paidData[i]?.amount;
-          if (amount !== null && amount !== undefined) {
-            totalPaid += Number(amount);
-          }
-        }
-      }
-      
-      // Get total owed expenses
+      // Use aggregate queries for owed amounts as well
       const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
-        .select('amount')
+        .select('SUM(amount)')
         .eq('user_id', numericUserId)
-        .neq('payer_id', numericUserId);
+        .neq('payer_id', numericUserId)
+        .single();
         
       if (owedError) throw owedError;
       
-      // Calculate total owed - avoid complex type inference
-      let totalOwed = 0;
-      if (owedData && Array.isArray(owedData)) {
-        for (let i = 0; i < owedData.length; i++) {
-          const amount = owedData[i]?.amount;
-          if (amount !== null && amount !== undefined) {
-            totalOwed += Number(amount);
-          }
-        }
-      }
+      // Extract values safely - the sum might come as null if no records exist
+      const totalPaid = paidData?.sum || 0;
+      const totalOwed = owedData?.sum || 0;
       
       // Update summary with calculated values
       setSummary({
-        totalPaid,
-        totalOwed,
-        netBalance: totalPaid - totalOwed
+        totalPaid: Number(totalPaid),
+        totalOwed: Number(totalOwed),
+        netBalance: Number(totalPaid) - Number(totalOwed)
       });
       
     } catch (err: any) {
