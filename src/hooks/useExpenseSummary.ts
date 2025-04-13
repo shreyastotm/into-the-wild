@@ -45,19 +45,19 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Use explicit typing for the query results
+      // Use type assertion to avoid deep type instantiation
       const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
-        .select('amount');
+        .select('amount') as { data: ExpenseRecord[] | null, error: any };
       
       if (paidError) throw paidError;
       
-      // Use explicit typing for the query results
+      // Use type assertion to avoid deep type instantiation
       const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
-        .neq('payer_id', numericUserId);
+        .neq('payer_id', numericUserId) as { data: ExpenseRecord[] | null, error: any };
       
       if (owedError) throw owedError;
       
@@ -83,7 +83,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
   };
   
   // Helper function to calculate totals with safe type handling
-  const calculateTotal = (expenses: any[]): number => {
+  const calculateTotal = (expenses: ExpenseRecord[]): number => {
     return expenses.reduce((sum, item) => {
       // If amount is null or undefined, don't add anything
       if (item.amount === null || item.amount === undefined) return sum;
