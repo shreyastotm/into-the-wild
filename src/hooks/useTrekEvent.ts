@@ -5,17 +5,21 @@ import { useTreksList } from './trek/useTreksList';
 
 // Main hook that brings together all trek functionality
 export function useTrekEvent(trekId: string | undefined) {
+  const { trekEvent, loading, setTrekEvent } = useTrekEventDetails(trekId);
   const registration = useTrekRegistration(trekId);
   
   return {
+    trekEvent,
+    loading,
+    setTrekEvent,
     ...registration
   };
 }
 
 // Export the individual hooks
-export { useTreksList };
+export { useTreksList, useTrekEventDetails };
 
-// Future enhancement: Add a hook for fetching treks with pagination
+// Function for fetching treks with pagination
 export function useTreks() {
   return useTreksList();
 }
