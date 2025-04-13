@@ -37,7 +37,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       setLoading(true);
       
       // Query for expenses paid by the user
-      const { data: paidData, error: paidError } = await supabase
+      const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', userId);
@@ -45,7 +45,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       if (paidError) throw paidError;
       
       // Query for expenses owed by the user (where they're a participant but not the payer)
-      const { data: owedData, error: owedError } = await supabase
+      const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', userId)
@@ -54,8 +54,8 @@ export const useExpenseSummary = (userId: string | undefined) => {
       if (owedError) throw owedError;
       
       // Calculate the totals
-      const totalPaid = paidData?.reduce((sum, record) => sum + (Number(record.amount) || 0), 0) || 0;
-      const totalOwed = owedData?.reduce((sum, record) => sum + (Number(record.amount) || 0), 0) || 0;
+      const totalPaid = paidExpenses?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
+      const totalOwed = owedExpenses?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
       
       setSummary({
         totalPaid,
