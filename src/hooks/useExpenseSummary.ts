@@ -45,35 +45,25 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Handle paid expenses with explicit typing to avoid deep type inferencing
-      let paidExpenses: ExpenseRecord[] = [];
-      let owedExpenses: ExpenseRecord[] = [];
-      
-      // First query - completely separate from type system
-      const paidResponse = await supabase
+      // Handle paid expenses using explicit "any" to bypass TypeScript deep inference
+      const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
-        .select('amount');
+        .select('amount') as { data: any, error: any };
       
-      if (paidResponse.error) throw paidResponse.error;
+      if (paidError) throw paidError;
       
-      // Cast the response data to our simple type
-      if (paidResponse.data) {
-        paidExpenses = paidResponse.data as ExpenseRecord[];
-      }
-      
-      // Second query - also isolated from complex type inferencing
-      const owedResponse = await supabase
+      // Handle owed expenses similarly using "any" to bypass TypeScript deep inference
+      const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
-        .neq('payer_id', numericUserId);
+        .neq('payer_id', numericUserId) as { data: any, error: any };
       
-      if (owedResponse.error) throw owedResponse.error;
+      if (owedError) throw owedError;
       
-      // Cast the response data to our simple type
-      if (owedResponse.data) {
-        owedExpenses = owedResponse.data as ExpenseRecord[];
-      }
+      // Explicitly cast query results to our simpler ExpenseRecord type
+      const paidExpenses: ExpenseRecord[] = paidData || [];
+      const owedExpenses: ExpenseRecord[] = owedData || [];
       
       // Calculate totals with simplified type handling
       const totalPaid = calculateTotal(paidExpenses);
