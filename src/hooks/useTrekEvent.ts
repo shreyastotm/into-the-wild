@@ -22,6 +22,7 @@ interface TrekEvent {
   cancellation_policy: string | null;
   event_creator_type: 'internal' | 'external' | null;
   partner_id: number | null;
+  image_url?: string | null;
 }
 
 interface DbRegistration {
@@ -68,7 +69,15 @@ export function useTrekEvent(trekId: string | undefined) {
       }
       
       if (data) {
-        setTrekEvent(data as TrekEvent);
+        // If we have images in the future, we can fetch from storage
+        // const imageUrl = data.image_path 
+        //   ? await getImageUrl(data.image_path) 
+        //   : null;
+        
+        setTrekEvent({
+          ...data as TrekEvent,
+          // image_url: imageUrl
+        });
       }
     } catch (error: any) {
       toast({
@@ -81,6 +90,21 @@ export function useTrekEvent(trekId: string | undefined) {
       setLoading(false);
     }
   }
+
+  // Helper function to generate a URL for images in Supabase Storage
+  // async function getImageUrl(path: string): Promise<string | null> {
+  //   try {
+  //     const { data, error } = await supabase.storage
+  //       .from('trek-images')
+  //       .getPublicUrl(path);
+      
+  //     if (error) throw error;
+  //     return data.publicUrl;
+  //   } catch (error) {
+  //     console.error('Error getting image URL:', error);
+  //     return null;
+  //   }
+  // }
 
   async function checkUserRegistration(trekId: number) {
     if (!user) return;
@@ -244,5 +268,67 @@ export function useTrekEvent(trekId: string | undefined) {
     userRegistration,
     registerForTrek,
     cancelRegistration
+  };
+}
+
+// Future enhancement: Add a hook for fetching treks with pagination
+export function useTreks() {
+  const [treks, setTreks] = useState<TrekEvent[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pageSize = 9;
+
+  // This is a placeholder for future implementation
+  async function fetchTreks(page = 1) {
+    try {
+      setLoading(true);
+      const start = (page - 1) * pageSize;
+      const end = start + pageSize - 1;
+      
+      const { data, error, count } = await supabase
+        .from('trek_events')
+        .select('*', { count: 'exact' })
+        .order('start_datetime', { ascending: true })
+        .range(start, end);
+      
+      if (error) throw new Error(error.message);
+      
+      setTreks(data as TrekEvent[]);
+      setHasMore(count !== null && start + data.length < count);
+    } catch (err: any) {
+      setError(err);
+      toast({
+        title: "Error fetching treks",
+        description: err.message || "Failed to load trek events",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function nextPage() {
+    if (hasMore) {
+      setPage(p => p + 1);
+    }
+  }
+
+  function prevPage() {
+    if (page > 1) {
+      setPage(p => p - 1);
+    }
+  }
+
+  return {
+    treks,
+    loading,
+    error,
+    page,
+    hasMore,
+    fetchTreks,
+    nextPage,
+    prevPage
   };
 }

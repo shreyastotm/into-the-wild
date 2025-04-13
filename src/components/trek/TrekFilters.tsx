@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Search, Filter, ChevronDown } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -54,7 +53,6 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
     { label: 'Next 3 Months', value: 'next-3-months' },
   ];
 
-  // Count active filters (excluding search and sort which aren't traditional filters)
   const activeFilterCount = [
     options.category,
     options.priceRange,
@@ -63,7 +61,7 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
 
   return (
     <div className="mb-6 space-y-4">
-      <div className="flex flex-col md:flex-row gap-3">
+      <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-grow">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
@@ -79,7 +77,7 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
             <PopoverTrigger asChild>
               <Button variant="outline" className="gap-1">
                 <Filter className="h-4 w-4" />
-                Filters
+                <span className="hidden sm:inline">Filters</span>
                 {activeFilterCount > 0 && (
                   <span className="ml-1 bg-primary text-primary-foreground rounded-full w-5 h-5 flex items-center justify-center text-xs">
                     {activeFilterCount}
@@ -156,10 +154,10 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
             value={options.sortBy} 
             onValueChange={(value) => onFilterChange('sortBy', value)}
           >
-            <SelectTrigger className="min-w-[160px] inline-flex">
+            <SelectTrigger className="min-w-[100px] sm:min-w-[160px] inline-flex">
               <span className="flex items-center gap-1">
                 <ChevronDown className="h-4 w-4" />
-                <span>Sort</span>
+                <span className="hidden sm:inline">Sort</span>
               </span>
             </SelectTrigger>
             <SelectContent>
@@ -171,7 +169,6 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
         </div>
       </div>
       
-      {/* Active filters display */}
       {activeFilterCount > 0 && (
         <div className="flex flex-wrap gap-2 items-center text-sm">
           <span className="text-muted-foreground">Active filters:</span>
