@@ -45,7 +45,8 @@ export const ExpenseSummary = () => {
         .from('expense_sharing')
         .select('amount')
         .neq('payer_id', user?.id || '')
-        .eq('trek_id', 'ANY(SELECT trek_id FROM registrations WHERE user_id = $1)', [user?.id || '']);
+        .eq('trek_id', 'ANY(SELECT trek_id FROM registrations WHERE user_id = $1)')
+        .match({ user_id: user?.id || '' });
       
       if (owedError) throw owedError;
       

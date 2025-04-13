@@ -37,7 +37,8 @@ export const ExpenseChart = () => {
           trek_id,
           trek_events(trek_name)
         `)
-        .in('trek_id', 'SELECT trek_id FROM registrations WHERE user_id = $1', [user?.id || '']);
+        .in('trek_id', 'SELECT trek_id FROM registrations WHERE user_id = $1')
+        .match({ user_id: user?.id || '' });
       
       if (error) throw error;
       
