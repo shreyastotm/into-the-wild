@@ -9,10 +9,8 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Define a simple interface for expense records
-interface ExpenseRecord {
-  amount: number | null;
-}
+// Define a simple type for the raw amount data we receive
+type RawAmount = { amount: number | null };
 
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
@@ -48,16 +46,17 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (paidError) throw paidError;
       
-      // Calculate total paid with safe type handling
+      // Calculate total paid
       let totalPaid = 0;
       if (paidData) {
-        // Manually calculate the sum to avoid deep typing issues
-        for (let i = 0; i < paidData.length; i++) {
-          const item = paidData[i] as ExpenseRecord;
-          if (item && item.amount !== null) {
+        // Use a simple approach to sum amounts
+        paidData.forEach((item: any) => {
+          if (item && typeof item.amount === 'number') {
+            totalPaid += item.amount;
+          } else if (item && item.amount !== null) {
             totalPaid += Number(item.amount);
           }
-        }
+        });
       }
       
       // Get total owed expenses
@@ -69,16 +68,17 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (owedError) throw owedError;
       
-      // Calculate total owed with safe type handling
+      // Calculate total owed
       let totalOwed = 0;
       if (owedData) {
-        // Manually calculate the sum to avoid deep typing issues
-        for (let i = 0; i < owedData.length; i++) {
-          const item = owedData[i] as ExpenseRecord;
-          if (item && item.amount !== null) {
+        // Use a simple approach to sum amounts
+        owedData.forEach((item: any) => {
+          if (item && typeof item.amount === 'number') {
+            totalOwed += item.amount;
+          } else if (item && item.amount !== null) {
             totalOwed += Number(item.amount);
           }
-        }
+        });
       }
       
       // Update summary with calculated values
