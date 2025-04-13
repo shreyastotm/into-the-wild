@@ -42,7 +42,20 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setLoading(true);
       
-      // Get participants with user profiles joined
+      // First, get the event creator's ID
+      const { data: creatorData, error: creatorError } = await supabase
+        .from('trek_events')
+        .select('user_id')
+        .eq('trek_id', trekId)
+        .single();
+      
+      if (creatorError) {
+        console.error("Error fetching event creator:", creatorError);
+      }
+
+      const creatorId = creatorData?.user_id || null;
+      
+      // Get participants with user profiles
       const { data, error } = await supabase
         .from('registrations')
         .select(`
@@ -51,9 +64,6 @@ export function useTrekCommunity(trekId: string | undefined) {
           users (
             full_name,
             avatar_url
-          ),
-          trek_events!inner (
-            user_id
           )
         `)
         .eq('trek_id', trekId)
@@ -67,8 +77,8 @@ export function useTrekCommunity(trekId: string | undefined) {
         // Transform data into the format we need
         const transformedParticipants: Participant[] = data.map(item => {
           // Check if this user is the event creator
-          const isCreator = item.trek_events && 
-                            item.trek_events.user_id === item.user_id;
+          const isCreator = creatorId !== null && 
+                           item.user_id === creatorId;
           
           return {
             id: String(item.user_id),
@@ -92,6 +102,19 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setCommentsLoading(true);
       
+      // Get the event creator ID for comparison
+      const { data: eventData, error: eventError } = await supabase
+        .from('trek_events')
+        .select('user_id')
+        .eq('trek_id', trekId)
+        .single();
+      
+      if (eventError) {
+        console.error("Error fetching event creator:", eventError);
+      }
+      
+      const eventCreatorId = eventData?.user_id || null;
+      
       // Get comments with user profiles joined
       const { data, error } = await supabase
         .from('comments')
@@ -113,19 +136,6 @@ export function useTrekCommunity(trekId: string | undefined) {
       }
       
       if (data) {
-        // Get the event creator ID for comparison
-        const { data: eventData, error: eventError } = await supabase
-          .from('trek_events')
-          .select('user_id')
-          .eq('trek_id', trekId)
-          .single();
-        
-        if (eventError) {
-          console.error("Error fetching event creator:", eventError);
-        }
-        
-        const eventCreatorId = eventData?.user_id || null;
-        
         // Transform data into the format we need
         const transformedComments: Comment[] = data.map(item => {
           const isCreator = eventCreatorId !== null && 
