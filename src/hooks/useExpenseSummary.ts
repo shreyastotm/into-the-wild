@@ -45,27 +45,38 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Handle paid expenses by ignoring deep type inference
-      const paidQuery = supabase
+      // Completely bypass TypeScript type system by using raw query approach
+      // Fetch paid expenses with explicit any typing
+      let paidExpenses: ExpenseRecord[] = [];
+      const paidQuery = await supabase
         .from('expense_sharing')
         .select('amount');
+        
+      if (paidQuery.error) throw paidQuery.error;
       
-      const paidResult = await paidQuery;
-      if (paidResult.error) throw paidResult.error;
+      // Manual type conversion to avoid deep type inference
+      if (paidQuery.data) {
+        paidExpenses = paidQuery.data.map((item: any) => ({ 
+          amount: item.amount 
+        }));
+      }
       
-      // Handle owed expenses similarly
-      const owedQuery = supabase
+      // Fetch owed expenses with explicit any typing
+      let owedExpenses: ExpenseRecord[] = [];
+      const owedQuery = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
+        
+      if (owedQuery.error) throw owedQuery.error;
       
-      const owedResult = await owedQuery;
-      if (owedResult.error) throw owedResult.error;
-      
-      // Safely convert query results to our simpler ExpenseRecord type
-      const paidExpenses: ExpenseRecord[] = paidResult.data || [];
-      const owedExpenses: ExpenseRecord[] = owedResult.data || [];
+      // Manual type conversion to avoid deep type inference
+      if (owedQuery.data) {
+        owedExpenses = owedQuery.data.map((item: any) => ({ 
+          amount: item.amount 
+        }));
+      }
       
       // Calculate totals with simplified type handling
       const totalPaid = calculateTotal(paidExpenses);
