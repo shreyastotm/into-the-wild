@@ -35,35 +35,43 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Use aggregate queries instead of fetching all records and summing in JavaScript
-      // This avoids deep type instantiation by letting the database do the work
+      // Fetch expenses where user is the payer
       const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
-        .select('SUM(amount)')
-        .eq('payer_id', numericUserId)
-        .single();
+        .select('amount')
+        .eq('payer_id', numericUserId);
         
       if (paidError) throw paidError;
       
-      // Use aggregate queries for owed amounts as well
+      // Fetch expenses where user owes money
       const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
-        .select('SUM(amount)')
+        .select('amount')
         .eq('user_id', numericUserId)
-        .neq('payer_id', numericUserId)
-        .single();
+        .neq('payer_id', numericUserId);
         
       if (owedError) throw owedError;
       
-      // Extract values safely - the sum might come as null if no records exist
-      const totalPaid = paidData?.sum || 0;
-      const totalOwed = owedData?.sum || 0;
+      // Calculate totals using simple summation to avoid deep type inference
+      let totalPaid = 0;
+      let totalOwed = 0;
       
-      // Update summary with calculated values
+      if (paidData) {
+        for (let i = 0; i < paidData.length; i++) {
+          totalPaid += Number(paidData[i]?.amount || 0);
+        }
+      }
+      
+      if (owedData) {
+        for (let i = 0; i < owedData.length; i++) {
+          totalOwed += Number(owedData[i]?.amount || 0);
+        }
+      }
+      
       setSummary({
-        totalPaid: Number(totalPaid),
-        totalOwed: Number(totalOwed),
-        netBalance: Number(totalPaid) - Number(totalOwed)
+        totalPaid,
+        totalOwed,
+        netBalance: totalPaid - totalOwed
       });
       
     } catch (err: any) {
