@@ -28,66 +28,67 @@ export const useExpenseSummary = (userId: string | undefined) => {
     try {
       setLoading(true);
       
-      const numericUserId = userId ? userIdToNumber(userId) : 0;
+      if (!userId) {
+        setSummary({ totalPaid: 0, totalOwed: 0, netBalance: 0 });
+        return;
+      }
       
-      // Get total amount paid by the user (expenses they created)
-      const { data: paidData, error: paidError } = await supabase
+      const numericUserId = userIdToNumber(userId);
+      
+      // Step 1: Calculate total paid by the user (simple query)
+      const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
       
       if (paidError) throw paidError;
       
-      // Calculate total paid by the user
-      const totalPaid = paidData?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
+      const totalPaid = paidExpenses?.reduce((sum, item) => 
+        sum + (Number(item.amount) || 0), 0) || 0;
       
-      // Get user's registrations to find their treks
-      const { data: registrations, error: regError } = await supabase
+      // Step 2: Get user's trek IDs (simple query)
+      const { data: userTreks, error: trekError } = await supabase
         .from('registrations')
         .select('trek_id')
         .eq('user_id', numericUserId);
       
-      if (regError) throw regError;
+      if (trekError) throw trekError;
       
-      // If user has no registrations, return early with zeroes
-      if (!registrations || registrations.length === 0) {
-        setSummary({
-          totalPaid,
-          totalOwed: 0,
-          netBalance: totalPaid
-        });
-        setLoading(false);
-        return;
-      }
-      
-      // Extract trek IDs as an array
-      const trekIds = registrations.map(reg => reg.trek_id);
-      
-      // Calculate what the user owes - simplify query to avoid deep type nesting
+      // Step 3: Calculate what user owes
       let totalOwed = 0;
       
-      // Use a simpler query structure to avoid excessive type instantiation
-      for (const trekId of trekIds) {
-        const { data: trekExpenses, error: trekError } = await supabase
-          .from('expense_sharing')
-          .select('amount')
-          .eq('trek_id', trekId)
-          .eq('user_id', numericUserId)
-          .neq('payer_id', numericUserId);
-        
-        if (trekError) throw trekError;
-        
-        if (trekExpenses && trekExpenses.length > 0) {
-          totalOwed += trekExpenses.reduce((sum, item) => sum + (Number(item.amount) || 0), 0);
+      if (userTreks && userTreks.length > 0) {
+        // We'll execute simple queries one at a time
+        for (const trek of userTreks) {
+          // For each trek, get expenses where user is not the payer
+          const { data, error: expenseError } = await supabase
+            .from('expense_sharing')
+            .select('amount')
+            .eq('trek_id', trek.trek_id)
+            .eq('user_id', numericUserId)
+            .neq('payer_id', numericUserId);
+          
+          if (expenseError) {
+            console.error(`Error getting expenses for trek ${trek.trek_id}:`, expenseError);
+            continue; // Skip this trek if there's an error
+          }
+          
+          // Add up the expenses for this trek
+          if (data && data.length > 0) {
+            const trekOwed = data.reduce((sum, item) => 
+              sum + (Number(item.amount) || 0), 0);
+            totalOwed += trekOwed;
+          }
         }
       }
       
-      // Set the summary
+      // Update the summary state
       setSummary({
         totalPaid,
         totalOwed,
         netBalance: totalPaid - totalOwed
       });
+      
     } catch (error: any) {
       console.error("Error fetching expense summary:", error);
       setError(error);
