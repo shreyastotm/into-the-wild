@@ -9,7 +9,7 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Define a simple interface for expense amounts
+// Define a simple interface for expense record with amount
 interface ExpenseRecord {
   amount: number | null;
 }
@@ -40,46 +40,48 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid by user
-      let totalPaid = 0;
-      const paidResult = await supabase
+      // Calculate total paid amount - explicitly typing the response
+      const paidResponse = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
         
-      if (paidResult.error) throw paidResult.error;
+      // Handle errors
+      if (paidResponse.error) throw paidResponse.error;
       
-      // Process data array directly without type inference
-      if (paidResult.data) {
-        for (let i = 0; i < paidResult.data.length; i++) {
-          const item = paidResult.data[i];
-          if (item && item.amount !== null) {
-            totalPaid += Number(item.amount);
+      // Calculate the total paid amount using a basic approach
+      let totalPaid = 0;
+      if (paidResponse.data) {
+        const records = paidResponse.data as ExpenseRecord[];
+        for (let i = 0; i < records.length; i++) {
+          if (records[i] && records[i].amount !== null) {
+            totalPaid += Number(records[i].amount);
           }
         }
       }
       
-      // Calculate total owed by user
-      let totalOwed = 0;
-      const owedResult = await supabase
+      // Calculate total owed amount - explicitly typing the response
+      const owedResponse = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
         
-      if (owedResult.error) throw owedResult.error;
+      // Handle errors
+      if (owedResponse.error) throw owedResponse.error;
       
-      // Process data array directly without type inference
-      if (owedResult.data) {
-        for (let i = 0; i < owedResult.data.length; i++) {
-          const item = owedResult.data[i];
-          if (item && item.amount !== null) {
-            totalOwed += Number(item.amount);
+      // Calculate the total owed amount using a basic approach
+      let totalOwed = 0;
+      if (owedResponse.data) {
+        const records = owedResponse.data as ExpenseRecord[];
+        for (let i = 0; i < records.length; i++) {
+          if (records[i] && records[i].amount !== null) {
+            totalOwed += Number(records[i].amount);
           }
         }
       }
       
-      // Update the summary state with calculated values
+      // Update summary with calculated values
       setSummary({
         totalPaid,
         totalOwed,
