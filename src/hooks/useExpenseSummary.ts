@@ -35,40 +35,42 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid
-      const { data: paidData, error: paidError } = await supabase
+      // Calculate total paid using raw query
+      const paidQuery = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
         
-      if (paidError) throw paidError;
+      if (paidQuery.error) throw paidQuery.error;
       
-      // Simple summation with explicit type casting
+      // Use explicit type assertion and manual calculation
       let totalPaid = 0;
-      if (paidData && Array.isArray(paidData)) {
-        for (const item of paidData) {
-          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
-            totalPaid += Number(item.amount);
-          }
+      const paidData = paidQuery.data as any[] || [];
+      
+      for (let i = 0; i < paidData.length; i++) {
+        const item = paidData[i];
+        if (item && item.amount != null) {
+          totalPaid += Number(item.amount);
         }
       }
       
-      // Calculate total owed
-      const { data: owedData, error: owedError } = await supabase
+      // Calculate total owed using raw query
+      const owedQuery = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
         
-      if (owedError) throw owedError;
+      if (owedQuery.error) throw owedQuery.error;
       
-      // Simple summation with explicit type casting
+      // Use explicit type assertion and manual calculation
       let totalOwed = 0;
-      if (owedData && Array.isArray(owedData)) {
-        for (const item of owedData) {
-          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
-            totalOwed += Number(item.amount);
-          }
+      const owedData = owedQuery.data as any[] || [];
+      
+      for (let i = 0; i < owedData.length; i++) {
+        const item = owedData[i];
+        if (item && item.amount != null) {
+          totalOwed += Number(item.amount);
         }
       }
       
