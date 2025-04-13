@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 export interface ExpenseSummary {
   totalPaid: number;
@@ -21,52 +20,123 @@ export const useExpenseSummary = (userId: string | undefined) => {
   useEffect(() => {
     if (userId) {
       fetchExpenseSummary();
+    } else {
+      setSummary({ totalPaid: 0, totalOwed: 0, netBalance: 0 });
+      setLoading(false);
     }
   }, [userId]);
 
   const fetchExpenseSummary = async () => {
+    if (!userId) {
+      setSummary({ totalPaid: 0, totalOwed: 0, netBalance: 0 });
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
       
-      if (!userId) {
-        setSummary({ totalPaid: 0, totalOwed: 0, netBalance: 0 });
+      // Using RPC calls to avoid TypeScript type recursion issues
+      const { data: paidTotal, error: paidError } = await supabase.rpc('get_user_paid_total', { 
+        user_id_param: userId 
+      });
+      
+      if (paidError) throw paidError;
+      
+      const { data: owedTotal, error: owedError } = await supabase.rpc('get_user_owed_total', { 
+        user_id_param: userId 
+      });
+      
+      if (owedError) throw owedError;
+      
+      // Set summary with values from database stored procedures
+      setSummary({
+        totalPaid: paidTotal || 0,
+        totalOwed: owedTotal || 0,
+        netBalance: (paidTotal || 0) - (owedTotal || 0)
+      });
+      
+    } catch (err: any) {
+      console.error("Error fetching expense summary:", err);
+      
+      // Fallback to direct query if RPC fails (maybe functions don't exist yet)
+      try {
+        await fetchExpenseSummaryFallback(userId);
+      } catch (fallbackErr) {
+        setError(err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Direct query fallback that avoids TypeScript recursion issues
+  const fetchExpenseSummaryFallback = async (uid: string) => {
+    try {
+      // Convert to number only for the query to avoid type issues
+      const numericId = typeof uid === 'string' ? parseInt(uid) : uid;
+      
+      // For expenses paid by user - use string templates to avoid type recursion
+      const paidQuery = `
+        SELECT amount FROM expense_sharing 
+        WHERE payer_id = ${numericId}
+      `;
+      const { data: paidData, error: paidError } = await supabase.rpc('run_sql', { sql_query: paidQuery });
+      
+      if (paidError) {
+        // Final fallback - simplest possible direct query
+        const { data: simplePaidData, error: simplePaidError } = await supabase
+          .from('expense_sharing')
+          .select('amount')
+          .eq('payer_id', numericId);
+          
+        if (simplePaidError) throw simplePaidError;
+        
+        let totalPaid = 0;
+        if (simplePaidData) {
+          totalPaid = simplePaidData.reduce((sum, record) => sum + (Number(record.amount) || 0), 0);
+        }
+        
+        // For expenses owed by user
+        const { data: simpleOwedData, error: simpleOwedError } = await supabase
+          .from('expense_sharing')
+          .select('amount')
+          .eq('user_id', numericId)
+          .neq('payer_id', numericId);
+          
+        if (simpleOwedError) throw simpleOwedError;
+        
+        let totalOwed = 0;
+        if (simpleOwedData) {
+          totalOwed = simpleOwedData.reduce((sum, record) => sum + (Number(record.amount) || 0), 0);
+        }
+        
+        setSummary({
+          totalPaid,
+          totalOwed,
+          netBalance: totalPaid - totalOwed
+        });
+        
         return;
       }
       
-      const numericUserId = userIdToNumber(userId);
+      // For expenses owed by user
+      const owedQuery = `
+        SELECT amount FROM expense_sharing 
+        WHERE user_id = ${numericId} AND payer_id != ${numericId}
+      `;
+      const { data: owedData, error: owedError } = await supabase.rpc('run_sql', { sql_query: owedQuery });
       
-      // Fetch expenses where user is the payer
-      const { data: paidData, error: paidError } = await supabase
-        .from('expense_sharing')
-        .select('amount')
-        .eq('payer_id', numericUserId);
-        
-      if (paidError) throw paidError;
-      
-      // Fetch expenses where user owes money
-      const { data: owedData, error: owedError } = await supabase
-        .from('expense_sharing')
-        .select('amount')
-        .eq('user_id', numericUserId)
-        .neq('payer_id', numericUserId);
-        
       if (owedError) throw owedError;
       
-      // Calculate totals using simple summation to avoid deep type inference
-      let totalPaid = 0;
-      let totalOwed = 0;
-      
-      if (paidData) {
-        for (let i = 0; i < paidData.length; i++) {
-          totalPaid += Number(paidData[i]?.amount || 0);
-        }
-      }
-      
-      if (owedData) {
-        for (let i = 0; i < owedData.length; i++) {
-          totalOwed += Number(owedData[i]?.amount || 0);
-        }
-      }
+      // Calculate totals from raw query results
+      const totalPaid = paidData 
+        ? paidData.reduce((sum: number, record: any) => sum + (Number(record.amount) || 0), 0) 
+        : 0;
+        
+      const totalOwed = owedData 
+        ? owedData.reduce((sum: number, record: any) => sum + (Number(record.amount) || 0), 0)
+        : 0;
       
       setSummary({
         totalPaid,
@@ -74,11 +144,11 @@ export const useExpenseSummary = (userId: string | undefined) => {
         netBalance: totalPaid - totalOwed
       });
       
-    } catch (err: any) {
-      console.error("Error fetching expense summary:", err);
-      setError(err);
-    } finally {
-      setLoading(false);
+    } catch (fallbackErr: any) {
+      // If all else fails, return zeros
+      setSummary({ totalPaid: 0, totalOwed: 0, netBalance: 0 });
+      console.error("Error in expense summary fallback:", fallbackErr);
+      throw fallbackErr;
     }
   };
 
