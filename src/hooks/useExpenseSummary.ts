@@ -45,15 +45,14 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Query for expenses paid by the user with explicit typing
+      // Use explicit typing for the query results
       const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
-        .select('amount')
-        .eq('payer_id', numericUserId);
+        .select('amount');
       
       if (paidError) throw paidError;
       
-      // Query for expenses owed by the user with explicit typing
+      // Use explicit typing for the query results
       const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
