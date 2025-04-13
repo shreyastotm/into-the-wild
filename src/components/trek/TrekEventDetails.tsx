@@ -2,7 +2,8 @@
 import React from 'react';
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { CalendarClock, Users, Clock, MapPin, CreditCard, Info, Map, Car, Bus } from "lucide-react";
+import { CalendarClock, Users, Clock, MapPin, CreditCard, Info, Map, Car, Bus, UserCheck } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
 
 interface TrekEventDetailsProps {
   description: string | null;
@@ -109,7 +110,10 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Current Registrations:</span>
-                  <span className="font-medium">{currentParticipants || 0} participants</span>
+                  <div className="flex items-center">
+                    <UserCheck className="h-4 w-4 mr-1 text-green-600" />
+                    <span className="font-medium">{currentParticipants || 0} participants</span>
+                  </div>
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Available Spots:</span>
@@ -118,16 +122,11 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
                   </Badge>
                 </div>
                 <div className="mt-2">
-                  <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
-                    <div 
-                      className={`h-full ${spotsFillPercent >= 80 ? 'bg-amber-500' : 'bg-green-500'}`} 
-                      style={{ width: `${spotsFillPercent}%` }}
-                    ></div>
-                  </div>
-                  <div className="flex justify-between text-xs mt-1">
+                  <div className="flex justify-between text-xs mb-1">
                     <span>{currentParticipants || 0} joined</span>
                     <span>{availableSpots} spots left</span>
                   </div>
+                  <Progress value={spotsFillPercent} className="h-2" />
                 </div>
               </div>
             </div>
