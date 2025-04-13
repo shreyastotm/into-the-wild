@@ -5,31 +5,12 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
 import { userIdToNumber } from '@/utils/dbTypeConversions';
 
-interface DbParticipant {
-  user_id: number;
-  full_name: string | null;
-  avatar_url: string | null;
-  booking_datetime: string;
-  is_event_creator: boolean;
-}
-
 interface Participant {
   id: string;
   name: string | null;
   avatar: string | null;
   joinedAt: string;
   isEventCreator: boolean;
-}
-
-interface DbComment {
-  comment_id: number;
-  trek_id: number;
-  user_id: number;
-  content: string;
-  created_at: string;
-  full_name: string | null;
-  avatar_url: string | null;
-  is_event_creator: boolean;
 }
 
 interface Comment {
@@ -67,12 +48,12 @@ export function useTrekCommunity(trekId: string | undefined) {
         .select(`
           user_id,
           booking_datetime,
-          users:user_id (
+          users (
             full_name,
             avatar_url
           ),
           trek_events!inner (
-            event_creator_id
+            user_id
           )
         `)
         .eq('trek_id', trekId)
@@ -85,14 +66,15 @@ export function useTrekCommunity(trekId: string | undefined) {
       if (data) {
         // Transform data into the format we need
         const transformedParticipants: Participant[] = data.map(item => {
-          const isCreator = item.trek_events?.event_creator_id === item.user_id;
+          // Check if this user is the event creator
+          const isCreator = item.trek_events && item.trek_events.user_id === item.user_id;
           
           return {
             id: String(item.user_id),
             name: item.users?.full_name || null,
             avatar: item.users?.avatar_url || null,
             joinedAt: item.booking_datetime,
-            isEventCreator: isCreator
+            isEventCreator: isCreator || false
           };
         });
         
@@ -111,22 +93,18 @@ export function useTrekCommunity(trekId: string | undefined) {
       
       // Get comments with user profiles joined
       const { data, error } = await supabase
-        .from('trek_comments')
+        .from('comments')
         .select(`
           comment_id,
-          trek_id,
           user_id,
-          content,
+          body,
           created_at,
-          users:user_id (
+          users (
             full_name,
             avatar_url
-          ),
-          trek_events!inner (
-            event_creator_id
           )
         `)
-        .eq('trek_id', trekId)
+        .eq('post_id', trekId)
         .order('created_at', { ascending: false });
       
       if (error) {
@@ -134,16 +112,29 @@ export function useTrekCommunity(trekId: string | undefined) {
       }
       
       if (data) {
+        // Get the event creator ID for comparison
+        const { data: eventData, error: eventError } = await supabase
+          .from('trek_events')
+          .select('user_id')
+          .eq('trek_id', trekId)
+          .single();
+        
+        if (eventError) {
+          console.error("Error fetching event creator:", eventError);
+        }
+        
+        const eventCreatorId = eventData?.user_id || null;
+        
         // Transform data into the format we need
         const transformedComments: Comment[] = data.map(item => {
-          const isCreator = item.trek_events?.event_creator_id === item.user_id;
+          const isCreator = eventCreatorId !== null && item.user_id === eventCreatorId;
           
           return {
             id: String(item.comment_id),
             userId: String(item.user_id),
             userName: item.users?.full_name || 'Anonymous User',
             userAvatar: item.users?.avatar_url || null,
-            content: item.content,
+            content: item.body,
             createdAt: item.created_at,
             isEventCreator: isCreator
           };
@@ -165,11 +156,11 @@ export function useTrekCommunity(trekId: string | undefined) {
       setSubmitting(true);
       
       const { error } = await supabase
-        .from('trek_comments')
+        .from('comments')
         .insert({
-          trek_id: parseInt(trekId),
+          post_id: parseInt(trekId),
           user_id: userIdToNumber(user.id),
-          content: content,
+          body: content,
           created_at: new Date().toISOString()
         });
       

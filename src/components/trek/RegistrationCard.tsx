@@ -1,101 +1,126 @@
 
 import React from 'react';
 import { Button } from '@/components/ui/button';
-import { useNavigate } from 'react-router-dom';
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { Badge } from '@/components/ui/badge';
+import { CheckCircle, Calendar, Users, AlertCircle } from 'lucide-react';
+import { WithStringId } from "@/integrations/supabase/client";
+
+interface DbRegistration {
+  registration_id: number;
+  trek_id: number;
+  user_id: number;
+  booking_datetime: string;
+  payment_status: 'Pending' | 'Paid' | 'Cancelled';
+  cancellation_datetime?: string | null;
+  penalty_applied?: number | null;
+  created_at?: string | null;
+}
 
 interface RegistrationCardProps {
-  cost: number;
-  maxParticipants: number;
-  currentParticipants: number | null;
-  isRegistered: boolean;
-  isCancelled: boolean;
-  isFull: boolean;
-  isLoggedIn: boolean;
-  registering: boolean;
-  onRegister: () => void;
-  onCancel: () => void;
-  paymentStatus?: string;
+  trek: {
+    trek_id: number;
+    max_participants: number;
+    current_participants: number | null;
+    cost: number;
+  };
+  userRegistration: WithStringId<DbRegistration> | null;
+  onRegister: () => Promise<boolean>;
+  onCancel: () => Promise<boolean>;
+  isLoading: boolean;
 }
 
 export const RegistrationCard: React.FC<RegistrationCardProps> = ({
-  cost,
-  maxParticipants,
-  currentParticipants = 0,
-  isRegistered,
-  isCancelled,
-  isFull,
-  isLoggedIn,
-  registering,
+  trek,
+  userRegistration,
   onRegister,
   onCancel,
-  paymentStatus
+  isLoading
 }) => {
-  const navigate = useNavigate();
-  
-  const handleRegister = () => {
-    if (!isLoggedIn) {
-      navigate('/auth');
-      return;
-    }
-    onRegister();
-  };
+  const availableSpots = trek.max_participants - (trek.current_participants || 0);
+  const spotsFillPercent = ((trek.current_participants || 0) / trek.max_participants) * 100;
+  const isFull = availableSpots <= 0;
   
   return (
-    <div>
-      <p className="text-3xl font-bold mb-4">₹{cost}</p>
-      
-      <div className="mb-4">
-        <p className="text-sm text-gray-600 mb-1">
-          <span className="font-medium">Available:</span> {maxParticipants - (currentParticipants || 0)} spots left
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-2.5">
-          <div 
-            className="bg-blue-600 h-2.5 rounded-full" 
-            style={{ width: `${((currentParticipants || 0) / maxParticipants) * 100}%` }}
-          ></div>
-        </div>
-      </div>
-      
-      {isRegistered && !isCancelled ? (
-        <>
-          <div className="bg-green-50 border border-green-200 rounded-md p-3 mb-4">
-            <p className="text-green-800">
-              You're registered for this trek!
-            </p>
-            <p className="text-sm text-green-600">
-              Payment Status: <span className="font-medium">{paymentStatus}</span>
-            </p>
+    <Card className="sticky top-6">
+      <CardHeader className="bg-gray-50 rounded-t-lg">
+        <CardTitle className="text-xl flex items-center justify-between">
+          <span>Registration</span>
+          <span className="text-2xl">${trek.cost}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="pt-6 space-y-6">
+        <div className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center">
+              <Users className="h-5 w-5 text-gray-500 mr-2" />
+              <span>Participants</span>
+            </div>
+            <div>
+              <Badge variant={availableSpots > 5 ? "outline" : "secondary"} 
+                className={availableSpots <= 5 && availableSpots > 0 ? "bg-amber-100 text-amber-800" : ""}>
+                {availableSpots} spots left
+              </Badge>
+            </div>
           </div>
-          <Button 
-            variant="outline" 
-            className="w-full"
-            onClick={onCancel}
-            disabled={registering}
-          >
-            {registering ? 'Processing...' : 'Cancel Registration'}
-          </Button>
-        </>
-      ) : isCancelled ? (
-        <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-          <p className="text-gray-800">
-            Your registration was cancelled
-          </p>
+          
+          <div className="space-y-1">
+            <div className="flex justify-between text-xs">
+              <span>{trek.current_participants || 0} registered</span>
+              <span>{trek.max_participants} maximum</span>
+            </div>
+            <Progress value={spotsFillPercent} className="h-2" />
+          </div>
         </div>
-      ) : (
-        <Button 
-          className="w-full"
-          onClick={handleRegister}
-          disabled={isFull || registering || !isLoggedIn}
-        >
-          {registering ? 'Processing...' : isFull ? 'Trek Full' : 'Register Now'}
-        </Button>
-      )}
+
+        {userRegistration ? (
+          <div className="rounded-md bg-green-50 p-4 flex items-start space-x-3">
+            <CheckCircle className="h-5 w-5 text-green-500 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-green-800">You're registered!</h4>
+              <p className="text-sm text-green-700">
+                Registered on {new Date(userRegistration.booking_datetime).toLocaleDateString()}
+              </p>
+              {userRegistration.payment_status === 'Pending' && (
+                <p className="text-sm text-amber-700 mt-2">Payment status: Pending</p>
+              )}
+            </div>
+          </div>
+        ) : isFull ? (
+          <div className="rounded-md bg-amber-50 p-4 flex items-start space-x-3">
+            <AlertCircle className="h-5 w-5 text-amber-500 mt-0.5" />
+            <div>
+              <h4 className="font-medium text-amber-800">This trek is full</h4>
+              <p className="text-sm text-amber-700">
+                Please check back later or explore other treks.
+              </p>
+            </div>
+          </div>
+        ) : null}
+      </CardContent>
       
-      {!isLoggedIn && (
-        <p className="text-sm text-gray-500 mt-2 text-center">
-          Please log in to register for this trek
+      <CardFooter className="flex-col space-y-2">
+        {userRegistration ? (
+          userRegistration.payment_status !== 'Cancelled' && (
+            <Button variant="outline" className="w-full" onClick={onCancel} disabled={isLoading}>
+              {isLoading ? 'Processing...' : 'Cancel Registration'}
+            </Button>
+          )
+        ) : (
+          <Button 
+            className="w-full" 
+            onClick={onRegister} 
+            disabled={isLoading || isFull}
+          >
+            {isLoading ? 'Processing...' : isFull ? 'Trek is Full' : 'Register Now'}
+          </Button>
+        )}
+        
+        <p className="text-xs text-center text-gray-500 mt-2">
+          By registering, you agree to the trek's cancellation policy.
         </p>
-      )}
-    </div>
+      </CardFooter>
+    </Card>
   );
 };

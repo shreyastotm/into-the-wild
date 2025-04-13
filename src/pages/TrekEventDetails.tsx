@@ -76,11 +76,9 @@ export default function TrekEventDetails() {
       </Link>
 
       <TrekEventHeader
-        name={trekEvent.trek_name}
-        startDateTime={trekEvent.start_datetime}
+        trekName={trekEvent.trek_name}
+        startDatetime={trekEvent.start_datetime}
         category={trekEvent.category}
-        cost={trekEvent.cost}
-        location={"Hiking Trail"} // Placeholder location
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
@@ -119,7 +117,6 @@ export default function TrekEventDetails() {
                 transportMode={trekEvent.transport_mode}
                 pickupTimeWindow={trekEvent.pickup_time_window}
                 vendorContacts={trekEvent.vendor_contacts}
-                routeData={trekEvent.route_data}
               />
             </TabsContent>
             
@@ -143,10 +140,7 @@ export default function TrekEventDetails() {
 
         <div>
           <RegistrationCard
-            trekId={trekEvent.trek_id.toString()}
-            maxParticipants={trekEvent.max_participants}
-            currentParticipants={trekEvent.current_participants}
-            cost={trekEvent.cost}
+            trek={trekEvent}
             userRegistration={userRegistration}
             onRegister={registerForTrek}
             onCancel={cancelRegistration}
