@@ -9,6 +9,11 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
+// Define a simple interface for expense amounts
+interface ExpenseRecord {
+  amount: number | null;
+}
+
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -35,40 +40,34 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid by the user
+      // Calculate total paid by the user with explicit casting
       let totalPaid = 0;
-      const paidResult = await supabase
+      const { data: paidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
       
-      if (paidResult.error) throw paidResult.error;
+      if (paidError) throw paidError;
       
-      if (paidResult.data) {
-        // Use explicit type checking in the reducer
-        totalPaid = paidResult.data.reduce((sum, item) => {
-          // Safely access amount with type guard
-          const amount = item.amount;
-          return sum + (amount !== null ? Number(amount) : 0);
+      if (paidData) {
+        totalPaid = paidData.reduce((sum, item) => {
+          return sum + (item.amount !== null ? Number(item.amount) : 0);
         }, 0);
       }
       
-      // Calculate total owed by the user
+      // Calculate total owed by the user with explicit casting
       let totalOwed = 0;
-      const owedResult = await supabase
+      const { data: owedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
       
-      if (owedResult.error) throw owedResult.error;
+      if (owedError) throw owedError;
       
-      if (owedResult.data) {
-        // Use explicit type checking in the reducer
-        totalOwed = owedResult.data.reduce((sum, item) => {
-          // Safely access amount with type guard
-          const amount = item.amount;
-          return sum + (amount !== null ? Number(amount) : 0);
+      if (owedData) {
+        totalOwed = owedData.reduce((sum, item) => {
+          return sum + (item.amount !== null ? Number(item.amount) : 0);
         }, 0);
       }
       
