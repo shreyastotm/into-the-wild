@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -9,7 +8,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
 import { format, formatRelative } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 interface Trek {
   trek_id: number;
@@ -62,13 +61,11 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     }
   };
 
-  // Function to convert UTC time to Indian Standard Time
   const toIndianTime = (utcDateString: string) => {
     const date = new Date(utcDateString);
-    return utcToZonedTime(date, 'Asia/Kolkata');
+    return toZonedTime(date, 'Asia/Kolkata');
   };
 
-  // Get the appropriate color for a category
   const getCategoryColor = (category: string | null): string => {
     if (!category) return 'bg-gray-100 text-gray-800';
     
@@ -85,7 +82,6 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     return colorMap[category] || 'bg-gray-100 text-gray-800';
   };
 
-  // Get gradient colors based on category for placeholders
   const getCategoryGradient = (category: string | null): string => {
     if (!category) return 'from-gray-200 to-gray-300';
     
@@ -102,12 +98,9 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     return gradientMap[category] || 'from-gray-200 to-gray-300';
   };
 
-  // Get an icon appropriate for the category
   const getCategoryIcon = (category: string | null) => {
     if (!category) return <Navigation className="h-12 w-12 opacity-40" />;
     
-    // We're using Navigation for all categories for simplicity
-    // In a real app, you might want different icons for different categories
     return <Navigation className="h-12 w-12 opacity-40" />;
   };
 
@@ -174,7 +167,6 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   );
 };
 
-// Trek Card Skeleton for loading state
 const TrekCardSkeleton = () => (
   <div className="bg-white rounded-lg shadow-md overflow-hidden">
     <Skeleton className="h-48 w-full" />

@@ -2,7 +2,7 @@
 import React from 'react';
 import { CardTitle, CardDescription } from '@/components/ui/card';
 import { format } from 'date-fns';
-import { utcToZonedTime } from 'date-fns-tz';
+import { toZonedTime } from 'date-fns-tz';
 
 interface TrekEventHeaderProps {
   trekName: string;
@@ -16,7 +16,7 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
   startDatetime
 }) => {
   // Convert to Indian Standard Time
-  const indianTime = utcToZonedTime(new Date(startDatetime), 'Asia/Kolkata');
+  const indianTime = toZonedTime(new Date(startDatetime), 'Asia/Kolkata');
   
   return (
     <>
