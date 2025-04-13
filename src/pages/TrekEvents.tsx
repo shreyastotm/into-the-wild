@@ -1,96 +1,136 @@
 
-import React, { useEffect, useState } from 'react';
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from '@/components/auth/AuthProvider';
-import { toast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Link } from 'react-router-dom';
-import { TrekFilters, FilterOptions } from '@/components/trek/TrekFilters';
-import { TrekCardsLoadingGrid } from '@/components/trek/TrekCardSkeleton';
+import React, { useState, useEffect } from 'react';
 import { TrekEventsList } from '@/components/trek/TrekEventsList';
+import { TrekFilters, FilterOptions } from '@/components/trek/TrekFilters';
 import { NoTreksFound } from '@/components/trek/NoTreksFound';
+import { supabase } from '@/integrations/supabase/client';
+import { addDays, addMonths, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
+import { toast } from '@/components/ui/use-toast';
+import { TrekCardSkeleton } from '@/components/trek/TrekCardSkeleton';
 
-// Define type for Trek Events
-interface TrekEvent {
-  trek_id: number;
-  trek_name: string;
-  description: string | null;
-  category: string | null;
-  start_datetime: string;
-  duration: string | null;
-  cost: number;
-  max_participants: number;
-  current_participants: number | null;
-  location: any | null;
-  transport_mode: 'cars' | 'mini_van' | 'bus' | null;
-  cancellation_policy: string | null;
-}
-
-export default function TrekEvents() {
-  const { user } = useAuth();
-  const [trekEvents, setTrekEvents] = useState<TrekEvent[]>([]);
-  const [filteredEvents, setFilteredEvents] = useState<TrekEvent[]>([]);
+const TrekEvents = () => {
+  const [treks, setTreks] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [categories, setCategories] = useState<string[]>([]);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     search: '',
     category: '',
     priceRange: '',
-    sortBy: 'date-asc',
     timeFrame: '',
+    sortBy: 'date-asc'
   });
 
   useEffect(() => {
-    fetchTrekEvents();
-  }, []);
+    fetchTreks();
+    fetchCategories();
+  }, [filterOptions]);
 
-  useEffect(() => {
-    filterEvents();
-  }, [trekEvents, filterOptions]);
+  const fetchCategories = async () => {
+    try {
+      // Fetch unique categories from trek_events
+      const { data, error } = await supabase
+        .from('trek_events')
+        .select('category')
+        .not('category', 'is', null);
+      
+      if (error) throw error;
+      
+      if (data) {
+        // Extract unique categories
+        const uniqueCategories = Array.from(new Set(data.map(item => item.category))).filter(Boolean);
+        setCategories(uniqueCategories as string[]);
+      }
+    } catch (error: any) {
+      console.error("Error fetching categories:", error);
+    }
+  };
 
-  async function fetchTrekEvents() {
+  const fetchTreks = async () => {
     try {
       setLoading(true);
       
-      // Fetch all trek events
-      const { data, error } = await supabase
-        .from('trek_events')
-        .select('*')
-        .order('start_datetime', { ascending: true });
+      // Start with base query
+      let query = supabase.from('trek_events').select('*');
       
-      if (error) {
-        throw error;
+      // Apply search filter
+      if (filterOptions.search) {
+        query = query.or(`trek_name.ilike.%${filterOptions.search}%,description.ilike.%${filterOptions.search}%`);
       }
       
-      if (data) {
-        // Use type assertion to ensure compatibility
-        const events = data as TrekEvent[];
-        setTrekEvents(events);
-        setFilteredEvents(events);
+      // Apply category filter
+      if (filterOptions.category) {
+        query = query.eq('category', filterOptions.category);
+      }
+      
+      // Apply price range filter
+      if (filterOptions.priceRange) {
+        const [min, max] = filterOptions.priceRange.split('-').map(Number);
+        query = query.gte('cost', min).lte('cost', max);
+      }
+      
+      // Apply time frame filter
+      if (filterOptions.timeFrame) {
+        const now = new Date();
         
-        // Extract unique categories
-        const uniqueCategories = Array.from(
-          new Set(events.map(trek => trek.category).filter(Boolean) as string[])
-        ).sort();
-        setCategories(uniqueCategories);
+        switch (filterOptions.timeFrame) {
+          case 'this-week':
+            query = query.gte('start_datetime', startOfWeek(now).toISOString())
+                        .lte('start_datetime', endOfWeek(now).toISOString());
+            break;
+          case 'this-month':
+            query = query.gte('start_datetime', startOfMonth(now).toISOString())
+                        .lte('start_datetime', endOfMonth(now).toISOString());
+            break;
+          case 'next-3-months':
+            query = query.gte('start_datetime', now.toISOString())
+                        .lte('start_datetime', addMonths(now, 3).toISOString());
+            break;
+        }
+      } else {
+        // Default to only showing future treks
+        query = query.gte('start_datetime', new Date().toISOString());
       }
+      
+      // Apply sorting
+      if (filterOptions.sortBy) {
+        const [field, direction] = filterOptions.sortBy.split('-');
+        
+        switch (field) {
+          case 'date':
+            query = query.order('start_datetime', { ascending: direction === 'asc' });
+            break;
+          case 'price':
+            query = query.order('cost', { ascending: direction === 'asc' });
+            break;
+          case 'name':
+            query = query.order('trek_name', { ascending: direction === 'asc' });
+            break;
+        }
+      } else {
+        // Default sort by date ascending
+        query = query.order('start_datetime', { ascending: true });
+      }
+      
+      // Execute the query
+      const { data, error } = await query;
+      
+      if (error) throw error;
+      
+      setTreks(data || []);
     } catch (error: any) {
       toast({
-        title: "Error fetching trek events",
+        title: "Error fetching treks",
         description: error.message || "Failed to load trek events",
         variant: "destructive",
       });
-      console.error("Error fetching trek events:", error);
+      console.error("Error fetching treks:", error);
     } finally {
       setLoading(false);
     }
-  }
+  };
 
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
-    setFilterOptions(prev => ({
-      ...prev,
-      [key]: value
-    }));
+    setFilterOptions(prev => ({ ...prev, [key]: value }));
   };
 
   const resetFilters = () => {
@@ -98,120 +138,37 @@ export default function TrekEvents() {
       search: '',
       category: '',
       priceRange: '',
-      sortBy: 'date-asc',
       timeFrame: '',
+      sortBy: 'date-asc'
     });
-  };
-
-  const filterEvents = () => {
-    let filtered = [...trekEvents];
-    
-    // Filter by search text
-    if (filterOptions.search) {
-      const searchLower = filterOptions.search.toLowerCase();
-      filtered = filtered.filter(trek => 
-        trek.trek_name.toLowerCase().includes(searchLower) ||
-        (trek.description && trek.description.toLowerCase().includes(searchLower))
-      );
-    }
-    
-    // Filter by category
-    if (filterOptions.category) {
-      filtered = filtered.filter(trek => trek.category === filterOptions.category);
-    }
-    
-    // Filter by price range
-    if (filterOptions.priceRange) {
-      const [min, max] = filterOptions.priceRange.split('-').map(Number);
-      filtered = filtered.filter(trek => trek.cost >= min && trek.cost <= max);
-    }
-    
-    // Filter by time frame
-    if (filterOptions.timeFrame) {
-      const now = new Date();
-      const startOfToday = new Date(now);
-      startOfToday.setHours(0, 0, 0, 0);
-      
-      if (filterOptions.timeFrame === 'this-week') {
-        const endOfWeek = new Date(now);
-        endOfWeek.setDate(now.getDate() + (7 - now.getDay()));
-        endOfWeek.setHours(23, 59, 59, 999);
-        
-        filtered = filtered.filter(trek => {
-          const trekDate = new Date(trek.start_datetime);
-          return trekDate >= startOfToday && trekDate <= endOfWeek;
-        });
-      } else if (filterOptions.timeFrame === 'this-month') {
-        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0, 23, 59, 59, 999);
-        
-        filtered = filtered.filter(trek => {
-          const trekDate = new Date(trek.start_datetime);
-          return trekDate >= startOfToday && trekDate <= endOfMonth;
-        });
-      } else if (filterOptions.timeFrame === 'next-3-months') {
-        const threeMonthsFromNow = new Date(now);
-        threeMonthsFromNow.setMonth(now.getMonth() + 3);
-        threeMonthsFromNow.setHours(23, 59, 59, 999);
-        
-        filtered = filtered.filter(trek => {
-          const trekDate = new Date(trek.start_datetime);
-          return trekDate >= startOfToday && trekDate <= threeMonthsFromNow;
-        });
-      }
-    }
-    
-    // Apply sorting
-    if (filterOptions.sortBy) {
-      const [field, direction] = filterOptions.sortBy.split('-');
-      const isAsc = direction === 'asc';
-      
-      filtered.sort((a, b) => {
-        if (field === 'date') {
-          const dateA = new Date(a.start_datetime).getTime();
-          const dateB = new Date(b.start_datetime).getTime();
-          return isAsc ? dateA - dateB : dateB - dateA;
-        } else if (field === 'price') {
-          return isAsc ? a.cost - b.cost : b.cost - a.cost;
-        } else if (field === 'name') {
-          return isAsc 
-            ? a.trek_name.localeCompare(b.trek_name)
-            : b.trek_name.localeCompare(a.trek_name);
-        }
-        return 0;
-      });
-    }
-    
-    setFilteredEvents(filtered);
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Trek Events</h1>
-        {user && (
-          <Link to="/trek-events/create">
-            <Button>Create New Event</Button>
-          </Link>
-        )}
+      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
+        <h1 className="text-3xl font-bold mb-4 md:mb-0">Trek Events</h1>
       </div>
-
+      
       <TrekFilters 
         options={filterOptions}
         onFilterChange={handleFilterChange}
         onReset={resetFilters}
         categories={categories}
       />
-
+      
       {loading ? (
-        <TrekCardsLoadingGrid />
-      ) : filteredEvents.length === 0 ? (
-        <NoTreksFound 
-          filterOptions={filterOptions}
-          onReset={resetFilters}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {[...Array(6)].map((_, index) => (
+            <TrekCardSkeleton key={index} />
+          ))}
+        </div>
+      ) : treks.length > 0 ? (
+        <TrekEventsList treks={treks} />
       ) : (
-        <TrekEventsList treks={filteredEvents} />
+        <NoTreksFound onReset={resetFilters} />
       )}
     </div>
   );
-}
+};
+
+export default TrekEvents;

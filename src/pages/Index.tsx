@@ -1,8 +1,10 @@
 
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { ArrowRight, MapPin, Users, Calendar } from 'lucide-react';
+import { UpcomingTreks } from '@/components/trek/UpcomingTreks';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -15,30 +17,6 @@ const Index = () => {
       navigate('/auth');
     }
   };
-
-  const featuredTreks = [
-    {
-      title: "Himalayan Adventure",
-      location: "Uttarakhand",
-      date: "May 15-20, 2025",
-      participants: "12/20",
-      image: "/himalayan-trek.jpg"
-    },
-    {
-      title: "Western Ghats Exploration",
-      location: "Kerala",
-      date: "June 5-10, 2025",
-      participants: "8/15",
-      image: "/western-ghats.jpg"
-    },
-    {
-      title: "Desert Camping",
-      location: "Rajasthan",
-      date: "July 1-5, 2025",
-      participants: "14/25",
-      image: "/desert-camp.jpg"
-    }
-  ];
 
   return (
     <div className="container mx-auto px-4">
@@ -66,44 +44,13 @@ const Index = () => {
       {/* Featured Treks Section */}
       <div className="my-16">
         <div className="flex justify-between items-center mb-8">
-          <h2 className="text-2xl font-bold">Featured Trek Events</h2>
+          <h2 className="text-2xl font-bold">Upcoming Trek Events</h2>
           <Button variant="outline" onClick={() => navigate('/trek-events')}>
             View All Treks
           </Button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {featuredTreks.map((trek, index) => (
-            <div key={index} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow">
-              <div className="h-48 bg-gray-200 relative">
-                {/* This would be replaced with actual images when available */}
-                <div className="absolute inset-0 flex items-center justify-center text-gray-400">
-                  Trek Image Placeholder
-                </div>
-              </div>
-              <div className="p-5">
-                <h3 className="font-bold text-lg mb-2">{trek.title}</h3>
-                <div className="space-y-2 text-sm text-gray-600">
-                  <div className="flex items-center">
-                    <MapPin className="h-4 w-4 mr-2" />
-                    <span>{trek.location}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Calendar className="h-4 w-4 mr-2" />
-                    <span>{trek.date}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <Users className="h-4 w-4 mr-2" />
-                    <span>{trek.participants} participants</span>
-                  </div>
-                </div>
-                <Button variant="outline" className="w-full mt-4" onClick={() => navigate('/trek-events')}>
-                  See Details
-                </Button>
-              </div>
-            </div>
-          ))}
-        </div>
+        <UpcomingTreks limit={3} />
       </div>
 
       {/* What We Offer Section */}
