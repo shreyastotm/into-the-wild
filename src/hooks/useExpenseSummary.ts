@@ -9,8 +9,10 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Define a simple type for the raw amount data we receive
-type RawAmount = { amount: number | null };
+// Simple type definitions to avoid excessive type inference
+type AmountRecord = {
+  amount: number | null;
+};
 
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
@@ -48,15 +50,14 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       // Calculate total paid
       let totalPaid = 0;
-      if (paidData) {
-        // Use a simple approach to sum amounts
-        paidData.forEach((item: any) => {
-          if (item && typeof item.amount === 'number') {
-            totalPaid += item.amount;
-          } else if (item && item.amount !== null) {
+      if (paidData && Array.isArray(paidData)) {
+        // Explicitly cast data without using complex type inference
+        for (let i = 0; i < paidData.length; i++) {
+          const item = paidData[i] as AmountRecord;
+          if (item && item.amount !== null) {
             totalPaid += Number(item.amount);
           }
-        });
+        }
       }
       
       // Get total owed expenses
@@ -70,15 +71,14 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       // Calculate total owed
       let totalOwed = 0;
-      if (owedData) {
-        // Use a simple approach to sum amounts
-        owedData.forEach((item: any) => {
-          if (item && typeof item.amount === 'number') {
-            totalOwed += item.amount;
-          } else if (item && item.amount !== null) {
+      if (owedData && Array.isArray(owedData)) {
+        // Explicitly cast data without using complex type inference
+        for (let i = 0; i < owedData.length; i++) {
+          const item = owedData[i] as AmountRecord;
+          if (item && item.amount !== null) {
             totalOwed += Number(item.amount);
           }
-        });
+        }
       }
       
       // Update summary with calculated values
