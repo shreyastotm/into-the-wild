@@ -22,12 +22,14 @@ interface TrekDiscussionProps {
   trekId: string;
   comments: Comment[];
   onAddComment?: (content: string) => Promise<boolean>;
+  isLoading?: boolean;
 }
 
 export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({ 
   trekId,
   comments,
-  onAddComment 
+  onAddComment,
+  isLoading = false
 }) => {
   const { user, userProfile } = useAuth();
   const [newComment, setNewComment] = useState('');
@@ -102,6 +104,7 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               className="min-h-24 mb-2"
+              disabled={isSubmitting}
             />
             <div className="flex justify-between">
               <Button variant="outline" size="icon" type="button">
@@ -109,10 +112,14 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
               </Button>
               <Button 
                 onClick={handleAddComment} 
-                disabled={isSubmitting || !newComment.trim()}
+                disabled={isSubmitting || !newComment.trim() || isLoading}
                 className="gap-2"
               >
-                <Send className="h-4 w-4" /> Post Comment
+                {isSubmitting ? 'Posting...' : (
+                  <>
+                    <Send className="h-4 w-4" /> Post Comment
+                  </>
+                )}
               </Button>
             </div>
           </div>
@@ -125,7 +132,16 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
         </div>
       )}
       
-      {comments.length > 0 ? (
+      {isLoading ? (
+        <div className="py-8 text-center text-muted-foreground">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-8 w-8 rounded-full bg-muted-foreground/20 mb-2"></div>
+            <div className="h-4 w-32 bg-muted-foreground/20 rounded mb-1"></div>
+            <div className="h-3 w-24 bg-muted-foreground/10 rounded"></div>
+          </div>
+          <p className="mt-4">Loading comments...</p>
+        </div>
+      ) : comments.length > 0 ? (
         <div className="space-y-4 mt-6">
           {comments.map((comment) => (
             <div key={comment.id} className="flex gap-4">

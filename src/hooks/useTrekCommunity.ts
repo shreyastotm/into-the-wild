@@ -67,7 +67,7 @@ export function useTrekCommunity(trekId: string | undefined) {
         throw error;
       }
       
-      if (data) {
+      if (data && data.length > 0) {
         // Need to get user details separately
         const userIds = data.map(item => item.user_id);
         
@@ -90,7 +90,7 @@ export function useTrekCommunity(trekId: string | undefined) {
         
         if (userData && Array.isArray(userData)) {
           userData.forEach(user => {
-            if (user && user.user_id) {
+            if (user && typeof user === 'object' && 'user_id' in user) {
               userMap[user.user_id] = user;
             }
           });
@@ -112,6 +112,8 @@ export function useTrekCommunity(trekId: string | undefined) {
         });
         
         setParticipants(transformedParticipants);
+      } else {
+        setParticipants([]);
       }
     } catch (error: any) {
       console.error("Error fetching trek participants:", error);
@@ -172,7 +174,7 @@ export function useTrekCommunity(trekId: string | undefined) {
         
         if (userData && Array.isArray(userData)) {
           userData.forEach(user => {
-            if (user && user.user_id) {
+            if (user && typeof user === 'object' && 'user_id' in user) {
               userMap[user.user_id] = user;
             }
           });
