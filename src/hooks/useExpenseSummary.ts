@@ -40,44 +40,44 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid by the user using a simpler query pattern
+      // Get total paid by user (simpler approach without deep type inference)
       let totalPaid = 0;
-      const paidQuery = await supabase
+      const { data: paidRawData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
       
-      if (paidQuery.error) throw paidQuery.error;
+      if (paidError) throw paidError;
       
-      if (paidQuery.data) {
-        // Cast the data to the simple interface to avoid deep type inference
-        const paidData = paidQuery.data as ExpenseRecord[];
-        totalPaid = paidData.reduce((sum, item) => {
-          // Use a simple calculation with null check
-          return sum + (item.amount ? Number(item.amount) : 0);
-        }, 0);
+      if (paidRawData && Array.isArray(paidRawData)) {
+        // Use explicit array iteration instead of reduce to avoid deep type inference
+        for (const item of paidRawData) {
+          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
+            totalPaid += Number(item.amount);
+          }
+        }
       }
       
-      // Calculate total owed by the user using a simpler query pattern
+      // Get total owed by user (simpler approach without deep type inference)
       let totalOwed = 0;
-      const owedQuery = await supabase
+      const { data: owedRawData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
         .neq('payer_id', numericUserId);
       
-      if (owedQuery.error) throw owedQuery.error;
+      if (owedError) throw owedError;
       
-      if (owedQuery.data) {
-        // Cast the data to the simple interface to avoid deep type inference
-        const owedData = owedQuery.data as ExpenseRecord[];
-        totalOwed = owedData.reduce((sum, item) => {
-          // Use a simple calculation with null check
-          return sum + (item.amount ? Number(item.amount) : 0);
-        }, 0);
+      if (owedRawData && Array.isArray(owedRawData)) {
+        // Use explicit array iteration instead of reduce to avoid deep type inference
+        for (const item of owedRawData) {
+          if (item && typeof item.amount !== 'undefined' && item.amount !== null) {
+            totalOwed += Number(item.amount);
+          }
+        }
       }
       
-      // Update the summary state
+      // Update the summary state with calculated values
       setSummary({
         totalPaid,
         totalOwed,
