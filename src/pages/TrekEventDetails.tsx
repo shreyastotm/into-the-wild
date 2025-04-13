@@ -10,6 +10,10 @@ import { TrekEventDetailsComponent } from '@/components/trek/TrekEventDetails';
 import { RegistrationCard } from '@/components/trek/RegistrationCard';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { TravelCoordination } from '@/components/trek/TravelCoordination';
+import { Separator } from "@/components/ui/separator";
+import { Badge } from "@/components/ui/badge";
+import { AlertCircle, Info } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -26,11 +30,30 @@ export default function TrekEventDetails() {
   } = useTrekEvent(id);
 
   if (loading) {
-    return <div className="container mx-auto px-4 py-8 text-center">Loading trek details...</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-center items-center h-64">
+          <div className="text-center">
+            <div className="w-12 h-12 border-t-2 border-b-2 border-primary rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-lg text-gray-600">Loading trek details...</p>
+          </div>
+        </div>
+      </div>
+    );
   }
 
   if (!trekEvent) {
-    return <div className="container mx-auto px-4 py-8 text-center">Trek event not found</div>;
+    return (
+      <div className="container mx-auto px-4 py-8">
+        <Alert variant="destructive" className="max-w-md mx-auto">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error</AlertTitle>
+          <AlertDescription>
+            Trek event not found. The event may have been removed or you entered an invalid URL.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
   }
 
   const isFull = (trekEvent.current_participants || 0) >= trekEvent.max_participants;
@@ -51,6 +74,9 @@ export default function TrekEventDetails() {
     { id: '3', name: 'Priya Patel', role: 'Medical Support', phone: '+91 90001 23456' }
   ];
 
+  const startDate = new Date(trekEvent.start_datetime);
+  const isUpcoming = startDate > new Date();
+
   return (
     <div className="container mx-auto px-4 py-8">
       <TrekEventHeader 
@@ -58,6 +84,16 @@ export default function TrekEventDetails() {
         category={trekEvent.category}
         startDatetime={trekEvent.start_datetime}
       />
+      
+      {!isUpcoming && (
+        <Alert className="my-4">
+          <Info className="h-4 w-4" />
+          <AlertTitle>Past Event</AlertTitle>
+          <AlertDescription>
+            This trek has already taken place on {startDate.toLocaleDateString()}.
+          </AlertDescription>
+        </Alert>
+      )}
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         <div className="md:col-span-2">
@@ -107,6 +143,22 @@ export default function TrekEventDetails() {
           <Card>
             <CardHeader>
               <h2 className="text-2xl">Registration</h2>
+              {isUpcoming ? (
+                <div className="flex items-center space-x-2">
+                  <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                    Registration {isRegistered ? (isCancelled ? "Cancelled" : "Confirmed") : "Open"}
+                  </Badge>
+                  {isFull && !isRegistered && (
+                    <Badge variant="secondary" className="bg-red-50 text-red-700 border-red-200">
+                      Fully Booked
+                    </Badge>
+                  )}
+                </div>
+              ) : (
+                <Badge variant="outline" className="bg-gray-100 text-gray-700 border-gray-200">
+                  Past Event
+                </Badge>
+              )}
             </CardHeader>
             <CardContent>
               <RegistrationCard 

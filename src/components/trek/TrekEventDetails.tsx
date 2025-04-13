@@ -2,7 +2,7 @@
 import React from 'react';
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { CalendarClock, Users, Clock, MapPin, CreditCard, Info } from "lucide-react";
+import { CalendarClock, Users, Clock, MapPin, CreditCard, Info, Map, Car, Bus } from "lucide-react";
 
 interface TrekEventDetailsProps {
   description: string | null;
@@ -33,6 +33,18 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
         return 'Bus';
       default:
         return 'Not specified';
+    }
+  };
+
+  const getTransportIcon = () => {
+    switch(transportMode) {
+      case 'cars':
+        return <Car className="h-4 w-4 mr-1 text-gray-600" />;
+      case 'mini_van':
+      case 'bus':
+        return <Bus className="h-4 w-4 mr-1 text-gray-600" />;
+      default:
+        return <MapPin className="h-4 w-4 mr-1 text-gray-600" />;
     }
   };
 
@@ -71,7 +83,10 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-sm text-gray-600">Transport Mode:</span>
-                  <Badge variant="outline">{formatTransportMode(transportMode)}</Badge>
+                  <Badge variant="outline" className="flex items-center">
+                    {getTransportIcon()}
+                    {formatTransportMode(transportMode)}
+                  </Badge>
                 </div>
                 {pickupTimeWindow && (
                   <div className="flex justify-between items-center">
@@ -109,10 +124,28 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
                       style={{ width: `${spotsFillPercent}%` }}
                     ></div>
                   </div>
+                  <div className="flex justify-between text-xs mt-1">
+                    <span>{currentParticipants || 0} joined</span>
+                    <span>{availableSpots} spots left</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
+
+          {(transportMode || pickupTimeWindow) && (
+            <div className="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+              <div className="flex items-center mb-3">
+                <Map className="h-4 w-4 mr-2 text-gray-600" />
+                <h4 className="font-medium">Travel Information</h4>
+              </div>
+              <p className="text-sm text-gray-600 ml-6">
+                Travel will be arranged via {formatTransportMode(transportMode)}. 
+                {pickupTimeWindow && ` Pickup will be available during the ${pickupTimeWindow} time window.`}
+                See the Travel tab for more detailed coordination information.
+              </p>
+            </div>
+          )}
         </div>
         
         {cancellationPolicy && (
