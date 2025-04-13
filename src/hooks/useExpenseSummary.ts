@@ -59,17 +59,13 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       // Calculate totals with safe type handling
       const totalPaid = paidExpenses ? paidExpenses.reduce((sum, item) => {
-        const amount = item.amount !== null && item.amount !== undefined 
-          ? parseFloat(String(item.amount)) 
-          : 0;
-        return sum + (isNaN(amount) ? 0 : amount);
+        const amount = item.amount ?? 0;
+        return sum + (typeof amount === 'number' ? amount : parseFloat(amount.toString()));
       }, 0) : 0;
       
       const totalOwed = owedExpenses ? owedExpenses.reduce((sum, item) => {
-        const amount = item.amount !== null && item.amount !== undefined 
-          ? parseFloat(String(item.amount)) 
-          : 0;
-        return sum + (isNaN(amount) ? 0 : amount);
+        const amount = item.amount ?? 0;
+        return sum + (typeof amount === 'number' ? amount : parseFloat(amount.toString()));
       }, 0) : 0;
       
       setSummary({
