@@ -9,11 +9,6 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Simple type definitions to avoid excessive type inference
-type AmountRecord = {
-  amount: number | null;
-};
-
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -48,14 +43,13 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (paidError) throw paidError;
       
-      // Calculate total paid
+      // Calculate total paid - avoid complex type inference
       let totalPaid = 0;
       if (paidData && Array.isArray(paidData)) {
-        // Explicitly cast data without using complex type inference
         for (let i = 0; i < paidData.length; i++) {
-          const item = paidData[i] as AmountRecord;
-          if (item && item.amount !== null) {
-            totalPaid += Number(item.amount);
+          const amount = paidData[i]?.amount;
+          if (amount !== null && amount !== undefined) {
+            totalPaid += Number(amount);
           }
         }
       }
@@ -69,14 +63,13 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (owedError) throw owedError;
       
-      // Calculate total owed
+      // Calculate total owed - avoid complex type inference
       let totalOwed = 0;
       if (owedData && Array.isArray(owedData)) {
-        // Explicitly cast data without using complex type inference
         for (let i = 0; i < owedData.length; i++) {
-          const item = owedData[i] as AmountRecord;
-          if (item && item.amount !== null) {
-            totalOwed += Number(item.amount);
+          const amount = owedData[i]?.amount;
+          if (amount !== null && amount !== undefined) {
+            totalOwed += Number(amount);
           }
         }
       }
