@@ -71,13 +71,26 @@ export const useExpenseSummary = (userId: string | undefined) => {
       for (let i = 0; i < trekIds.length; i++) {
         const trekId = trekIds[i];
         
-        // Direct query instead of RPC to avoid type issues
+        // Using a simpler query approach to avoid type complexity
+        const expensesQuery = `
+          SELECT amount 
+          FROM expense_sharing 
+          WHERE trek_id = ${trekId} 
+          AND user_id = ${numericUserId} 
+          AND payer_id != ${numericUserId}
+        `;
+        
         const { data: expensesData, error: expenseError } = await supabase
-          .from('expense_sharing')
-          .select('amount')
-          .eq('trek_id', trekId)
-          .eq('user_id', numericUserId)
-          .neq('payer_id', numericUserId);
+          .rpc('postgres_query', { query_text: expensesQuery })
+          .catch(() => {
+            // If RPC doesn't exist, fallback to direct query with type cast
+            return supabase
+              .from('expense_sharing')
+              .select('amount')
+              .eq('trek_id', trekId)
+              .eq('user_id', numericUserId)
+              .neq('payer_id', numericUserId) as any;
+          });
             
         if (!expenseError && expensesData) {
           for (const expense of expensesData) {
