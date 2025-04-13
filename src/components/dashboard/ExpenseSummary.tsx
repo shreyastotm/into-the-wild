@@ -50,8 +50,8 @@ export const ExpenseSummary = () => {
       if (owedError) throw owedError;
       
       // Calculate totals
-      const totalPaid = paidData?.reduce((sum, item) => sum + (item.amount || 0), 0) || 0;
-      const totalOwed = owedData?.reduce((sum, item) => sum + (item.amount || 0), 0) / 2 || 0; // Simple approximation - divide by 2 assuming equal splits
+      const totalPaid = paidData?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) || 0;
+      const totalOwed = owedData?.reduce((sum, item) => sum + (Number(item.amount) || 0), 0) / 2 || 0; // Simple approximation - divide by 2 assuming equal splits
       
       setSummary({
         totalPaid,

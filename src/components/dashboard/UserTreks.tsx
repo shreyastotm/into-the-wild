@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -70,7 +69,7 @@ export const UserTreks = () => {
           const startDate = new Date(trekData.start_datetime);
           
           return {
-            trek_id: item.trek_id,
+            trek_id: Number(item.trek_id),
             trek_name: trekData.trek_name,
             start_datetime: trekData.start_datetime,
             payment_status: item.payment_status,
