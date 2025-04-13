@@ -42,13 +42,12 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setLoading(true);
       
-      // Get the event creator ID from the roles_assignments table
-      // The creator will have a role_type of 'organizer'
+      // Get the event creator ID - Fixed: replace 'organizer' with accepted role type
       const { data: roleData, error: roleError } = await supabase
         .from('roles_assignments')
         .select('user_id')
         .eq('trek_id', trekId)
-        .eq('role_type', 'organizer')
+        .eq('role_type', 'trek_lead')
         .single();
       
       if (roleError) {
@@ -72,11 +71,14 @@ export function useTrekCommunity(trekId: string | undefined) {
         // Need to get user details separately
         const userIds = data.map(item => item.user_id);
         
+        // Convert number array to string array for .in() call
+        const userIdsAsStrings = userIds.map(id => id.toString());
+        
         // Fetch user details for all participants
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('user_id, full_name, avatar_url')
-          .in('user_id', userIds);
+          .in('user_id', userIdsAsStrings);
           
         if (userError) {
           console.error("Error fetching participant user details:", userError);
@@ -116,12 +118,12 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setCommentsLoading(true);
       
-      // Get the event creator ID from the roles_assignments table
+      // Get the event creator ID - Fixed: replace 'organizer' with accepted role type
       const { data: roleData, error: roleError } = await supabase
         .from('roles_assignments')
         .select('user_id')
         .eq('trek_id', trekId)
-        .eq('role_type', 'organizer')
+        .eq('role_type', 'trek_lead')
         .single();
       
       if (roleError) {
@@ -145,11 +147,14 @@ export function useTrekCommunity(trekId: string | undefined) {
         // Need to get user details separately
         const userIds = data.map(item => item.user_id);
         
+        // Convert number array to string array for .in() call
+        const userIdsAsStrings = userIds.map(id => id.toString());
+        
         // Fetch user details for comment authors
         const { data: userData, error: userError } = await supabase
           .from('users')
           .select('user_id, full_name, avatar_url')
-          .in('user_id', userIds);
+          .in('user_id', userIdsAsStrings);
           
         if (userError) {
           console.error("Error fetching comment user details:", userError);
