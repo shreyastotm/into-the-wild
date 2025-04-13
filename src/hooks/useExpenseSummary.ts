@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
-import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 export interface ExpenseSummary {
   totalPaid: number;
@@ -37,7 +36,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
     try {
       setLoading(true);
       
-      // Query for expenses paid by the user
+      // Query for expenses paid by the user - using string userId directly
       const { data: paidExpenses, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -45,7 +44,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (paidError) throw paidError;
       
-      // Query for expenses owed by the user (where they're a participant but not the payer)
+      // Query for expenses owed by the user - using string userId directly
       const { data: owedExpenses, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
@@ -54,13 +53,21 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       if (owedError) throw owedError;
       
-      // Calculate the totals
+      // Calculate the totals with proper type handling
       const totalPaid = paidExpenses && paidExpenses.length > 0
-        ? paidExpenses.reduce((sum, item) => sum + (parseFloat(item.amount?.toString() || '0') || 0), 0)
+        ? paidExpenses.reduce((sum, item) => {
+            // Safely convert amount to number or use 0 if null/undefined
+            const amount = item.amount ? parseFloat(String(item.amount)) : 0;
+            return sum + (isNaN(amount) ? 0 : amount);
+          }, 0)
         : 0;
         
       const totalOwed = owedExpenses && owedExpenses.length > 0
-        ? owedExpenses.reduce((sum, item) => sum + (parseFloat(item.amount?.toString() || '0') || 0), 0)
+        ? owedExpenses.reduce((sum, item) => {
+            // Safely convert amount to number or use 0 if null/undefined
+            const amount = item.amount ? parseFloat(String(item.amount)) : 0;
+            return sum + (isNaN(amount) ? 0 : amount);
+          }, 0)
         : 0;
       
       setSummary({
