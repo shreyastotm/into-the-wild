@@ -42,7 +42,7 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setLoading(true);
       
-      // Get the event creator ID - Fixed: replace 'organizer' with accepted role type
+      // Get the event creator ID - using correct role type trek_lead
       const { data: roleData, error: roleError } = await supabase
         .from('roles_assignments')
         .select('user_id')
@@ -82,24 +82,27 @@ export function useTrekCommunity(trekId: string | undefined) {
           
         if (userError) {
           console.error("Error fetching participant user details:", userError);
+          // If there's an error, we'll continue with empty user data
         }
         
         // Create a map of user IDs to user data for easy lookup
         const userMap = (userData || []).reduce((acc, user) => {
-          acc[user.user_id] = user;
+          if (user && user.user_id) {
+            acc[user.user_id] = user;
+          }
           return acc;
         }, {} as Record<string, any>);
         
         // Transform data into the format we need
         const transformedParticipants: Participant[] = data.map(item => {
-          const user = userMap[item.user_id];
+          const userDetails = userMap[item.user_id] || {};
           // Check if this user is the event creator
           const isCreator = creatorId !== null && item.user_id === creatorId;
           
           return {
             id: String(item.user_id),
-            name: user?.full_name || null,
-            avatar: user?.avatar_url || null,
+            name: userDetails.full_name || null,
+            avatar: userDetails.avatar_url || null,
             joinedAt: item.booking_datetime,
             isEventCreator: isCreator || false
           };
@@ -118,7 +121,7 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setCommentsLoading(true);
       
-      // Get the event creator ID - Fixed: replace 'organizer' with accepted role type
+      // Get the event creator ID - using correct role type trek_lead
       const { data: roleData, error: roleError } = await supabase
         .from('roles_assignments')
         .select('user_id')
@@ -158,24 +161,27 @@ export function useTrekCommunity(trekId: string | undefined) {
           
         if (userError) {
           console.error("Error fetching comment user details:", userError);
+          // If there's an error, we'll continue with empty user data
         }
         
         // Create a map of user IDs to user data for easy lookup
         const userMap = (userData || []).reduce((acc, user) => {
-          acc[user.user_id] = user;
+          if (user && user.user_id) {
+            acc[user.user_id] = user;
+          }
           return acc;
         }, {} as Record<string, any>);
         
         // Transform data into the format we need
         const transformedComments: Comment[] = data.map(item => {
-          const user = userMap[item.user_id];
+          const userDetails = userMap[item.user_id] || {};
           const isCreator = eventCreatorId !== null && item.user_id === eventCreatorId;
           
           return {
             id: String(item.comment_id),
             userId: String(item.user_id),
-            userName: user?.full_name || 'Anonymous User',
-            userAvatar: user?.avatar_url || null,
+            userName: userDetails.full_name || 'Anonymous User',
+            userAvatar: userDetails.avatar_url || null,
             content: item.body,
             createdAt: item.created_at,
             isEventCreator: isCreator
