@@ -43,17 +43,17 @@ export function useTrekCommunity(trekId: string | undefined) {
       setLoading(true);
       
       // First, get the event creator's ID
-      const { data: creatorData, error: creatorError } = await supabase
+      const { data: trekEvent, error: trekError } = await supabase
         .from('trek_events')
         .select('user_id')
         .eq('trek_id', trekId)
         .single();
       
-      if (creatorError) {
-        console.error("Error fetching event creator:", creatorError);
+      if (trekError) {
+        console.error("Error fetching trek event:", trekError);
       }
 
-      const creatorId = creatorData?.user_id || null;
+      const creatorId = trekEvent?.user_id || null;
       
       // Get participants with user profiles
       const { data, error } = await supabase
