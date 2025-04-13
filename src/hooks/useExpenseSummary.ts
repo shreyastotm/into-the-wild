@@ -43,10 +43,11 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (paidQuery.error) throw paidQuery.error;
       
-      // Use explicit type assertion and manual calculation
-      let totalPaid = 0;
-      const paidData = paidQuery.data as any[] || [];
+      // Explicitly define the type to avoid deep type instantiation
+      type ExpenseRecord = { amount: number | null };
+      const paidData = (paidQuery.data || []) as ExpenseRecord[];
       
+      let totalPaid = 0;
       for (let i = 0; i < paidData.length; i++) {
         const item = paidData[i];
         if (item && item.amount != null) {
@@ -63,10 +64,9 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (owedQuery.error) throw owedQuery.error;
       
-      // Use explicit type assertion and manual calculation
-      let totalOwed = 0;
-      const owedData = owedQuery.data as any[] || [];
+      const owedData = (owedQuery.data || []) as ExpenseRecord[];
       
+      let totalOwed = 0;
       for (let i = 0; i < owedData.length; i++) {
         const item = owedData[i];
         if (item && item.amount != null) {
