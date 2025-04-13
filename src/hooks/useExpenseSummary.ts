@@ -9,6 +9,11 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
+// Define explicit interface for expense records from database
+interface ExpenseRecord {
+  amount: number | null;
+}
+
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
@@ -35,26 +40,27 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
       const numericUserId = userIdToNumber(userId);
       
-      // Calculate total paid
-      const { data: paidData, error: paidError } = await supabase
+      // Calculate total paid with explicit typing
+      const { data: rawPaidData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('payer_id', numericUserId);
         
       if (paidError) throw paidError;
       
-      // Manually calculate sum without complex typing
+      // Cast the data to our explicit type
+      const paidData = (rawPaidData || []) as ExpenseRecord[];
+      
+      // Calculate sum with explicit null checks
       let totalPaid = 0;
-      if (paidData && Array.isArray(paidData)) {
-        for (let i = 0; i < paidData.length; i++) {
-          if (paidData[i] && typeof paidData[i].amount !== 'undefined' && paidData[i].amount !== null) {
-            totalPaid += Number(paidData[i].amount);
-          }
+      for (const item of paidData) {
+        if (item && item.amount !== null) {
+          totalPaid += Number(item.amount);
         }
       }
       
-      // Calculate total owed
-      const { data: owedData, error: owedError } = await supabase
+      // Calculate total owed with explicit typing
+      const { data: rawOwedData, error: owedError } = await supabase
         .from('expense_sharing')
         .select('amount')
         .eq('user_id', numericUserId)
@@ -62,13 +68,14 @@ export const useExpenseSummary = (userId: string | undefined) => {
         
       if (owedError) throw owedError;
       
-      // Manually calculate sum without complex typing
+      // Cast the data to our explicit type
+      const owedData = (rawOwedData || []) as ExpenseRecord[];
+      
+      // Calculate sum with explicit null checks
       let totalOwed = 0;
-      if (owedData && Array.isArray(owedData)) {
-        for (let i = 0; i < owedData.length; i++) {
-          if (owedData[i] && typeof owedData[i].amount !== 'undefined' && owedData[i].amount !== null) {
-            totalOwed += Number(owedData[i].amount);
-          }
+      for (const item of owedData) {
+        if (item && item.amount !== null) {
+          totalOwed += Number(item.amount);
         }
       }
       
