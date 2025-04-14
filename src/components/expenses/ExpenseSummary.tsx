@@ -17,8 +17,8 @@ interface ExpenseSummaryProps {
 }
 
 export const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({ 
-  fixedExpenses,
-  adHocExpenses,
+  fixedExpenses = [],
+  adHocExpenses = [],
   userContributions = []
 }) => {
   const { user } = useAuth();

@@ -30,6 +30,23 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, participants }
     );
   }
 
+  // Handle the case where we don't have expense data yet
+  if ((!fixedExpenses || fixedExpenses.length === 0) && (!adHocExpenses || adHocExpenses.length === 0)) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Expense Details</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-6">
+            <p className="text-muted-foreground">No expenses have been added for this trek yet.</p>
+            <p className="text-sm mt-2">Add an expense using the form above to get started.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -37,9 +54,9 @@ export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, participants }
       </CardHeader>
       <CardContent>
         <ExpenseTable 
-          fixedExpenses={fixedExpenses}
-          adHocExpenses={adHocExpenses}
-          expenseShares={expenseShares}
+          fixedExpenses={fixedExpenses || []}
+          adHocExpenses={adHocExpenses || []}
+          expenseShares={expenseShares || []}
           participants={participants}
         />
       </CardContent>

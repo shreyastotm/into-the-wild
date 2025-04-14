@@ -46,11 +46,17 @@ export const useExpenses = (trekId?: number) => {
 
   const fetchExpenses = async () => {
     try {
+      setLoading(true);
+      
       // Fetch fixed expenses for the trek
       const { data: fixedData, error: fixedError } = await supabase
         .from('trek_fixed_expenses')
         .select('*')
         .eq('trek_id', trekId);
+
+      if (fixedError) {
+        console.error("Error fetching fixed expenses:", fixedError);
+      }
 
       // Fetch ad-hoc expenses for the trek
       const { data: adHocData, error: adHocError } = await supabase
@@ -58,14 +64,32 @@ export const useExpenses = (trekId?: number) => {
         .select('*')
         .eq('trek_id', trekId);
 
-      // Fetch expense shares for ad-hoc expenses
-      const { data: shareData, error: shareError } = await supabase
-        .from('ad_hoc_expense_shares')
-        .select('*')
-        .in('expense_id', adHocData?.map(exp => exp.expense_id) || []);
+      if (adHocError) {
+        console.error("Error fetching ad-hoc expenses:", adHocError);
+      }
 
-      if (fixedError || adHocError || shareError) {
-        throw fixedError || adHocError || shareError;
+      // Fetch expense shares for ad-hoc expenses if we have ad-hoc expenses
+      let shareData = [];
+      let shareError = null;
+      
+      if (adHocData && adHocData.length > 0) {
+        const expenseIds = adHocData.map(exp => exp.expense_id);
+        const result = await supabase
+          .from('ad_hoc_expense_shares')
+          .select('*')
+          .in('expense_id', expenseIds);
+          
+        shareData = result.data || [];
+        shareError = result.error;
+        
+        if (shareError) {
+          console.error("Error fetching expense shares:", shareError);
+        }
+      }
+
+      // If all three requests failed, throw an error
+      if (fixedError && adHocError && shareError) {
+        throw new Error("Failed to fetch expense data");
       }
 
       // Type casting to ensure data matches our interfaces
