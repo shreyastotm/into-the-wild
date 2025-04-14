@@ -9,6 +9,44 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ad_hoc_expense_shares: {
+        Row: {
+          expense_id: string | null
+          rejection_reason: string | null
+          responded_at: string | null
+          share_amount: number
+          share_id: string
+          status: string | null
+          user_id: number
+        }
+        Insert: {
+          expense_id?: string | null
+          rejection_reason?: string | null
+          responded_at?: string | null
+          share_amount: number
+          share_id?: string
+          status?: string | null
+          user_id: number
+        }
+        Update: {
+          expense_id?: string | null
+          rejection_reason?: string | null
+          responded_at?: string | null
+          share_amount?: number
+          share_id?: string
+          status?: string | null
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_hoc_expense_shares_expense_id_fkey"
+            columns: ["expense_id"]
+            isOneToOne: false
+            referencedRelation: "trek_ad_hoc_expenses"
+            referencedColumns: ["expense_id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           body: string
@@ -328,10 +366,91 @@ export type Database = {
         }
         Relationships: []
       }
+      trek_ad_hoc_expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string | null
+          description: string | null
+          expense_id: string
+          payer_id: number
+          trek_id: number | null
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          expense_id?: string
+          payer_id: number
+          trek_id?: number | null
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          expense_id?: string
+          payer_id?: number
+          trek_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_ad_hoc_expenses_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          },
+        ]
+      }
+      trek_admin_approved_expenses: {
+        Row: {
+          amount: number
+          approved: boolean | null
+          category: string | null
+          created_at: string | null
+          description: string | null
+          expense_id: string
+          requested_by: number
+          trek_id: number | null
+        }
+        Insert: {
+          amount: number
+          approved?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          expense_id?: string
+          requested_by: number
+          trek_id?: number | null
+        }
+        Update: {
+          amount?: number
+          approved?: boolean | null
+          category?: string | null
+          created_at?: string | null
+          description?: string | null
+          expense_id?: string
+          requested_by?: number
+          trek_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_admin_approved_expenses_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          },
+        ]
+      }
       trek_events: {
         Row: {
+          booking_amount: number | null
           cancellation_policy: string | null
           category: string | null
+          collect_full_fee: boolean | null
           cost: number
           created_at: string | null
           current_participants: number | null
@@ -354,8 +473,10 @@ export type Database = {
           vendor_contacts: Json | null
         }
         Insert: {
+          booking_amount?: number | null
           cancellation_policy?: string | null
           category?: string | null
+          collect_full_fee?: boolean | null
           cost: number
           created_at?: string | null
           current_participants?: number | null
@@ -378,8 +499,10 @@ export type Database = {
           vendor_contacts?: Json | null
         }
         Update: {
+          booking_amount?: number | null
           cancellation_policy?: string | null
           category?: string | null
+          collect_full_fee?: boolean | null
           cost?: number
           created_at?: string | null
           current_participants?: number | null
@@ -402,6 +525,111 @@ export type Database = {
           vendor_contacts?: Json | null
         }
         Relationships: []
+      }
+      trek_fixed_expenses: {
+        Row: {
+          amount: number
+          created_at: string | null
+          description: string | null
+          expense_id: string
+          expense_type: string | null
+          trek_id: number | null
+        }
+        Insert: {
+          amount: number
+          created_at?: string | null
+          description?: string | null
+          expense_id?: string
+          expense_type?: string | null
+          trek_id?: number | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string | null
+          description?: string | null
+          expense_id?: string
+          expense_type?: string | null
+          trek_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_fixed_expenses_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          },
+        ]
+      }
+      trek_packing_lists: {
+        Row: {
+          category: string | null
+          created_at: string | null
+          is_required: boolean | null
+          item_id: string
+          item_name: string
+          trek_id: number | null
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string | null
+          is_required?: boolean | null
+          item_id?: string
+          item_name: string
+          trek_id?: number | null
+        }
+        Update: {
+          category?: string | null
+          created_at?: string | null
+          is_required?: boolean | null
+          item_id?: string
+          item_name?: string
+          trek_id?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_packing_lists_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          },
+        ]
+      }
+      user_expense_penalties: {
+        Row: {
+          created_at: string | null
+          deducted_points: number | null
+          penalty_id: string
+          penalty_reason: string | null
+          trek_id: number | null
+          user_id: number
+        }
+        Insert: {
+          created_at?: string | null
+          deducted_points?: number | null
+          penalty_id?: string
+          penalty_reason?: string | null
+          trek_id?: number | null
+          user_id: number
+        }
+        Update: {
+          created_at?: string | null
+          deducted_points?: number | null
+          penalty_id?: string
+          penalty_reason?: string | null
+          trek_id?: number | null
+          user_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_expense_penalties_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          },
+        ]
       }
       users: {
         Row: {

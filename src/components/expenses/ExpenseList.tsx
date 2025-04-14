@@ -1,172 +1,85 @@
 
-import React, { useEffect, useState } from 'react';
-import { supabase, convertDbRecordToStringIds } from "@/integrations/supabase/client";
-import { toast } from '@/components/ui/use-toast';
-import { ExpenseCard } from './ExpenseCard';
-import { AddExpenseForm } from './AddExpenseForm';
-import { Button } from '@/components/ui/button';
-import { PlusCircle } from 'lucide-react';
-import { userIdToString } from '@/utils/dbTypeConversions';
-
-interface Expense {
-  expense_id: number;
-  description: string;
-  amount: number;
-  expense_date: string;
-  settlement_status: string;
-  payer_id: string;  // String to match Supabase UUID format
-  payer_name?: string;
-}
+import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/utils';
+import { useExpenses } from '@/hooks/useExpenses';
+import { Badge } from '@/components/ui/badge';
 
 interface ExpenseListProps {
   trekId: number;
-  isRegistered: boolean;
 }
 
-export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, isRegistered }) => {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [showAddForm, setShowAddForm] = useState(false);
-  const [participants, setParticipants] = useState<{ user_id: string; full_name: string }[]>([]);
+export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId }) => {
+  const { fixedExpenses, adHocExpenses, expenseShares, loading } = useExpenses(trekId);
 
-  useEffect(() => {
-    fetchExpenses();
-    fetchParticipants();
-  }, [trekId]);
-
-  const fetchExpenses = async () => {
-    try {
-      setLoading(true);
-      
-      const { data, error } = await supabase
-        .from('expense_sharing')
-        .select(`
-          expense_id,
-          description,
-          amount,
-          expense_date,
-          settlement_status,
-          payer_id,
-          profiles:payer_id (full_name)
-        `)
-        .eq('trek_id', trekId)
-        .order('expense_date', { ascending: false });
-      
-      if (error) throw error;
-      
-      if (data) {
-        // Transform the data to match our Expense interface
-        const transformedData: Expense[] = data.map(item => ({
-          expense_id: item.expense_id,
-          description: item.description,
-          amount: item.amount,
-          expense_date: item.expense_date,
-          settlement_status: item.settlement_status,
-          payer_id: userIdToString(item.payer_id || ''), // Convert to string consistently
-          payer_name: item.profiles ? (item.profiles as any).full_name : 'Unknown'
-        }));
-        
-        setExpenses(transformedData);
-      }
-    } catch (error: any) {
-      toast({
-        title: "Error loading expenses",
-        description: error.message || "Failed to load expenses",
-        variant: "destructive",
-      });
-      console.error("Error fetching expenses:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchParticipants = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('registrations')
-        .select(`
-          user_id,
-          users:user_id (full_name)
-        `)
-        .eq('trek_id', trekId)
-        .eq('payment_status', 'Pending');
-      
-      if (error) throw error;
-      
-      if (data) {
-        const participantsList = data
-          .filter(item => item.users) // Filter out any null users
-          .map(item => ({
-            user_id: userIdToString(item.user_id || ''), // Convert consistently using utility
-            full_name: item.users ? (item.users as any).full_name : 'Unknown'
-          }));
-        
-        setParticipants(participantsList);
-      }
-    } catch (error) {
-      console.error("Error fetching participants:", error);
-    }
-  };
-
-  const handleExpenseAdded = () => {
-    setShowAddForm(false);
-    fetchExpenses();
-  };
-
-  if (loading && expenses.length === 0) {
-    return <div className="py-4 text-center">Loading expenses...</div>;
+  if (loading) {
+    return <div>Loading expenses...</div>;
   }
 
   return (
     <div className="space-y-4">
-      {isRegistered && (
-        <div className="mb-6">
-          {showAddForm ? (
-            <div className="bg-gray-50 p-4 rounded-lg mb-6">
-              <h3 className="text-lg font-medium mb-4">Add New Expense</h3>
-              <AddExpenseForm 
-                trekId={trekId} 
-                onExpenseAdded={handleExpenseAdded}
-                participants={participants}
-              />
-              <Button 
-                variant="ghost" 
-                onClick={() => setShowAddForm(false)}
-                className="mt-2 w-full"
-              >
-                Cancel
-              </Button>
-            </div>
+      {/* Fixed Expenses Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Fixed Expenses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {fixedExpenses.length === 0 ? (
+            <p>No fixed expenses for this trek</p>
           ) : (
-            <Button 
-              onClick={() => setShowAddForm(true)}
-              className="w-full"
-              variant="outline"
-            >
-              <PlusCircle className="mr-2 h-4 w-4" /> Add Expense
-            </Button>
+            <div className="space-y-2">
+              {fixedExpenses.map(expense => (
+                <div key={expense.expense_id} className="flex justify-between items-center">
+                  <div>
+                    <span>{expense.expense_type}</span>
+                    <span className="text-muted-foreground ml-2">{expense.description}</span>
+                  </div>
+                  <span className="font-bold">{formatCurrency(expense.amount)}</span>
+                </div>
+              ))}
+            </div>
           )}
-        </div>
-      )}
+        </CardContent>
+      </Card>
 
-      {expenses.length === 0 ? (
-        <div className="text-center py-6">
-          <p className="text-gray-500">No expenses have been added yet</p>
-        </div>
-      ) : (
-        <div>
-          {expenses.map((expense) => (
-            <ExpenseCard
-              key={expense.expense_id}
-              description={expense.description}
-              amount={expense.amount}
-              paidBy={expense.payer_name || 'Unknown'}
-              date={expense.expense_date}
-              status={expense.settlement_status}
-            />
-          ))}
-        </div>
-      )}
+      {/* Ad-Hoc Expenses Section */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Ad-Hoc Expenses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {adHocExpenses.length === 0 ? (
+            <p>No ad-hoc expenses for this trek</p>
+          ) : (
+            <div className="space-y-2">
+              {adHocExpenses.map(expense => (
+                <div key={expense.expense_id} className="flex justify-between items-center">
+                  <div>
+                    <span>{expense.category}</span>
+                    <span className="text-muted-foreground ml-2">{expense.description}</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="font-bold">{formatCurrency(expense.amount)}</span>
+                    {/* Expense Share Status */}
+                    {expenseShares.filter(share => share.expense_id === expense.expense_id).map(share => (
+                      <Badge 
+                        key={share.share_id} 
+                        variant={
+                          share.status === 'Pending' ? 'secondary' : 
+                          share.status === 'Accepted' ? 'default' : 
+                          'destructive'
+                        }
+                      >
+                        {share.status}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 };
