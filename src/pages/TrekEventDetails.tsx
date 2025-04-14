@@ -10,9 +10,19 @@ import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
 import { useTrekEvent } from '@/hooks/useTrekEvent';
 import { useTrekCommunity } from '@/hooks/useTrekCommunity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ChevronLeft, Map, MessageSquare, Users } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  Map, 
+  MessageSquare, 
+  Users, 
+  DollarSign 
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { ExpenseList } from '@/components/expenses/ExpenseList';
+import { ExpenseSummary } from '@/components/expenses/ExpenseSummary';
+import { AddExpenseForm } from '@/components/expenses/AddExpenseForm';
+import { useExpenses } from '@/hooks/useExpenses';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +43,14 @@ export default function TrekEventDetails() {
     commentsLoading,
     addComment
   } = useTrekCommunity(id);
+
+  const {
+    fixedExpenses,
+    adHocExpenses,
+    expenseShares,
+    loading: expensesLoading,
+    refreshExpenses
+  } = useExpenses(id ? parseInt(id) : undefined);
 
   if (loading) {
     return (
@@ -98,6 +116,10 @@ export default function TrekEventDetails() {
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Discussion ({comments.length})
               </TabsTrigger>
+              <TabsTrigger value="expenses">
+                <DollarSign className="h-4 w-4 mr-2" />
+                Expenses
+              </TabsTrigger>
             </TabsList>
             
             <TabsContent value="details">
@@ -134,6 +156,28 @@ export default function TrekEventDetails() {
                 comments={comments}
                 onAddComment={addComment}
               />
+            </TabsContent>
+            
+            <TabsContent value="expenses">
+              <div className="space-y-6">
+                <ExpenseSummary
+                  fixedExpenses={fixedExpenses}
+                  adHocExpenses={adHocExpenses}
+                />
+                
+                {userRegistration && userRegistration.registration_id && (
+                  <div className="p-4 border rounded-lg bg-card mb-4">
+                    <h3 className="text-lg font-semibold mb-4">Add a New Expense</h3>
+                    <AddExpenseForm 
+                      trekId={Number(id)} 
+                      onExpenseAdded={refreshExpenses}
+                      participants={participants} 
+                    />
+                  </div>
+                )}
+                
+                <ExpenseList trekId={Number(id)} />
+              </div>
             </TabsContent>
           </Tabs>
         </div>

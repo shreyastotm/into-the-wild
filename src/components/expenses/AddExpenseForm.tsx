@@ -6,6 +6,13 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { 
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface AddExpenseFormProps {
   trekId: number;
@@ -22,7 +29,8 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     description: '',
-    amount: ''
+    amount: '',
+    category: 'Other' as 'Fuel' | 'Toll' | 'Parking' | 'Snacks' | 'Meals' | 'Water' | 'Local Transport' | 'Medical Supplies' | 'Other'
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -30,6 +38,13 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     setFormData(prev => ({
       ...prev,
       [name]: value
+    }));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      category: value as typeof formData.category
     }));
   };
 
@@ -84,7 +99,8 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           amount,
           description: formData.description,
           settlement_status: 'Pending',
-          split_details: splitDetails.length > 0 ? splitDetails : null
+          split_details: splitDetails.length > 0 ? splitDetails : null,
+          category: formData.category
         } as any); // Using 'as any' to bypass type checking for this operation
       
       if (error) throw error;
@@ -96,7 +112,8 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
       
       setFormData({
         description: '',
-        amount: ''
+        amount: '',
+        category: 'Other'
       });
       
       onExpenseAdded();
@@ -144,6 +161,44 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           required
         />
       </div>
+
+      <div>
+        <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+          Category
+        </label>
+        <Select 
+          value={formData.category} 
+          onValueChange={handleCategoryChange}
+        >
+          <SelectTrigger>
+            <SelectValue placeholder="Select a category" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="Fuel">Fuel</SelectItem>
+            <SelectItem value="Toll">Toll</SelectItem>
+            <SelectItem value="Parking">Parking</SelectItem>
+            <SelectItem value="Snacks">Snacks</SelectItem>
+            <SelectItem value="Meals">Meals</SelectItem>
+            <SelectItem value="Water">Water</SelectItem>
+            <SelectItem value="Local Transport">Local Transport</SelectItem>
+            <SelectItem value="Medical Supplies">Medical Supplies</SelectItem>
+            <SelectItem value="Other">Other</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      
+      {participants.length > 0 && (
+        <div className="pt-2 border-t mt-4">
+          <p className="text-sm text-muted-foreground mb-2">
+            This expense will be split equally between you and {participants.length} other participants.
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Each person will pay approximately ₹{participants.length > 0 
+              ? (parseFloat(formData.amount || '0') / (participants.length + 1)).toFixed(2) 
+              : '0.00'}
+          </p>
+        </div>
+      )}
       
       <Button 
         type="submit" 
