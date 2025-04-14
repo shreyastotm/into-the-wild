@@ -52,6 +52,12 @@ export default function TrekEventDetails() {
     refreshExpenses
   } = useExpenses(id ? parseInt(id) : undefined);
 
+  // Transform participants data for the AddExpenseForm component
+  const formattedParticipants = participants.map(participant => ({
+    user_id: participant.id,
+    full_name: participant.name || 'Unknown User'
+  }));
+
   if (loading) {
     return (
       <div className="container mx-auto py-8 px-4">
@@ -171,7 +177,7 @@ export default function TrekEventDetails() {
                     <AddExpenseForm 
                       trekId={Number(id)} 
                       onExpenseAdded={refreshExpenses}
-                      participants={participants} 
+                      participants={formattedParticipants} 
                     />
                   </div>
                 )}
