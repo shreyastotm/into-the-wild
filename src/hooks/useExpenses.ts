@@ -68,9 +68,21 @@ export const useExpenses = (trekId?: number) => {
         throw fixedError || adHocError || shareError;
       }
 
-      setFixedExpenses(fixedData || []);
-      setAdHocExpenses(adHocData || []);
-      setExpenseShares(shareData || []);
+      // Type casting to ensure data matches our interfaces
+      setFixedExpenses(fixedData?.map(item => ({
+        ...item,
+        expense_type: item.expense_type as FixedExpense['expense_type']
+      })) || []);
+      
+      setAdHocExpenses(adHocData?.map(item => ({
+        ...item,
+        category: item.category as AdHocExpense['category']
+      })) || []);
+      
+      setExpenseShares(shareData?.map(item => ({
+        ...item,
+        status: item.status as ExpenseShare['status']
+      })) || []);
     } catch (error) {
       toast({
         title: 'Error fetching expenses',
