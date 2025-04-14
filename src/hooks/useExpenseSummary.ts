@@ -9,10 +9,24 @@ export interface ExpenseSummary {
   netBalance: number;
 }
 
-// Define simple type for expense records
+// Define explicit types to prevent excessive type inference
 interface ExpenseRecord {
-  amount: number | null;
+  expense_id?: number;
+  amount: number;
+  payer_id?: number;
+  trek_id?: number;
+  expense_date?: string;
 }
+
+// Define a specific type for split details to avoid deep inference
+interface SplitDetail {
+  userId?: number;
+  user_id?: number;
+  amount?: number;
+}
+
+// Use Record with string keys to avoid excessive type inference
+type SplitDetailsObject = Record<string, number>;
 
 export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
@@ -45,42 +59,62 @@ export const useExpenseSummary = (userId: string | undefined) => {
       // Convert string userId to number for database compatibility
       const numericUserId = userIdToNumber(userId);
       
-      // Completely bypass TypeScript type system by using raw query approach
-      // Fetch paid expenses with explicit any typing
-      let paidExpenses: ExpenseRecord[] = [];
-      const paidQuery = await supabase
-        .from('expense_sharing')
-        .select('amount');
-        
-      if (paidQuery.error) throw paidQuery.error;
-      
-      // Manual type conversion to avoid deep type inference
-      if (paidQuery.data) {
-        paidExpenses = paidQuery.data.map((item: any) => ({ 
-          amount: item.amount 
-        }));
-      }
-      
-      // Fetch owed expenses with explicit any typing
-      let owedExpenses: ExpenseRecord[] = [];
-      const owedQuery = await supabase
+      // Use any type to completely bypass TypeScript's deep type inference
+      const { data: paidExpensesData, error: paidError } = await supabase
         .from('expense_sharing')
         .select('amount')
-        .eq('user_id', numericUserId)
-        .neq('payer_id', numericUserId);
+        .eq('payer_id', numericUserId) as { data: any[], error: any };
         
-      if (owedQuery.error) throw owedQuery.error;
+      if (paidError) throw paidError;
       
-      // Manual type conversion to avoid deep type inference
-      if (owedQuery.data) {
-        owedExpenses = owedQuery.data.map((item: any) => ({ 
-          amount: item.amount 
-        }));
-      }
+      const { data: owedExpensesData, error: owedError } = await supabase
+        .from('expense_sharing')
+        .select('amount, split_details, payer_id')
+        .neq('payer_id', numericUserId) as { data: any[], error: any };
+        
+      if (owedError) throw owedError;
       
-      // Calculate totals with simplified type handling
-      const totalPaid = calculateTotal(paidExpenses);
-      const totalOwed = calculateTotal(owedExpenses);
+      // Use explicit type assertions to prevent deep inference
+      const paidAmounts: number[] = (paidExpensesData || []).map(item => 
+        typeof item.amount === 'number' ? item.amount : 0
+      );
+      
+      const totalPaid = paidAmounts.reduce((sum, amount) => sum + amount, 0);
+      
+      let totalOwed = 0;
+      
+      // Process each expense record with clear type boundaries
+      (owedExpensesData || []).forEach(item => {
+        if (!item.split_details) return;
+        
+        try {
+          // Handle split_details explicitly based on its structure
+          const splitDetails = typeof item.split_details === 'string' 
+            ? JSON.parse(item.split_details) as (SplitDetail[] | SplitDetailsObject)
+            : item.split_details as (SplitDetail[] | SplitDetailsObject);
+          
+          let userShare = 0;
+          
+          // Use type guards to handle different possible structures
+          if (Array.isArray(splitDetails)) {
+            // If it's an array of split details
+            const userEntry = splitDetails.find(entry => 
+              entry.userId === numericUserId || 
+              entry.user_id === numericUserId
+            );
+            userShare = userEntry && userEntry.amount ? Number(userEntry.amount) : 0;
+          } else {
+            // If it's an object with user IDs as keys
+            const userIdStr = String(numericUserId);
+            userShare = splitDetails[`user_${userIdStr}`] || 
+                       splitDetails[userIdStr] || 0;
+          }
+          
+          totalOwed += Number(userShare);
+        } catch (err) {
+          console.error("Error parsing split_details:", err);
+        }
+      });
       
       setSummary({
         totalPaid,
@@ -90,7 +124,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
       
     } catch (err: any) {
       console.error("Error fetching expense summary:", err);
-      setError(err);
+      setError(err instanceof Error ? err : new Error(String(err)));
       
       // Set default zero values if there's an error
       setSummary({ totalPaid: 0, totalOwed: 0, netBalance: 0 });
@@ -98,22 +132,6 @@ export const useExpenseSummary = (userId: string | undefined) => {
       setLoading(false);
     }
   };
-  
-  // Helper function to calculate totals with safe type handling
-  const calculateTotal = (expenses: ExpenseRecord[]): number => {
-    return expenses.reduce((sum, item) => {
-      // If amount is null or undefined, don't add anything
-      if (item.amount === null || item.amount === undefined) return sum;
-      
-      // Convert to number safely
-      const amount = typeof item.amount === 'number' 
-        ? item.amount 
-        : Number(item.amount);
-        
-      // Add to sum, treating NaN as 0
-      return sum + (isNaN(amount) ? 0 : amount);
-    }, 0);
-  };
 
-  return { summary, loading, error };
+  return { summary, loading, error, refreshSummary: fetchExpenseSummary };
 };
