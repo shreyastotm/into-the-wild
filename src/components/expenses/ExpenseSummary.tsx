@@ -3,6 +3,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { formatCurrency } from '@/lib/utils';
 import { AdHocExpense, FixedExpense } from '@/hooks/useExpenses';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { Wallet, ArrowDownRight, ArrowUpRight } from 'lucide-react';
 
 interface ExpenseSummaryProps {
   fixedExpenses: FixedExpense[];
@@ -19,60 +21,82 @@ export const ExpenseSummary: React.FC<ExpenseSummaryProps> = ({
   adHocExpenses,
   userContributions = []
 }) => {
+  const { user } = useAuth();
+  
   // Calculate total expenses
   const totalFixed = fixedExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const totalAdHoc = adHocExpenses.reduce((sum, expense) => sum + expense.amount, 0);
   const grandTotal = totalFixed + totalAdHoc;
   
-  // Calculate per person cost (if we have user contributions)
+  // Calculate per person cost
   const numberOfParticipants = userContributions.length || 1;
   const costPerPerson = grandTotal / numberOfParticipants;
   
-  // Calculate total outstanding (unpaid) amount
-  const paidAmount = userContributions
-    .filter(contribution => contribution.paid)
-    .reduce((sum, contribution) => sum + contribution.amount, 0);
+  // Calculate what current user has paid vs what they owe
+  const userPaid = adHocExpenses
+    .filter(expense => expense.payer_id === Number(user?.id))
+    .reduce((sum, expense) => sum + expense.amount, 0);
   
-  const outstandingAmount = grandTotal - paidAmount;
+  // Calculate what others owe the current user (simplified)
+  const userIsOwed = userPaid - (userPaid > 0 ? costPerPerson : 0);
+  
+  // Calculate what the user owes to others (simplified)
+  const userOwes = userPaid > 0 ? 0 : costPerPerson;
 
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Expense Summary</CardTitle>
+        <CardTitle className="flex items-center">
+          <Wallet className="mr-2 h-5 w-5" />
+          Expense Summary
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-sm text-muted-foreground">Fixed Expenses</p>
-              <p className="text-lg font-semibold">{formatCurrency(totalFixed)}</p>
-            </div>
-            <div>
-              <p className="text-sm text-muted-foreground">Ad-Hoc Expenses</p>
-              <p className="text-lg font-semibold">{formatCurrency(totalAdHoc)}</p>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="text-sm text-muted-foreground mb-1">Total Expenses</div>
+            <div className="text-2xl font-bold">{formatCurrency(grandTotal)}</div>
+            <div className="text-sm text-muted-foreground mt-2">
+              Fixed: {formatCurrency(totalFixed)} / Ad-hoc: {formatCurrency(totalAdHoc)}
             </div>
           </div>
           
-          <div className="pt-2 border-t">
-            <div className="flex justify-between items-center">
-              <p className="text-sm font-medium">Total Expenses</p>
-              <p className="text-lg font-bold">{formatCurrency(grandTotal)}</p>
+          <div className="p-4 bg-gray-50 rounded-lg">
+            <div className="text-sm text-muted-foreground mb-1">Per Person (approx)</div>
+            <div className="text-2xl font-bold">{formatCurrency(costPerPerson)}</div>
+            <div className="text-sm text-muted-foreground mt-2">
+              Based on {numberOfParticipants} participant{numberOfParticipants !== 1 ? 's' : ''}
             </div>
-            
-            {userContributions.length > 0 && (
-              <>
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm text-muted-foreground">Approximate Cost Per Person</p>
-                  <p>{formatCurrency(costPerPerson)}</p>
-                </div>
-                
-                <div className="flex justify-between items-center mt-2">
-                  <p className="text-sm text-muted-foreground">Outstanding Balance</p>
-                  <p>{formatCurrency(outstandingAmount)}</p>
-                </div>
-              </>
-            )}
           </div>
+          
+          {user && (
+            <div className="p-4 bg-gray-50 rounded-lg">
+              <div className="text-sm text-muted-foreground mb-1">Your Balance</div>
+              <div className="text-2xl font-bold">
+                {userIsOwed > 0 
+                  ? formatCurrency(userIsOwed) 
+                  : userOwes > 0 
+                    ? `-${formatCurrency(userOwes)}` 
+                    : formatCurrency(0)
+                }
+              </div>
+              <div className={`flex items-center text-sm mt-2 ${userIsOwed > 0 ? 'text-green-600' : userOwes > 0 ? 'text-red-600' : 'text-gray-600'}`}>
+                {userIsOwed > 0 ? (
+                  <>
+                    <ArrowUpRight className="h-4 w-4 mr-1" />
+                    <span>You're owed</span>
+                  </>
+                ) : userOwes > 0 ? (
+                  <>
+                    <ArrowDownRight className="h-4 w-4 mr-1" />
+                    <span>You owe</span>
+                  </>
+                ) : (
+                  <span>You're all settled</span>
+                )}
+              </div>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

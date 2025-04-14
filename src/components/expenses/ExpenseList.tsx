@@ -1,85 +1,48 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { formatCurrency } from '@/lib/utils';
 import { useExpenses } from '@/hooks/useExpenses';
-import { Badge } from '@/components/ui/badge';
+import { ExpenseTable } from './ExpenseTable';
 
 interface ExpenseListProps {
   trekId: number;
+  participants: { user_id: string; full_name: string }[];
 }
 
-export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId }) => {
+export const ExpenseList: React.FC<ExpenseListProps> = ({ trekId, participants }) => {
   const { fixedExpenses, adHocExpenses, expenseShares, loading } = useExpenses(trekId);
 
   if (loading) {
-    return <div>Loading expenses...</div>;
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle>Expenses</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            <div className="h-6 bg-gray-200 rounded w-1/4"></div>
+            <div className="h-24 bg-gray-200 rounded"></div>
+            <div className="h-6 bg-gray-200 rounded w-1/3"></div>
+            <div className="h-32 bg-gray-200 rounded"></div>
+          </div>
+        </CardContent>
+      </Card>
+    );
   }
 
   return (
-    <div className="space-y-4">
-      {/* Fixed Expenses Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Fixed Expenses</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {fixedExpenses.length === 0 ? (
-            <p>No fixed expenses for this trek</p>
-          ) : (
-            <div className="space-y-2">
-              {fixedExpenses.map(expense => (
-                <div key={expense.expense_id} className="flex justify-between items-center">
-                  <div>
-                    <span>{expense.expense_type}</span>
-                    <span className="text-muted-foreground ml-2">{expense.description}</span>
-                  </div>
-                  <span className="font-bold">{formatCurrency(expense.amount)}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-
-      {/* Ad-Hoc Expenses Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Ad-Hoc Expenses</CardTitle>
-        </CardHeader>
-        <CardContent>
-          {adHocExpenses.length === 0 ? (
-            <p>No ad-hoc expenses for this trek</p>
-          ) : (
-            <div className="space-y-2">
-              {adHocExpenses.map(expense => (
-                <div key={expense.expense_id} className="flex justify-between items-center">
-                  <div>
-                    <span>{expense.category}</span>
-                    <span className="text-muted-foreground ml-2">{expense.description}</span>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <span className="font-bold">{formatCurrency(expense.amount)}</span>
-                    {/* Expense Share Status */}
-                    {expenseShares.filter(share => share.expense_id === expense.expense_id).map(share => (
-                      <Badge 
-                        key={share.share_id} 
-                        variant={
-                          share.status === 'Pending' ? 'secondary' : 
-                          share.status === 'Accepted' ? 'default' : 
-                          'destructive'
-                        }
-                      >
-                        {share.status}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </CardContent>
-      </Card>
-    </div>
+    <Card>
+      <CardHeader>
+        <CardTitle>Expense Details</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <ExpenseTable 
+          fixedExpenses={fixedExpenses}
+          adHocExpenses={adHocExpenses}
+          expenseShares={expenseShares}
+          participants={participants}
+        />
+      </CardContent>
+    </Card>
   );
 };

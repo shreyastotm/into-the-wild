@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { TrekEventHeader } from '@/components/trek/TrekEventHeader';
@@ -52,7 +51,6 @@ export default function TrekEventDetails() {
     refreshExpenses
   } = useExpenses(id ? parseInt(id) : undefined);
 
-  // Transform participants data for the AddExpenseForm component
   const formattedParticipants = participants.map(participant => ({
     user_id: participant.id,
     full_name: participant.name || 'Unknown User'
@@ -169,6 +167,11 @@ export default function TrekEventDetails() {
                 <ExpenseSummary
                   fixedExpenses={fixedExpenses}
                   adHocExpenses={adHocExpenses}
+                  userContributions={participants.map(p => ({
+                    userId: p.id,
+                    amount: 0,
+                    paid: false
+                  }))}
                 />
                 
                 {userRegistration && userRegistration.registration_id && (
@@ -182,7 +185,10 @@ export default function TrekEventDetails() {
                   </div>
                 )}
                 
-                <ExpenseList trekId={Number(id)} />
+                <ExpenseList 
+                  trekId={Number(id)} 
+                  participants={formattedParticipants}
+                />
               </div>
             </TabsContent>
           </Tabs>
