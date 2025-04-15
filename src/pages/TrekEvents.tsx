@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { TrekEventsList } from '@/components/trek/TrekEventsList';
 import { TrekFilters, FilterOptions } from '@/components/trek/TrekFilters';
@@ -7,6 +6,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { addDays, addMonths, startOfDay, endOfDay, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 import { TrekCardSkeleton } from '@/components/trek/TrekCardSkeleton';
+import { Button } from '@/components/ui/button';
+import { useNavigate } from 'react-router-dom';
 
 const TrekEvents = () => {
   const [treks, setTreks] = useState<any[]>([]);
@@ -19,6 +20,7 @@ const TrekEvents = () => {
     timeFrame: '',
     sortBy: 'date-asc'
   });
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchTreks();
@@ -145,10 +147,12 @@ const TrekEvents = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex flex-col md:flex-row md:items-center justify-between mb-8">
-        <h1 className="text-3xl font-bold mb-4 md:mb-0">Trek Events</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Upcoming Trek Events</h1>
+        <Button onClick={() => navigate('/trek-events/create')} variant="default">
+          + Create Trek
+        </Button>
       </div>
-      
       <TrekFilters 
         options={filterOptions}
         onFilterChange={handleFilterChange}

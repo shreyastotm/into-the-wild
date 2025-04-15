@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -54,6 +53,8 @@ export default function CreateTrekEvent() {
     cancellation_policy: ''
   });
   const [submitting, setSubmitting] = useState(false);
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   // Redirect if not logged in
   React.useEffect(() => {
@@ -82,11 +83,34 @@ export default function CreateTrekEvent() {
     }));
   };
 
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setImageFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setImagePreview(reader.result as string);
+      reader.readAsDataURL(file);
+    } else {
+      setImagePreview(null);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     try {
       setSubmitting(true);
+      
+      let imageUrl: string | null = null;
+      // Upload image if present
+      if (imageFile) {
+        const fileExt = imageFile.name.split('.').pop();
+        const filePath = `trek-images/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage.from('trek-assets').upload(filePath, imageFile, { upsert: false });
+        if (uploadError) throw uploadError;
+        const { data: publicUrlData } = supabase.storage.from('trek-assets').getPublicUrl(filePath);
+        imageUrl = publicUrlData?.publicUrl || null;
+      }
       
       // Convert form data to correct types
       const trekEventData = {
@@ -101,7 +125,8 @@ export default function CreateTrekEvent() {
         transport_mode: formData.transport_mode || null,
         pickup_time_window: formData.pickup_time_window || null,
         cancellation_policy: formData.cancellation_policy || null,
-        event_creator_type: 'internal' as 'internal' | 'external'
+        event_creator_type: 'internal' as 'internal' | 'external',
+        image_url: imageUrl
       };
       
       // Quick validation
@@ -308,6 +333,14 @@ export default function CreateTrekEvent() {
                   placeholder="Describe the cancellation policy and any penalties"
                   rows={3}
                 />
+              </div>
+              
+              <div>
+                <Label htmlFor="trek-image">Trek Image</Label>
+                <Input type="file" id="trek-image" accept="image/*" onChange={handleImageChange} />
+                {imagePreview && (
+                  <img src={imagePreview} alt="Preview" className="mt-2 w-full max-h-48 object-cover rounded" />
+                )}
               </div>
             </div>
             

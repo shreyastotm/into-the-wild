@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase, WithStringId, convertDbRecordToStringIds } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -50,7 +49,7 @@ export function useTrekCommunity(trekId: string | undefined) {
           .select('user_id')
           .eq('trek_id', trekId)
           .eq('role_type', 'trek_lead')
-          .single();
+          .maybeSingle();
         
         if (!roleError && roleData) {
           creatorId = roleData.user_id;
@@ -72,6 +71,8 @@ export function useTrekCommunity(trekId: string | undefined) {
       if (data && data.length > 0) {
         // Need to get user details separately
         const userIds = data.map(item => item.user_id);
+        // Only use valid UUIDs (36 chars, 4 dashes)
+        const validUserIds = userIds.filter(id => typeof id === 'string' && id.length === 36 && (id.match(/-/g) || []).length === 4);
         
         // Create transformed participants with user_id from registrations
         const transformedParticipants: Participant[] = data.map(item => {
@@ -89,14 +90,11 @@ export function useTrekCommunity(trekId: string | undefined) {
         
         // Try to fetch user details, but don't block if it fails
         try {
-          // Convert number array to string array for .in() call
-          const userIdsAsStrings = userIds.map(id => id.toString());
-          
-          if (userIdsAsStrings.length > 0) {
+          if (validUserIds.length > 0) {
             const { data: userData, error: userError } = await supabase
               .from('users')
               .select('user_id, full_name')
-              .in('user_id', userIdsAsStrings);
+              .in('user_id', validUserIds);
               
             if (!userError && userData && Array.isArray(userData)) {
               // Create a map of user IDs to user data for easy lookup
@@ -144,7 +142,7 @@ export function useTrekCommunity(trekId: string | undefined) {
           .select('user_id')
           .eq('trek_id', trekId)
           .eq('role_type', 'trek_lead')
-          .single();
+          .maybeSingle();
         
         if (!roleError && roleData) {
           eventCreatorId = roleData.user_id;
@@ -167,6 +165,8 @@ export function useTrekCommunity(trekId: string | undefined) {
       if (data && data.length > 0) {
         // Need to get user details separately
         const userIds = data.map(item => item.user_id);
+        // Only use valid UUIDs (36 chars, 4 dashes)
+        const validUserIds = userIds.filter(id => typeof id === 'string' && id.length === 36 && (id.match(/-/g) || []).length === 4);
         
         // Create transformed comments with user_id from comments
         const transformedComments: Comment[] = data.map(item => {
@@ -185,14 +185,11 @@ export function useTrekCommunity(trekId: string | undefined) {
         
         // Try to fetch user details, but don't block if it fails
         try {
-          // Convert number array to string array for .in() call
-          const userIdsAsStrings = userIds.map(id => id.toString());
-          
-          if (userIdsAsStrings.length > 0) {
+          if (validUserIds.length > 0) {
             const { data: userData, error: userError } = await supabase
               .from('users')
               .select('user_id, full_name')
-              .in('user_id', userIdsAsStrings);
+              .in('user_id', validUserIds);
               
             if (!userError && userData && Array.isArray(userData)) {
               // Create a map of user IDs to user data for easy lookup

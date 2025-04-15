@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -73,18 +72,24 @@ export const useExpenses = (trekId?: number) => {
       let shareError = null;
       
       if (adHocData && adHocData.length > 0) {
-        const expenseIds = adHocData.map(exp => exp.expense_id);
-        const result = await supabase
-          .from('ad_hoc_expense_shares')
-          .select('*')
-          .in('expense_id', expenseIds);
+        const expenseIds = adHocData.map(exp => exp.expense_id).filter(Boolean);
+        if (expenseIds.length > 0) {
+          const result = await supabase
+            .from('ad_hoc_expense_shares')
+            .select('*')
+            .in('expense_id', expenseIds);
           
-        shareData = result.data || [];
-        shareError = result.error;
-        
-        if (shareError) {
-          console.error("Error fetching expense shares:", shareError);
+          shareData = result.data || [];
+          shareError = result.error;
+          
+          if (shareError) {
+            console.error("Error fetching expense shares:", shareError);
+          }
+        } else {
+          shareData = [];
         }
+      } else {
+        shareData = [];
       }
 
       // If all three requests failed, throw an error
@@ -207,6 +212,33 @@ export const useExpenses = (trekId?: number) => {
     }
   };
 
+  // Settle an ad-hoc or fixed expense by marking it as settled (only update settled_at)
+  const settleExpense = async (expenseId: string, type: 'ad-hoc' | 'fixed') => {
+    try {
+      const table: "trek_ad_hoc_expenses" | "trek_fixed_expenses" =
+        type === "ad-hoc" ? "trek_ad_hoc_expenses" : "trek_fixed_expenses";
+      const { data, error } = await supabase
+        .from(table)
+        .update({ settled_at: new Date().toISOString() })
+        .eq('expense_id', expenseId)
+        .select();
+      if (error) throw error;
+      await fetchExpenses();
+      toast({
+        title: 'Expense Settled',
+        description: 'Expense has been marked as settled.'
+      });
+      return data;
+    } catch (error) {
+      toast({
+        title: 'Error settling expense',
+        description: error instanceof Error ? error.message : 'An unknown error occurred',
+        variant: 'destructive'
+      });
+      return null;
+    }
+  };
+
   return {
     fixedExpenses,
     adHocExpenses,
@@ -215,6 +247,7 @@ export const useExpenses = (trekId?: number) => {
     addAdHocExpense,
     shareExpense,
     updateExpenseShareStatus,
+    settleExpense,
     refreshExpenses: fetchExpenses
   };
 };

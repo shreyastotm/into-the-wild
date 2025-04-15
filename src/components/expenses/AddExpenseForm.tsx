@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,12 +12,35 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { z } from "zod";
+import { useExpenses } from '@/hooks/useExpenses';
+
+const expenseSchema = z.object({
+  description: z.string().min(1, "Description is required"),
+  amount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    message: "Amount must be a number greater than zero",
+  }),
+  category: z.enum([
+    "Fuel",
+    "Toll",
+    "Parking",
+    "Snacks",
+    "Meals",
+    "Water",
+    "Local Transport",
+    "Medical Supplies",
+    "Other",
+  ]),
+});
 
 interface AddExpenseFormProps {
   trekId: number;
-  onExpenseAdded: () => void;
+  onExpenseAdded: (formData: any) => void;
   participants?: { user_id: string; full_name: string }[];
 }
+
+// AddExpenseForm now supports multi-step via AddExpenseModal
+// Only Step 1 (details) is handled here. Participant selection and review are handled in the modal.
 
 export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ 
   trekId, 
@@ -26,11 +48,12 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
   participants = [] 
 }) => {
   const { user, userProfile } = useAuth();
+  const { addAdHocExpense, shareExpense } = useExpenses();
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     description: '',
     amount: '',
-    category: 'Other' as 'Fuel' | 'Toll' | 'Parking' | 'Snacks' | 'Meals' | 'Water' | 'Local Transport' | 'Medical Supplies' | 'Other'
+    category: 'Other' as 'Fuel' | 'Toll' | 'Parking' | 'Snacks' | 'Meals' | 'Water' | 'Local Transport' | 'Medical Supplies' | 'Other',
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -50,7 +73,15 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+    const result = expenseSchema.safeParse(formData);
+    if (!result.success) {
+      toast({
+        title: "Validation Error",
+        description: result.error.errors.map((e) => e.message).join(", "),
+        variant: "destructive",
+      });
+      return false;
+    }
     if (!user) {
       toast({
         title: "Authentication required",
@@ -59,74 +90,10 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
       });
       return false;
     }
-
-    if (!formData.description || !formData.amount) {
-      toast({
-        title: "Missing information",
-        description: "Please provide a description and amount",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    const amount = parseFloat(formData.amount);
-    if (isNaN(amount) || amount <= 0) {
-      toast({
-        title: "Invalid amount",
-        description: "Please enter a valid amount greater than zero",
-        variant: "destructive",
-      });
-      return false;
-    }
-
-    try {
-      setSubmitting(true);
-      
-      // Default split details - equal split among participants
-      const splitDetails = participants.length > 0 
-        ? participants.map(p => ({
-            user_id: p.user_id,
-            name: p.full_name,
-            amount: (amount / (participants.length + 1)).toFixed(2)
-          }))
-        : [];
-      
-      const { error } = await supabase
-        .from('expense_sharing')
-        .insert({
-          trek_id: trekId,
-          payer_id: user.id, // This is already a UUID string
-          amount,
-          description: formData.description,
-          settlement_status: 'Pending',
-          split_details: splitDetails.length > 0 ? splitDetails : null,
-          category: formData.category
-        } as any); // Using 'as any' to bypass type checking for this operation
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Expense added",
-        description: "Your expense has been added successfully",
-      });
-      
-      setFormData({
-        description: '',
-        amount: '',
-        category: 'Other'
-      });
-      
-      onExpenseAdded();
-    } catch (error: any) {
-      toast({
-        title: "Error adding expense",
-        description: error.message || "Failed to add expense",
-        variant: "destructive",
-      });
-      console.error("Error adding expense:", error);
-    } finally {
-      setSubmitting(false);
-    }
+    setSubmitting(true);
+    // Pass formData to parent/modal for next step
+    onExpenseAdded(formData);
+    setSubmitting(false);
   };
 
   return (
@@ -144,7 +111,6 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           required
         />
       </div>
-      
       <div>
         <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">
           Amount (₹)
@@ -161,7 +127,6 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           required
         />
       </div>
-
       <div>
         <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
           Category
@@ -186,26 +151,8 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
           </SelectContent>
         </Select>
       </div>
-      
-      {participants.length > 0 && (
-        <div className="pt-2 border-t mt-4">
-          <p className="text-sm text-muted-foreground mb-2">
-            This expense will be split equally between you and {participants.length} other participants.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Each person will pay approximately ₹{participants.length > 0 
-              ? (parseFloat(formData.amount || '0') / (participants.length + 1)).toFixed(2) 
-              : '0.00'}
-          </p>
-        </div>
-      )}
-      
-      <Button 
-        type="submit" 
-        className="w-full"
-        disabled={submitting}
-      >
-        {submitting ? 'Adding...' : 'Add Expense'}
+      <Button type="submit" disabled={submitting} className="w-full">
+        {submitting ? 'Next' : 'Next'}
       </Button>
     </form>
   );

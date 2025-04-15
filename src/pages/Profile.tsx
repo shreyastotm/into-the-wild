@@ -1,9 +1,9 @@
-
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import ProfileForm from '@/components/profile/ProfileForm';
 import ProfileHeader from '@/components/profile/ProfileHeader';
+import ProfileSummaryCard from '@/components/profile/ProfileSummaryCard';
 
 export default function Profile() {
   const { user, loading } = useAuth();
@@ -26,6 +26,7 @@ export default function Profile() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       <ProfileHeader />
+      <ProfileSummaryCard />
       <div className="bg-white rounded-lg shadow p-6">
         <ProfileForm />
       </div>

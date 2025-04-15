@@ -20,7 +20,7 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { ExpenseList } from '@/components/expenses/ExpenseList';
 import { ExpenseSummary } from '@/components/expenses/ExpenseSummary';
-import { AddExpenseForm } from '@/components/expenses/AddExpenseForm';
+import { AddExpenseModal } from '@/components/expenses/AddExpenseModal';
 import { useExpenses } from '@/hooks/useExpenses';
 
 export default function TrekEventDetails() {
@@ -55,6 +55,8 @@ export default function TrekEventDetails() {
     user_id: participant.id,
     full_name: participant.name || 'Unknown User'
   }));
+
+  const [showExpenseModal, setShowExpenseModal] = useState(false);
 
   if (loading) {
     return (
@@ -177,10 +179,19 @@ export default function TrekEventDetails() {
                 {userRegistration && userRegistration.registration_id && (
                   <div className="p-4 border rounded-lg bg-card mb-4">
                     <h3 className="text-lg font-semibold mb-4">Add a New Expense</h3>
-                    <AddExpenseForm 
-                      trekId={Number(id)} 
+                    <Button 
+                      onClick={() => setShowExpenseModal(true)} 
+                      variant="default" 
+                      className="mb-4"
+                    >
+                      + Add Expense
+                    </Button>
+                    <AddExpenseModal
+                      open={showExpenseModal}
+                      onClose={() => setShowExpenseModal(false)}
+                      trekId={Number(id)}
+                      participants={formattedParticipants}
                       onExpenseAdded={refreshExpenses}
-                      participants={formattedParticipants} 
                     />
                   </div>
                 )}

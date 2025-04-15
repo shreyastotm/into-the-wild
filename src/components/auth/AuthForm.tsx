@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
@@ -33,6 +32,9 @@ export default function AuthForm() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [subscriptionType, setSubscriptionType] = useState<'community' | 'self_service'>('community');
+  const [resetting, setResetting] = useState(false);
+  const [resetEmail, setResetEmail] = useState('');
+  const [showReset, setShowReset] = useState(false);
 
   const toggleMode = () => {
     setMode(mode === 'signin' ? 'signup' : 'signin');
@@ -103,6 +105,29 @@ export default function AuthForm() {
     }
   };
 
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setResetting(true);
+    try {
+      const { data, error } = await supabase.auth.resetPasswordForEmail(resetEmail);
+      if (error) throw error;
+      toast({
+        title: 'Password Reset Email Sent',
+        description: 'Check your inbox for a password reset link.',
+      });
+      setShowReset(false);
+      setResetEmail('');
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error?.message || 'Failed to send reset email',
+        variant: 'destructive',
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return (
     <Card className="w-full max-w-md mx-auto">
       <CardHeader>
@@ -118,75 +143,105 @@ export default function AuthForm() {
       </CardHeader>
       
       <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {mode === 'signup' && (
-            <>
-              <div className="space-y-2">
-                <Label htmlFor="fullName">Full Name</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={phone}
-                  onChange={(e) => setPhone(e.target.value)}
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="subscriptionType">Subscription Type</Label>
-                <Select 
-                  value={subscriptionType}
-                  onValueChange={(value) => setSubscriptionType(value as 'community' | 'self_service')}
-                >
-                  <SelectTrigger id="subscriptionType">
-                    <SelectValue placeholder="Select a subscription type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="community">Community (₹499/year)</SelectItem>
-                    <SelectItem value="self_service">Self-Service (₹99/month)</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </>
-          )}
+        {showReset ? (
+          <form onSubmit={handleResetPassword} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="resetEmail">Email</Label>
+              <Input
+                id="resetEmail"
+                type="email"
+                value={resetEmail}
+                onChange={(e) => setResetEmail(e.target.value)}
+                required
+              />
+            </div>
+            <Button type="submit" className="w-full" disabled={resetting}>
+              {resetting ? 'Sending...' : 'Send Reset Link'}
+            </Button>
+            <Button type="button" variant="ghost" className="w-full" onClick={() => setShowReset(false)}>
+              Back to Sign In
+            </Button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {mode === 'signup' && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="subscriptionType">Subscription Type</Label>
+                  <Select 
+                    value={subscriptionType}
+                    onValueChange={(value) => setSubscriptionType(value as 'community' | 'self_service')}
+                  >
+                    <SelectTrigger id="subscriptionType">
+                      <SelectValue placeholder="Select a subscription type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="community">Community (₹499/year)</SelectItem>
+                      <SelectItem value="self_service">Self-Service (₹99/month)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
 
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-          </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
-          </Button>
-        </form>
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
+            </Button>
+            {mode === 'signin' && (
+              <button
+                type="button"
+                className="text-xs text-blue-600 hover:underline mt-2 w-full"
+                onClick={() => setShowReset(true)}
+              >
+                Forgot password?
+              </button>
+            )}
+          </form>
+        )}
       </CardContent>
 
       <CardFooter className="justify-center">
