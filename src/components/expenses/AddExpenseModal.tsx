@@ -28,7 +28,10 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({ open, onClose,
   };
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg w-full">
+      <DialogContent className="max-w-lg w-full" aria-describedby="add-expense-modal-desc">
+        <div id="add-expense-modal-desc" className="sr-only">
+          Add a new expense for this trek. Fill in details, select participants, and review before submitting.
+        </div>
         <DialogHeader>
           <DialogTitle>Add Expense</DialogTitle>
         </DialogHeader>

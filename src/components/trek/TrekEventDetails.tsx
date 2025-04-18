@@ -1,9 +1,9 @@
-
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { CalendarClock, Users, Clock, MapPin, CreditCard, Info, Map, Car, Bus, UserCheck } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { supabase } from '@/integrations/supabase/client';
 
 interface TrekEventDetailsProps {
   description: string | null;
@@ -13,6 +13,8 @@ interface TrekEventDetailsProps {
   currentParticipants: number | null;
   pickupTimeWindow: string | null;
   cancellationPolicy: string | null;
+  image_url?: string | null;
+  trekId?: number;
 }
 
 export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
@@ -22,7 +24,9 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
   maxParticipants,
   currentParticipants,
   pickupTimeWindow,
-  cancellationPolicy
+  cancellationPolicy,
+  image_url,
+  trekId,
 }) => {
   const formatTransportMode = (mode: string | null): string => {
     switch(mode) {
@@ -52,8 +56,33 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
   const availableSpots = maxParticipants - (currentParticipants || 0);
   const spotsFillPercent = ((currentParticipants || 0) / maxParticipants) * 100;
 
+  // --- Packing List State ---
+  const [packingList, setPackingList] = useState<any[]>([]);
+  const [packingLoading, setPackingLoading] = useState(false);
+  useEffect(() => {
+    if (!trekId) return;
+    setPackingLoading(true);
+    supabase
+      .from('trek_packing_list')
+      .select('name, mandatory, item_order')
+      .eq('trek_id', trekId)
+      .order('item_order', { ascending: true })
+      .then(({ data }) => {
+        setPackingList(data || []);
+        setPackingLoading(false);
+      });
+  }, [trekId]);
+
   return (
     <div className="prose max-w-none">
+      {/* Trek Image Display */}
+      {image_url && (
+        <img
+          src={image_url}
+          alt="Trek Event"
+          className="w-full max-h-64 object-cover rounded mb-4 border border-gray-200"
+        />
+      )}
       <div className="space-y-6">
         <div>
           <h3 className="text-xl font-semibold flex items-center">
@@ -147,6 +176,30 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
           )}
         </div>
         
+        {/* --- Packing List Section --- */}
+        <Separator className="my-4" />
+        <div>
+          <h3 className="text-xl font-semibold flex items-center">
+            <MapPin className="h-5 w-5 mr-2" />
+            Packing Checklist
+          </h3>
+          {packingLoading ? (
+            <div className="text-sm text-gray-500">Loading packing list...</div>
+          ) : packingList && packingList.length > 0 ? (
+            <ul className="mt-2">
+              {packingList.map((item, idx) => (
+                <li key={idx} className="flex items-center gap-2 text-sm">
+                  <span className="inline-block w-2 h-2 rounded-full bg-blue-400" />
+                  <span>{item.name}</span>
+                  {item.mandatory ? <span className="ml-2 text-xs text-red-600 font-semibold">(Mandatory)</span> : <span className="ml-2 text-xs text-gray-500">(Optional)</span>}
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="text-sm text-gray-500">No packing list provided for this trek.</div>
+          )}
+        </div>
+
         {cancellationPolicy && (
           <>
             <Separator className="my-4" />

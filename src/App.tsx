@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Layout from './components/Layout';
@@ -12,6 +11,7 @@ import TrekEvents from './pages/TrekEvents';
 import TrekEventDetails from './pages/TrekEventDetails';
 import CreateTrekEvent from './pages/CreateTrekEvent';
 import { Toaster } from './components/ui/toaster';
+import AdminHome from './pages/admin';
 
 function App() {
   return (
@@ -25,6 +25,7 @@ function App() {
           <Route path="/trek-events" element={<Layout><TrekEvents /></Layout>} />
           <Route path="/trek-events/:id" element={<Layout><TrekEventDetails /></Layout>} />
           <Route path="/trek-events/create" element={<Layout><CreateTrekEvent /></Layout>} />
+          <Route path="/admin/*" element={<AdminHome />} />
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>
         <Toaster />

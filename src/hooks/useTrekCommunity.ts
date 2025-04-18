@@ -231,7 +231,7 @@ export function useTrekCommunity(trekId: string | undefined) {
     try {
       setSubmitting(true);
       
-      const { error } = await supabase
+      const { error, data } = await supabase
         .from('comments')
         .insert({
           post_id: parseInt(trekId),
@@ -241,7 +241,13 @@ export function useTrekCommunity(trekId: string | undefined) {
         });
       
       if (error) {
-        throw error;
+        console.error('Supabase Insert Comment Error:', error, { post_id: trekId, user_id: userIdToNumber(user.id), body: content });
+        toast({
+          title: "Failed to add comment",
+          description: error.message || "There was an error adding your comment",
+          variant: "destructive",
+        });
+        return false;
       }
       
       // Refresh comments
@@ -255,12 +261,12 @@ export function useTrekCommunity(trekId: string | undefined) {
       
       return true;
     } catch (error: any) {
+      console.error("Error adding comment:", error, { post_id: trekId, user_id: userIdToNumber(user.id), body: content });
       toast({
         title: "Failed to add comment",
         description: error.message || "There was an error adding your comment",
         variant: "destructive",
       });
-      console.error("Error adding comment:", error);
       return false;
     } finally {
       setSubmitting(false);

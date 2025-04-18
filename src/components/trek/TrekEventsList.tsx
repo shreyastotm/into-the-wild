@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +20,7 @@ interface TrekEvent {
   location: any | null;
   transport_mode: 'cars' | 'mini_van' | 'bus' | null;
   cancellation_policy: string | null;
+  image_url?: string | null;
 }
 
 interface TrekEventsListProps {
@@ -98,6 +98,14 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
         
         const cardContent = (
           <Card className="h-full overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/20 relative">
+            {/* Trek Image Display */}
+            {trek.image_url && (
+              <img
+                src={trek.image_url}
+                alt="Trek Event"
+                className="w-full h-40 object-cover border-b border-gray-200"
+              />
+            )}
             {timeStatus && (
               <Badge className={`absolute top-3 right-3 z-10 ${timeStatus.class}`}>
                 {timeStatus.label}

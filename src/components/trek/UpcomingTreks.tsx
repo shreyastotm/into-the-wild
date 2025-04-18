@@ -19,6 +19,7 @@ interface Trek {
   max_participants: number;
   current_participants: number | null;
   description: string | null;
+  image_url: string | null;
 }
 
 export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
@@ -37,7 +38,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
       
       const { data, error } = await supabase
         .from('trek_events')
-        .select('trek_id, trek_name, category, start_datetime, cost, max_participants, current_participants, description')
+        .select('trek_id, trek_name, category, start_datetime, cost, max_participants, current_participants, description, image_url')
         .gt('start_datetime', now)
         .order('start_datetime', { ascending: true })
         .limit(limit);
@@ -127,6 +128,9 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
           onClick={() => navigate(`/trek-events/${trek.trek_id}`)}
         >
           <div className="h-48 bg-gray-200 relative">
+            {trek.image_url && (
+              <img src={trek.image_url} alt={trek.trek_name} className="absolute inset-0 object-cover w-full h-full" />
+            )}
             <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-b ${getCategoryGradient(trek.category)}`}>
               <div className="flex flex-col items-center text-center px-4">
                 {getCategoryIcon(trek.category)}

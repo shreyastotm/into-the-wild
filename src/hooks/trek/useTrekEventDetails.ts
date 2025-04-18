@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/use-toast';
@@ -49,14 +48,9 @@ export function useTrekEventDetails(trekId: string | undefined) {
       }
       
       if (data) {
-        // If we have images in the future, we can fetch from storage
-        // const imageUrl = data.image_path 
-        //   ? await getImageUrl(data.image_path) 
-        //   : null;
-        
         setTrekEvent({
           ...data as TrekEvent,
-          // image_url: imageUrl
+          image_url: data.image_url || null
         });
       }
     } catch (error: any) {
@@ -92,3 +86,5 @@ export function useTrekEventDetails(trekId: string | undefined) {
     setTrekEvent
   };
 }
+
+export type { TrekEvent };

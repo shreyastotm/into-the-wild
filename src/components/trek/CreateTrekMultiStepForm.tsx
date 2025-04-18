@@ -7,7 +7,24 @@ import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 
 // Step 1: Trek Details
-function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChange, errors }) {
+function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChange, gpxFile, handleGpxChange, errors }) {
+  // --- Image Guardrails ---
+  const [imgError, setImgError] = useState('');
+  const handleImageInputChange = (e) => {
+    setImgError('');
+    const file = e.target.files[0];
+    if (!file) return handleImageChange(e);
+    const validTypes = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!validTypes.includes(file.type)) {
+      setImgError('Only JPG, PNG, or WEBP images are allowed.');
+      return;
+    }
+    if (file.size > 2 * 1024 * 1024) {
+      setImgError('Image must be less than 2MB.');
+      return;
+    }
+    handleImageChange(e);
+  };
   return (
     <div className="space-y-4">
       <div>
@@ -22,8 +39,15 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
       </div>
       <div>
         <Label htmlFor="trek-image">Trek Image</Label>
-        <Input type="file" id="trek-image" accept="image/*" onChange={handleImageChange} />
+        <Input type="file" id="trek-image" accept="image/*" onChange={handleImageInputChange} />
+        {imgError && <div className="text-red-500 text-xs mt-1">{imgError}</div>}
         {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-full max-h-48 object-cover rounded" />}
+        <div className="text-gray-500 text-xs mt-1">Max size: 2MB. Allowed: JPG, PNG, WEBP.</div>
+      </div>
+      <div>
+        <Label htmlFor="gpx-file">GPX File (Route Map)</Label>
+        <Input type="file" id="gpx-file" accept=".gpx" onChange={handleGpxChange} />
+        {gpxFile && <div className="mt-2 text-xs text-green-700">Selected: {gpxFile.name}</div>}
       </div>
       <div>
         <Label htmlFor="start_datetime">Start Date and Time *</Label>
@@ -36,6 +60,12 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
         <Input id="location" name="location" value={formData.location} onChange={e => setFormData(f => ({ ...f, location: e.target.value }))} />
         <div className="text-gray-500 text-xs mt-1">Where will the trek start? (e.g., "Matheran Hill Base")</div>
       </div>
+      <div>
+        <Label htmlFor="cost">Trek Cost (₹) *</Label>
+        <Input id="cost" name="cost" type="number" min="0" value={formData.cost || ''} onChange={e => setFormData(f => ({ ...f, cost: e.target.value }))} required />
+        {errors.cost && <div className="text-red-500 text-xs mt-1">{errors.cost}</div>}
+        <div className="text-gray-500 text-xs mt-1">Total cost per participant (required)</div>
+      </div>
     </div>
   );
 }
@@ -43,6 +73,22 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
 // Step 2: Fixed Expenses
 function FixedExpensesStep({ fixedExpenses, setFixedExpenses }) {
   const [expense, setExpense] = useState({ title: '', amount: '' });
+  // Drag state
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+
+  // Handle drag events
+  const handleDragStart = (idx: number) => setDraggedIdx(idx);
+  const handleDragOver = (e: React.DragEvent<HTMLLIElement>, idx: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === idx) return;
+    const updated = [...fixedExpenses];
+    const [removed] = updated.splice(draggedIdx, 1);
+    updated.splice(idx, 0, removed);
+    setFixedExpenses(updated);
+    setDraggedIdx(idx);
+  };
+  const handleDragEnd = () => setDraggedIdx(null);
+
   return (
     <div className="space-y-4">
       <div className="flex gap-2">
@@ -56,8 +102,15 @@ function FixedExpensesStep({ fixedExpenses, setFixedExpenses }) {
       </div>
       <ul className="mt-2 space-y-2">
         {fixedExpenses.map((exp, idx) => (
-          <li key={idx} className="flex justify-between items-center border rounded px-2 py-1">
-            <span>{exp.title} - ₹{exp.amount}</span>
+          <li key={idx}
+              className={`flex justify-between items-center border rounded px-2 py-1 ${draggedIdx === idx ? 'bg-blue-50' : ''}`}
+              draggable
+              onDragStart={() => handleDragStart(idx)}
+              onDragOver={e => handleDragOver(e, idx)}
+              onDragEnd={handleDragEnd}
+          >
+            <span className="cursor-move">☰</span>
+            <span className="flex-1 ml-2">{exp.title} - ₹{exp.amount}</span>
             <Button variant="ghost" type="button" onClick={() => setFixedExpenses(f => f.filter((_, i) => i !== idx))}>Remove</Button>
           </li>
         ))}
@@ -68,6 +121,32 @@ function FixedExpensesStep({ fixedExpenses, setFixedExpenses }) {
 
 // Step 3: Packing List
 function PackingListStep({ packingItems, selectedPacking, setSelectedPacking }) {
+  // Drag state
+  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
+  // Custom item state
+  const [customItem, setCustomItem] = useState<string>('');
+  const [customMandatory, setCustomMandatory] = useState<boolean>(false);
+
+  const handleDragStart = (idx: number) => setDraggedIdx(idx);
+  const handleDragOver = (e: React.DragEvent<HTMLLIElement>, idx: number) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === idx) return;
+    const updated = [...selectedPacking];
+    const [removed] = updated.splice(draggedIdx, 1);
+    updated.splice(idx, 0, removed);
+    setSelectedPacking(updated);
+    setDraggedIdx(idx);
+  };
+  const handleDragEnd = () => setDraggedIdx(null);
+
+  // Add custom item handler
+  const handleAddCustom = () => {
+    if (!customItem.trim()) return;
+    setSelectedPacking(f => [...f, { name: customItem.trim(), mandatory: customMandatory, isCustom: true, item_id: `custom-${Date.now()}` }]);
+    setCustomItem('');
+    setCustomMandatory(false);
+  };
+
   return (
     <div className="space-y-4">
       <div className="font-semibold mb-2">Drag items to the event packing list:</div>
@@ -81,13 +160,36 @@ function PackingListStep({ packingItems, selectedPacking, setSelectedPacking }) 
               </li>
             ))}
           </ul>
+          <div className="mt-4">
+            <div className="font-bold mb-1">Add Custom Item</div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="border rounded px-2 py-1 flex-1"
+                placeholder="Custom item name"
+                value={customItem}
+                onChange={e => setCustomItem(e.target.value)}
+              />
+              <label className="flex items-center text-xs">
+                <input type="checkbox" checked={customMandatory} onChange={e => setCustomMandatory(e.target.checked)} /> Mandatory
+              </label>
+              <Button type="button" onClick={handleAddCustom} size="sm">Add</Button>
+            </div>
+          </div>
         </div>
         <div>
           <div className="font-bold mb-1">Event Packing List</div>
           <ul className="border rounded min-h-[120px] p-2">
             {selectedPacking.map((item, idx) => (
-              <li key={item.item_id} className="flex justify-between items-center">
-                <span>{item.name}</span>
+              <li key={item.item_id}
+                  className={`flex justify-between items-center ${draggedIdx === idx ? 'bg-blue-50' : ''}`}
+                  draggable
+                  onDragStart={() => handleDragStart(idx)}
+                  onDragOver={e => handleDragOver(e, idx)}
+                  onDragEnd={handleDragEnd}
+              >
+                <span className="cursor-move">☰</span>
+                <span>{item.name}{item.isCustom && <span className="ml-1 text-xs text-blue-500">(Custom)</span>}</span>
                 <Button variant="ghost" type="button" onClick={() => setSelectedPacking(f => f.filter((_, i) => i !== idx))}>Remove</Button>
                 <label className="ml-2 text-xs">
                   <input type="checkbox" checked={item.mandatory} onChange={e => setSelectedPacking(f => f.map((it, i) => i === idx ? { ...it, mandatory: e.target.checked } : it))} /> Mandatory
@@ -102,7 +204,7 @@ function PackingListStep({ packingItems, selectedPacking, setSelectedPacking }) 
 }
 
 // Step 4: Review & Submit
-function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview }) {
+function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview, gpxFile, gpxRouteData }) {
   return (
     <div className="space-y-4">
       <div><b>Trek Name:</b> {formData.trek_name}</div>
@@ -110,6 +212,14 @@ function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview }) 
       <div><b>Start Date:</b> {formData.start_datetime}</div>
       <div><b>Location:</b> {formData.location}</div>
       {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-full max-h-32 object-cover rounded" />}
+      {gpxFile && (
+        <div className="text-xs text-blue-700">GPX File: {gpxFile.name}</div>
+      )}
+      {gpxRouteData && (
+        <div className="text-xs text-green-700">
+          Route: {gpxRouteData.distance_km} km, Elevation Gain: {gpxRouteData.elevation_gain} m, Points: {gpxRouteData.points}
+        </div>
+      )}
       <div>
         <b>Fixed Expenses:</b>
         <ul>{fixedExpenses.map((exp, i) => <li key={i}>{exp.title} - ₹{exp.amount}</li>)}</ul>
@@ -125,19 +235,100 @@ function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview }) 
 // Main Multi-Step Form
 export default function CreateTrekMultiStepForm() {
   const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState({ trek_name: '', description: '', start_datetime: '', location: '' });
+  const [formData, setFormData] = useState({ trek_name: '', description: '', start_datetime: '', location: '', cost: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [gpxFile, setGpxFile] = useState<File | null>(null);
+  const [gpxRouteData, setGpxRouteData] = useState<any>(null);
   const [fixedExpenses, setFixedExpenses] = useState<any[]>([]);
   const [packingItems, setPackingItems] = useState<any[]>([]);
   const [selectedPacking, setSelectedPacking] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
+  // Ensure location is always a string before submit
+  function sanitizeLocation(location: any): string {
+    if (typeof location === 'string') return location;
+    if (location && typeof location === 'object' && location.type === 'Point' && Array.isArray(location.coordinates)) {
+      // If accidentally passed as geojson, convert to string
+      return `${location.coordinates[1]},${location.coordinates[0]}`;
+    }
+    return String(location || '');
+  }
+
   // Fetch master packing items on mount
   React.useEffect(() => {
     supabase.from('packing_items').select('*').then(({ data }) => setPackingItems(data || []));
   }, []);
+
+  // GPX file handler
+  const handleGpxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    setGpxFile(file);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const text = event.target?.result as string;
+        try {
+          const parser = new DOMParser();
+          const xml = parser.parseFromString(text, 'application/xml');
+          const trkpts = xml.getElementsByTagName('trkpt');
+          // Prepopulate location from first trkpt
+          if (trkpts.length > 0) {
+            const firstLat = trkpts[0].getAttribute('lat');
+            const firstLon = trkpts[0].getAttribute('lon');
+            if (firstLat && firstLon) {
+              setFormData(f => ({ ...f, location: `${firstLat},${firstLon}` }));
+              // Force update the location field in the DOM as well
+              const locationInput = document.getElementById('location');
+              if (locationInput && 'value' in locationInput) {
+                locationInput.value = `${firstLat},${firstLon}`;
+              }
+            }
+          }
+          let totalDistance = 0;
+          let minElev = null;
+          let maxElev = null;
+          let lastLat = null;
+          let lastLon = null;
+          let lastEle = null;
+          for (let i = 0; i < trkpts.length; i++) {
+            const lat = parseFloat(trkpts[i].getAttribute('lat'));
+            const lon = parseFloat(trkpts[i].getAttribute('lon'));
+            const ele = parseFloat(trkpts[i].getElementsByTagName('ele')[0]?.textContent || '0');
+            if (minElev === null || ele < minElev) minElev = ele;
+            if (maxElev === null || ele > maxElev) maxElev = ele;
+            if (lastLat !== null && lastLon !== null) {
+              // Haversine formula for distance
+              const R = 6371e3;
+              const φ1 = lastLat * Math.PI/180;
+              const φ2 = lat * Math.PI/180;
+              const Δφ = (lat-lastLat) * Math.PI/180;
+              const Δλ = (lon-lastLon) * Math.PI/180;
+              const a = Math.sin(Δφ/2) * Math.sin(Δφ/2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ/2) * Math.sin(Δλ/2);
+              const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+              totalDistance += R * c;
+            }
+            lastLat = lat;
+            lastLon = lon;
+            lastEle = ele;
+          }
+          setGpxRouteData({
+            distance_km: (totalDistance/1000).toFixed(2),
+            elevation_min: minElev,
+            elevation_max: maxElev,
+            elevation_gain: maxElev && minElev ? (maxElev-minElev).toFixed(1) : null,
+            points: trkpts.length
+          });
+        } catch (err) {
+          setGpxRouteData(null);
+        }
+      };
+      reader.readAsText(file);
+    } else {
+      setGpxRouteData(null);
+    }
+  };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0] || null;
@@ -155,30 +346,81 @@ export default function CreateTrekMultiStepForm() {
     try {
       setSubmitting(true);
       let imageUrl: string | null = null;
+      let gpxUrl: string | null = null;
+      let routeData: any = gpxRouteData || null;
       if (imageFile) {
         const fileExt = imageFile.name.split('.').pop();
         const filePath = `trek-images/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
         const { data: uploadData, error: uploadError } = await supabase.storage.from('trek-assets').upload(filePath, imageFile, { upsert: false });
-        if (uploadError) throw uploadError;
+        if (uploadError) {
+          console.error('Supabase Storage Upload Error:', uploadError);
+          throw uploadError;
+        }
         const { data: publicUrlData } = supabase.storage.from('trek-assets').getPublicUrl(filePath);
         imageUrl = publicUrlData?.publicUrl || null;
       }
+      if (gpxFile) {
+        const fileExt = gpxFile.name.split('.').pop();
+        const filePath = `trek-gpx/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage.from('trek-assets').upload(filePath, gpxFile, { upsert: false });
+        if (uploadError) {
+          console.error('Supabase Storage Upload Error (GPX):', uploadError);
+          throw uploadError;
+        }
+        const { data: publicUrlData } = supabase.storage.from('trek-assets').getPublicUrl(filePath);
+        gpxUrl = publicUrlData?.publicUrl || null;
+      }
+      // Sanitize location before insert
+      const sanitizedLocation = sanitizeLocation(formData.location);
+      // Ensure cost is present and numeric
+      let sanitizedCost = formData.cost;
+      if (typeof sanitizedCost === 'string') {
+        sanitizedCost = sanitizedCost.trim() === '' ? null : parseFloat(sanitizedCost);
+      }
+      if (sanitizedCost === null || isNaN(sanitizedCost)) {
+        throw new Error('Cost is required and must be a valid number.');
+      }
       // 1. Insert trek event
-      const { data: trekData, error: trekError } = await supabase.from('trek_events').insert({ ...formData, image_url: imageUrl }).select('trek_id').single();
-      if (trekError) throw trekError;
+      const { data: trekData, error: trekError } = await supabase.from('trek_events').insert({
+        trek_name: formData.trek_name,
+        description: formData.description,
+        start_datetime: formData.start_datetime,
+        location: sanitizedLocation,
+        image_url: imageUrl,
+        gpx_file_url: gpxUrl,
+        route_data: routeData,
+        cost: sanitizedCost,
+      }).select('trek_id').single();
+      if (trekError) {
+        console.error('Supabase Insert trek_events Error:', trekError);
+        throw trekError;
+      }
       const trek_id = trekData.trek_id;
-      // 2. Insert fixed expenses
+      // 2. Insert expenses
       for (const exp of fixedExpenses) {
-        await supabase.from('trek_fixed_expenses').insert({ trek_id, title: exp.title, amount: exp.amount });
+        const { error: expError } = await supabase.from('trek_expenses').insert({
+          trek_id,
+          title: exp.title,
+          amount: typeof exp.amount === 'string' ? parseFloat(exp.amount) : exp.amount,
+        });
+        if (expError) {
+          console.error('Supabase Insert trek_expenses Error:', expError);
+          throw expError;
+        }
       }
       // 3. Insert packing list
-      for (const item of selectedPacking) {
-        await supabase.from('trek_packing_list').insert({ trek_id, item_id: item.item_id, mandatory: item.mandatory });
+      for (const [order, item] of selectedPacking.entries()) {
+        const { error: packError } = await supabase.from('trek_packing_list').insert({ trek_id, name: item.name, mandatory: item.mandatory, item_order: order });
+        if (packError) {
+          console.error('Supabase Insert trek_packing_list Error:', packError);
+          throw packError;
+        }
       }
       toast({ title: 'Trek created successfully!' });
       // Optionally redirect or reset form
     } catch (error: any) {
-      toast({ title: 'Error creating trek', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error creating trek', description: error.message || JSON.stringify(error), variant: 'destructive' });
+      console.error('Error creating trek event:', error);
     } finally {
       setSubmitting(false);
     }
@@ -190,6 +432,7 @@ export default function CreateTrekMultiStepForm() {
     if (step === 0) {
       if (!formData.trek_name) newErrors.trek_name = 'Trek name is required.';
       if (!formData.start_datetime) newErrors.start_datetime = 'Start date & time required.';
+      if (!formData.cost || formData.cost === '') newErrors.cost = 'Cost is required.';
     }
     return newErrors;
   };
@@ -211,10 +454,10 @@ export default function CreateTrekMultiStepForm() {
         </div>
       </div>
       <form onSubmit={e => { e.preventDefault(); if (step === 3) handleSubmit(); else handleNext(); }}>
-        {step === 0 && <TrekDetailsStep formData={formData} setFormData={setFormData} imagePreview={imagePreview} handleImageChange={handleImageChange} errors={errors} />}
+        {step === 0 && <TrekDetailsStep formData={formData} setFormData={setFormData} imagePreview={imagePreview} handleImageChange={handleImageChange} gpxFile={gpxFile} handleGpxChange={handleGpxChange} errors={errors} />}
         {step === 1 && <FixedExpensesStep fixedExpenses={fixedExpenses} setFixedExpenses={setFixedExpenses} />}
         {step === 2 && <PackingListStep packingItems={packingItems} selectedPacking={selectedPacking} setSelectedPacking={setSelectedPacking} />}
-        {step === 3 && <ReviewStep formData={formData} fixedExpenses={fixedExpenses} selectedPacking={selectedPacking} imagePreview={imagePreview} />}
+        {step === 3 && <ReviewStep formData={formData} fixedExpenses={fixedExpenses} selectedPacking={selectedPacking} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} />}
         <div className="mt-8 flex justify-between">
           <Button type="button" variant="outline" disabled={step === 0} onClick={() => setStep(s => s - 1)}>Back</Button>
           <Button type="submit" disabled={submitting}>{step === 3 ? (submitting ? 'Submitting...' : 'Submit') : 'Next'}</Button>
