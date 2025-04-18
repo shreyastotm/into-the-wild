@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from "@/integrations/supabase/client";
@@ -25,6 +24,7 @@ interface TrekRegistration {
   current_participants: number;
   max_participants: number;
   isPast: boolean;
+  image_url?: string | null;
 }
 
 export const UserTreks = () => {
@@ -57,7 +57,8 @@ export const UserTreks = () => {
             category,
             location,
             current_participants,
-            max_participants
+            max_participants,
+            image_url
           )
         `)
         .eq('user_id', userId);
@@ -82,7 +83,8 @@ export const UserTreks = () => {
             location: trekData.location,
             current_participants: trekData.current_participants || 0,
             max_participants: trekData.max_participants,
-            isPast: startDate < now
+            isPast: startDate < now,
+            image_url: trekData.image_url || null
           };
         });
         
@@ -148,6 +150,14 @@ export const UserTreks = () => {
     
     return (
       <Card key={trek.trek_id} className="mb-4 hover:shadow-md transition-shadow">
+        {/* Trek Image Display */}
+        {trek.image_url && (
+          <img
+            src={trek.image_url}
+            alt={trek.trek_name}
+            className="w-full h-40 object-cover border-b border-gray-200 rounded-t"
+          />
+        )}
         <CardHeader className="pb-2">
           <div className="flex justify-between items-start">
             <CardTitle className="text-lg">{trek.trek_name}</CardTitle>

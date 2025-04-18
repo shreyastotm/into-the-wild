@@ -152,6 +152,28 @@ SELECT * FROM (VALUES
 ) AS v(name)
 WHERE NOT EXISTS (SELECT 1 FROM public.packing_items WHERE name = v.name);
 
+-- === CREATE trek_expenses TABLE FOR LEGACY COMPATIBILITY ===
+CREATE TABLE IF NOT EXISTS public.trek_expenses (
+  id SERIAL PRIMARY KEY,
+  trek_id INTEGER REFERENCES public.trek_events(trek_id) ON DELETE CASCADE,
+  title TEXT NOT NULL,
+  amount NUMERIC NOT NULL,
+  type TEXT,
+  created_by UUID REFERENCES public.profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Enable RLS and grant API access for trek_expenses
+ALTER TABLE public.trek_expenses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "Allow select for authenticated users on trek_expenses"
+  ON public.trek_expenses FOR SELECT USING (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow insert for authenticated users on trek_expenses"
+  ON public.trek_expenses FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow update for authenticated users on trek_expenses"
+  ON public.trek_expenses FOR UPDATE USING (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow delete for authenticated users on trek_expenses"
+  ON public.trek_expenses FOR DELETE USING (auth.uid() IS NOT NULL);
+
 -- === EXPENSES TABLE ===
 CREATE TABLE IF NOT EXISTS public.trek_expenses (
   id SERIAL PRIMARY KEY,
@@ -211,3 +233,45 @@ CREATE POLICY IF NOT EXISTS "Allow insert for authenticated users on trek_commen
 CREATE POLICY IF NOT EXISTS "Allow select for authenticated users on trek_comments"
   ON public.trek_comments FOR SELECT
   USING (auth.uid() IS NOT NULL);
+
+-- === PATCH: Enable REST API for trek_expenses ===
+-- Grant API access to trek_expenses for authenticated users
+ALTER TABLE public.trek_expenses ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "Allow select for authenticated users on trek_expenses"
+  ON public.trek_expenses
+  FOR SELECT
+  USING (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow insert for authenticated users on trek_expenses"
+  ON public.trek_expenses
+  FOR INSERT
+  WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow update for authenticated users on trek_expenses"
+  ON public.trek_expenses
+  FOR UPDATE
+  USING (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow delete for authenticated users on trek_expenses"
+  ON public.trek_expenses
+  FOR DELETE
+  USING (auth.uid() IS NOT NULL);
+
+-- === PATCH: CREATE trek_packing_lists TABLE ===
+CREATE TABLE IF NOT EXISTS public.trek_packing_lists (
+  id SERIAL PRIMARY KEY,
+  trek_id INTEGER REFERENCES public.trek_events(trek_id) ON DELETE CASCADE,
+  name TEXT NOT NULL,
+  mandatory BOOLEAN DEFAULT FALSE,
+  item_order INTEGER DEFAULT 0
+);
+ALTER TABLE public.trek_packing_lists ENABLE ROW LEVEL SECURITY;
+CREATE POLICY IF NOT EXISTS "Allow select for authenticated users on trek_packing_lists"
+  ON public.trek_packing_lists FOR SELECT USING (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow insert for authenticated users on trek_packing_lists"
+  ON public.trek_packing_lists FOR INSERT WITH CHECK (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow update for authenticated users on trek_packing_lists"
+  ON public.trek_packing_lists FOR UPDATE USING (auth.uid() IS NOT NULL);
+CREATE POLICY IF NOT EXISTS "Allow delete for authenticated users on trek_packing_lists"
+  ON public.trek_packing_lists FOR DELETE USING (auth.uid() IS NOT NULL);
+CREATE INDEX IF NOT EXISTS idx_trek_packing_lists_trek_id ON public.trek_packing_lists(trek_id);
+
+-- === PATCH: Add item_order column to trek_packing_lists ===
+ALTER TABLE public.trek_packing_lists ADD COLUMN IF NOT EXISTS item_order INTEGER DEFAULT 0;

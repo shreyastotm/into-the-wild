@@ -60,6 +60,16 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
         <Input id="location" name="location" value={formData.location} onChange={e => setFormData(f => ({ ...f, location: e.target.value }))} />
         <div className="text-gray-500 text-xs mt-1">Where will the trek start? (e.g., "Matheran Hill Base")</div>
       </div>
+      <div>
+        <Label htmlFor="cost">Trek Cost (₹) *</Label>
+        <Input id="cost" name="cost" type="number" value={formData.cost} onChange={e => setFormData(f => ({ ...f, cost: e.target.value }))} required min={0} />
+        {errors.cost && <div className="text-red-500 text-xs mt-1">{errors.cost}</div>}
+      </div>
+      <div>
+        <Label htmlFor="max_participants">Maximum Participants *</Label>
+        <Input id="max_participants" name="max_participants" type="number" value={formData.max_participants} onChange={e => setFormData(f => ({ ...f, max_participants: e.target.value }))} required min={1} />
+        {errors.max_participants && <div className="text-red-500 text-xs mt-1">{errors.max_participants}</div>}
+      </div>
     </div>
   );
 }
@@ -205,6 +215,8 @@ function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview, gp
       <div><b>Description:</b> {formData.description}</div>
       <div><b>Start Date:</b> {formData.start_datetime}</div>
       <div><b>Location:</b> {formData.location}</div>
+      <div><b>Cost:</b> ₹{formData.cost}</div>
+      <div><b>Maximum Participants:</b> {formData.max_participants}</div>
       {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-full max-h-32 object-cover rounded" />}
       {gpxFile && (
         <div className="text-xs text-blue-700">GPX File: {gpxFile.name}</div>
@@ -229,7 +241,7 @@ function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview, gp
 // Main Multi-Step Form
 export default function CreateTrekMultiStepForm() {
   const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState({ trek_name: '', description: '', start_datetime: '', location: '' });
+  const [formData, setFormData] = useState({ trek_name: '', description: '', start_datetime: '', location: '', cost: '', max_participants: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [gpxFile, setGpxFile] = useState<File | null>(null);
@@ -340,11 +352,11 @@ export default function CreateTrekMultiStepForm() {
           console.error('Supabase Storage Upload Error (GPX):', uploadError);
           throw uploadError;
         }
-        const { data: publicUrlData } = supabase.storage.from('trek-assets').getPublicUrl(filePath);
-        gpxUrl = publicUrlData?.publicUrl || null;
+        const { data: gpxPublicUrlData } = supabase.storage.from('trek-assets').getPublicUrl(filePath);
+        gpxUrl = gpxPublicUrlData?.publicUrl || null;
       }
       // 1. Insert trek event
-      const { data: trekData, error: trekError } = await supabase.from('trek_events').insert({ ...formData, image_url: imageUrl, gpx_file_url: gpxUrl, route_data: routeData }).select('trek_id').single();
+      const { data: trekData, error: trekError } = await supabase.from('trek_events').insert({ ...formData, cost: Number(formData.cost), max_participants: Number(formData.max_participants), image_url: imageUrl, gpx_file_url: gpxUrl, route_data: routeData }).select('trek_id').single();
       if (trekError) {
         console.error('Supabase Insert trek_events Error:', trekError);
         throw trekError;
@@ -360,9 +372,31 @@ export default function CreateTrekMultiStepForm() {
       }
       // 3. Insert packing list
       for (const [order, item] of selectedPacking.entries()) {
-        const { error: packError } = await supabase.from('trek_packing_list').insert({ trek_id, name: item.name, mandatory: item.mandatory, item_order: order });
+        // Defensive: Only insert if item.name is present and item.mandatory is boolean
+        // Log the full item for debugging
+        console.log('Packing item for insert:', item);
+        // Log trek_id and its type for debugging
+        console.log('Packing list trek_id raw:', trekData.trek_id, 'Type:', typeof trekData.trek_id);
+        const trekIdInt = trekData && typeof trekData.trek_id === 'number' ? trekData.trek_id : parseInt(trekData.trek_id, 10);
+        console.log('Packing list trekIdInt:', trekIdInt, 'Type:', typeof trekIdInt);
+        // Remove item_id and other extraneous fields from item
+        const { item_id, isCustom, ...restItem } = item;
+        const insertObj = {
+          trek_id: trekIdInt,
+          name: String(item.name),
+          mandatory: Boolean(item.mandatory),
+          item_order: Number(order)
+        };
+        // Validate required fields
+        if (!insertObj.name || typeof insertObj.mandatory !== 'boolean' || isNaN(insertObj.item_order) || isNaN(insertObj.trek_id)) {
+          console.error('Skipping invalid packing list item (sanitized):', insertObj, item);
+          continue;
+        }
+        console.log('Inserting packing list object:', insertObj);
+        const { error: packError } = await supabase.from('trek_packing_lists').insert(insertObj);
         if (packError) {
-          console.error('Supabase Insert trek_packing_list Error:', packError);
+          console.error('Supabase Insert trek_packing_lists Error:', packError, insertObj);
+          toast({ title: 'Packing List DB Error', description: packError.message || JSON.stringify(packError), variant: 'destructive' });
           throw packError;
         }
       }
@@ -382,6 +416,8 @@ export default function CreateTrekMultiStepForm() {
     if (step === 0) {
       if (!formData.trek_name) newErrors.trek_name = 'Trek name is required.';
       if (!formData.start_datetime) newErrors.start_datetime = 'Start date & time required.';
+      if (!formData.cost || isNaN(Number(formData.cost))) newErrors.cost = 'Trek cost is required.';
+      if (!formData.max_participants || isNaN(Number(formData.max_participants)) || Number(formData.max_participants) < 1) newErrors.max_participants = 'Maximum participants is required.';
     }
     return newErrors;
   };

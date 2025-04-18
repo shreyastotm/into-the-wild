@@ -66,6 +66,12 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
         {errors.cost && <div className="text-red-500 text-xs mt-1">{errors.cost}</div>}
         <div className="text-gray-500 text-xs mt-1">Total cost per participant (required)</div>
       </div>
+      <div>
+        <Label htmlFor="max_participants">Max Participants *</Label>
+        <Input id="max_participants" name="max_participants" type="number" min="0" value={formData.max_participants || ''} onChange={e => setFormData(f => ({ ...f, max_participants: e.target.value }))} required />
+        {errors.max_participants && <div className="text-red-500 text-xs mt-1">{errors.max_participants}</div>}
+        <div className="text-gray-500 text-xs mt-1">Maximum number of participants allowed (required)</div>
+      </div>
     </div>
   );
 }
@@ -235,7 +241,7 @@ function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview, gp
 // Main Multi-Step Form
 export default function CreateTrekMultiStepForm() {
   const [step, setStep] = useState(0);
-  const [formData, setFormData] = useState({ trek_name: '', description: '', start_datetime: '', location: '', cost: '' });
+  const [formData, setFormData] = useState({ trek_name: '', description: '', start_datetime: '', location: '', cost: '', max_participants: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [gpxFile, setGpxFile] = useState<File | null>(null);
@@ -380,6 +386,14 @@ export default function CreateTrekMultiStepForm() {
       if (sanitizedCost === null || isNaN(sanitizedCost)) {
         throw new Error('Cost is required and must be a valid number.');
       }
+      // Ensure max_participants is present and numeric
+      let sanitizedMaxParticipants = formData.max_participants;
+      if (typeof sanitizedMaxParticipants === 'string') {
+        sanitizedMaxParticipants = sanitizedMaxParticipants.trim() === '' ? null : parseFloat(sanitizedMaxParticipants);
+      }
+      if (sanitizedMaxParticipants === null || isNaN(sanitizedMaxParticipants)) {
+        throw new Error('Max participants is required and must be a valid number.');
+      }
       // 1. Insert trek event
       const { data: trekData, error: trekError } = await supabase.from('trek_events').insert({
         trek_name: formData.trek_name,
@@ -390,12 +404,13 @@ export default function CreateTrekMultiStepForm() {
         gpx_file_url: gpxUrl,
         route_data: routeData,
         cost: sanitizedCost,
+        max_participants: Number(formData.max_participants)
       }).select('trek_id').single();
       if (trekError) {
         console.error('Supabase Insert trek_events Error:', trekError);
         throw trekError;
       }
-      const trek_id = trekData.trek_id;
+      const trek_id = Number(trekData.trek_id);
       // 2. Insert expenses
       for (const exp of fixedExpenses) {
         const { error: expError } = await supabase.from('trek_expenses').insert({
@@ -410,9 +425,23 @@ export default function CreateTrekMultiStepForm() {
       }
       // 3. Insert packing list
       for (const [order, item] of selectedPacking.entries()) {
-        const { error: packError } = await supabase.from('trek_packing_list').insert({ trek_id, name: item.name, mandatory: item.mandatory, item_order: order });
+        // Defensive: Only insert if item.name is present and item.mandatory is boolean
+        if (!item.name || typeof item.mandatory !== 'boolean') continue;
+        // Sanitize: Only pick allowed fields
+        const insertObj = {
+          trek_id,
+          name: String(item.name),
+          mandatory: Boolean(item.mandatory),
+          item_order: Number(order)
+        };
+        // Validate required fields
+        if (!insertObj.name || typeof insertObj.mandatory !== 'boolean' || isNaN(insertObj.item_order) || isNaN(insertObj.trek_id)) {
+          console.error('Skipping invalid packing list item (sanitized):', insertObj, item);
+          continue;
+        }
+        const { error: packError } = await supabase.from('trek_packing_lists').insert(insertObj);
         if (packError) {
-          console.error('Supabase Insert trek_packing_list Error:', packError);
+          console.error('Supabase Insert trek_packing_lists Error:', packError, insertObj);
           throw packError;
         }
       }
@@ -433,6 +462,7 @@ export default function CreateTrekMultiStepForm() {
       if (!formData.trek_name) newErrors.trek_name = 'Trek name is required.';
       if (!formData.start_datetime) newErrors.start_datetime = 'Start date & time required.';
       if (!formData.cost || formData.cost === '') newErrors.cost = 'Cost is required.';
+      if (!formData.max_participants || formData.max_participants === '') newErrors.max_participants = 'Max participants is required.';
     }
     return newErrors;
   };

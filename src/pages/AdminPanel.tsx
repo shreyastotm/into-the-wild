@@ -1,6 +1,7 @@
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import PackingItemsAdmin from '@/components/trek/PackingItemsAdmin';
+import TrekEventsAdmin from '@/components/trek/TrekEventsAdmin';
 // Future: import other admin tools here
 
 export default function AdminPanel() {
@@ -10,15 +11,17 @@ export default function AdminPanel() {
       <Tabs defaultValue="packing" className="w-full">
         <TabsList>
           <TabsTrigger value="packing">Packing Items</TabsTrigger>
+          <TabsTrigger value="events">Trek Events</TabsTrigger>
           {/* <TabsTrigger value="users">Users</TabsTrigger> */}
-          {/* <TabsTrigger value="events">Trek Events</TabsTrigger> */}
           {/* Add more admin tabs as needed */}
         </TabsList>
         <TabsContent value="packing">
           <PackingItemsAdmin />
         </TabsContent>
+        <TabsContent value="events">
+          <TrekEventsAdmin />
+        </TabsContent>
         {/* <TabsContent value="users">Users Admin Coming Soon</TabsContent> */}
-        {/* <TabsContent value="events">Events Admin Coming Soon</TabsContent> */}
       </Tabs>
     </div>
   );
