@@ -37,6 +37,7 @@ export default function TrekEventDetails() {
   
   const {
     participants,
+    participantCount,
     comments,
     loading: communityLoading,
     commentsLoading,
@@ -116,7 +117,7 @@ export default function TrekEventDetails() {
               </TabsTrigger>
               <TabsTrigger value="participants">
                 <Users className="h-4 w-4 mr-2" />
-                Participants ({trekEvent.current_participants || 0})
+                Participants ({participantCount})
               </TabsTrigger>
               <TabsTrigger value="discussion">
                 <MessageSquare className="h-4 w-4 mr-2" />
@@ -134,7 +135,7 @@ export default function TrekEventDetails() {
                 duration={trekEvent.duration}
                 transportMode={trekEvent.transport_mode}
                 maxParticipants={trekEvent.max_participants}
-                currentParticipants={trekEvent.current_participants}
+                currentParticipants={participantCount}
                 pickupTimeWindow={trekEvent.pickup_time_window}
                 cancellationPolicy={trekEvent.cancellation_policy}
               />
@@ -207,7 +208,10 @@ export default function TrekEventDetails() {
 
         <div>
           <RegistrationCard
-            trek={trekEvent}
+            trek={{
+              ...trekEvent,
+              participant_count: participantCount
+            }}
             userRegistration={userRegistration}
             onRegister={registerForTrek}
             onCancel={cancelRegistration}

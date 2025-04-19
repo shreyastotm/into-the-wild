@@ -11,7 +11,6 @@ import { toast } from '@/components/ui/use-toast';
 import { CalendarDays, MapPin, Clock, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Skeleton } from '@/components/ui/skeleton';
-import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 interface TrekRegistration {
   trek_id: number;
@@ -21,7 +20,7 @@ interface TrekRegistration {
   cost: number;
   category: string | null;
   location: any;
-  current_participants: number;
+  participant_count: number | null;
   max_participants: number;
   isPast: boolean;
   image_url?: string | null;
@@ -43,52 +42,45 @@ export const UserTreks = () => {
     try {
       setLoading(true);
       
-      const userId = user?.id ? userIdToNumber(user.id) : 0;
+      const userId = user?.id ? (typeof user.id === 'string' ? user.id : String(user.id)) : '';
       
       const { data, error } = await supabase
         .from('registrations')
-        .select(`
-          trek_id,
-          payment_status,
-          trek_events(
-            trek_name,
-            start_datetime,
-            cost,
-            category,
-            location,
-            current_participants,
-            max_participants,
-            image_url
-          )
-        `)
+        .select('*')
         .eq('user_id', userId);
-      
       if (error) throw error;
-      
-      if (data) {
+      if (data && data.length > 0) {
+        // Fetch trek event details for all trek_ids
+        const trekIds = data.map((reg: any) => reg.trek_id);
+        const { data: trekEvents, error: trekEventsError } = await supabase
+          .from('trek_events')
+          .select('trek_id, trek_name, start_datetime, cost, category, location, max_participants, image_url')
+          .in('trek_id', trekIds);
+        if (trekEventsError) throw trekEventsError;
+        const trekMap = (trekEvents || []).reduce((acc, trek) => {
+          acc[trek.trek_id] = trek;
+          return acc;
+        }, {} as Record<number, any>);
         const now = new Date();
-        
-        // Transform the data to match our component's needs
-        const transformedData: TrekRegistration[] = data.map(item => {
-          const trekData = item.trek_events as any;
+        const transformedData = data.map((reg: any) => {
+          const trekData = trekMap[reg.trek_id] || {};
           const startDate = new Date(trekData.start_datetime);
-          
           return {
-            trek_id: Number(item.trek_id),
+            ...reg,
             trek_name: trekData.trek_name,
             start_datetime: trekData.start_datetime,
-            payment_status: item.payment_status,
             cost: trekData.cost,
             category: trekData.category,
             location: trekData.location,
-            current_participants: trekData.current_participants || 0,
+            participant_count: trekData.participant_count || 0,
             max_participants: trekData.max_participants,
             isPast: startDate < now,
             image_url: trekData.image_url || null
           };
         });
-        
         setRegistrations(transformedData);
+      } else {
+        setRegistrations([]);
       }
     } catch (error: any) {
       toast({
@@ -186,7 +178,7 @@ export const UserTreks = () => {
             </div>
             <div className="flex items-center">
               <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span>{trek.current_participants}/{trek.max_participants} participants</span>
+              <span>{trek.participant_count}/{trek.max_participants} participants</span>
             </div>
             {trek.location && (
               <div className="flex items-center">

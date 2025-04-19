@@ -1,4 +1,3 @@
-
 import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -32,7 +31,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         console.log("Auth event:", event);
         setSession(currentSession);
         setUser(currentSession?.user ?? null);
-        
+        if (currentSession?.user?.email === 'shreyasmadhan82@gmail.com') {
+          // Automatically promote this user to admin if not already
+          (async () => {
+            const { data: userRecord, error } = await supabase
+              .from('users')
+              .select('user_type, verification_status')
+              .eq('email', 'shreyasmadhan82@gmail.com')
+              .maybeSingle();
+            if (!error && userRecord && userRecord.user_type !== 'admin') {
+              await supabase
+                .from('users')
+                .update({ user_type: 'admin', verification_status: 'verified' })
+                .eq('email', 'shreyasmadhan82@gmail.com');
+            }
+          })();
+        }
+        // Ensure shreyasmadhan@gmail.com is always a pending micro-community
+        if (currentSession?.user?.email === 'shreyasmadhan@gmail.com') {
+          (async () => {
+            const { data: userRecord, error } = await supabase
+              .from('users')
+              .select('user_type, verification_status')
+              .eq('email', 'shreyasmadhan@gmail.com')
+              .maybeSingle();
+            if (!error && userRecord && userRecord.user_type !== 'micro_community') {
+              await supabase
+                .from('users')
+                .update({ user_type: 'micro_community', verification_status: userRecord.verification_status || 'pending' })
+                .eq('email', 'shreyasmadhan@gmail.com');
+            }
+            if (!error && userRecord && !userRecord.verification_status) {
+              await supabase
+                .from('users')
+                .update({ verification_status: 'pending' })
+                .eq('email', 'shreyasmadhan@gmail.com');
+            }
+          })();
+        }
         // Use setTimeout to avoid potential deadlocks
         if (currentSession?.user) {
           setTimeout(() => {

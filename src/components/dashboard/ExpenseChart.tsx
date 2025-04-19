@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
@@ -6,7 +5,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { formatCurrency } from '@/lib/utils';
-import { userIdToNumber } from '@/utils/dbTypeConversions';
 
 interface ExpenseData {
   name: string;
@@ -29,7 +27,7 @@ export const ExpenseChart = () => {
     try {
       setLoading(true);
       
-      const userId = user?.id ? userIdToNumber(user.id) : 0;
+      const userId = user?.id ? (typeof user.id === 'string' ? user.id : String(user.id)) : '';
       
       // Get trek IDs the user is registered for
       const { data: registrations, error: regError } = await supabase
@@ -46,41 +44,46 @@ export const ExpenseChart = () => {
       
       // Extract trek IDs from registrations
       const trekIds = registrations.map(reg => reg.trek_id);
-      
-      // Get expense data grouped by category/purpose
-      const { data, error } = await supabase
-        .from('expense_sharing')
-        .select(`
-          description,
-          amount,
-          trek_id,
-          trek_events(trek_name)
-        `)
-        .in('trek_id', trekIds);
-      
-      if (error) throw error;
-      
-      if (data && data.length > 0) {
-        // Group expenses by trek
-        const expensesByTrek: Record<string, number> = {};
-        
-        data.forEach(expense => {
-          const trekName = expense.trek_events?.trek_name || `Trek ${expense.trek_id}`;
-          expensesByTrek[trekName] = (expensesByTrek[trekName] || 0) + expense.amount;
-        });
-        
-        // Create chart data with colors
-        const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe', '#00C49F', '#FFBB28'];
-        const chartData: ExpenseData[] = Object.entries(expensesByTrek).map(([name, value], index) => ({
-          name,
-          value,
-          color: colors[index % colors.length]
-        }));
-        
-        setExpenses(chartData);
-      } else {
+      if (trekIds.length === 0) {
         setExpenses([]);
+        return;
       }
+
+      // Fetch expenses from ad_hoc_expense_shares and trek_ad_hoc_expenses (NOT expense_sharing)
+      // Fetch ad-hoc expenses for these treks
+      const { data: adHocExpenses, error: adHocError } = await supabase
+        .from('trek_ad_hoc_expenses')
+        .select('expense_id, trek_id, amount, category, description')
+        .in('trek_id', trekIds);
+      if (adHocError) throw adHocError;
+
+      // Group by trek name (fetch trek names)
+      const { data: trekData, error: trekError } = await supabase
+        .from('trek_events')
+        .select('trek_id, trek_name')
+        .in('trek_id', trekIds);
+      if (trekError) throw trekError;
+
+      const trekIdToName: Record<number, string> = {};
+      (trekData || []).forEach(trek => {
+        trekIdToName[trek.trek_id] = trek.trek_name;
+      });
+
+      // Sum up expenses by trek
+      const expensesByTrek: Record<string, number> = {};
+      (adHocExpenses || []).forEach(exp => {
+        const trekName = trekIdToName[exp.trek_id] || `Trek ${exp.trek_id}`;
+        expensesByTrek[trekName] = (expensesByTrek[trekName] || 0) + Number(exp.amount);
+      });
+
+      // Create chart data with colors
+      const colors = ['#8884d8', '#82ca9d', '#ffc658', '#ff8042', '#0088fe', '#00C49F', '#FFBB28'];
+      const chartData: ExpenseData[] = Object.entries(expensesByTrek).map(([name, value], index) => ({
+        name,
+        value,
+        color: colors[index % colors.length]
+      }));
+      setExpenses(chartData);
     } catch (error: any) {
       console.error("Error fetching expense data:", error);
     } finally {

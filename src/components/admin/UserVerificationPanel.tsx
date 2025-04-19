@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
+import { Table, TableHeader, TableBody, TableRow, TableCell, TableFooter, TableHead, TableCaption } from '@/components/ui/table';
 import { toast } from '@/components/ui/use-toast';
 
 interface UserRecord {
@@ -13,6 +14,7 @@ interface UserRecord {
   verification_status?: string;
   indemnity_accepted?: boolean;
   verification_docs?: any;
+  created_at?: string;
 }
 
 export default function UserVerificationPanel() {
@@ -20,22 +22,21 @@ export default function UserVerificationPanel() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchPendingUsers();
-  }, []);
-
-  async function fetchPendingUsers() {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('verification_status', 'pending');
-    if (error) {
-      toast({ title: 'Error fetching users', description: error.message, variant: 'destructive' });
-    } else {
-      setUsers(data || []);
+    async function fetchUsers() {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('user_type', 'micro_community');
+      if (error) {
+        toast({ title: 'Error fetching users', description: error.message, variant: 'destructive' });
+      } else {
+        setUsers(data || []);
+      }
+      setLoading(false);
     }
-    setLoading(false);
-  }
+    fetchUsers();
+  }, []);
 
   async function handleVerify(id: string) {
     const { error } = await supabase
@@ -46,7 +47,7 @@ export default function UserVerificationPanel() {
       toast({ title: 'Error verifying user', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'User verified' });
-      setUsers(users => users.filter(u => u.id !== id));
+      setUsers(users => users.map(u => u.id === id ? { ...u, verification_status: 'verified' } : u));
     }
   }
 
@@ -59,44 +60,67 @@ export default function UserVerificationPanel() {
       toast({ title: 'Error rejecting user', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'User rejected' });
-      setUsers(users => users.filter(u => u.id !== id));
+      setUsers(users => users.map(u => u.id === id ? { ...u, verification_status: 'rejected' } : u));
+    }
+  }
+
+  async function promoteToAdmin(email: string) {
+    const { error } = await supabase
+      .from('users')
+      .update({ user_type: 'admin', verification_status: 'verified' })
+      .eq('email', email);
+    if (error) {
+      toast({ title: 'Error promoting user', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'User promoted to admin' });
+      setUsers(users => users.filter(u => u.email !== email));
     }
   }
 
   return (
     <div className="max-w-3xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">Pending User Verifications</h2>
+      <h2 className="text-2xl font-bold mb-6">Micro-Community Users</h2>
       {loading ? <div>Loading...</div> : (
-        users.length === 0 ? <div>No users pending verification.</div> : (
-          <div className="space-y-4">
-            {users.map(user => (
-              <Card key={user.id}>
-                <CardHeader>
-                  <div className="flex flex-col md:flex-row md:justify-between md:items-center">
-                    <div>
-                      <div className="font-semibold">{user.full_name || 'No Name'}</div>
-                      <div className="text-sm text-gray-500">{user.email}</div>
-                      <div className="text-xs text-gray-400">User Type: {user.user_type}</div>
-                      {user.partner_id && <div className="text-xs text-gray-400">Partner ID: {user.partner_id}</div>}
-                      <div className="text-xs">Indemnity Accepted: {user.indemnity_accepted ? 'Yes' : 'No'}</div>
-                    </div>
-                    <div className="flex space-x-2 mt-2 md:mt-0">
-                      <Button variant="secondary" onClick={() => handleVerify(user.id)}>Verify</Button>
-                      <Button variant="destructive" onClick={() => handleReject(user.id)}>Reject</Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {user.verification_docs ? (
-                    <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">{JSON.stringify(user.verification_docs, null, 2)}</pre>
-                  ) : (
-                    <div className="text-xs text-gray-400">No verification docs uploaded.</div>
-                  )}
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableCell>Name</TableCell>
+              <TableCell>Email</TableCell>
+              <TableCell>User Type</TableCell>
+              <TableCell>Verification Status</TableCell>
+              <TableCell>Created At</TableCell>
+              <TableCell>Actions</TableCell>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {users.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={6} className="text-center text-gray-500">No micro-community users found.</TableCell>
+              </TableRow>
+            ) : (
+              users.map((user) => (
+                <TableRow key={user.id}>
+                  <TableCell>{user.full_name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.user_type}</TableCell>
+                  <TableCell>{user.verification_status}</TableCell>
+                  <TableCell>{user.created_at ? new Date(user.created_at).toLocaleDateString() : ''}</TableCell>
+                  <TableCell>
+                    {user.verification_status === 'pending' && (
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => handleVerify(user.id)}>Verify</Button>
+                        <Button variant="destructive" onClick={() => handleReject(user.id)}>Reject</Button>
+                      </div>
+                    )}
+                    {user.email === 'shreyasmadhan82@gmail.com' && (
+                      <Button variant="secondary" onClick={() => promoteToAdmin(user.email)}>Promote to Admin</Button>
+                    )}
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       )}
     </div>
   );

@@ -16,11 +16,12 @@ interface TrekEvent {
   duration: string | null;
   cost: number;
   max_participants: number;
-  current_participants: number | null;
+  participant_count: number | null;
   location: any | null;
   transport_mode: 'cars' | 'mini_van' | 'bus' | null;
   cancellation_policy: string | null;
   image_url?: string | null;
+  event_creator_type: string;
 }
 
 interface TrekEventsListProps {
@@ -68,27 +69,35 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
     }).format(amount);
   };
   
-  const getSpacesLeftText = (current: number | null, max: number) => {
-    const filled = current || 0;
+  const getSpacesLeftText = (participantCount: number, max: number) => {
+    const filled = participantCount || 0;
     const remaining = max - filled;
-    
     if (remaining === 0) return "Fully Booked";
     if (remaining <= 3) return `Only ${remaining} spots left`;
     return `${remaining} spots available`;
   };
   
-  const getSpacesLeftColor = (current: number | null, max: number) => {
-    const filled = current || 0;
+  const getSpacesLeftColor = (participantCount: number, max: number) => {
+    const filled = participantCount || 0;
     const remaining = max - filled;
-    const fillPercentage = (filled / max) * 100;
-    
-    if (remaining === 0) return "text-red-600 font-semibold";
-    if (fillPercentage >= 75) return "text-amber-600 font-semibold";
-    return "text-green-600";
+    if (remaining === 0) return "bg-red-100 text-red-700";
+    if (remaining <= 3) return "bg-amber-100 text-amber-700";
+    return "bg-green-100 text-green-700";
   };
 
   const handleTrekClick = (trekId: number) => {
     navigate(`/trek-events/${trekId}`);
+  };
+
+  // Badge for event creator type
+  const getCreatorBadge = (event: any) => {
+    if (event.event_creator_type === 'internal') {
+      return <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs ml-2">Admin</span>;
+    }
+    if (event.event_creator_type === 'external') {
+      return <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs ml-2">Micro-Community</span>;
+    }
+    return <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs ml-2">Trekker</span>;
   };
 
   return (
@@ -116,6 +125,7 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
               <div className="flex justify-between items-start gap-2 mb-1">
                 <h3 className="text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors">
                   {trek.trek_name}
+                  {getCreatorBadge(trek)}
                 </h3>
                 {trek.category && (
                   <Badge variant="outline" className={`${getCategoryColor(trek.category)}`}>
@@ -146,8 +156,8 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
                 
                 <div className="flex items-center text-sm">
                   <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-                  <span className={getSpacesLeftColor(trek.current_participants, trek.max_participants)}>
-                    {getSpacesLeftText(trek.current_participants, trek.max_participants)}
+                  <span className={getSpacesLeftColor(trek.participant_count ?? 0, trek.max_participants)}>
+                    {getSpacesLeftText(trek.participant_count ?? 0, trek.max_participants)}
                   </span>
                 </div>
               </div>

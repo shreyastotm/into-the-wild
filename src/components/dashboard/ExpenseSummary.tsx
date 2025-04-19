@@ -1,5 +1,4 @@
-
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from '@/components/ui/use-toast';
 import { formatCurrency } from '@/lib/utils';
@@ -11,13 +10,15 @@ export const ExpenseSummary = () => {
   const { user } = useAuth();
   const { summary, loading, error } = useExpenseSummary(user?.id);
 
-  if (error) {
-    toast({
-      variant: "destructive",
-      title: "Error fetching expense data",
-      description: "There was an error loading your expense summary."
-    });
-  }
+  useEffect(() => {
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Error fetching expense data",
+        description: "There was an error loading your expense summary."
+      });
+    }
+  }, [error]);
 
   return (
     <Card>

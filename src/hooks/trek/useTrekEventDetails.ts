@@ -11,7 +11,7 @@ interface TrekEvent {
   duration: string | null;
   cost: number;
   max_participants: number;
-  current_participants: number | null;
+  participant_count: number | null;
   location: any | null;
   route_data: any | null;
   transport_mode: 'cars' | 'mini_van' | 'bus' | null;

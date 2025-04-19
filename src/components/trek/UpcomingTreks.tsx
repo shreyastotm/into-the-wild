@@ -17,7 +17,7 @@ interface Trek {
   start_datetime: string;
   cost: number;
   max_participants: number;
-  current_participants: number | null;
+  participant_count: number | null;
   description: string | null;
   image_url: string | null;
 }
@@ -25,11 +25,19 @@ interface Trek {
 export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   const [treks, setTreks] = useState<Trek[]>([]);
   const [loading, setLoading] = useState(true);
+  const [participantCounts, setParticipantCounts] = useState<Record<number, number>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
     fetchUpcomingTreks();
   }, [limit]);
+
+  useEffect(() => {
+    if (treks.length > 0) {
+      fetchAllParticipantCounts();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [treks]);
 
   const fetchUpcomingTreks = async () => {
     try {
@@ -38,7 +46,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
       
       const { data, error } = await supabase
         .from('trek_events')
-        .select('trek_id, trek_name, category, start_datetime, cost, max_participants, current_participants, description, image_url')
+        .select('trek_id, trek_name, category, start_datetime, cost, max_participants, description, image_url')
         .gt('start_datetime', now)
         .order('start_datetime', { ascending: true })
         .limit(limit);
@@ -60,6 +68,26 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchAllParticipantCounts = async () => {
+    const counts: Record<number, number> = {};
+    await Promise.all(
+      treks.map(async (trek) => {
+        const { data, error } = await supabase
+          .from('registrations')
+          .select('user_id, payment_status')
+          .eq('trek_id', trek.trek_id)
+          .not('payment_status', 'eq', 'Cancelled');
+        if (!error && data) {
+          const uniqueUserIds = Array.from(new Set(data.map((r: any) => r.user_id)));
+          counts[trek.trek_id] = uniqueUserIds.length;
+        } else {
+          counts[trek.trek_id] = 0;
+        }
+      })
+    );
+    setParticipantCounts(counts);
   };
 
   const toIndianTime = (utcDateString: string) => {
@@ -154,7 +182,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
               </div>
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>{trek.current_participants || 0}/{trek.max_participants} participants</span>
+                <span>{participantCounts[trek.trek_id] ?? 0}/{trek.max_participants} participants</span>
               </div>
               {trek.description && (
                 <p className="line-clamp-2 text-xs mt-2">{trek.description}</p>

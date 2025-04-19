@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface TrekEvent {
   trek_id: number;
@@ -15,6 +16,8 @@ interface TrekEvent {
   category: string | null;
   cost: number;
   max_participants: number;
+  event_creator_type: string;
+  partner_id: string | null;
 }
 
 interface TrekEventForm {
@@ -24,6 +27,7 @@ interface TrekEventForm {
   category: string;
   cost: number;
   max_participants: number;
+  partner_id: string | null;
 }
 
 const initialForm: TrekEventForm = {
@@ -33,25 +37,50 @@ const initialForm: TrekEventForm = {
   category: '',
   cost: 0,
   max_participants: 1,
+  partner_id: null,
 };
 
 const TrekEventsAdmin: React.FC = () => {
+  const { user, userProfile } = useAuth();
+  // TEMPORARY: fallback for missing user_type in profile
+  // Allow admin access if user.email matches known admin email(s)
+  const adminEmails = ["shreyasmadhan82@gmail.com"];
+  const isAdmin = userProfile?.user_type === 'admin' || (userProfile?.email && adminEmails.includes(userProfile.email));
+
+  if (!isAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto p-8 text-center text-red-600">
+        <h2 className="text-xl font-semibold mb-2">Only admins can create or assign trek events.</h2>
+        <p className="mb-4">If you are a micro-community, please contact admin for event assignment.</p>
+      </div>
+    );
+  }
+
   const [treks, setTreks] = useState<TrekEvent[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<TrekEventForm>(initialForm);
   const [editId, setEditId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [partners, setPartners] = useState<{user_id: string, full_name: string, email: string}[]>([]);
 
   useEffect(() => {
     fetchTreks();
+    async function fetchPartners() {
+      const { data, error } = await supabase
+        .from('users')
+        .select('user_id, full_name, email')
+        .eq('user_type', 'micro_community');
+      if (!error && data) setPartners(data);
+    }
+    fetchPartners();
   }, []);
 
   async function fetchTreks() {
     setLoading(true);
     const { data, error } = await supabase
       .from('trek_events')
-      .select('trek_id, trek_name, start_datetime, image_url, category, cost, max_participants')
+      .select('trek_id, trek_name, start_datetime, image_url, category, cost, max_participants, event_creator_type, partner_id')
       .order('start_datetime', { ascending: true });
     if (!error && data) {
       // Filter out trek events with non-integer trek_id (defensive)
@@ -115,6 +144,8 @@ const TrekEventsAdmin: React.FC = () => {
     console.log('[handleSubmit] Session data:', sessionData, 'Session error:', sessionError);
 
     try {
+      const event_creator_type = form.partner_id ? 'external' : 'internal';
+      const partner_id = form.partner_id || null;
       if (editId !== null && editId !== undefined) {
         // Defensive: ensure editId is integer and matches a trek event
         const trekIdNum = Number(editId);
@@ -130,6 +161,8 @@ const TrekEventsAdmin: React.FC = () => {
           category: form.category,
           cost: form.cost,
           max_participants: form.max_participants,
+          event_creator_type,
+          partner_id,
           ...(image_url ? { image_url } : {}),
         }).eq('trek_id', trekIdNum).select();
         console.log('UPDATE payload:', {
@@ -138,6 +171,8 @@ const TrekEventsAdmin: React.FC = () => {
           category: form.category,
           cost: form.cost,
           max_participants: form.max_participants,
+          event_creator_type,
+          partner_id,
           ...(image_url ? { image_url } : {}),
         }, 'response:', data, error, 'editId:', editId, 'trekIdNum:', trekIdNum, 'user:', user, 'session:', sessionData);
         if (error) {
@@ -159,6 +194,8 @@ const TrekEventsAdmin: React.FC = () => {
           category: form.category,
           cost: form.cost,
           max_participants: form.max_participants,
+          event_creator_type,
+          partner_id,
           image_url: image_url || null,
         }).select();
         console.log('INSERT payload:', {
@@ -167,6 +204,8 @@ const TrekEventsAdmin: React.FC = () => {
           category: form.category,
           cost: form.cost,
           max_participants: form.max_participants,
+          event_creator_type,
+          partner_id,
           image_url: image_url || null,
         }, 'response:', data, error);
         if (error) {
@@ -176,6 +215,8 @@ const TrekEventsAdmin: React.FC = () => {
             category: form.category,
             cost: form.cost,
             max_participants: form.max_participants,
+            event_creator_type,
+            partner_id,
             image_url: image_url || null,
           });
           toast({ title: 'Creation failed', description: error.message, variant: 'destructive' });
@@ -202,6 +243,7 @@ const TrekEventsAdmin: React.FC = () => {
       category: trek.category || '',
       cost: trek.cost,
       max_participants: trek.max_participants,
+      partner_id: trek.partner_id || null,
     });
     setEditId(trek.trek_id);
     setOpen(true);
@@ -319,6 +361,22 @@ const TrekEventsAdmin: React.FC = () => {
             <div>
               <Label htmlFor="image">Image</Label>
               <Input type="file" accept="image/*" name="image" onChange={handleFileChange} />
+            </div>
+            <div>
+              <Label htmlFor="partner_id">Assign to Micro-Community (optional)</Label>
+              <select
+                id="partner_id"
+                value={form.partner_id || ''}
+                onChange={e => setForm(f => ({ ...f, partner_id: e.target.value || null }))}
+                className="block w-full border rounded px-2 py-1 mb-4"
+              >
+                <option value="">Into the Wild (default)</option>
+                {partners.map(p => (
+                  <option key={p.user_id} value={p.user_id}>
+                    {p.full_name}{p.email ? ` (${p.email})` : ''}
+                  </option>
+                ))}
+              </select>
             </div>
             <DialogFooter>
               <Button type="submit" disabled={submitting}>{editId ? 'Update' : 'Create'}</Button>

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -32,13 +31,15 @@ export const TrekParticipants: React.FC<TrekParticipantsProps> = ({
     return new Date(b.joinedAt).getTime() - new Date(a.joinedAt).getTime();
   });
 
-  const remainingSpots = maxParticipants - participants.length;
+  // Only count unique user_ids for spots/participants logic
+  const uniqueUserIds = Array.from(new Set(participants.map(p => p.id)));
+  const remainingSpots = maxParticipants - uniqueUserIds.length;
 
   return (
     <div className="space-y-4">
       <h3 className="text-xl font-semibold flex items-center">
         <User className="h-5 w-5 mr-2" />
-        Participants ({participants.length}/{maxParticipants})
+        Participants ({uniqueUserIds.length}/{maxParticipants})
       </h3>
 
       <div className="flex flex-wrap gap-3 mb-4">

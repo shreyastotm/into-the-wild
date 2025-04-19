@@ -29,6 +29,7 @@ export function useTrekCommunity(trekId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [commentsLoading, setCommentsLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [participantCount, setParticipantCount] = useState<number>(0);
 
   useEffect(() => {
     if (trekId) {
@@ -58,67 +59,61 @@ export function useTrekCommunity(trekId: string | undefined) {
         console.error("Error fetching event creator role:", error);
       }
       
-      // Get participants from registrations table
+      // Get participants from registrations table (excluding Cancelled)
       const { data, error } = await supabase
         .from('registrations')
-        .select('registration_id, user_id, booking_datetime')
-        .eq('trek_id', trekId);
+        .select('registration_id, user_id, booking_datetime, payment_status')
+        .eq('trek_id', trekId)
+        .not('payment_status', 'eq', 'Cancelled');
       
       if (error) {
         throw error;
       }
-      
+      // Count unique user IDs only
+      const uniqueUserIds = Array.from(new Set((data || []).map(item => item.user_id)));
+      setParticipantCount(uniqueUserIds.length);
       if (data && data.length > 0) {
-        // Need to get user details separately
-        const userIds = data.map(item => item.user_id);
-        // Only use valid UUIDs (36 chars, 4 dashes)
+        const userIds = uniqueUserIds;
         const validUserIds = userIds.filter(id => typeof id === 'string' && id.length === 36 && (id.match(/-/g) || []).length === 4);
-        
-        // Create transformed participants with user_id from registrations
-        const transformedParticipants: Participant[] = data.map(item => {
-          // Check if this user is the event creator
-          const isCreator = creatorId !== null && item.user_id === creatorId;
-          
+        // Only one participant per unique user
+        const transformedParticipants: Participant[] = uniqueUserIds.map(userId => {
+          // Find the earliest registration for this user
+          const reg = data.find(item => item.user_id === userId);
+          const isCreator = creatorId !== null && userId === creatorId;
           return {
-            id: String(item.user_id),
-            name: `User ${item.user_id}`, // Default name until we get user details
+            id: String(userId),
+            name: `User ${userId}`,
             avatar: null,
-            joinedAt: item.booking_datetime || new Date().toISOString(),
+            joinedAt: reg?.booking_datetime || new Date().toISOString(),
             isEventCreator: isCreator || false
           };
         });
-        
-        // Try to fetch user details, but don't block if it fails
         try {
           if (validUserIds.length > 0) {
             const { data: userData, error: userError } = await supabase
               .from('users')
-              .select('user_id, full_name')
+              .select('user_id, full_name, avatar_url')
               .in('user_id', validUserIds);
-              
+            
             if (!userError && userData && Array.isArray(userData)) {
-              // Create a map of user IDs to user data for easy lookup
               const userMap: Record<string, any> = {};
               userData.forEach(user => {
                 if (user && typeof user === 'object' && 'user_id' in user) {
                   userMap[user.user_id] = user;
                 }
               });
-              
-              // Update participant names if we found the user data
               transformedParticipants.forEach(participant => {
                 const userDetails = userMap[participant.id];
                 if (userDetails) {
                   participant.name = userDetails.full_name || participant.name;
+                  participant.avatar = userDetails.avatar_url || null;
                 }
               });
             }
           }
         } catch (userError) {
           console.error("Error fetching participant user details:", userError);
-          // Continue with default participant names
         }
-        
         setParticipants(transformedParticipants);
       } else {
         setParticipants([]);
@@ -275,6 +270,7 @@ export function useTrekCommunity(trekId: string | undefined) {
 
   return {
     participants,
+    participantCount,
     comments,
     loading,
     commentsLoading,

@@ -8,6 +8,7 @@ import { toast } from '@/components/ui/use-toast';
 import { TrekCardSkeleton } from '@/components/trek/TrekCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 const TrekEvents = () => {
   const [treks, setTreks] = useState<any[]>([]);
@@ -21,6 +22,7 @@ const TrekEvents = () => {
     sortBy: 'date-asc'
   });
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
 
   useEffect(() => {
     fetchTreks();
@@ -149,9 +151,17 @@ const TrekEvents = () => {
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Upcoming Trek Events</h1>
-        <Button onClick={() => navigate('/trek-events/create')} variant="default">
-          + Create Trek
-        </Button>
+        {userProfile?.user_type === 'admin' && (
+          <div className="flex justify-end mb-4">
+            <Button
+              variant="default"
+              onClick={() => navigate('/trek-events/create')}
+              className="shadow"
+            >
+              + Create Trek
+            </Button>
+          </div>
+        )}
       </div>
       <TrekFilters 
         options={filterOptions}

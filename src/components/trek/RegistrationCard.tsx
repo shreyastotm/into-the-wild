@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
@@ -23,7 +22,7 @@ interface RegistrationCardProps {
   trek: {
     trek_id: number;
     max_participants: number;
-    current_participants: number | null;
+    participant_count?: number;
     cost: number;
   };
   userRegistration: WithStringId<DbRegistration> | null;
@@ -39,8 +38,10 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
   onCancel,
   isLoading
 }) => {
-  const availableSpots = trek.max_participants - (trek.current_participants || 0);
-  const spotsFillPercent = ((trek.current_participants || 0) / trek.max_participants) * 100;
+  // participantCount should be the count of unique user_ids for this trek
+  const participantCount = trek.participant_count ?? 0;
+  const availableSpots = trek.max_participants - participantCount;
+  const spotsFillPercent = (participantCount / trek.max_participants) * 100;
   const isFull = availableSpots <= 0;
   
   return (
@@ -68,7 +69,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
           
           <div className="space-y-1">
             <div className="flex justify-between text-xs">
-              <span>{trek.current_participants || 0} registered</span>
+              <span>{participantCount} registered</span>
               <span>{trek.max_participants} maximum</span>
             </div>
             <Progress value={spotsFillPercent} className="h-2" />

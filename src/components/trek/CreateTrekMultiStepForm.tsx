@@ -204,11 +204,20 @@ function ReviewStep({ formData, fixedExpenses, selectedTemplateId, imagePreview,
 export default function CreateTrekMultiStepForm() {
   const { isVerified, isIndemnityAccepted, userType, loading } = useUserVerificationStatus();
   // Restrict form for micro_community users who are not verified or have not accepted indemnity
-  if (!loading && userType === 'micro_community' && (!isVerified || !isIndemnityAccepted)) {
+  // Also restrict trekkers from seeing this form
+  if (!loading && (userType === 'trekker' || (userType === 'micro_community' && (!isVerified || !isIndemnityAccepted)))) {
     return (
       <div className="max-w-2xl mx-auto p-8 text-center text-red-600">
-        <h2 className="text-xl font-semibold mb-2">You cannot create a trek event yet.</h2>
-        <p>Your account must be verified and indemnity accepted to create or manage events. Please complete verification and accept indemnity forms.</p>
+        <h2 className="text-xl font-semibold mb-2">
+          {userType === 'trekker'
+            ? 'Trekkers cannot create trek events.'
+            : 'You cannot create a trek event yet.'}
+        </h2>
+        <p className="mb-4">
+          {userType === 'trekker'
+            ? 'Only admins can create trek events. If you are a micro-community, please contact support for event assignment.'
+            : 'You must be a verified micro-community and accept indemnity to create events.'}
+        </p>
       </div>
     );
   }

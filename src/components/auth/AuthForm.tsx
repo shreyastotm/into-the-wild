@@ -114,8 +114,8 @@ export default function AuthForm() {
               data: {
                 user_type: userType,
                 partner_id: partnerId,
-                indemnity_accepted: false,
-                verification_docs: null
+                indemnity_accepted: indemnityAccepted,
+                verification_docs: verificationDocs
               }
             }),
           });
