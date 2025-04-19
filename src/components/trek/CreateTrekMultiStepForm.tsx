@@ -68,7 +68,7 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
       </div>
       <div>
         <Label htmlFor="max_participants">Max Participants *</Label>
-        <Input id="max_participants" name="max_participants" type="number" min="0" value={formData.max_participants || ''} onChange={e => setFormData(f => ({ ...f, max_participants: e.target.value }))} required />
+        <Input id="max_participants" name="max_participants" type="text" value={formData.max_participants || ''} onChange={e => setFormData(f => ({ ...f, max_participants: e.target.value }))} required />
         {errors.max_participants && <div className="text-red-500 text-xs mt-1">{errors.max_participants}</div>}
         <div className="text-gray-500 text-xs mt-1">Maximum number of participants allowed (required)</div>
       </div>
@@ -125,92 +125,54 @@ function FixedExpensesStep({ fixedExpenses, setFixedExpenses }) {
   );
 }
 
-// Step 3: Packing List
-function PackingListStep({ packingItems, selectedPacking, setSelectedPacking }) {
-  // Drag state
-  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
-  // Custom item state
-  const [customItem, setCustomItem] = useState<string>('');
-  const [customMandatory, setCustomMandatory] = useState<boolean>(false);
+// Step 3: Packing List Template Selection
+function PackingListStep({ templates, selectedTemplateId, setSelectedTemplateId }) {
+  const [templateList, setTemplateList] = React.useState([]);
+  const [loading, setLoading] = React.useState(false);
 
-  const handleDragStart = (idx: number) => setDraggedIdx(idx);
-  const handleDragOver = (e: React.DragEvent<HTMLLIElement>, idx: number) => {
-    e.preventDefault();
-    if (draggedIdx === null || draggedIdx === idx) return;
-    const updated = [...selectedPacking];
-    const [removed] = updated.splice(draggedIdx, 1);
-    updated.splice(idx, 0, removed);
-    setSelectedPacking(updated);
-    setDraggedIdx(idx);
-  };
-  const handleDragEnd = () => setDraggedIdx(null);
-
-  // Add custom item handler
-  const handleAddCustom = () => {
-    if (!customItem.trim()) return;
-    setSelectedPacking(f => [...f, { name: customItem.trim(), mandatory: customMandatory, isCustom: true, item_id: `custom-${Date.now()}` }]);
-    setCustomItem('');
-    setCustomMandatory(false);
-  };
+  React.useEffect(() => {
+    setLoading(true);
+    supabase.from('packing_list_templates').select('*').order('created_at').then(({ data }) => {
+      setTemplateList(data || []);
+      setLoading(false);
+    });
+  }, []);
 
   return (
     <div className="space-y-4">
-      <div className="font-semibold mb-2">Drag items to the event packing list:</div>
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <div className="font-bold mb-1">Master List</div>
-          <ul className="border rounded min-h-[120px] p-2">
-            {packingItems.filter(item => !selectedPacking.some(sel => sel.item_id === item.item_id)).map(item => (
-              <li key={item.item_id} className="cursor-pointer hover:bg-gray-100 p-1 rounded" onClick={() => setSelectedPacking(f => [...f, { ...item, mandatory: true }])}>
-                {item.name}
-              </li>
-            ))}
-          </ul>
-          <div className="mt-4">
-            <div className="font-bold mb-1">Add Custom Item</div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                className="border rounded px-2 py-1 flex-1"
-                placeholder="Custom item name"
-                value={customItem}
-                onChange={e => setCustomItem(e.target.value)}
-              />
-              <label className="flex items-center text-xs">
-                <input type="checkbox" checked={customMandatory} onChange={e => setCustomMandatory(e.target.checked)} /> Mandatory
+      <div className="font-semibold mb-2">Select a Packing List Template for this Trek:</div>
+      {loading ? <div>Loading templates...</div> : (
+        <ul className="space-y-2">
+          {templateList.map(t => (
+            <li key={t.template_id}>
+              <label className="flex items-center gap-2">
+                <input
+                  type="radio"
+                  name="packing_template"
+                  value={t.template_id}
+                  checked={selectedTemplateId === t.template_id}
+                  onChange={() => setSelectedTemplateId(t.template_id)}
+                />
+                <span className="font-medium">{t.name}</span>
+                {t.description && <span className="text-xs text-gray-500 ml-2">{t.description}</span>}
               </label>
-              <Button type="button" onClick={handleAddCustom} size="sm">Add</Button>
-            </div>
-          </div>
-        </div>
-        <div>
-          <div className="font-bold mb-1">Event Packing List</div>
-          <ul className="border rounded min-h-[120px] p-2">
-            {selectedPacking.map((item, idx) => (
-              <li key={item.item_id}
-                  className={`flex justify-between items-center ${draggedIdx === idx ? 'bg-blue-50' : ''}`}
-                  draggable
-                  onDragStart={() => handleDragStart(idx)}
-                  onDragOver={e => handleDragOver(e, idx)}
-                  onDragEnd={handleDragEnd}
-              >
-                <span className="cursor-move">☰</span>
-                <span>{item.name}{item.isCustom && <span className="ml-1 text-xs text-blue-500">(Custom)</span>}</span>
-                <Button variant="ghost" type="button" onClick={() => setSelectedPacking(f => f.filter((_, i) => i !== idx))}>Remove</Button>
-                <label className="ml-2 text-xs">
-                  <input type="checkbox" checked={item.mandatory} onChange={e => setSelectedPacking(f => f.map((it, i) => i === idx ? { ...it, mandatory: e.target.checked } : it))} /> Mandatory
-                </label>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </div>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div className="text-xs text-gray-400 mt-2">You can create and manage templates in the Admin Panel.</div>
     </div>
   );
 }
 
 // Step 4: Review & Submit
-function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview, gpxFile, gpxRouteData }) {
+function ReviewStep({ formData, fixedExpenses, selectedTemplateId, imagePreview, gpxFile, gpxRouteData }) {
+  const [template, setTemplate] = React.useState<any>(null);
+  React.useEffect(() => {
+    if (selectedTemplateId) {
+      supabase.from('packing_list_templates').select('*').eq('template_id', selectedTemplateId).single().then(({ data }) => setTemplate(data));
+    }
+  }, [selectedTemplateId]);
   return (
     <div className="space-y-4">
       <div><b>Trek Name:</b> {formData.trek_name}</div>
@@ -231,8 +193,7 @@ function ReviewStep({ formData, fixedExpenses, selectedPacking, imagePreview, gp
         <ul>{fixedExpenses.map((exp, i) => <li key={i}>{exp.title} - ₹{exp.amount}</li>)}</ul>
       </div>
       <div>
-        <b>Packing List:</b>
-        <ul>{selectedPacking.map((item, i) => <li key={i}>{item.name} {item.mandatory ? '(Mandatory)' : '(Optional)'}</li>)}</ul>
+        <b>Packing List Template:</b> {template ? template.name : 'None selected'}
       </div>
     </div>
   );
@@ -247,8 +208,7 @@ export default function CreateTrekMultiStepForm() {
   const [gpxFile, setGpxFile] = useState<File | null>(null);
   const [gpxRouteData, setGpxRouteData] = useState<any>(null);
   const [fixedExpenses, setFixedExpenses] = useState<any[]>([]);
-  const [packingItems, setPackingItems] = useState<any[]>([]);
-  const [selectedPacking, setSelectedPacking] = useState<any[]>([]);
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -261,11 +221,6 @@ export default function CreateTrekMultiStepForm() {
     }
     return String(location || '');
   }
-
-  // Fetch master packing items on mount
-  React.useEffect(() => {
-    supabase.from('packing_items').select('*').then(({ data }) => setPackingItems(data || []));
-  }, []);
 
   // GPX file handler
   const handleGpxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -380,20 +335,22 @@ export default function CreateTrekMultiStepForm() {
       const sanitizedLocation = sanitizeLocation(formData.location);
       // Ensure cost is present and numeric
       let sanitizedCost = formData.cost;
-      if (typeof sanitizedCost === 'string') {
-        sanitizedCost = sanitizedCost.trim() === '' ? null : parseFloat(sanitizedCost);
-      }
-      if (sanitizedCost === null || isNaN(sanitizedCost)) {
+      if (sanitizedCost === undefined || sanitizedCost === null) sanitizedCost = '';
+      sanitizedCost = sanitizedCost.toString();
+      sanitizedCost = sanitizedCost.trim();
+      if (sanitizedCost === '' || isNaN(Number(sanitizedCost))) {
         throw new Error('Cost is required and must be a valid number.');
       }
       // Ensure max_participants is present and numeric
       let sanitizedMaxParticipants = formData.max_participants;
-      if (typeof sanitizedMaxParticipants === 'string') {
-        sanitizedMaxParticipants = sanitizedMaxParticipants.trim() === '' ? null : parseFloat(sanitizedMaxParticipants);
-      }
-      if (sanitizedMaxParticipants === null || isNaN(sanitizedMaxParticipants)) {
+      if (sanitizedMaxParticipants === undefined || sanitizedMaxParticipants === null) sanitizedMaxParticipants = '';
+      sanitizedMaxParticipants = sanitizedMaxParticipants.toString();
+      sanitizedMaxParticipants = sanitizedMaxParticipants.trim();
+      if (sanitizedMaxParticipants === '' || isNaN(Number(sanitizedMaxParticipants))) {
         throw new Error('Max participants is required and must be a valid number.');
       }
+      const maxParticipantsNumber = Number(sanitizedMaxParticipants);
+
       // 1. Insert trek event
       const { data: trekData, error: trekError } = await supabase.from('trek_events').insert({
         trek_name: formData.trek_name,
@@ -403,8 +360,8 @@ export default function CreateTrekMultiStepForm() {
         image_url: imageUrl,
         gpx_file_url: gpxUrl,
         route_data: routeData,
-        cost: sanitizedCost,
-        max_participants: Number(formData.max_participants)
+        cost: Number(sanitizedCost),
+        max_participants: maxParticipantsNumber
       }).select('trek_id').single();
       if (trekError) {
         console.error('Supabase Insert trek_events Error:', trekError);
@@ -423,26 +380,23 @@ export default function CreateTrekMultiStepForm() {
           throw expError;
         }
       }
-      // 3. Insert packing list
-      for (const [order, item] of selectedPacking.entries()) {
-        // Defensive: Only insert if item.name is present and item.mandatory is boolean
-        if (!item.name || typeof item.mandatory !== 'boolean') continue;
-        // Sanitize: Only pick allowed fields
-        const insertObj = {
-          trek_id,
-          name: String(item.name),
-          mandatory: Boolean(item.mandatory),
-          item_order: Number(order)
-        };
-        // Validate required fields
-        if (!insertObj.name || typeof insertObj.mandatory !== 'boolean' || isNaN(insertObj.item_order) || isNaN(insertObj.trek_id)) {
-          console.error('Skipping invalid packing list item (sanitized):', insertObj, item);
-          continue;
+      // 3. Insert trek_packing_lists join
+      if (selectedTemplateId) {
+        // Ensure trek_id is always an integer and template_id is a string (UUID)
+        const trekIdInt = Number(trek_id);
+        if (!Number.isInteger(trekIdInt)) {
+          throw new Error(`Invalid trek_id for trek_packing_lists: ${trek_id}`);
         }
-        const { error: packError } = await supabase.from('trek_packing_lists').insert(insertObj);
-        if (packError) {
-          console.error('Supabase Insert trek_packing_lists Error:', packError, insertObj);
-          throw packError;
+        if (typeof selectedTemplateId !== 'string') {
+          throw new Error(`Invalid template_id for trek_packing_lists: ${selectedTemplateId}`);
+        }
+        const { error: joinError } = await supabase.from('trek_packing_lists').insert({
+          trek_id: trekIdInt,
+          template_id: selectedTemplateId
+        });
+        if (joinError) {
+          console.error('Supabase Insert trek_packing_lists (join) Error:', joinError);
+          throw joinError;
         }
       }
       toast({ title: 'Trek created successfully!' });
@@ -486,8 +440,8 @@ export default function CreateTrekMultiStepForm() {
       <form onSubmit={e => { e.preventDefault(); if (step === 3) handleSubmit(); else handleNext(); }}>
         {step === 0 && <TrekDetailsStep formData={formData} setFormData={setFormData} imagePreview={imagePreview} handleImageChange={handleImageChange} gpxFile={gpxFile} handleGpxChange={handleGpxChange} errors={errors} />}
         {step === 1 && <FixedExpensesStep fixedExpenses={fixedExpenses} setFixedExpenses={setFixedExpenses} />}
-        {step === 2 && <PackingListStep packingItems={packingItems} selectedPacking={selectedPacking} setSelectedPacking={setSelectedPacking} />}
-        {step === 3 && <ReviewStep formData={formData} fixedExpenses={fixedExpenses} selectedPacking={selectedPacking} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} />}
+        {step === 2 && <PackingListStep selectedTemplateId={selectedTemplateId} setSelectedTemplateId={setSelectedTemplateId} />}
+        {step === 3 && <ReviewStep formData={formData} fixedExpenses={fixedExpenses} selectedTemplateId={selectedTemplateId} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} />}
         <div className="mt-8 flex justify-between">
           <Button type="button" variant="outline" disabled={step === 0} onClick={() => setStep(s => s - 1)}>Back</Button>
           <Button type="submit" disabled={submitting}>{step === 3 ? (submitting ? 'Submitting...' : 'Submit') : 'Next'}</Button>

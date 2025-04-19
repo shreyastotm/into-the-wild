@@ -393,6 +393,7 @@ export default function CreateTrekMultiStepForm() {
           continue;
         }
         console.log('Inserting packing list object:', insertObj);
+        // --- FIX: Always insert into trek_packing_lists (plural) ---
         const { error: packError } = await supabase.from('trek_packing_lists').insert(insertObj);
         if (packError) {
           console.error('Supabase Insert trek_packing_lists Error:', packError, insertObj);

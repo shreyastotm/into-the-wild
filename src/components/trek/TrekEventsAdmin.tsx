@@ -4,7 +4,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
 
 interface TrekEvent {
@@ -14,6 +14,7 @@ interface TrekEvent {
   image_url: string | null;
   category: string | null;
   cost: number;
+  max_participants: number;
 }
 
 interface TrekEventForm {
@@ -22,6 +23,7 @@ interface TrekEventForm {
   image: File | null;
   category: string;
   cost: number;
+  max_participants: number;
 }
 
 const initialForm: TrekEventForm = {
@@ -30,6 +32,7 @@ const initialForm: TrekEventForm = {
   image: null,
   category: '',
   cost: 0,
+  max_participants: 1,
 };
 
 const TrekEventsAdmin: React.FC = () => {
@@ -48,9 +51,12 @@ const TrekEventsAdmin: React.FC = () => {
     setLoading(true);
     const { data, error } = await supabase
       .from('trek_events')
-      .select('trek_id, trek_name, start_datetime, image_url, category, cost')
+      .select('trek_id, trek_name, start_datetime, image_url, category, cost, max_participants')
       .order('start_datetime', { ascending: true });
-    if (!error && data) setTreks(data);
+    if (!error && data) {
+      // Filter out trek events with non-integer trek_id (defensive)
+      setTreks(data.filter((t: any) => Number.isInteger(Number(t.trek_id))));
+    }
     setLoading(false);
   }
 
@@ -61,12 +67,27 @@ const TrekEventsAdmin: React.FC = () => {
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value, type } = e.target;
-    setForm(prev => ({ ...prev, [name]: type === 'number' ? Number(value) : value }));
+    setForm(prev => ({
+      ...prev,
+      [name]: type === 'number' || name === 'cost' || name === 'max_participants' ? Number(value) : value || ''
+    }));
   }
 
   function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0] || null;
     setForm(prev => ({ ...prev, image: file }));
+  }
+
+  function formatDateForSupabase(dateStr: string) {
+    if (!dateStr) return null;
+    // Accepts 'yyyy-MM-ddTHH:mm' or ISO string
+    // Converts to 'yyyy-MM-ddTHH:mm:ss' (or without seconds if not needed)
+    // Remove timezone if present
+    const [date, time] = dateStr.split('T');
+    if (!date || !time) return dateStr;
+    // time may include seconds or timezone, take only hh:mm or hh:mm:ss
+    const timeMatch = time.match(/^(\d{2}:\d{2})(?::\d{2})?/);
+    return timeMatch ? `${date}T${timeMatch[0]}` : dateStr;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -87,42 +108,75 @@ const TrekEventsAdmin: React.FC = () => {
       image_url = urlData.publicUrl;
     }
 
-    if (editId) {
-      // Update trek event
-      const { error } = await supabase.from('trek_events').update({
-        trek_name: form.trek_name,
-        start_datetime: form.start_datetime,
-        category: form.category,
-        cost: form.cost,
-        ...(image_url ? { image_url } : {}),
-      }).eq('trek_id', editId);
-      if (error) {
-        toast({ title: 'Update failed', description: error.message, variant: 'destructive' });
+    try {
+      if (editId) {
+        // Update trek event
+        const { error, data } = await supabase.from('trek_events').update({
+          trek_name: form.trek_name,
+          start_datetime: formatDateForSupabase(form.start_datetime),
+          category: form.category,
+          cost: form.cost,
+          max_participants: form.max_participants,
+          ...(image_url ? { image_url } : {}),
+        }).eq('trek_id', editId).select();
+        console.log('UPDATE payload:', {
+          trek_name: form.trek_name,
+          start_datetime: formatDateForSupabase(form.start_datetime),
+          category: form.category,
+          cost: form.cost,
+          max_participants: form.max_participants,
+          ...(image_url ? { image_url } : {}),
+        }, 'response:', data, error);
+        if (error) {
+          console.error('Supabase update error:', error);
+          toast({ title: 'Update failed', description: error.message, variant: 'destructive' });
+        } else {
+          await fetchTreks();
+          toast({ title: 'Trek updated' });
+          setOpen(false);
+          resetForm();
+        }
       } else {
-        toast({ title: 'Trek updated' });
-        fetchTreks();
-        setOpen(false);
-        resetForm();
+        // Create trek event
+        const { data, error } = await supabase.from('trek_events').insert({
+          trek_name: form.trek_name,
+          start_datetime: formatDateForSupabase(form.start_datetime),
+          category: form.category,
+          cost: form.cost,
+          max_participants: form.max_participants,
+          image_url: image_url || null,
+        }).select();
+        console.log('INSERT payload:', {
+          trek_name: form.trek_name,
+          start_datetime: formatDateForSupabase(form.start_datetime),
+          category: form.category,
+          cost: form.cost,
+          max_participants: form.max_participants,
+          image_url: image_url || null,
+        }, 'response:', data, error);
+        if (error) {
+          console.error('Supabase insert error:', error, form, {
+            trek_name: form.trek_name,
+            start_datetime: formatDateForSupabase(form.start_datetime),
+            category: form.category,
+            cost: form.cost,
+            max_participants: form.max_participants,
+            image_url: image_url || null,
+          });
+          toast({ title: 'Creation failed', description: error.message, variant: 'destructive' });
+        } else {
+          await fetchTreks();
+          toast({ title: 'Trek created' });
+          setOpen(false);
+          resetForm();
+        }
       }
-    } else {
-      // Create trek event
-      const { error } = await supabase.from('trek_events').insert({
-        trek_name: form.trek_name,
-        start_datetime: form.start_datetime,
-        category: form.category,
-        cost: form.cost,
-        image_url: image_url || null,
-      });
-      if (error) {
-        toast({ title: 'Creation failed', description: error.message, variant: 'destructive' });
-      } else {
-        toast({ title: 'Trek created' });
-        fetchTreks();
-        setOpen(false);
-        resetForm();
-      }
+    } catch (err) {
+      console.error('Unexpected error in handleSubmit:', err);
+      toast({ title: 'Unexpected error', description: String(err), variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
     }
-    setSubmitting(false);
   }
 
   async function handleEdit(trek: TrekEvent) {
@@ -132,19 +186,47 @@ const TrekEventsAdmin: React.FC = () => {
       image: null,
       category: trek.category || '',
       cost: trek.cost,
+      max_participants: trek.max_participants,
     });
     setEditId(trek.trek_id);
     setOpen(true);
   }
 
-  async function handleDelete(id: number) {
-    if (!window.confirm('Delete this trek event?')) return;
-    const { error } = await supabase.from('trek_events').delete().eq('trek_id', id);
-    if (error) {
-      toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
-    } else {
-      toast({ title: 'Trek deleted' });
-      fetchTreks();
+  async function handleDelete(id: number | string) {
+    // Enhanced logging for debugging
+    console.log('[handleDelete] Received id:', id, 'Type:', typeof id);
+    // Defensive: ensure trek_id is a valid integer
+    const trekIdNum = Number(id);
+    if (!id || isNaN(trekIdNum) || typeof trekIdNum !== 'number' || !Number.isInteger(trekIdNum)) {
+      toast({ title: 'Delete failed', description: `Invalid trek_id (${id}) (must be an integer, got type ${typeof id})`, variant: 'destructive' });
+      // Additional toast if UUID detected
+      if (typeof id === 'string' && /^[0-9a-fA-F-]{36}$/.test(id)) {
+        toast({ title: 'Delete failed', description: `It looks like a UUID was passed instead of an integer trek_id. This is a bug.`, variant: 'destructive' });
+      }
+      return;
+    }
+    try {
+      setSubmitting(true);
+      const { error: packingListDeleteError } = await supabase.from('trek_packing_lists').delete().eq('trek_id', trekIdNum);
+      if (packingListDeleteError && packingListDeleteError.code !== 'PGRST116') {
+        console.error('Packing list delete error:', packingListDeleteError);
+        toast({ title: 'Packing list delete failed', description: packingListDeleteError.message, variant: 'destructive' });
+        setSubmitting(false);
+        return;
+      }
+      const { data, error } = await supabase.from('trek_events').delete().eq('trek_id', trekIdNum).select();
+      console.log('DELETE payload:', { trek_id: trekIdNum }, 'response:', data, error);
+      if (error) {
+        toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
+      } else {
+        await fetchTreks();
+        toast({ title: 'Trek deleted' });
+      }
+    } catch (err) {
+      console.error('Unexpected error in handleDelete:', err);
+      toast({ title: 'Unexpected error', description: String(err), variant: 'destructive' });
+    } finally {
+      setSubmitting(false);
     }
   }
 
@@ -159,6 +241,9 @@ const TrekEventsAdmin: React.FC = () => {
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogTitle>{editId ? 'Edit Trek Event' : 'Add Trek Event'}</DialogTitle>
+          <DialogDescription>
+            {editId ? 'Edit the details of your trek event and save changes.' : 'Fill in the details to create a new trek event.'}
+          </DialogDescription>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <Label htmlFor="trek_name">Trek Name</Label>
@@ -175,6 +260,10 @@ const TrekEventsAdmin: React.FC = () => {
             <div>
               <Label htmlFor="cost">Cost</Label>
               <Input type="number" name="cost" value={form.cost} onChange={handleInputChange} required min={0} />
+            </div>
+            <div>
+              <Label htmlFor="max_participants">Max Participants</Label>
+              <Input type="number" name="max_participants" value={form.max_participants} onChange={handleInputChange} required min={1} />
             </div>
             <div>
               <Label htmlFor="image">Image</Label>
@@ -214,6 +303,7 @@ const TrekEventsAdmin: React.FC = () => {
                 <div className="text-xs text-gray-500 mb-1">{trek.category || 'No Category'}</div>
                 <div className="text-xs text-gray-500">{new Date(trek.start_datetime).toLocaleString()}</div>
                 <div className="text-xs text-gray-500">Cost: ₹{trek.cost}</div>
+                <div className="text-xs text-gray-500">Max Participants: {trek.max_participants}</div>
                 {trek.image_url && (
                   <div className="break-all text-xs mt-1">
                     <span className="font-mono">{trek.image_url}</span>

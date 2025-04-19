@@ -63,7 +63,7 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
     if (!trekId) return;
     setPackingLoading(true);
     supabase
-      .from('trek_packing_list')
+      .from('trek_packing_lists')
       .select('name, mandatory, item_order')
       .eq('trek_id', trekId)
       .order('item_order', { ascending: true })
