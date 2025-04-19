@@ -32,6 +32,10 @@ export default function AuthForm() {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [subscriptionType, setSubscriptionType] = useState<'community' | 'self_service'>('community');
+  const [userType, setUserType] = useState<'trekker' | 'micro_community' | 'admin'>('trekker');
+  const [partnerId, setPartnerId] = useState('');
+  const [indemnityAccepted, setIndemnityAccepted] = useState(false);
+  const [verificationDocs, setVerificationDocs] = useState<File[] | null>(null);
   const [resetting, setResetting] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
   const [showReset, setShowReset] = useState(false);
@@ -46,8 +50,29 @@ export default function AuthForm() {
 
     try {
       if (mode === 'signup') {
+        // Defensive: Ensure required fields for DB trigger
+        if (!email || !password || !fullName || !subscriptionType) {
+          toast({
+            title: 'Missing Required Fields',
+            description: 'Email, password, full name, and subscription type are required.',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
+        // Validate subscriptionType
+        const validSubscriptionTypes = ['community', 'self_service'];
+        if (!validSubscriptionTypes.includes(subscriptionType)) {
+          toast({
+            title: 'Invalid Subscription Type',
+            description: `Subscription type must be one of: ${validSubscriptionTypes.join(', ')}`,
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
         // Handle signup
-        console.log('Attempting to sign up with:', { email, fullName, phone, subscriptionType });
+        console.log('Attempting to sign up with:', { email, fullName, phone, subscriptionType, userType, partnerId, indemnityAccepted, verificationDocs });
         
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -56,25 +81,74 @@ export default function AuthForm() {
             data: {
               full_name: fullName,
               phone: phone,
-              subscription_type: subscriptionType
+              subscription_type: subscriptionType,
+              user_type: userType,
+              partner_id: userType === 'micro_community' ? partnerId : null,
             }
           }
         });
 
-        if (error) throw error;
+        if (error) {
+          // Show detailed error from Supabase
+          toast({
+            title: 'Signup Error',
+            description: error.message || 'Database error saving new user',
+            variant: 'destructive',
+          });
+          setLoading(false);
+          return;
+        }
 
-        console.log('Signup successful:', data);
-        
+        // Call Edge Function for signup automation (only if available)
+        let edgeFunctionError = null;
+        try {
+          // Use remote URL if not localhost
+          const edgeUrl = window.location.hostname === 'localhost'
+            ? 'http://localhost:54321/functions/v1/signup-automation'
+            : 'https://lojnpkunoufmwwcifwan.functions.supabase.co/signup-automation';
+          const edgeRes = await fetch(edgeUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              user: data.user,
+              data: {
+                user_type: userType,
+                partner_id: partnerId,
+                indemnity_accepted: false,
+                verification_docs: null
+              }
+            }),
+          });
+          if (!edgeRes.ok) {
+            edgeFunctionError = `Edge Function failed: ${edgeRes.status} ${edgeRes.statusText}`;
+          } else {
+            try {
+              const edgeJson = await edgeRes.json();
+              if (edgeJson.error) {
+                edgeFunctionError = edgeJson.error;
+              }
+            } catch {
+              // ignore empty response
+            }
+          }
+        } catch (err) {
+          edgeFunctionError = 'Could not reach signup automation function.';
+        }
+        if (edgeFunctionError) {
+          toast({
+            title: 'Signup Automation Warning',
+            description: edgeFunctionError,
+            variant: 'destructive',
+          });
+        }
+
         toast({
           title: "Account created successfully!",
           description: "Please check your email to verify your account.",
         });
         
         // Clear form fields
-        setEmail('');
-        setPassword('');
-        setFullName('');
-        setPhone('');
+        setEmail(''); setPassword(''); setFullName(''); setPhone(''); setPartnerId(''); setIndemnityAccepted(false); setVerificationDocs(null);
         
         // Navigate to profile page
         navigate('/profile');
@@ -167,6 +241,23 @@ export default function AuthForm() {
             {mode === 'signup' && (
               <>
                 <div className="space-y-2">
+                  <Label htmlFor="userType">User Type</Label>
+                  <Select value={userType} onValueChange={v => setUserType(v as any)}>
+                    <SelectTrigger><SelectValue placeholder="Select user type" /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="trekker">Trekker</SelectItem>
+                      <SelectItem value="micro_community">Micro-Community</SelectItem>
+                      <SelectItem value="admin">Admin</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                {userType === 'micro_community' && (
+                  <div className="space-y-2">
+                    <Label htmlFor="partnerId">Partner/Community ID</Label>
+                    <Input id="partnerId" type="text" value={partnerId} onChange={e => setPartnerId(e.target.value)} required />
+                  </div>
+                )}
+                <div className="space-y-2">
                   <Label htmlFor="fullName">Full Name</Label>
                   <Input
                     id="fullName"
@@ -194,7 +285,7 @@ export default function AuthForm() {
                     value={subscriptionType}
                     onValueChange={(value) => setSubscriptionType(value as 'community' | 'self_service')}
                   >
-                    <SelectTrigger id="subscriptionType">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select a subscription type" />
                     </SelectTrigger>
                     <SelectContent>
@@ -202,6 +293,14 @@ export default function AuthForm() {
                       <SelectItem value="self_service">Self-Service (₹99/month)</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <input id="indemnityAccepted" type="checkbox" checked={indemnityAccepted} onChange={e => setIndemnityAccepted(e.target.checked)} required />
+                  <Label htmlFor="indemnityAccepted">I accept the indemnity and terms</Label>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="verificationDocs">Verification Documents (optional)</Label>
+                  <Input id="verificationDocs" type="file" multiple onChange={e => setVerificationDocs(e.target.files ? Array.from(e.target.files) : null)} />
                 </div>
               </>
             )}

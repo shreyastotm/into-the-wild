@@ -511,7 +511,7 @@ alter table "public"."users" validate constraint "users_user_id_fkey";
 
 set check_function_bodies = off;
 
-create type "public"."geometry_dump" as ("path" integer[], "geom" geometry);
+-- create type "public"."geometry_dump" as ("path" integer[], "geom" geometry);
 
 CREATE OR REPLACE FUNCTION public.handle_new_user()
  RETURNS trigger
@@ -542,8 +542,6 @@ BEGIN
 END;
 $function$
 ;
-
-create type "public"."valid_detail" as ("valid" boolean, "reason" character varying, "location" geometry);
 
 grant delete on table "public"."ad_hoc_expense_shares" to "anon";
 

@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,9 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
   categories,
   activeFilterCount
 }) => {
+  console.log('[FilterPopover] categories:', categories);
+  console.log('[FilterPopover] options:', options);
+
   const priceRanges = [
     { label: 'Any Price', value: '' },
     { label: 'Under ₹1,000', value: '0-1000' },
@@ -65,7 +67,7 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="">Any Category</SelectItem>
-                {categories.map((category) => (
+                {categories.filter(c => typeof c === 'string' && !!c && c.trim() !== '').map((category) => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
                 ))}
               </SelectContent>
@@ -82,7 +84,7 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
                 <SelectValue placeholder="Any Price" />
               </SelectTrigger>
               <SelectContent>
-                {priceRanges.map((range) => (
+                {priceRanges.filter(r => typeof r.value === 'string').map((range) => (
                   <SelectItem key={range.value} value={range.value}>{range.label}</SelectItem>
                 ))}
               </SelectContent>
@@ -99,7 +101,7 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
                 <SelectValue placeholder="Any Time" />
               </SelectTrigger>
               <SelectContent>
-                {timeFrames.map((time) => (
+                {timeFrames.filter(t => typeof t.value === 'string').map((time) => (
                   <SelectItem key={time.value} value={time.value}>{time.label}</SelectItem>
                 ))}
               </SelectContent>

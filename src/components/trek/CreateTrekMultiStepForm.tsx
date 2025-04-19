@@ -5,6 +5,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/components/ui/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import { useUserVerificationStatus } from '@/components/auth/useUserVerificationStatus';
 
 // Step 1: Trek Details
 function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChange, gpxFile, handleGpxChange, errors }) {
@@ -201,6 +202,16 @@ function ReviewStep({ formData, fixedExpenses, selectedTemplateId, imagePreview,
 
 // Main Multi-Step Form
 export default function CreateTrekMultiStepForm() {
+  const { isVerified, isIndemnityAccepted, userType, loading } = useUserVerificationStatus();
+  // Restrict form for micro_community users who are not verified or have not accepted indemnity
+  if (!loading && userType === 'micro_community' && (!isVerified || !isIndemnityAccepted)) {
+    return (
+      <div className="max-w-2xl mx-auto p-8 text-center text-red-600">
+        <h2 className="text-xl font-semibold mb-2">You cannot create a trek event yet.</h2>
+        <p>Your account must be verified and indemnity accepted to create or manage events. Please complete verification and accept indemnity forms.</p>
+      </div>
+    );
+  }
   const [step, setStep] = useState(0);
   const [formData, setFormData] = useState({ trek_name: '', description: '', start_datetime: '', location: '', cost: '', max_participants: '' });
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -440,7 +451,7 @@ export default function CreateTrekMultiStepForm() {
       <form onSubmit={e => { e.preventDefault(); if (step === 3) handleSubmit(); else handleNext(); }}>
         {step === 0 && <TrekDetailsStep formData={formData} setFormData={setFormData} imagePreview={imagePreview} handleImageChange={handleImageChange} gpxFile={gpxFile} handleGpxChange={handleGpxChange} errors={errors} />}
         {step === 1 && <FixedExpensesStep fixedExpenses={fixedExpenses} setFixedExpenses={setFixedExpenses} />}
-        {step === 2 && <PackingListStep selectedTemplateId={selectedTemplateId} setSelectedTemplateId={setSelectedTemplateId} />}
+        {step === 2 && <PackingListStep templates={[]} selectedTemplateId={selectedTemplateId} setSelectedTemplateId={setSelectedTemplateId} />}
         {step === 3 && <ReviewStep formData={formData} fixedExpenses={fixedExpenses} selectedTemplateId={selectedTemplateId} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} />}
         <div className="mt-8 flex justify-between">
           <Button type="button" variant="outline" disabled={step === 0} onClick={() => setStep(s => s - 1)}>Back</Button>

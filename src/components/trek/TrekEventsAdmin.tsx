@@ -108,17 +108,30 @@ const TrekEventsAdmin: React.FC = () => {
       image_url = urlData.publicUrl;
     }
 
+    // Log session and user info
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    const { data: sessionData, error: sessionError } = await supabase.auth.getSession();
+    console.log('[handleSubmit] Current user:', user, 'User error:', userError);
+    console.log('[handleSubmit] Session data:', sessionData, 'Session error:', sessionError);
+
     try {
-      if (editId) {
+      if (editId !== null && editId !== undefined) {
+        // Defensive: ensure editId is integer and matches a trek event
+        const trekIdNum = Number(editId);
+        if (!Number.isInteger(trekIdNum)) {
+          toast({ title: 'Update failed', description: `Invalid trek_id (${editId}). It must be an integer.`, variant: 'destructive' });
+          setSubmitting(false);
+          return;
+        }
         // Update trek event
-        const { error, data } = await supabase.from('trek_events').update({
+        const { error, data, count } = await supabase.from('trek_events').update({
           trek_name: form.trek_name,
           start_datetime: formatDateForSupabase(form.start_datetime),
           category: form.category,
           cost: form.cost,
           max_participants: form.max_participants,
           ...(image_url ? { image_url } : {}),
-        }).eq('trek_id', editId).select();
+        }).eq('trek_id', trekIdNum).select();
         console.log('UPDATE payload:', {
           trek_name: form.trek_name,
           start_datetime: formatDateForSupabase(form.start_datetime),
@@ -126,10 +139,12 @@ const TrekEventsAdmin: React.FC = () => {
           cost: form.cost,
           max_participants: form.max_participants,
           ...(image_url ? { image_url } : {}),
-        }, 'response:', data, error);
+        }, 'response:', data, error, 'editId:', editId, 'trekIdNum:', trekIdNum, 'user:', user, 'session:', sessionData);
         if (error) {
           console.error('Supabase update error:', error);
           toast({ title: 'Update failed', description: error.message, variant: 'destructive' });
+        } else if (!data || data.length === 0) {
+          toast({ title: 'Update failed', description: 'No trek event was updated. Please check if the event exists.', variant: 'destructive' });
         } else {
           await fetchTreks();
           toast({ title: 'Trek updated' });
@@ -193,29 +208,61 @@ const TrekEventsAdmin: React.FC = () => {
   }
 
   async function handleDelete(id: number | string) {
-    // Enhanced logging for debugging
     console.log('[handleDelete] Received id:', id, 'Type:', typeof id);
-    // Defensive: ensure trek_id is a valid integer
+
+    // Ensure trek_id is a valid integer
     const trekIdNum = Number(id);
-    if (!id || isNaN(trekIdNum) || typeof trekIdNum !== 'number' || !Number.isInteger(trekIdNum)) {
-      toast({ title: 'Delete failed', description: `Invalid trek_id (${id}) (must be an integer, got type ${typeof id})`, variant: 'destructive' });
-      // Additional toast if UUID detected
-      if (typeof id === 'string' && /^[0-9a-fA-F-]{36}$/.test(id)) {
-        toast({ title: 'Delete failed', description: `It looks like a UUID was passed instead of an integer trek_id. This is a bug.`, variant: 'destructive' });
-      }
+    console.log('[handleDelete] After Number():', trekIdNum, 'Type:', typeof trekIdNum);
+
+    // Check if the id is a valid integer
+    if (!id || isNaN(trekIdNum) || !Number.isInteger(trekIdNum)) {
+      toast({
+        title: 'Delete failed',
+        description: `Invalid trek_id (${id}). It must be an integer.`,
+        variant: 'destructive'
+      });
       return;
     }
+
     try {
       setSubmitting(true);
-      const { error: packingListDeleteError } = await supabase.from('trek_packing_lists').delete().eq('trek_id', trekIdNum);
-      if (packingListDeleteError && packingListDeleteError.code !== 'PGRST116') {
-        console.error('Packing list delete error:', packingListDeleteError);
-        toast({ title: 'Packing list delete failed', description: packingListDeleteError.message, variant: 'destructive' });
+      // First check if there are any records in trek_packing_lists
+      const { data: packingListData, error: packingListSelectError } = await supabase
+        .from('trek_packing_lists')
+        .select('template_id')
+        .eq('trek_id', trekIdNum);
+      if (packingListSelectError) {
+        console.error('Packing list select error:', packingListSelectError);
+        toast({
+          title: 'Packing list select failed',
+          description: packingListSelectError.message,
+          variant: 'destructive'
+        });
         setSubmitting(false);
         return;
       }
-      const { data, error } = await supabase.from('trek_events').delete().eq('trek_id', trekIdNum).select();
-      console.log('DELETE payload:', { trek_id: trekIdNum }, 'response:', data, error);
+      // If there are records, delete them
+      if (packingListData && packingListData.length > 0) {
+        const { error: packingListDeleteError } = await supabase
+          .from('trek_packing_lists')
+          .delete()
+          .eq('trek_id', trekIdNum);
+        if (packingListDeleteError) {
+          console.error('Packing list delete error:', packingListDeleteError);
+          toast({
+            title: 'Packing list delete failed',
+            description: packingListDeleteError.message,
+            variant: 'destructive'
+          });
+          setSubmitting(false);
+          return;
+        }
+      }
+      // Now delete the trek event
+      const { error } = await supabase
+        .from('trek_events')
+        .delete()
+        .eq('trek_id', trekIdNum);
       if (error) {
         toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
       } else {
@@ -224,7 +271,11 @@ const TrekEventsAdmin: React.FC = () => {
       }
     } catch (err) {
       console.error('Unexpected error in handleDelete:', err);
-      toast({ title: 'Unexpected error', description: String(err), variant: 'destructive' });
+      toast({
+        title: 'Unexpected error',
+        description: String(err),
+        variant: 'destructive'
+      });
     } finally {
       setSubmitting(false);
     }

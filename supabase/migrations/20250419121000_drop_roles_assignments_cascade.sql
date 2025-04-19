@@ -1,0 +1,2 @@
+-- Entire migration commented out as roles_assignments no longer exists.
+-- DROP TABLE IF EXISTS public.roles_assignments CASCADE;
