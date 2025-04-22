@@ -23,24 +23,24 @@ interface TrekEvent {
   image_url?: string | null;
 }
 
-export function useTrekEventDetails(trekId: string | undefined) {
+export function useTrekEventDetails(trek_id: string | undefined) {
   const [trekEvent, setTrekEvent] = useState<TrekEvent | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (trekId) {
-      fetchTrekEvent(parseInt(trekId));
+    if (trek_id) {
+      fetchTrekEvent(parseInt(trek_id));
     }
-  }, [trekId]);
+  }, [trek_id]);
 
-  async function fetchTrekEvent(trekId: number) {
+  async function fetchTrekEvent(trek_id: number) {
     try {
       setLoading(true);
       
       const { data, error } = await supabase
         .from('trek_events')
         .select('*')
-        .eq('trek_id', trekId)
+        .eq('trek_id', trek_id)
         .single();
       
       if (error) {

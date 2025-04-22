@@ -6,7 +6,7 @@ import { toast } from '@/components/ui/use-toast';
 import { MapPin, Calendar, Users, Navigation } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
-import { formatCurrency } from '@/lib/utils';
+import { getUniqueParticipantCount, formatCurrency } from '@/lib/utils';
 import { format, formatRelative } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 
@@ -36,7 +36,6 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     if (treks.length > 0) {
       fetchAllParticipantCounts();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [treks]);
 
   const fetchUpcomingTreks = async () => {
@@ -75,13 +74,12 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     await Promise.all(
       treks.map(async (trek) => {
         const { data, error } = await supabase
-          .from('registrations')
+          .from('trek_registrations')
           .select('user_id, payment_status')
           .eq('trek_id', trek.trek_id)
           .not('payment_status', 'eq', 'Cancelled');
         if (!error && data) {
-          const uniqueUserIds = Array.from(new Set(data.map((r: any) => r.user_id)));
-          counts[trek.trek_id] = uniqueUserIds.length;
+          counts[trek.trek_id] = getUniqueParticipantCount(data);
         } else {
           counts[trek.trek_id] = 0;
         }
@@ -133,6 +131,11 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     return <Navigation className="h-12 w-12 opacity-40" />;
   };
 
+  const treksWithCounts = treks.map(trek => ({
+    ...trek,
+    participant_count: participantCounts[trek.trek_id] ?? 0
+  }));
+
   if (loading) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -149,7 +152,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-      {treks.map((trek) => (
+      {treksWithCounts.map((trek) => (
         <div 
           key={trek.trek_id} 
           className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow"
@@ -182,7 +185,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
               </div>
               <div className="flex items-center">
                 <Users className="h-4 w-4 mr-2 flex-shrink-0" />
-                <span>{participantCounts[trek.trek_id] ?? 0}/{trek.max_participants} participants</span>
+                <span>{trek.participant_count}/{trek.max_participants} participants</span>
               </div>
               {trek.description && (
                 <p className="line-clamp-2 text-xs mt-2">{trek.description}</p>

@@ -20,7 +20,7 @@ export function useUserVerificationStatus() {
         .eq('user_id', user.id)
         .single();
 
-      if (!error && data) {
+      if (!error && data && ['admin', 'micro_community', 'trekker'].includes(data.user_type)) {
         setStatus({
           isVerified: data.verification_status === 'verified',
           isIndemnityAccepted: !!data.indemnity_accepted,

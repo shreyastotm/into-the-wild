@@ -67,7 +67,7 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
       </div>
       <div>
         <Label htmlFor="max_participants">Maximum Participants *</Label>
-        <Input id="max_participants" name="max_participants" type="number" value={formData.max_participants} onChange={e => setFormData(f => ({ ...f, max_participants: e.target.value }))} required min={1} />
+        <Input id="max_participants" name="max_participants" type="number" value={formData.max_participants || ''} onChange={e => setFormData(f => ({ ...f, max_participants: e.target.value }))} required min={1} />
         {errors.max_participants && <div className="text-red-500 text-xs mt-1">{errors.max_participants}</div>}
       </div>
     </div>
@@ -125,23 +125,8 @@ function FixedExpensesStep({ fixedExpenses, setFixedExpenses }) {
 
 // Step 3: Packing List
 function PackingListStep({ packingItems, selectedPacking, setSelectedPacking }) {
-  // Drag state
-  const [draggedIdx, setDraggedIdx] = useState<number | null>(null);
-  // Custom item state
   const [customItem, setCustomItem] = useState<string>('');
   const [customMandatory, setCustomMandatory] = useState<boolean>(false);
-
-  const handleDragStart = (idx: number) => setDraggedIdx(idx);
-  const handleDragOver = (e: React.DragEvent<HTMLLIElement>, idx: number) => {
-    e.preventDefault();
-    if (draggedIdx === null || draggedIdx === idx) return;
-    const updated = [...selectedPacking];
-    const [removed] = updated.splice(draggedIdx, 1);
-    updated.splice(idx, 0, removed);
-    setSelectedPacking(updated);
-    setDraggedIdx(idx);
-  };
-  const handleDragEnd = () => setDraggedIdx(null);
 
   // Add custom item handler
   const handleAddCustom = () => {
@@ -153,14 +138,27 @@ function PackingListStep({ packingItems, selectedPacking, setSelectedPacking }) 
 
   return (
     <div className="space-y-4">
-      <div className="font-semibold mb-2">Drag items to the event packing list:</div>
+      <div className="font-bold mb-2">Select items for the trek packing list:</div>
       <div className="grid grid-cols-2 gap-4">
         <div>
           <div className="font-bold mb-1">Master List</div>
           <ul className="border rounded min-h-[120px] p-2">
-            {packingItems.filter(item => !selectedPacking.some(sel => sel.item_id === item.item_id)).map(item => (
-              <li key={item.item_id} className="cursor-pointer hover:bg-gray-100 p-1 rounded" onClick={() => setSelectedPacking(f => [...f, { ...item, mandatory: true }])}>
-                {item.name}
+            {packingItems.map(item => (
+              <li key={item.item_id} className="cursor-pointer hover:bg-gray-100 p-1 rounded">
+                <label className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedPacking.some(sel => sel.item_id === item.item_id)}
+                    onChange={() => setSelectedPacking(f => {
+                      if (f.some(sel => sel.item_id === item.item_id)) {
+                        return f.filter(sel => sel.item_id !== item.item_id);
+                      } else {
+                        return [...f, { ...item, mandatory: false }];
+                      }
+                    })}
+                  />
+                  <span>{item.name}</span>
+                </label>
               </li>
             ))}
           </ul>
@@ -182,22 +180,15 @@ function PackingListStep({ packingItems, selectedPacking, setSelectedPacking }) 
           </div>
         </div>
         <div>
-          <div className="font-bold mb-1">Event Packing List</div>
+          <div className="font-bold mb-1">Selected Items</div>
           <ul className="border rounded min-h-[120px] p-2">
             {selectedPacking.map((item, idx) => (
-              <li key={item.item_id}
-                  className={`flex justify-between items-center ${draggedIdx === idx ? 'bg-blue-50' : ''}`}
-                  draggable
-                  onDragStart={() => handleDragStart(idx)}
-                  onDragOver={e => handleDragOver(e, idx)}
-                  onDragEnd={handleDragEnd}
-              >
-                <span className="cursor-move">☰</span>
-                <span>{item.name}{item.isCustom && <span className="ml-1 text-xs text-blue-500">(Custom)</span>}</span>
-                <Button variant="ghost" type="button" onClick={() => setSelectedPacking(f => f.filter((_, i) => i !== idx))}>Remove</Button>
+              <li key={item.item_id} className="flex justify-between items-center">
+                <span>{item.name}</span>
                 <label className="ml-2 text-xs">
                   <input type="checkbox" checked={item.mandatory} onChange={e => setSelectedPacking(f => f.map((it, i) => i === idx ? { ...it, mandatory: e.target.checked } : it))} /> Mandatory
                 </label>
+                <Button variant="ghost" type="button" onClick={() => setSelectedPacking(f => f.filter((_, i) => i !== idx))}>Remove</Button>
               </li>
             ))}
           </ul>
@@ -393,7 +384,6 @@ export default function CreateTrekMultiStepForm() {
           continue;
         }
         console.log('Inserting packing list object:', insertObj);
-        // --- FIX: Always insert into trek_packing_lists (plural) ---
         const { error: packError } = await supabase.from('trek_packing_lists').insert(insertObj);
         if (packError) {
           console.error('Supabase Insert trek_packing_lists Error:', packError, insertObj);

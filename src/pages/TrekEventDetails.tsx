@@ -6,22 +6,17 @@ import { RegistrationCard } from '@/components/trek/RegistrationCard';
 import { TravelCoordination } from '@/components/trek/TravelCoordination';
 import { TrekParticipants } from '@/components/trek/TrekParticipants';
 import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
-import { useTrekEvent } from '@/hooks/useTrekEvent';
+import { useTrekRegistration } from '../hooks/trek/useTrekRegistration';
 import { useTrekCommunity } from '@/hooks/useTrekCommunity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ChevronLeft, 
   Map, 
   MessageSquare, 
-  Users, 
-  DollarSign 
+  Users 
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { ExpenseList } from '@/components/expenses/ExpenseList';
-import { ExpenseSummary } from '@/components/expenses/ExpenseSummary';
-import { AddExpenseModal } from '@/components/expenses/AddExpenseModal';
-import { useExpenses } from '@/hooks/useExpenses';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +28,7 @@ export default function TrekEventDetails() {
     userRegistration,
     registerForTrek, 
     cancelRegistration 
-  } = useTrekEvent(id);
+  } = useTrekRegistration(id);
   
   const {
     participants,
@@ -44,20 +39,10 @@ export default function TrekEventDetails() {
     addComment
   } = useTrekCommunity(id);
 
-  const {
-    fixedExpenses,
-    adHocExpenses,
-    expenseShares,
-    loading: expensesLoading,
-    refreshExpenses
-  } = useExpenses(id ? parseInt(id) : undefined);
-
   const formattedParticipants = participants.map(participant => ({
     user_id: participant.id,
     full_name: participant.name || 'Unknown User'
   }));
-
-  const [showExpenseModal, setShowExpenseModal] = useState(false);
 
   if (loading) {
     return (
@@ -104,6 +89,11 @@ export default function TrekEventDetails() {
         trekName={trekEvent.trek_name}
         startDatetime={trekEvent.start_datetime}
         category={trekEvent.category}
+        imageUrl={trekEvent.image_url}
+        cost={trekEvent.cost}
+        description={trekEvent.description}
+        maxParticipants={trekEvent.max_participants}
+        participantCount={participantCount}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
@@ -122,10 +112,6 @@ export default function TrekEventDetails() {
               <TabsTrigger value="discussion">
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Discussion ({comments.length})
-              </TabsTrigger>
-              <TabsTrigger value="expenses">
-                <DollarSign className="h-4 w-4 mr-2" />
-                Expenses
               </TabsTrigger>
             </TabsList>
             
@@ -164,53 +150,16 @@ export default function TrekEventDetails() {
                 onAddComment={addComment}
               />
             </TabsContent>
-            
-            <TabsContent value="expenses">
-              <div className="space-y-6">
-                <ExpenseSummary
-                  fixedExpenses={fixedExpenses}
-                  adHocExpenses={adHocExpenses}
-                  userContributions={participants.map(p => ({
-                    userId: p.id,
-                    amount: 0,
-                    paid: false
-                  }))}
-                />
-                
-                {userRegistration && userRegistration.registration_id && (
-                  <div className="p-4 border rounded-lg bg-card mb-4">
-                    <h3 className="text-lg font-semibold mb-4">Add a New Expense</h3>
-                    <Button 
-                      onClick={() => setShowExpenseModal(true)} 
-                      variant="default" 
-                      className="mb-4"
-                    >
-                      + Add Expense
-                    </Button>
-                    <AddExpenseModal
-                      open={showExpenseModal}
-                      onClose={() => setShowExpenseModal(false)}
-                      trekId={Number(id)}
-                      participants={formattedParticipants}
-                      onExpenseAdded={refreshExpenses}
-                    />
-                  </div>
-                )}
-                
-                <ExpenseList 
-                  trekId={Number(id)} 
-                  participants={formattedParticipants}
-                />
-              </div>
-            </TabsContent>
           </Tabs>
         </div>
 
         <div>
           <RegistrationCard
             trek={{
-              ...trekEvent,
-              participant_count: participantCount
+              trek_id: trekEvent.trek_id,
+              max_participants: trekEvent.max_participants,
+              participant_count: participantCount,
+              cost: trekEvent.cost,
             }}
             userRegistration={userRegistration}
             onRegister={registerForTrek}

@@ -32,8 +32,8 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   const { user } = useAuth();
   
   // Helper to get participant name from ID
-  const getParticipantName = (payerId: number) => {
-    const participant = participants.find(p => Number(p.user_id) === payerId);
+  const getParticipantName = (payerId: string) => {
+    const participant = participants.find(p => p.user_id === payerId);
     return participant ? participant.full_name : 'Unknown';
   };
   
@@ -42,7 +42,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
     if (!user) return null;
     
     const share = expenseShares.find(
-      share => share.expense_id === expenseId && share.user_id === Number(user.id)
+      share => String(share.expense_id) === String(expenseId) && String(share.user_id) === String(user.id)
     );
     
     return share ? share.status : null;
@@ -55,7 +55,7 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
         .from('ad_hoc_expense_shares')
         .update({ status: action })
         .eq('expense_id', expenseId)
-        .eq('user_id', Number(user?.id));
+        .eq('user_id', user?.id);
       if (error) throw error;
       toast({
         title: `Expense ${action}`,
@@ -133,9 +133,9 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
               </TableHeader>
               <TableBody>
                 {adHocExpenses.map((expense) => {
-                  const isPayer = Number(user?.id) === expense.payer_id;
+                  const isPayer = user?.id === expense.payer_id;
                   const userShare = expenseShares.find(
-                    share => share.expense_id === expense.expense_id && share.user_id === Number(user?.id)
+                    share => String(share.expense_id) === String(expense.expense_id) && String(share.user_id) === String(user?.id)
                   );
                   return (
                     <>

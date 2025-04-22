@@ -2,13 +2,12 @@ import { useState, useEffect } from 'react';
 import { supabase, WithStringId, convertDbRecordToStringIds } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
-import { userIdToNumber } from '@/utils/dbTypeConversions';
 import { useTrekEventDetails } from './useTrekEventDetails';
 
 interface DbRegistration {
   registration_id: number;
   trek_id: number;
-  user_id: number;
+  user_id: string;
   booking_datetime: string;
   payment_status: 'Pending' | 'Paid' | 'Cancelled';
   cancellation_datetime?: string | null;
@@ -18,26 +17,26 @@ interface DbRegistration {
 
 type Registration = WithStringId<DbRegistration>;
 
-export function useTrekRegistration(trekId: string | undefined) {
+export function useTrekRegistration(trek_id: string | undefined) {
   const { user } = useAuth();
-  const { trekEvent, loading: trekLoading, setTrekEvent } = useTrekEventDetails(trekId);
+  const { trekEvent, loading: trekLoading, setTrekEvent } = useTrekEventDetails(trek_id);
   const [registering, setRegistering] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
 
   useEffect(() => {
-    if (trekId && user) {
-      checkUserRegistration(parseInt(trekId));
+    if (trek_id && user) {
+      checkUserRegistration(parseInt(trek_id));
     }
-  }, [trekId, user]);
+  }, [trek_id, user]);
 
-  async function checkUserRegistration(trekId: number) {
+  async function checkUserRegistration(trek_id: number) {
     if (!user) return;
     
     try {
       const { data, error } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .select('*')
-        .eq('trek_id', trekId)
+        .eq('trek_id', trek_id)
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -70,7 +69,7 @@ export function useTrekRegistration(trekId: string | undefined) {
       
       // Fetch current count of unique, non-cancelled registrations for this trek
       const { data: regs, error: regsError } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .select('user_id, payment_status')
         .eq('trek_id', trekEvent.trek_id)
         .not('payment_status', 'eq', 'Cancelled');
@@ -85,13 +84,12 @@ export function useTrekRegistration(trekId: string | undefined) {
         return false;
       }
       // Ensure user can only register once for a trek
-      const userId = typeof user.id === 'string' ? user.id : String(user.id);
       const trekIdNum = typeof trekEvent.trek_id === 'number' ? trekEvent.trek_id : parseInt(trekEvent.trek_id);
       const { data: existing, error: existingError } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .select('registration_id')
         .eq('trek_id', trekIdNum)
-        .eq('user_id', userId)
+        .eq('user_id', user.id)
         .maybeSingle();
       if (existing && !existingError) {
         toast({
@@ -102,10 +100,10 @@ export function useTrekRegistration(trekId: string | undefined) {
         return false;
       }
       const { error: registrationError } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .insert({
           trek_id: trekIdNum,
-          user_id: userId,
+          user_id: user.id,
           payment_status: 'Pending',
           booking_datetime: new Date().toISOString()
         });
@@ -137,7 +135,7 @@ export function useTrekRegistration(trekId: string | undefined) {
     try {
       setRegistering(true);
       const { error: updateRegError } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .update({ 
           payment_status: 'Cancelled',
           cancellation_datetime: new Date().toISOString()

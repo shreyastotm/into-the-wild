@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogTrigger, DialogContent, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { getUniqueParticipantCount } from '@/lib/utils';
 
 interface TrekEvent {
   trek_id: number;
@@ -42,10 +43,10 @@ const initialForm: TrekEventForm = {
 
 const TrekEventsAdmin: React.FC = () => {
   const { user, userProfile } = useAuth();
-  // TEMPORARY: fallback for missing user_type in profile
-  // Allow admin access if user.email matches known admin email(s)
+  // Defensive: fallback for missing or invalid user_type in profile
+  const validTypes = ['admin', 'micro_community', 'trekker'];
   const adminEmails = ["shreyasmadhan82@gmail.com"];
-  const isAdmin = userProfile?.user_type === 'admin' || (userProfile?.email && adminEmails.includes(userProfile.email));
+  const isAdmin = (userProfile && validTypes.includes(userProfile.user_type) && userProfile.user_type === 'admin') || (userProfile?.email && adminEmails.includes(userProfile.email));
 
   if (!isAdmin) {
     return (
@@ -63,6 +64,7 @@ const TrekEventsAdmin: React.FC = () => {
   const [editId, setEditId] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [partners, setPartners] = useState<{user_id: string, full_name: string, email: string}[]>([]);
+  const [participantCounts, setParticipantCounts] = useState<Record<number, number>>({});
 
   useEffect(() => {
     fetchTreks();
@@ -83,8 +85,26 @@ const TrekEventsAdmin: React.FC = () => {
       .select('trek_id, trek_name, start_datetime, image_url, category, cost, max_participants, event_creator_type, partner_id')
       .order('start_datetime', { ascending: true });
     if (!error && data) {
-      // Filter out trek events with non-integer trek_id (defensive)
-      setTreks(data.filter((t: any) => Number.isInteger(Number(t.trek_id))));
+      // Defensive: filter out trek events with non-integer trek_id
+      const filteredTreks = data.filter((t: any) => Number.isInteger(Number(t.trek_id)));
+      setTreks(filteredTreks);
+      // Fetch participant counts for each trek
+      const counts: Record<number, number> = {};
+      await Promise.all(
+        filteredTreks.map(async (trek: any) => {
+          const { data: regs, error: regsError } = await supabase
+            .from('trek_registrations')
+            .select('user_id, payment_status')
+            .eq('trek_id', trek.trek_id)
+            .not('payment_status', 'eq', 'Cancelled');
+          if (!regsError && regs) {
+            counts[trek.trek_id] = getUniqueParticipantCount(regs);
+          } else {
+            counts[trek.trek_id] = 0;
+          }
+        })
+      );
+      setParticipantCounts(counts);
     }
     setLoading(false);
   }
@@ -271,7 +291,7 @@ const TrekEventsAdmin: React.FC = () => {
       // First check if there are any records in trek_packing_lists
       const { data: packingListData, error: packingListSelectError } = await supabase
         .from('trek_packing_lists')
-        .select('template_id')
+        .select('*')
         .eq('trek_id', trekIdNum);
       if (packingListSelectError) {
         console.error('Packing list select error:', packingListSelectError);
@@ -413,6 +433,7 @@ const TrekEventsAdmin: React.FC = () => {
                 <div className="text-xs text-gray-500">{new Date(trek.start_datetime).toLocaleString()}</div>
                 <div className="text-xs text-gray-500">Cost: ₹{trek.cost}</div>
                 <div className="text-xs text-gray-500">Max Participants: {trek.max_participants}</div>
+                <div className="text-xs text-gray-500">Current Participants: {participantCounts[trek.trek_id] ?? 0}</div>
                 {trek.image_url && (
                   <div className="break-all text-xs mt-1">
                     <span className="font-mono">{trek.image_url}</span>

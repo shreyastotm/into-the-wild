@@ -39,6 +39,10 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
     { label: 'Next 3 Months', value: 'next-3-months' },
   ];
 
+  // FILTERS REMOVED FOR DEBUGGING - return null
+  return null;
+  // Old filter UI and logic commented out below
+  /*
   return (
     <Popover>
       <PopoverTrigger asChild>
@@ -117,4 +121,5 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
       </PopoverContent>
     </Popover>
   );
+  */
 };

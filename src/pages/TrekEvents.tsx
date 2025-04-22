@@ -9,6 +9,7 @@ import { TrekCardSkeleton } from '@/components/trek/TrekCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { getUniqueParticipantCount } from '@/lib/utils';
 
 const TrekEvents = () => {
   const [treks, setTreks] = useState<any[]>([]);
@@ -21,6 +22,7 @@ const TrekEvents = () => {
     timeFrame: '',
     sortBy: 'date-asc'
   });
+  const [participantCounts, setParticipantCounts] = useState<Record<number, number>>({});
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
@@ -55,7 +57,8 @@ const TrekEvents = () => {
       
       // Start with base query
       let query = supabase.from('trek_events').select('*');
-      
+
+      // DO NOT FILTER BY USER TYPE OR PARTNER_ID FOR VISIBILITY
       // Apply search filter
       if (filterOptions.search) {
         query = query.or(`trek_name.ilike.%${filterOptions.search}%,description.ilike.%${filterOptions.search}%`);
@@ -121,6 +124,26 @@ const TrekEvents = () => {
       if (error) throw error;
       
       setTreks(data || []);
+      
+      // Fetch participant counts for each trek
+      if (data && data.length > 0) {
+        const counts: Record<number, number> = {};
+        await Promise.all(
+          data.map(async (trek: any) => {
+            const { data: regs, error: regsError } = await supabase
+              .from('trek_registrations')
+              .select('user_id, payment_status')
+              .eq('trek_id', trek.trek_id)
+              .not('payment_status', 'eq', 'Cancelled');
+            if (!regsError && regs) {
+              counts[trek.trek_id] = getUniqueParticipantCount(regs);
+            } else {
+              counts[trek.trek_id] = 0;
+            }
+          })
+        );
+        setParticipantCounts(counts);
+      }
     } catch (error: any) {
       toast({
         title: "Error fetching treks",
@@ -177,7 +200,7 @@ const TrekEvents = () => {
           ))}
         </div>
       ) : treks.length > 0 ? (
-        <TrekEventsList treks={treks} />
+        <TrekEventsList treks={treks.map(trek => ({ ...trek, participant_count: participantCounts[trek.trek_id] ?? 0 }))} />
       ) : (
         <NoTreksFound 
           filterOptions={filterOptions} 

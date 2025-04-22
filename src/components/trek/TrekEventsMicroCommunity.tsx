@@ -30,8 +30,11 @@ const TrekEventsMicroCommunity: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
-    fetchMyEvents();
-  }, [user]);
+    // Micro-community users can only edit/delete their own treks, but all users should be able to view all treks elsewhere
+    if (userProfile?.user_type === 'micro_community') {
+      fetchMyEvents();
+    }
+  }, [user, userProfile]);
 
   async function fetchMyEvents() {
     setLoading(true);
@@ -134,6 +137,7 @@ const TrekEventsMicroCommunity: React.FC = () => {
   }
 
   if (!userProfile || userProfile.user_type !== 'micro_community') {
+    // Only render edit/delete for micro-community users; others should not see this component (editing is restricted)
     return null;
   }
 
@@ -155,6 +159,7 @@ const TrekEventsMicroCommunity: React.FC = () => {
                 <div className="text-sm">Max Participants: {trek.max_participants}</div>
               </div>
               <div className="flex gap-2 mt-2 md:mt-0">
+                {/* Only allow edit/delete for micro-community's own treks */}
                 <Button variant="outline" onClick={() => handleEdit(trek)}>Edit</Button>
                 <Button variant="destructive" onClick={() => handleDelete(trek.trek_id)}>Delete</Button>
               </div>
@@ -162,6 +167,7 @@ const TrekEventsMicroCommunity: React.FC = () => {
           ))}
         </div>
       )}
+      {/* Dialog for editing treks remains unchanged */}
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent>
           <DialogTitle>Edit Trek Event</DialogTitle>

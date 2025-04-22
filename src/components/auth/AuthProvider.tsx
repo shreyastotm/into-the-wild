@@ -119,9 +119,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }
 
-  const signOut = async () => {
-    await supabase.auth.signOut();
-  };
+  async function signOut() {
+    try {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('[DEBUG] Supabase signOut error:', error);
+        alert('Sign out failed: ' + error.message);
+      }
+    } catch (err) {
+      console.error('[DEBUG] signOut exception:', err);
+      alert('Sign out failed: ' + (err.message || err));
+    }
+  }
 
   return (
     <AuthContext.Provider value={{ session, user, userProfile, loading, signOut }}>

@@ -13,25 +13,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { z } from "zod";
-import { useExpenses } from '@/hooks/useExpenses';
-
-const expenseSchema = z.object({
-  description: z.string().min(1, "Description is required"),
-  amount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-    message: "Amount must be a number greater than zero",
-  }),
-  category: z.enum([
-    "Fuel",
-    "Toll",
-    "Parking",
-    "Snacks",
-    "Meals",
-    "Water",
-    "Local Transport",
-    "Medical Supplies",
-    "Other",
-  ]),
-});
 
 interface AddExpenseFormProps {
   trekId: number;
@@ -39,16 +20,12 @@ interface AddExpenseFormProps {
   participants?: { user_id: string; full_name: string }[];
 }
 
-// AddExpenseForm now supports multi-step via AddExpenseModal
-// Only Step 1 (details) is handled here. Participant selection and review are handled in the modal.
-
 export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({ 
   trekId, 
   onExpenseAdded,
   participants = [] 
 }) => {
   const { user, userProfile } = useAuth();
-  const { addAdHocExpense, shareExpense } = useExpenses();
   const [submitting, setSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     description: '',
@@ -73,25 +50,7 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const result = expenseSchema.safeParse(formData);
-    if (!result.success) {
-      toast({
-        title: "Validation Error",
-        description: result.error.errors.map((e) => e.message).join(", "),
-        variant: "destructive",
-      });
-      return false;
-    }
-    if (!user) {
-      toast({
-        title: "Authentication required",
-        description: "You must be logged in to add expenses",
-        variant: "destructive",
-      });
-      return false;
-    }
     setSubmitting(true);
-    // Pass formData to parent/modal for next step
     onExpenseAdded(formData);
     setSubmitting(false);
   };

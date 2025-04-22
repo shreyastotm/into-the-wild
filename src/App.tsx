@@ -13,6 +13,7 @@ import CreateTrekEvent from './pages/CreateTrekEvent';
 import { Toaster } from './components/ui/toaster';
 import AdminHome from './pages/admin';
 import TrekEventsMicroCommunity from './components/trek/TrekEventsMicroCommunity';
+import ResetPassword from './pages/ResetPassword';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
           <Route path="/trek-events/:id" element={<Layout><TrekEventDetails /></Layout>} />
           <Route path="/trek-events/create" element={<Layout><CreateTrekEvent /></Layout>} />
           <Route path="/micro-community/events" element={<Layout><TrekEventsMicroCommunity /></Layout>} />
+          <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
           <Route path="/admin/*" element={<AdminHome />} />
           <Route path="*" element={<Layout><NotFound /></Layout>} />
         </Routes>

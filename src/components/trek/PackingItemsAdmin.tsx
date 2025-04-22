@@ -17,7 +17,7 @@ export default function PackingItemsAdmin() {
 
   async function fetchItems() {
     setLoading(true);
-    const { data, error } = await supabase.from('packing_items').select('*').order('item_id');
+    const { data, error } = await supabase.from('trek_packing_items').select('*').order('item_id');
     if (error) toast({ title: 'Error loading items', description: error.message, variant: 'destructive' });
     setItems(data || []);
     setLoading(false);
@@ -25,7 +25,7 @@ export default function PackingItemsAdmin() {
 
   async function addItem() {
     if (!newName.trim()) return;
-    const { error } = await supabase.from('packing_items').insert({ name: newName.trim() });
+    const { error } = await supabase.from('trek_packing_items').insert({ name: newName.trim() });
     if (error) toast({ title: 'Add failed', description: error.message, variant: 'destructive' });
     else toast({ title: 'Item added!' });
     setNewName('');
@@ -33,7 +33,7 @@ export default function PackingItemsAdmin() {
   }
 
   async function deleteItem(id: number) {
-    const { error } = await supabase.from('packing_items').delete().eq('item_id', id);
+    const { error } = await supabase.from('trek_packing_items').delete().eq('item_id', id);
     if (error) toast({ title: 'Delete failed', description: error.message, variant: 'destructive' });
     else toast({ title: 'Item deleted!' });
     fetchItems();
@@ -46,7 +46,7 @@ export default function PackingItemsAdmin() {
 
   async function saveEdit() {
     if (!editingName.trim() || editingId === null) return;
-    const { error } = await supabase.from('packing_items').update({ name: editingName.trim() }).eq('item_id', editingId);
+    const { error } = await supabase.from('trek_packing_items').update({ name: editingName.trim() }).eq('item_id', editingId);
     if (error) toast({ title: 'Update failed', description: error.message, variant: 'destructive' });
     else toast({ title: 'Item updated!' });
     setEditingId(null);

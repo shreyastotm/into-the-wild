@@ -126,54 +126,55 @@ function FixedExpensesStep({ fixedExpenses, setFixedExpenses }) {
   );
 }
 
-// Step 3: Packing List Template Selection
-function PackingListStep({ templates, selectedTemplateId, setSelectedTemplateId }) {
-  const [templateList, setTemplateList] = React.useState([]);
-  const [loading, setLoading] = React.useState(false);
+// Step 3: Packing List
+function PackingListStep({ packingList, setPackingList }) {
+  const categories = ['Clothing', 'Footwear', 'Headgear', 'Electronics', 'First Aid', 'Miscellaneous'];
+  const [newItem, setNewItem] = useState({ category: '', item: '' });
 
-  React.useEffect(() => {
-    setLoading(true);
-    supabase.from('packing_list_templates').select('*').order('created_at').then(({ data }) => {
-      setTemplateList(data || []);
-      setLoading(false);
-    });
-  }, []);
+  const handleAddItem = () => {
+    if (!newItem.category || !newItem.item) return;
+    setPackingList(f => [...f, { category: newItem.category, item: newItem.item, checked: false }]);
+    setNewItem({ category: '', item: '' });
+  };
 
   return (
     <div className="space-y-4">
-      <div className="font-semibold mb-2">Select a Packing List Template for this Trek:</div>
-      {loading ? <div>Loading templates...</div> : (
-        <ul className="space-y-2">
-          {templateList.map(t => (
-            <li key={t.template_id}>
-              <label className="flex items-center gap-2">
-                <input
-                  type="radio"
-                  name="packing_template"
-                  value={t.template_id}
-                  checked={selectedTemplateId === t.template_id}
-                  onChange={() => setSelectedTemplateId(t.template_id)}
-                />
-                <span className="font-medium">{t.name}</span>
-                {t.description && <span className="text-xs text-gray-500 ml-2">{t.description}</span>}
-              </label>
-            </li>
-          ))}
-        </ul>
-      )}
-      <div className="text-xs text-gray-400 mt-2">You can create and manage templates in the Admin Panel.</div>
+      <div className="font-semibold mb-2">Packing List:</div>
+      <ul className="space-y-2">
+        {categories.map(category => (
+          <li key={category}>
+            <h3 className="font-medium">{category}</h3>
+            <ul className="pl-4 space-y-1">
+              {packingList.filter(item => item.category === category).map((item, idx) => (
+                <li key={idx}>
+                  <label className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={item.checked}
+                      onChange={() => setPackingList(f => f.map(i => i === item ? { ...i, checked: !i.checked } : i))}
+                    />
+                    <span>{item.item}</span>
+                  </label>
+                </li>
+              ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
+      <div className="flex gap-2">
+        <select value={newItem.category} onChange={e => setNewItem(f => ({ ...f, category: e.target.value }))}>
+          <option value="">Select Category</option>
+          {categories.map(category => <option key={category} value={category}>{category}</option>)}
+        </select>
+        <Input placeholder="Item" value={newItem.item} onChange={e => setNewItem(f => ({ ...f, item: e.target.value }))} />
+        <Button type="button" onClick={handleAddItem}>Add</Button>
+      </div>
     </div>
   );
 }
 
 // Step 4: Review & Submit
-function ReviewStep({ formData, fixedExpenses, selectedTemplateId, imagePreview, gpxFile, gpxRouteData }) {
-  const [template, setTemplate] = React.useState<any>(null);
-  React.useEffect(() => {
-    if (selectedTemplateId) {
-      supabase.from('packing_list_templates').select('*').eq('template_id', selectedTemplateId).single().then(({ data }) => setTemplate(data));
-    }
-  }, [selectedTemplateId]);
+function ReviewStep({ formData, fixedExpenses, packingList, imagePreview, gpxFile, gpxRouteData }) {
   return (
     <div className="space-y-4">
       <div><b>Trek Name:</b> {formData.trek_name}</div>
@@ -194,7 +195,21 @@ function ReviewStep({ formData, fixedExpenses, selectedTemplateId, imagePreview,
         <ul>{fixedExpenses.map((exp, i) => <li key={i}>{exp.title} - ₹{exp.amount}</li>)}</ul>
       </div>
       <div>
-        <b>Packing List Template:</b> {template ? template.name : 'None selected'}
+        <b>Packing List:</b>
+        <ul>
+          {packingList.map((item, i) => (
+            <li key={i}>
+              <span className="flex items-center gap-2">
+                <input
+                  type="checkbox"
+                  checked={item.checked}
+                  onChange={() => {}}
+                />
+                <span>{item.item}</span>
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -203,21 +218,18 @@ function ReviewStep({ formData, fixedExpenses, selectedTemplateId, imagePreview,
 // Main Multi-Step Form
 export default function CreateTrekMultiStepForm() {
   const { isVerified, isIndemnityAccepted, userType, loading } = useUserVerificationStatus();
-  // Restrict form for micro_community users who are not verified or have not accepted indemnity
-  // Also restrict trekkers from seeing this form
-  if (!loading && (userType === 'trekker' || (userType === 'micro_community' && (!isVerified || !isIndemnityAccepted)))) {
+  // Defensive: Restrict form for invalid/missing user types
+  const validTypes = ['admin', 'micro_community', 'trekker'];
+  if (!loading && (!userType || !validTypes.includes(userType) || userType === 'trekker' || (userType === 'micro_community' && (!isVerified || !isIndemnityAccepted)))) {
     return (
       <div className="max-w-2xl mx-auto p-8 text-center text-red-600">
         <h2 className="text-xl font-semibold mb-2">
           {userType === 'trekker'
             ? 'Trekkers cannot create trek events.'
-            : 'You cannot create a trek event yet.'}
+            : userType === 'micro_community' && (!isVerified || !isIndemnityAccepted)
+            ? 'Micro-community users must be verified and accept indemnity to create events.'
+            : 'Invalid or missing user type.'}
         </h2>
-        <p className="mb-4">
-          {userType === 'trekker'
-            ? 'Only admins can create trek events. If you are a micro-community, please contact support for event assignment.'
-            : 'You must be a verified micro-community and accept indemnity to create events.'}
-        </p>
       </div>
     );
   }
@@ -228,7 +240,7 @@ export default function CreateTrekMultiStepForm() {
   const [gpxFile, setGpxFile] = useState<File | null>(null);
   const [gpxRouteData, setGpxRouteData] = useState<any>(null);
   const [fixedExpenses, setFixedExpenses] = useState<any[]>([]);
-  const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
+  const [packingList, setPackingList] = useState<any[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -400,23 +412,16 @@ export default function CreateTrekMultiStepForm() {
           throw expError;
         }
       }
-      // 3. Insert trek_packing_lists join
-      if (selectedTemplateId) {
-        // Ensure trek_id is always an integer and template_id is a string (UUID)
-        const trekIdInt = Number(trek_id);
-        if (!Number.isInteger(trekIdInt)) {
-          throw new Error(`Invalid trek_id for trek_packing_lists: ${trek_id}`);
-        }
-        if (typeof selectedTemplateId !== 'string') {
-          throw new Error(`Invalid template_id for trek_packing_lists: ${selectedTemplateId}`);
-        }
-        const { error: joinError } = await supabase.from('trek_packing_lists').insert({
-          trek_id: trekIdInt,
-          template_id: selectedTemplateId
+      // 3. Insert trek_packing_list items
+      for (const item of packingList) {
+        const { error: itemError } = await supabase.from('trek_packing_list_items').insert({
+          trek_id,
+          category: item.category,
+          item: item.item,
         });
-        if (joinError) {
-          console.error('Supabase Insert trek_packing_lists (join) Error:', joinError);
-          throw joinError;
+        if (itemError) {
+          console.error('Supabase Insert trek_packing_list_items Error:', itemError);
+          throw itemError;
         }
       }
       toast({ title: 'Trek created successfully!' });
@@ -460,8 +465,8 @@ export default function CreateTrekMultiStepForm() {
       <form onSubmit={e => { e.preventDefault(); if (step === 3) handleSubmit(); else handleNext(); }}>
         {step === 0 && <TrekDetailsStep formData={formData} setFormData={setFormData} imagePreview={imagePreview} handleImageChange={handleImageChange} gpxFile={gpxFile} handleGpxChange={handleGpxChange} errors={errors} />}
         {step === 1 && <FixedExpensesStep fixedExpenses={fixedExpenses} setFixedExpenses={setFixedExpenses} />}
-        {step === 2 && <PackingListStep templates={[]} selectedTemplateId={selectedTemplateId} setSelectedTemplateId={setSelectedTemplateId} />}
-        {step === 3 && <ReviewStep formData={formData} fixedExpenses={fixedExpenses} selectedTemplateId={selectedTemplateId} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} />}
+        {step === 2 && <PackingListStep packingList={packingList} setPackingList={setPackingList} />}
+        {step === 3 && <ReviewStep formData={formData} fixedExpenses={fixedExpenses} packingList={packingList} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} />}
         <div className="mt-8 flex justify-between">
           <Button type="button" variant="outline" disabled={step === 0} onClick={() => setStep(s => s - 1)}>Back</Button>
           <Button type="submit" disabled={submitting}>{step === 3 ? (submitting ? 'Submitting...' : 'Submit') : 'Next'}</Button>

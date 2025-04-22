@@ -27,25 +27,25 @@ interface TrekRegistration {
 }
 
 export const UserTreks = () => {
-  const [registrations, setRegistrations] = useState<TrekRegistration[]>([]);
+  const [trekRegistrations, setTrekRegistrations] = useState<TrekRegistration[]>([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
     if (user) {
-      fetchUserRegistrations();
+      fetchUserTrekRegistrations();
     }
   }, [user]);
 
-  const fetchUserRegistrations = async () => {
+  const fetchUserTrekRegistrations = async () => {
     try {
       setLoading(true);
       
       const userId = user?.id ? (typeof user.id === 'string' ? user.id : String(user.id)) : '';
       
       const { data, error } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .select('*')
         .eq('user_id', userId);
       if (error) throw error;
@@ -63,24 +63,27 @@ export const UserTreks = () => {
         }, {} as Record<number, any>);
         const now = new Date();
         const transformedData = data.map((reg: any) => {
-          const trekData = trekMap[reg.trek_id] || {};
-          const startDate = new Date(trekData.start_datetime);
+          const trekData = trekMap[reg.trek_id];
+          if (!trekData) {
+            console.error('Missing trek event for registration:', reg);
+          }
+          const startDate = trekData ? new Date(trekData.start_datetime) : new Date('');
           return {
             ...reg,
-            trek_name: trekData.trek_name,
-            start_datetime: trekData.start_datetime,
-            cost: trekData.cost,
-            category: trekData.category,
-            location: trekData.location,
-            participant_count: trekData.participant_count || 0,
-            max_participants: trekData.max_participants,
-            isPast: startDate < now,
-            image_url: trekData.image_url || null
+            trek_name: trekData?.trek_name || '(Event Missing)',
+            start_datetime: trekData?.start_datetime || '',
+            cost: trekData?.cost ?? 0,
+            category: trekData?.category ?? null,
+            location: trekData?.location ?? null,
+            participant_count: trekData?.participant_count ?? 0,
+            max_participants: trekData?.max_participants ?? 0,
+            isPast: trekData ? startDate < now : false,
+            image_url: trekData?.image_url || null
           };
         });
-        setRegistrations(transformedData);
+        setTrekRegistrations(transformedData);
       } else {
-        setRegistrations([]);
+        setTrekRegistrations([]);
       }
     } catch (error: any) {
       toast({
@@ -99,8 +102,8 @@ export const UserTreks = () => {
   };
 
   // Separate upcoming and past treks
-  const upcomingTreks = registrations.filter(reg => !reg.isPast);
-  const pastTreks = registrations.filter(reg => reg.isPast);
+  const upcomingTreks = trekRegistrations.filter(reg => !reg.isPast);
+  const pastTreks = trekRegistrations.filter(reg => reg.isPast);
 
   if (loading) {
     return (
@@ -123,7 +126,7 @@ export const UserTreks = () => {
     );
   }
 
-  if (registrations.length === 0) {
+  if (trekRegistrations.length === 0) {
     return (
       <Card>
         <CardContent className="pt-6 text-center">
@@ -138,7 +141,25 @@ export const UserTreks = () => {
   }
 
   const renderTrekCard = (trek: TrekRegistration) => {
-    const startDate = toZonedTime(new Date(trek.start_datetime), 'Asia/Kolkata');
+    let startDate: Date;
+    try {
+      startDate = toZonedTime(new Date(trek.start_datetime), 'Asia/Kolkata');
+      if (isNaN(startDate.getTime())) throw new Error('Invalid date');
+    } catch {
+      // Debug: Log the problematic trek and its start_datetime
+      console.error('Invalid trek start_datetime:', trek);
+      // Fallback: show 'Invalid date' in UI instead of crashing
+      return (
+        <Card key={trek.trek_id} className="mb-4 hover:shadow-md transition-shadow">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-lg">{trek.trek_name}</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-red-600">Invalid date value</div>
+          </CardContent>
+        </Card>
+      );
+    }
     
     return (
       <Card key={trek.trek_id} className="mb-4 hover:shadow-md transition-shadow">

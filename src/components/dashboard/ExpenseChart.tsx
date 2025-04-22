@@ -31,7 +31,7 @@ export const ExpenseChart = () => {
       
       // Get trek IDs the user is registered for
       const { data: registrations, error: regError } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .select('trek_id')
         .eq('user_id', userId);
         

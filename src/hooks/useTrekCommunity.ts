@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase, WithStringId, convertDbRecordToStringIds } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
-import { userIdToNumber } from '@/utils/dbTypeConversions';
+import { getUniqueParticipantCount } from '@/lib/utils';
 
 interface Participant {
   id: string;
@@ -22,7 +22,7 @@ interface Comment {
   isEventCreator: boolean;
 }
 
-export function useTrekCommunity(trekId: string | undefined) {
+export function useTrekCommunity(trek_id: string | undefined) {
   const { user } = useAuth();
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [comments, setComments] = useState<Comment[]>([]);
@@ -32,89 +32,72 @@ export function useTrekCommunity(trekId: string | undefined) {
   const [participantCount, setParticipantCount] = useState<number>(0);
 
   useEffect(() => {
-    if (trekId) {
-      fetchParticipants(parseInt(trekId));
-      fetchComments(parseInt(trekId));
+    if (trek_id) {
+      fetchParticipants(parseInt(trek_id));
+      fetchComments(parseInt(trek_id));
     }
-  }, [trekId]);
+  }, [trek_id]);
 
-  async function fetchParticipants(trekId: number) {
+  async function fetchParticipants(trek_id: number) {
     try {
       setLoading(true);
       
-      // Get the event creator ID - using correct role type trek_lead
-      let creatorId = null;
-      try {
-        const { data: roleData, error: roleError } = await supabase
-          .from('roles_assignments')
-          .select('user_id')
-          .eq('trek_id', trekId)
-          .eq('role_type', 'trek_lead')
-          .maybeSingle();
-        
-        if (!roleError && roleData) {
-          creatorId = roleData.user_id;
-        }
-      } catch (error) {
-        console.error("Error fetching event creator role:", error);
-      }
+      console.log('[DEBUG] fetchParticipants called with trek_id:', trek_id);
       
+      // Removed redundant event creator role fetch logic
       // Get participants from registrations table (excluding Cancelled)
       const { data, error } = await supabase
-        .from('registrations')
+        .from('trek_registrations')
         .select('registration_id, user_id, booking_datetime, payment_status')
-        .eq('trek_id', trekId)
+        .eq('trek_id', trek_id)
         .not('payment_status', 'eq', 'Cancelled');
-      
       if (error) {
         throw error;
       }
-      // Count unique user IDs only
-      const uniqueUserIds = Array.from(new Set((data || []).map(item => item.user_id)));
+      // Defensive: Ensure data is always an array
+      const registrations = Array.isArray(data) ? data : (data ? [data] : []);
+      // Always deduplicate and filter here
+      const uniqueUserIds = Array.from(new Set(registrations.map(item => item.user_id)));
       setParticipantCount(uniqueUserIds.length);
-      if (data && data.length > 0) {
-        const userIds = uniqueUserIds;
-        const validUserIds = userIds.filter(id => typeof id === 'string' && id.length === 36 && (id.match(/-/g) || []).length === 4);
-        // Only one participant per unique user
-        const transformedParticipants: Participant[] = uniqueUserIds.map(userId => {
-          // Find the earliest registration for this user
-          const reg = data.find(item => item.user_id === userId);
-          const isCreator = creatorId !== null && userId === creatorId;
-          return {
-            id: String(userId),
-            name: `User ${userId}`,
-            avatar: null,
-            joinedAt: reg?.booking_datetime || new Date().toISOString(),
-            isEventCreator: isCreator || false
-          };
-        });
-        try {
-          if (validUserIds.length > 0) {
+      if (registrations.length > 0) {
+        let userMap: Record<string, { full_name?: string | null, avatar_url?: string | null }> = {};
+        if (uniqueUserIds.length > 0) {
+          try {
+            // Always fetch all users, even if not found, to avoid partial userMap
             const { data: userData, error: userError } = await supabase
               .from('users')
               .select('user_id, full_name, avatar_url')
-              .in('user_id', validUserIds);
-            
-            if (!userError && userData && Array.isArray(userData)) {
-              const userMap: Record<string, any> = {};
-              userData.forEach(user => {
-                if (user && typeof user === 'object' && 'user_id' in user) {
-                  userMap[user.user_id] = user;
-                }
-              });
-              transformedParticipants.forEach(participant => {
-                const userDetails = userMap[participant.id];
-                if (userDetails) {
-                  participant.name = userDetails.full_name || participant.name;
-                  participant.avatar = userDetails.avatar_url || null;
-                }
-              });
-            }
+              .in('user_id', uniqueUserIds);
+            console.log('[DEBUG][PARTICIPANTS] userData:', userData, 'error:', userError, 'uniqueUserIds:', uniqueUserIds);
+            // Defensive: Build userMap for all uniqueUserIds, even if userData is missing for some
+            uniqueUserIds.forEach(uid => {
+              const user = userData && Array.isArray(userData) ? userData.find(u => u.user_id === uid) : null;
+              userMap[uid] = {
+                full_name: user && typeof user.full_name === 'string' ? user.full_name : null,
+                avatar_url: user && typeof user.avatar_url === 'string' ? user.avatar_url : null
+              };
+            });
+            console.log('[DEBUG][PARTICIPANTS] userMap:', userMap);
+          } catch (userError) {
+            console.error('[DEBUG] Error fetching participant user details:', userError);
+            uniqueUserIds.forEach(uid => {
+              userMap[uid] = { full_name: null, avatar_url: null };
+            });
           }
-        } catch (userError) {
-          console.error("Error fetching participant user details:", userError);
         }
+        const transformedParticipants: Participant[] = uniqueUserIds.map(userId => {
+          const reg = registrations.find(item => item.user_id === userId);
+          const userDetails = userMap[userId] || { full_name: null, avatar_url: null };
+          return {
+            id: userId,
+            name: userDetails.full_name && userDetails.full_name.trim() !== '' ? userDetails.full_name : 'Anonymous User',
+            avatar: userDetails.avatar_url && userDetails.avatar_url.trim() !== '' ? userDetails.avatar_url : null,
+            joinedAt: reg ? reg.booking_datetime : '',
+            isEventCreator: false // Set to false as event creator role fetch logic is removed
+          };
+        });
         setParticipants(transformedParticipants);
+        console.log('[DEBUG] [PARTICIPANT LOGIC] trek_id:', trek_id, '| uniqueUserIds:', uniqueUserIds, '| count:', uniqueUserIds.length, '| participants:', transformedParticipants);
       } else {
         setParticipants([]);
       }
@@ -125,59 +108,34 @@ export function useTrekCommunity(trekId: string | undefined) {
     }
   }
 
-  async function fetchComments(trekId: number) {
+  async function fetchComments(trek_id: number) {
     try {
       setCommentsLoading(true);
-      
-      // Get the event creator ID - using correct role type trek_lead
-      let eventCreatorId = null;
-      try {
-        const { data: roleData, error: roleError } = await supabase
-          .from('roles_assignments')
-          .select('user_id')
-          .eq('trek_id', trekId)
-          .eq('role_type', 'trek_lead')
-          .maybeSingle();
-        
-        if (!roleError && roleData) {
-          eventCreatorId = roleData.user_id;
-        }
-      } catch (error) {
-        console.error("Error fetching event creator role:", error);
-      }
-      
+      // Removed event creator role fetch logic (roles_assignments table)
       // Fetch comments
       const { data, error } = await supabase
         .from('comments')
         .select('comment_id, user_id, body, created_at')
-        .eq('post_id', trekId)
+        .eq('post_id', trek_id)
         .order('created_at', { ascending: false });
-      
       if (error) {
         throw error;
       }
-      
       if (data && data.length > 0) {
         // Need to get user details separately
         const userIds = data.map(item => item.user_id);
         // Only use valid UUIDs (36 chars, 4 dashes)
         const validUserIds = userIds.filter(id => typeof id === 'string' && id.length === 36 && (id.match(/-/g) || []).length === 4);
-        
         // Create transformed comments with user_id from comments
-        const transformedComments: Comment[] = data.map(item => {
-          const isCreator = eventCreatorId !== null && item.user_id === eventCreatorId;
-          
-          return {
-            id: String(item.comment_id),
-            userId: String(item.user_id),
-            userName: `User ${item.user_id}`, // Default name until we get user details
-            userAvatar: null,
-            content: item.body,
-            createdAt: item.created_at,
-            isEventCreator: isCreator
-          };
-        });
-        
+        const transformedComments: Comment[] = data.map(item => ({
+          id: String(item.comment_id),
+          userId: String(item.user_id),
+          userName: `User ${item.user_id}`,
+          userAvatar: null,
+          content: item.body,
+          createdAt: item.created_at,
+          isEventCreator: false
+        }));
         // Try to fetch user details, but don't block if it fails
         try {
           if (validUserIds.length > 0) {
@@ -185,30 +143,24 @@ export function useTrekCommunity(trekId: string | undefined) {
               .from('users')
               .select('user_id, full_name')
               .in('user_id', validUserIds);
-              
             if (!userError && userData && Array.isArray(userData)) {
-              // Create a map of user IDs to user data for easy lookup
               const userMap: Record<string, any> = {};
               userData.forEach(user => {
                 if (user && typeof user === 'object' && 'user_id' in user) {
                   userMap[user.user_id] = user;
                 }
               });
-              
-              // Update comment user names if we found the user data
               transformedComments.forEach(comment => {
                 const userDetails = userMap[comment.userId];
                 if (userDetails) {
-                  comment.userName = userDetails.full_name || comment.userName;
+                  comment.userName = userDetails.full_name && userDetails.full_name.trim() !== '' ? userDetails.full_name : 'Anonymous User';
                 }
               });
             }
           }
         } catch (userError) {
           console.error("Error fetching comment user details:", userError);
-          // Continue with default user names
         }
-        
         setComments(transformedComments);
       } else {
         setComments([]);
@@ -221,7 +173,7 @@ export function useTrekCommunity(trekId: string | undefined) {
   }
 
   async function addComment(content: string): Promise<boolean> {
-    if (!user || !trekId) return false;
+    if (!user || !trek_id) return false;
 
     try {
       setSubmitting(true);
@@ -229,14 +181,14 @@ export function useTrekCommunity(trekId: string | undefined) {
       const { error, data } = await supabase
         .from('comments')
         .insert({
-          post_id: parseInt(trekId),
-          user_id: userIdToNumber(user.id),
+          post_id: parseInt(trek_id),
+          user_id: user.id,
           body: content,
           created_at: new Date().toISOString()
         });
       
       if (error) {
-        console.error('Supabase Insert Comment Error:', error, { post_id: trekId, user_id: userIdToNumber(user.id), body: content });
+        console.error('Supabase Insert Comment Error:', error, { post_id: trek_id, user_id: user.id, body: content });
         toast({
           title: "Failed to add comment",
           description: error.message || "There was an error adding your comment",
@@ -246,7 +198,7 @@ export function useTrekCommunity(trekId: string | undefined) {
       }
       
       // Refresh comments
-      await fetchComments(parseInt(trekId));
+      await fetchComments(parseInt(trek_id));
       
       toast({
         title: "Comment added",
@@ -256,7 +208,7 @@ export function useTrekCommunity(trekId: string | undefined) {
       
       return true;
     } catch (error: any) {
-      console.error("Error adding comment:", error, { post_id: trekId, user_id: userIdToNumber(user.id), body: content });
+      console.error("Error adding comment:", error, { post_id: trek_id, user_id: user.id, body: content });
       toast({
         title: "Failed to add comment",
         description: error.message || "There was an error adding your comment",

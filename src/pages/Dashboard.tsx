@@ -1,10 +1,7 @@
-
 import React, { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { UserTreks } from '@/components/dashboard/UserTreks';
-import { ExpenseSummary } from '@/components/dashboard/ExpenseSummary';
-import { ExpenseChart } from '@/components/dashboard/ExpenseChart';
 import { Button } from '@/components/ui/button';
 import { MapPin, CalendarDays, Plus } from 'lucide-react';
 
@@ -49,14 +46,7 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <div className="mb-8">
-        <ExpenseSummary />
-      </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-        <div>
-          <ExpenseChart />
-        </div>
         <div>
           <h2 className="text-2xl font-bold mb-4">My Treks</h2>
           <UserTreks />

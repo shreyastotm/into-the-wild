@@ -31,7 +31,7 @@ export default function RegistrationAdmin() {
   async function fetchRegistrations() {
     setLoading(true);
     const { data, error } = await supabase
-      .from('registrations')
+      .from('trek_registrations')
       .select('registration_id, user_id, trek_id, booking_datetime, payment_status')
       .order('booking_datetime', { ascending: false });
     if (error) {
@@ -73,7 +73,7 @@ export default function RegistrationAdmin() {
 
   async function deleteRegistration(registration_id: number, trek_id?: number) {
     const { error } = await supabase
-      .from('registrations')
+      .from('trek_registrations')
       .delete()
       .eq('registration_id', registration_id);
     if (error) {

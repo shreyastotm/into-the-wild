@@ -49,9 +49,9 @@ export const TrekParticipants: React.FC<TrekParticipantsProps> = ({
               <TooltipTrigger asChild>
                 <div className="flex flex-col items-center">
                   <Avatar className={`h-12 w-12 ${participant.isEventCreator ? 'ring-2 ring-primary ring-offset-2' : ''} ${participant.id === currentUser ? 'ring-2 ring-blue-400 ring-offset-1' : ''}`}>
-                    <AvatarImage src={participant.avatar || undefined} alt={participant.name || 'User'} />
+                    <AvatarImage src={participant.avatar || undefined} alt={(participant.name && participant.name.trim() !== '' ? participant.name : 'Anonymous User')} />
                     <AvatarFallback className="bg-primary/10 text-primary-foreground">
-                      {participant.name ? participant.name.substring(0, 2).toUpperCase() : 'U'}
+                      {(participant.name && participant.name.trim() !== '') ? participant.name.substring(0, 2).toUpperCase() : 'AN'}
                     </AvatarFallback>
                   </Avatar>
                   {participant.isEventCreator && (
@@ -63,7 +63,7 @@ export const TrekParticipants: React.FC<TrekParticipantsProps> = ({
                 </div>
               </TooltipTrigger>
               <TooltipContent>
-                <p>{participant.name || 'Anonymous User'}</p>
+                <p>{(participant.name && participant.name.trim() !== '') ? participant.name : 'Anonymous User'}</p>
                 <p className="text-xs text-gray-500">Joined: {new Date(participant.joinedAt).toLocaleDateString()}</p>
                 {participant.isEventCreator && <p className="text-xs font-medium text-primary">Event Organizer</p>}
               </TooltipContent>

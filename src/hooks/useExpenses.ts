@@ -75,7 +75,7 @@ export const useExpenses = (trekId?: number) => {
         const expenseIds = adHocData.map(exp => exp.expense_id).filter(Boolean);
         if (expenseIds.length > 0) {
           const result = await supabase
-            .from('ad_hoc_expense_shares')
+            .from('trek_ad_hoc_expense_shares')
             .select('*')
             .in('expense_id', expenseIds);
           
@@ -154,7 +154,7 @@ export const useExpenses = (trekId?: number) => {
   const shareExpense = async (share: Omit<ExpenseShare, 'share_id'>) => {
     try {
       const { data, error } = await supabase
-        .from('ad_hoc_expense_shares')
+        .from('trek_ad_hoc_expense_shares')
         .insert(share)
         .select();
 
@@ -182,7 +182,7 @@ export const useExpenses = (trekId?: number) => {
   const updateExpenseShareStatus = async (shareId: string, status: 'Accepted' | 'Rejected', rejectionReason?: string) => {
     try {
       const { data, error } = await supabase
-        .from('ad_hoc_expense_shares')
+        .from('trek_ad_hoc_expense_shares')
         .update({ 
           status, 
           rejection_reason: status === 'Rejected' ? rejectionReason : null,
