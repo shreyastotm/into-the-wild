@@ -1,2 +1,2 @@
--- Migration: Add item_order column to trek_packing_lists
-ALTER TABLE trek_packing_lists ADD COLUMN IF NOT EXISTS item_order integer NOT NULL DEFAULT 0;
+-- This migration is obsolete. All logic for item_order is now in the main schema migration.
+-- Remove any references to 'profiles' or grants/revokes on 'profiles'.

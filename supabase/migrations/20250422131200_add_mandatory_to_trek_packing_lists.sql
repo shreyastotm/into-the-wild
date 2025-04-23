@@ -1,2 +1,2 @@
--- Migration: Add mandatory column to trek_packing_lists
-ALTER TABLE trek_packing_lists ADD COLUMN IF NOT EXISTS mandatory boolean NOT NULL DEFAULT false;
+-- This migration is obsolete. All logic for mandatory is now in the main schema migration.
+-- Remove any references to 'profiles' or grants/revokes on 'profiles'.

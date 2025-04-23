@@ -20,31 +20,31 @@ create type "public"."transport_mode" as enum ('cars', 'mini_van', 'bus');
 
 create type "public"."visibility" as enum ('public', 'private');
 
-create sequence "public"."comments_comment_id_seq";
+create sequence if not exists "public"."comments_comment_id_seq";
 
-create sequence "public"."community_posts_post_id_seq";
+create sequence if not exists "public"."community_posts_post_id_seq";
 
-create sequence "public"."expense_sharing_expense_id_seq";
+create sequence if not exists "public"."expense_sharing_expense_id_seq";
 
-create sequence "public"."logistics_logistics_id_seq";
+create sequence if not exists "public"."logistics_logistics_id_seq";
 
-create sequence "public"."packing_items_item_id_seq";
+create sequence if not exists "public"."packing_items_item_id_seq";
 
-create sequence "public"."partners_partner_id_seq";
+create sequence if not exists "public"."partners_partner_id_seq";
 
-create sequence "public"."registrations_registration_id_seq";
+create sequence if not exists "public"."registrations_registration_id_seq";
 
-create sequence "public"."roles_assignments_role_id_seq";
+create sequence if not exists "public"."roles_assignments_role_id_seq";
 
-create sequence "public"."roles_role_id_seq";
+create sequence if not exists "public"."roles_role_id_seq";
 
-create sequence "public"."subscriptions_billing_subscription_id_seq";
+create sequence if not exists "public"."subscriptions_billing_subscription_id_seq";
 
-create sequence "public"."trek_events_trek_id_seq";
+create sequence if not exists "public"."trek_events_trek_id_seq";
 
-create sequence "public"."trek_expenses_id_seq";
+create sequence if not exists "public"."trek_expenses_id_seq";
 
-create sequence "public"."votes_vote_id_seq";
+create sequence if not exists "public"."votes_vote_id_seq";
 
 create table "public"."ad_hoc_expense_shares" (
     "share_id" uuid not null default gen_random_uuid(),
@@ -123,13 +123,6 @@ create table "public"."partners" (
     "external_portal_details" jsonb,
     "created_at" timestamp with time zone default now(),
     "updated_at" timestamp with time zone default now()
-);
-
-
-create table "public"."profiles" (
-    "id" uuid not null,
-    "display_name" text,
-    "created_at" timestamp with time zone default now()
 );
 
 
@@ -241,7 +234,6 @@ create table "public"."trek_expenses" (
     "title" text not null,
     "amount" numeric not null,
     "type" text,
-    "created_by" uuid,
     "created_at" timestamp with time zone default now()
 );
 
@@ -261,16 +253,39 @@ create table "public"."trek_fixed_expenses" (
 
 alter table "public"."trek_fixed_expenses" enable row level security;
 
-create table "public"."trek_packing_lists" (
-    "item_id" uuid not null default gen_random_uuid(),
-    "trek_id" integer,
-    "item_order" integer default 0,
-    "mandatory" boolean default false,
-    "name" text
+-- Packing List Templates Redesign Migration (consolidated)
+
+-- 1. Create packing_list_templates table
+create table if not exists public.packing_list_templates (
+    template_id uuid primary key default gen_random_uuid(),
+    name text not null,
+    description text,
+    created_at timestamp with time zone default now()
 );
 
+-- 2. Create packing_list_items table
+create table if not exists public.packing_list_items (
+    item_id uuid primary key default gen_random_uuid(),
+    template_id uuid not null references public.packing_list_templates(template_id) on delete cascade,
+    name text not null,
+    mandatory boolean default false,
+    item_order integer default 0
+);
 
-alter table "public"."trek_packing_lists" enable row level security;
+-- 3. Create trek_packing_lists table with all required columns
+DROP INDEX IF EXISTS trek_packing_lists_pkey;
+DROP TABLE IF EXISTS public.trek_packing_lists CASCADE;
+create table if not exists public.trek_packing_lists (
+    item_id uuid primary key default gen_random_uuid(),
+    trek_id integer not null,
+    template_id uuid,
+    name text not null default '',
+    item_order integer not null default 0,
+    mandatory boolean not null default false
+);
+
+-- Enable RLS
+alter table if exists public.trek_packing_lists enable row level security;
 
 create table "public"."user_expense_penalties" (
     "penalty_id" uuid not null default gen_random_uuid(),
@@ -359,8 +374,6 @@ CREATE UNIQUE INDEX packing_items_pkey ON public.packing_items USING btree (item
 
 CREATE UNIQUE INDEX partners_pkey ON public.partners USING btree (partner_id);
 
-CREATE UNIQUE INDEX profiles_pkey ON public.profiles USING btree (id);
-
 CREATE UNIQUE INDEX registrations_pkey ON public.registrations USING btree (registration_id);
 
 CREATE UNIQUE INDEX roles_assignments_pkey ON public.roles_assignments USING btree (role_id);
@@ -381,13 +394,13 @@ CREATE UNIQUE INDEX trek_expenses_pkey ON public.trek_expenses USING btree (id);
 
 CREATE UNIQUE INDEX trek_fixed_expenses_pkey ON public.trek_fixed_expenses USING btree (expense_id);
 
-CREATE UNIQUE INDEX trek_packing_lists_pkey ON public.trek_packing_lists USING btree (item_id);
-
 CREATE UNIQUE INDEX user_expense_penalties_pkey ON public.user_expense_penalties USING btree (penalty_id);
 
 CREATE UNIQUE INDEX users_email_key ON public.users USING btree (email);
 
 CREATE UNIQUE INDEX votes_pkey ON public.votes USING btree (vote_id);
+
+-- alter table "public"."trek_packing_lists" add constraint "trek_packing_lists_pkey" PRIMARY KEY using index "trek_packing_lists_pkey";
 
 alter table "public"."ad_hoc_expense_shares" add constraint "ad_hoc_expense_shares_pkey" PRIMARY KEY using index "ad_hoc_expense_shares_pkey";
 
@@ -402,8 +415,6 @@ alter table "public"."logistics" add constraint "logistics_pkey" PRIMARY KEY usi
 alter table "public"."packing_items" add constraint "packing_items_pkey" PRIMARY KEY using index "packing_items_pkey";
 
 alter table "public"."partners" add constraint "partners_pkey" PRIMARY KEY using index "partners_pkey";
-
-alter table "public"."profiles" add constraint "profiles_pkey" PRIMARY KEY using index "profiles_pkey";
 
 alter table "public"."registrations" add constraint "registrations_pkey" PRIMARY KEY using index "registrations_pkey";
 
@@ -422,8 +433,6 @@ alter table "public"."trek_events" add constraint "trek_events_pkey" PRIMARY KEY
 alter table "public"."trek_expenses" add constraint "trek_expenses_pkey" PRIMARY KEY using index "trek_expenses_pkey";
 
 alter table "public"."trek_fixed_expenses" add constraint "trek_fixed_expenses_pkey" PRIMARY KEY using index "trek_fixed_expenses_pkey";
-
-alter table "public"."trek_packing_lists" add constraint "trek_packing_lists_pkey" PRIMARY KEY using index "trek_packing_lists_pkey";
 
 alter table "public"."user_expense_penalties" add constraint "user_expense_penalties_pkey" PRIMARY KEY using index "user_expense_penalties_pkey";
 
@@ -448,10 +457,6 @@ alter table "public"."expense_sharing" validate constraint "expense_sharing_trek
 alter table "public"."logistics" add constraint "logistics_trek_id_fkey" FOREIGN KEY (trek_id) REFERENCES trek_events(trek_id) not valid;
 
 alter table "public"."logistics" validate constraint "logistics_trek_id_fkey";
-
-alter table "public"."profiles" add constraint "profiles_id_fkey" FOREIGN KEY (id) REFERENCES auth.users(id) ON DELETE CASCADE not valid;
-
-alter table "public"."profiles" validate constraint "profiles_id_fkey";
 
 alter table "public"."registrations" add constraint "registrations_trek_id_fkey" FOREIGN KEY (trek_id) REFERENCES trek_events(trek_id) not valid;
 
@@ -479,10 +484,6 @@ alter table "public"."trek_admin_approved_expenses" add constraint "trek_admin_a
 
 alter table "public"."trek_admin_approved_expenses" validate constraint "trek_admin_approved_expenses_trek_id_fkey";
 
-alter table "public"."trek_expenses" add constraint "trek_expenses_created_by_fkey" FOREIGN KEY (created_by) REFERENCES profiles(id) not valid;
-
-alter table "public"."trek_expenses" validate constraint "trek_expenses_created_by_fkey";
-
 alter table "public"."trek_expenses" add constraint "trek_expenses_trek_id_fkey" FOREIGN KEY (trek_id) REFERENCES trek_events(trek_id) ON DELETE CASCADE not valid;
 
 alter table "public"."trek_expenses" validate constraint "trek_expenses_trek_id_fkey";
@@ -504,44 +505,6 @@ alter table "public"."user_expense_penalties" add constraint "user_expense_penal
 alter table "public"."user_expense_penalties" validate constraint "user_expense_penalties_trek_id_fkey";
 
 alter table "public"."users" add constraint "users_email_key" UNIQUE using index "users_email_key";
-
-alter table "public"."users" add constraint "users_user_id_fkey" FOREIGN KEY (user_id) REFERENCES auth.users(id) ON DELETE CASCADE not valid;
-
-alter table "public"."users" validate constraint "users_user_id_fkey";
-
-set check_function_bodies = off;
-
--- create type "public"."geometry_dump" as ("path" integer[], "geom" geometry);
-
-CREATE OR REPLACE FUNCTION public.handle_new_user()
- RETURNS trigger
- LANGUAGE plpgsql
- SECURITY DEFINER
-AS $function$
-BEGIN
-  INSERT INTO public.users (user_id, full_name, email, phone_number, subscription_type)
-  VALUES (
-    new.id, 
-    new.raw_user_meta_data->>'full_name', 
-    new.email, 
-    new.raw_user_meta_data->>'phone',
-    new.raw_user_meta_data->>'subscription_type'
-  );
-  RETURN new;
-END;
-$function$
-;
-
-CREATE OR REPLACE FUNCTION public.update_user_profile()
- RETURNS trigger
- LANGUAGE plpgsql
-AS $function$
-BEGIN
-  NEW.updated_at = now();
-  RETURN NEW;
-END;
-$function$
-;
 
 grant delete on table "public"."ad_hoc_expense_shares" to "anon";
 
@@ -837,48 +800,6 @@ grant truncate on table "public"."partners" to "service_role";
 
 grant update on table "public"."partners" to "service_role";
 
-grant delete on table "public"."profiles" to "anon";
-
-grant insert on table "public"."profiles" to "anon";
-
-grant references on table "public"."profiles" to "anon";
-
-grant select on table "public"."profiles" to "anon";
-
-grant trigger on table "public"."profiles" to "anon";
-
-grant truncate on table "public"."profiles" to "anon";
-
-grant update on table "public"."profiles" to "anon";
-
-grant delete on table "public"."profiles" to "authenticated";
-
-grant insert on table "public"."profiles" to "authenticated";
-
-grant references on table "public"."profiles" to "authenticated";
-
-grant select on table "public"."profiles" to "authenticated";
-
-grant trigger on table "public"."profiles" to "authenticated";
-
-grant truncate on table "public"."profiles" to "authenticated";
-
-grant update on table "public"."profiles" to "authenticated";
-
-grant delete on table "public"."profiles" to "service_role";
-
-grant insert on table "public"."profiles" to "service_role";
-
-grant references on table "public"."profiles" to "service_role";
-
-grant select on table "public"."profiles" to "service_role";
-
-grant trigger on table "public"."profiles" to "service_role";
-
-grant truncate on table "public"."profiles" to "service_role";
-
-grant update on table "public"."profiles" to "service_role";
-
 grant delete on table "public"."registrations" to "anon";
 
 grant insert on table "public"."registrations" to "anon";
@@ -1006,32 +927,59 @@ grant truncate on table "public"."roles_assignments" to "service_role";
 grant update on table "public"."roles_assignments" to "service_role";
 
 -- grant delete on table "public"."spatial_ref_sys" to "anon";
+
 -- grant insert on table "public"."spatial_ref_sys" to "anon";
+
 -- grant references on table "public"."spatial_ref_sys" to "anon";
+
 -- grant select on table "public"."spatial_ref_sys" to "anon";
+
 -- grant trigger on table "public"."spatial_ref_sys" to "anon";
+
 -- grant truncate on table "public"."spatial_ref_sys" to "anon";
+
 -- grant update on table "public"."spatial_ref_sys" to "anon";
+
 -- grant delete on table "public"."spatial_ref_sys" to "authenticated";
+
 -- grant insert on table "public"."spatial_ref_sys" to "authenticated";
+
 -- grant references on table "public"."spatial_ref_sys" to "authenticated";
+
 -- grant select on table "public"."spatial_ref_sys" to "authenticated";
+
 -- grant trigger on table "public"."spatial_ref_sys" to "authenticated";
+
 -- grant truncate on table "public"."spatial_ref_sys" to "authenticated";
+
 -- grant update on table "public"."spatial_ref_sys" to "authenticated";
+
 -- grant delete on table "public"."spatial_ref_sys" to "postgres";
+
 -- grant insert on table "public"."spatial_ref_sys" to "postgres";
+
 -- grant references on table "public"."spatial_ref_sys" to "postgres";
+
 -- grant select on table "public"."spatial_ref_sys" to "postgres";
+
 -- grant trigger on table "public"."spatial_ref_sys" to "postgres";
+
 -- grant truncate on table "public"."spatial_ref_sys" to "postgres";
+
 -- grant update on table "public"."spatial_ref_sys" to "postgres";
+
 -- grant delete on table "public"."spatial_ref_sys" to "service_role";
+
 -- grant insert on table "public"."spatial_ref_sys" to "service_role";
+
 -- grant references on table "public"."spatial_ref_sys" to "service_role";
+
 -- grant select on table "public"."spatial_ref_sys" to "service_role";
+
 -- grant trigger on table "public"."spatial_ref_sys" to "service_role";
+
 -- grant truncate on table "public"."spatial_ref_sys" to "service_role";
+
 -- grant update on table "public"."spatial_ref_sys" to "service_role";
 
 grant delete on table "public"."subscriptions_billing" to "anon";
@@ -1159,6 +1107,16 @@ grant trigger on table "public"."trek_admin_approved_expenses" to "service_role"
 grant truncate on table "public"."trek_admin_approved_expenses" to "service_role";
 
 grant update on table "public"."trek_admin_approved_expenses" to "service_role";
+
+create policy "Only administrators can delete admin approved expenses"
+on "public"."trek_admin_approved_expenses"
+as permissive
+for delete
+to authenticated
+using ((EXISTS ( SELECT 1
+   FROM roles_assignments
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 grant delete on table "public"."trek_events" to "anon";
 
@@ -1504,7 +1462,6 @@ with check ((EXISTS ( SELECT 1
    FROM trek_ad_hoc_expenses
   WHERE ((trek_ad_hoc_expenses.expense_id = ad_hoc_expense_shares.expense_id) AND (trek_ad_hoc_expenses.payer_id = ((auth.uid())::text)::integer)))));
 
-
 create policy "Expense creator can delete expense shares"
 on "public"."ad_hoc_expense_shares"
 as permissive
@@ -1513,7 +1470,6 @@ to authenticated
 using ((EXISTS ( SELECT 1
    FROM trek_ad_hoc_expenses
   WHERE ((trek_ad_hoc_expenses.expense_id = ad_hoc_expense_shares.expense_id) AND (trek_ad_hoc_expenses.payer_id = ((auth.uid())::text)::integer)))));
-
 
 create policy "Users can update their own expense share responses"
 on "public"."ad_hoc_expense_shares"
@@ -1524,7 +1480,6 @@ using (((((auth.uid())::text)::integer = user_id) OR (EXISTS ( SELECT 1
    FROM trek_ad_hoc_expenses
   WHERE ((trek_ad_hoc_expenses.expense_id = ad_hoc_expense_shares.expense_id) AND (trek_ad_hoc_expenses.payer_id = ((auth.uid())::text)::integer))))));
 
-
 create policy "Users can view expense shares they are part of"
 on "public"."ad_hoc_expense_shares"
 as permissive
@@ -1534,14 +1489,12 @@ using (((((auth.uid())::text)::integer = user_id) OR (EXISTS ( SELECT 1
    FROM trek_ad_hoc_expenses
   WHERE ((trek_ad_hoc_expenses.expense_id = ad_hoc_expense_shares.expense_id) AND (trek_ad_hoc_expenses.payer_id = ((auth.uid())::text)::integer))))));
 
-
 create policy "Allow insert for authenticated users"
 on "public"."comments"
 as permissive
 for insert
 to authenticated
 with check ((auth.uid() IS NOT NULL));
-
 
 create policy "Allow select for authenticated users on packing_items"
 on "public"."packing_items"
@@ -1550,14 +1503,12 @@ for select
 to public
 using ((auth.uid() IS NOT NULL));
 
-
 create policy "Everyone can view trek ad hoc expenses"
 on "public"."trek_ad_hoc_expenses"
 as permissive
 for select
 to public
 using (true);
-
 
 create policy "Users can create their own ad hoc expenses"
 on "public"."trek_ad_hoc_expenses"
@@ -1566,14 +1517,12 @@ for insert
 to authenticated
 with check ((((auth.uid())::text)::integer = payer_id));
 
-
 create policy "Users can delete their own ad hoc expenses"
 on "public"."trek_ad_hoc_expenses"
 as permissive
 for delete
 to authenticated
 using ((((auth.uid())::text)::integer = payer_id));
-
 
 create policy "Users can update their own ad hoc expenses"
 on "public"."trek_ad_hoc_expenses"
@@ -1582,24 +1531,12 @@ for update
 to authenticated
 using ((((auth.uid())::text)::integer = payer_id));
 
-
 create policy "Everyone can view admin approved expenses"
 on "public"."trek_admin_approved_expenses"
 as permissive
 for select
 to public
 using (true);
-
-
-create policy "Only administrators can delete admin approved expenses"
-on "public"."trek_admin_approved_expenses"
-as permissive
-for delete
-to authenticated
-using ((EXISTS ( SELECT 1
-   FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
 
 create policy "Only administrators can update admin approved expenses"
 on "public"."trek_admin_approved_expenses"
@@ -1608,8 +1545,8 @@ for update
 to authenticated
 using (((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))) OR (((auth.uid())::text)::integer = requested_by)));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+)));
 
 create policy "Users can request admin approved expenses"
 on "public"."trek_admin_approved_expenses"
@@ -1618,7 +1555,6 @@ for insert
 to authenticated
 with check ((((auth.uid())::text)::integer = requested_by));
 
-
 create policy "Allow authenticated insert"
 on "public"."trek_events"
 as permissive
@@ -1626,14 +1562,12 @@ for insert
 to public
 with check ((auth.uid() IS NOT NULL));
 
-
 create policy "Allow insert for authenticated users"
 on "public"."trek_events"
 as permissive
 for insert
 to authenticated
 with check ((auth.uid() IS NOT NULL));
-
 
 create policy "Allow select for authenticated users"
 on "public"."trek_events"
@@ -1642,14 +1576,12 @@ for select
 to public
 using ((auth.uid() IS NOT NULL));
 
-
 create policy "Allow delete for authenticated users on trek_expenses"
 on "public"."trek_expenses"
 as permissive
 for delete
 to public
 using ((auth.uid() IS NOT NULL));
-
 
 create policy "Allow insert for authenticated users on trek_expenses"
 on "public"."trek_expenses"
@@ -1658,14 +1590,12 @@ for insert
 to public
 with check ((auth.uid() IS NOT NULL));
 
-
 create policy "Allow select for authenticated users on trek_expenses"
 on "public"."trek_expenses"
 as permissive
 for select
 to public
 using ((auth.uid() IS NOT NULL));
-
 
 create policy "Allow update for authenticated users on trek_expenses"
 on "public"."trek_expenses"
@@ -1674,14 +1604,12 @@ for update
 to public
 using ((auth.uid() IS NOT NULL));
 
-
 create policy "Allow insert for authenticated users"
 on "public"."trek_fixed_expenses"
 as permissive
 for insert
 to authenticated
 with check ((auth.uid() IS NOT NULL));
-
 
 create policy "Everyone can view trek fixed expenses"
 on "public"."trek_fixed_expenses"
@@ -1690,7 +1618,6 @@ for select
 to public
 using (true);
 
-
 create policy "Only administrators can delete trek fixed expenses"
 on "public"."trek_fixed_expenses"
 as permissive
@@ -1698,8 +1625,8 @@ for delete
 to authenticated
 using ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Only administrators can insert trek fixed expenses"
 on "public"."trek_fixed_expenses"
@@ -1708,8 +1635,8 @@ for insert
 to authenticated
 with check ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Only administrators can update trek fixed expenses"
 on "public"."trek_fixed_expenses"
@@ -1718,8 +1645,8 @@ for update
 to authenticated
 using ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Allow insert for authenticated users"
 on "public"."trek_packing_lists"
@@ -1728,14 +1655,12 @@ for insert
 to authenticated
 with check ((auth.uid() IS NOT NULL));
 
-
 create policy "Everyone can view trek packing lists"
 on "public"."trek_packing_lists"
 as permissive
 for select
 to public
 using (true);
-
 
 create policy "Only administrators can create packing lists"
 on "public"."trek_packing_lists"
@@ -1744,8 +1669,8 @@ for insert
 to authenticated
 with check ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Only administrators can delete packing lists"
 on "public"."trek_packing_lists"
@@ -1754,8 +1679,8 @@ for delete
 to authenticated
 using ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Only administrators can update packing lists"
 on "public"."trek_packing_lists"
@@ -1764,8 +1689,8 @@ for update
 to authenticated
 using ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Only administrators can create penalties"
 on "public"."user_expense_penalties"
@@ -1774,8 +1699,8 @@ for insert
 to authenticated
 with check ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Only administrators can delete penalties"
 on "public"."user_expense_penalties"
@@ -1784,8 +1709,8 @@ for delete
 to authenticated
 using ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Only administrators can update penalties"
 on "public"."user_expense_penalties"
@@ -1794,8 +1719,8 @@ for update
 to authenticated
 using ((EXISTS ( SELECT 1
    FROM roles_assignments
-  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))));
-
+  WHERE ((roles_assignments.user_id = ((auth.uid())::text)::integer) AND (roles_assignments.role_type = 'trek_lead'::role_type)))
+));
 
 create policy "Users can view their own penalties"
 on "public"."user_expense_penalties"
@@ -1804,14 +1729,12 @@ for select
 to authenticated
 using ((((auth.uid())::text)::integer = user_id));
 
-
 create policy "Users can insert their own profile"
 on "public"."users"
 as permissive
 for insert
 to public
 with check ((auth.uid() = user_id));
-
 
 create policy "Users can update their own profile"
 on "public"."users"
@@ -1820,7 +1743,6 @@ for update
 to public
 using ((auth.uid() = user_id));
 
-
 create policy "Users can view their own profile"
 on "public"."users"
 as permissive
@@ -1828,5 +1750,17 @@ for select
 to public
 using ((auth.uid() = user_id));
 
-
-CREATE TRIGGER set_updated_at BEFORE UPDATE ON public.users FOR EACH ROW EXECUTE FUNCTION update_user_profile();
+-- Defensive: Only drop policies on trek_packing_lists if table exists
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'trek_packing_lists') THEN
+        DROP POLICY IF EXISTS "Allow insert for authenticated users" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Allow select for authenticated users" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Everyone can view trek packing lists" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Only administrators can create packing lists" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Only administrators can delete packing lists" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Only administrators can update packing lists" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Allow update for trek_lead on trek_packing_lists" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Allow delete for trek_lead on trek_packing_lists" ON public.trek_packing_lists;
+    END IF;
+END $$;

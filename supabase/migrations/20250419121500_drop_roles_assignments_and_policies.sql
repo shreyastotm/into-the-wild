@@ -16,3 +16,12 @@ DROP POLICY IF EXISTS "Only administrators can delete admin approved expenses" O
 
 -- 4. Drop the roles_assignments table and all dependencies
 DROP TABLE IF EXISTS public.roles_assignments CASCADE;
+
+-- Defensive: Only drop policies on trek_packing_lists if table exists
+DO $$
+BEGIN
+    IF EXISTS (SELECT 1 FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'trek_packing_lists') THEN
+        DROP POLICY IF EXISTS "Allow insert for authenticated users on trek_packing_lists" ON public.trek_packing_lists;
+        DROP POLICY IF EXISTS "Allow select for authenticated users on trek_packing_lists" ON public.trek_packing_lists;
+    END IF;
+END $$;
