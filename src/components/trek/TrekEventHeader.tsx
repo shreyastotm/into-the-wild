@@ -1,15 +1,82 @@
 import React from 'react';
+import { CardTitle, CardDescription } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
+import { toZonedTime } from 'date-fns-tz';
+import { MapPin, CalendarDays, Users, IndianRupee } from 'lucide-react';
+import { formatCurrency } from '@/lib/utils';
 
 interface TrekEventHeaderProps {
-  // Add any props you expect here
+  trekName: string;
+  category: string | null;
+  startDatetime: string;
+  imageUrl?: string | null;
+  cost?: number;
+  description?: string | null;
+  maxParticipants?: number;
+  participantCount?: number;
 }
 
-export const TrekEventHeader: React.FC<TrekEventHeaderProps> = (props) => {
-  // Placeholder header - customize as needed
+export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
+  trekName,
+  category,
+  startDatetime,
+  imageUrl,
+  cost,
+  maxParticipants,
+  participantCount
+}) => {
+  let indianTime: Date | null = null;
+  try {
+      indianTime = toZonedTime(new Date(startDatetime), 'Asia/Kolkata');
+      if (isNaN(indianTime.getTime())) throw new Error('Invalid date');
+  } catch(e) {
+      console.error("Error parsing startDatetime in header:", startDatetime, e);
+      // Fallback: indianTime remains null
+  };
+  
   return (
-    <div className="bg-blue-100 p-4 rounded mb-4">
-      <h2 className="text-xl font-bold">Trek Event Header</h2>
-      {/* You can add more details here as needed */}
+    <div className="mb-6">
+      {imageUrl && (
+        <div className="mb-4 h-48 md:h-64 w-full overflow-hidden rounded-lg shadow-md">
+           <img 
+              src={imageUrl} 
+              alt={trekName} 
+              className="w-full h-full object-cover" 
+              onError={e => { (e.target as HTMLImageElement).style.display = 'none'; }} 
+            />
+        </div>
+      )}
+      
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+        <CardTitle className="text-3xl font-bold tracking-tight">{trekName}</CardTitle>
+        {category && (
+          <Badge variant="outline" className="border-primary/50 text-primary bg-primary/10 text-sm capitalize whitespace-nowrap">
+            {category}
+          </Badge>
+        )}
+      </div>
+      
+      <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">
+          {indianTime && (
+             <div className="flex items-center">
+                <CalendarDays className="h-4 w-4 mr-1.5" />
+                <span>{format(indianTime, `EEE, d MMM yyyy 'at' h:mm a`)} IST</span>
+             </div>
+          )}
+          {typeof participantCount === 'number' && typeof maxParticipants === 'number' && (
+             <div className="flex items-center">
+                <Users className="h-4 w-4 mr-1.5" />
+                <span>{participantCount}/{maxParticipants} participants</span>
+             </div>
+          )}
+          {cost !== undefined && (
+             <div className="flex items-center">
+                 <IndianRupee className="h-4 w-4 mr-1" /> 
+                 <span className="font-medium text-foreground">{formatCurrency(cost)}</span>
+             </div>
+          )}
+      </div>
     </div>
   );
 };

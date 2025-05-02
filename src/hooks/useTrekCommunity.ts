@@ -181,14 +181,14 @@ export function useTrekCommunity(trek_id: string | undefined) {
       const { error, data } = await supabase
         .from('comments')
         .insert({
-          post_id: parseInt(trek_id),
+          trek_id: parseInt(trek_id),
           user_id: user.id,
-          body: content,
-          created_at: new Date().toISOString()
-        });
+          content: content,
+        })
+        .select();
       
       if (error) {
-        console.error('Supabase Insert Comment Error:', error, { post_id: trek_id, user_id: user.id, body: content });
+        console.error('Supabase Insert Comment Error:', error, { trek_id: trek_id, user_id: user.id, content: content });
         toast({
           title: "Failed to add comment",
           description: error.message || "There was an error adding your comment",
@@ -197,8 +197,21 @@ export function useTrekCommunity(trek_id: string | undefined) {
         return false;
       }
       
-      // Refresh comments
-      await fetchComments(parseInt(trek_id));
+      if (data && data.length > 0) {
+        const newCommentData = data[0]; 
+        const newComment: Comment = {
+          id: String(newCommentData.comment_id),
+          userId: newCommentData.user_id,
+          userName: user?.user_metadata?.full_name || 'You',
+          userAvatar: user?.user_metadata?.avatar_url || null,
+          content: newCommentData.content,
+          createdAt: newCommentData.created_at,
+          isEventCreator: false
+        };
+        setComments(prevComments => [newComment, ...prevComments]);
+      } else {
+        await fetchComments(parseInt(trek_id));
+      }
       
       toast({
         title: "Comment added",
@@ -208,7 +221,7 @@ export function useTrekCommunity(trek_id: string | undefined) {
       
       return true;
     } catch (error: any) {
-      console.error("Error adding comment:", error, { post_id: trek_id, user_id: user.id, body: content });
+      console.error("Error adding comment:", error, { trek_id: trek_id, user_id: user.id, content: content });
       toast({
         title: "Failed to add comment",
         description: error.message || "There was an error adding your comment",

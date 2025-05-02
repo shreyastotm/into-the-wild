@@ -1,0 +1,502 @@
+[
+  {
+    "table_name": "trek_packing_lists",
+    "column_name": "id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "user_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "post_type",
+    "data_type": "USER-DEFINED"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "visibility",
+    "data_type": "USER-DEFINED"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "votes",
+    "column_name": "vote_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "votes",
+    "column_name": "voter_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "votes",
+    "column_name": "target_type",
+    "data_type": "USER-DEFINED"
+  },
+  {
+    "table_name": "votes",
+    "column_name": "target_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "votes",
+    "column_name": "vote_value",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "votes",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "subscriptions_billing",
+    "column_name": "subscription_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "subscriptions_billing",
+    "column_name": "user_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "subscriptions_billing",
+    "column_name": "amount",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "subscriptions_billing",
+    "column_name": "start_date",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "subscriptions_billing",
+    "column_name": "end_date",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "subscriptions_billing",
+    "column_name": "renewal_status",
+    "data_type": "USER-DEFINED"
+  },
+  {
+    "table_name": "subscriptions_billing",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "comments",
+    "column_name": "comment_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "comments",
+    "column_name": "post_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "comments",
+    "column_name": "user_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "comments",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "trek_packing_lists",
+    "column_name": "trek_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_packing_lists",
+    "column_name": "mandatory",
+    "data_type": "boolean"
+  },
+  {
+    "table_name": "trek_packing_lists",
+    "column_name": "item_order",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_registrations",
+    "column_name": "registration_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_registrations",
+    "column_name": "user_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "trek_registrations",
+    "column_name": "trek_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_registrations",
+    "column_name": "booking_datetime",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "trek_registrations",
+    "column_name": "cancellation_datetime",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "trek_registrations",
+    "column_name": "penalty_applied",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "trek_registrations",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "packing_list_templates",
+    "column_name": "id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_admin_approved_expenses",
+    "column_name": "expense_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "trek_admin_approved_expenses",
+    "column_name": "trek_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_admin_approved_expenses",
+    "column_name": "amount",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "trek_admin_approved_expenses",
+    "column_name": "approved",
+    "data_type": "boolean"
+  },
+  {
+    "table_name": "trek_admin_approved_expenses",
+    "column_name": "requested_by",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_admin_approved_expenses",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "trek_expenses",
+    "column_name": "id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_expenses",
+    "column_name": "trek_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_expenses",
+    "column_name": "amount",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "trek_expenses",
+    "column_name": "created_by",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "trek_expenses",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "geography_columns",
+    "column_name": "coord_dimension",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "geography_columns",
+    "column_name": "srid",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "geometry_columns",
+    "column_name": "coord_dimension",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "geometry_columns",
+    "column_name": "srid",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "spatial_ref_sys",
+    "column_name": "srid",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "spatial_ref_sys",
+    "column_name": "auth_srid",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "trek_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "start_datetime",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "duration",
+    "data_type": "interval"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "cost",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "penalty_details",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "max_participants",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "route_data",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "transport_mode",
+    "data_type": "USER-DEFINED"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "vendor_contacts",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "event_creator_type",
+    "data_type": "USER-DEFINED"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "partner_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "booking_amount",
+    "data_type": "numeric"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "collect_full_fee",
+    "data_type": "boolean"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "is_finalized",
+    "data_type": "boolean"
+  },
+  {
+    "table_name": "users",
+    "column_name": "date_of_birth",
+    "data_type": "date"
+  },
+  {
+    "table_name": "users",
+    "column_name": "id_verification_status",
+    "data_type": "USER-DEFINED"
+  },
+  {
+    "table_name": "users",
+    "column_name": "health_data",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "users",
+    "column_name": "badges",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "users",
+    "column_name": "interests",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "users",
+    "column_name": "pet_details",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "users",
+    "column_name": "created_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "users",
+    "column_name": "updated_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "users",
+    "column_name": "user_id",
+    "data_type": "uuid"
+  },
+  {
+    "table_name": "users",
+    "column_name": "indemnity_accepted",
+    "data_type": "boolean"
+  },
+  {
+    "table_name": "users",
+    "column_name": "indemnity_accepted_at",
+    "data_type": "timestamp with time zone"
+  },
+  {
+    "table_name": "users",
+    "column_name": "verification_docs",
+    "data_type": "jsonb"
+  },
+  {
+    "table_name": "users",
+    "column_name": "legacy_int_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "post_id",
+    "data_type": "integer"
+  },
+  {
+    "table_name": "users",
+    "column_name": "email",
+    "data_type": "character varying"
+  },
+  {
+    "table_name": "users",
+    "column_name": "verification_status",
+    "data_type": "text"
+  },
+  {
+    "table_name": "trek_expenses",
+    "column_name": "title",
+    "data_type": "text"
+  },
+  {
+    "table_name": "users",
+    "column_name": "avatar_url",
+    "data_type": "text"
+  },
+  {
+    "table_name": "packing_list_templates",
+    "column_name": "name",
+    "data_type": "text"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "image_url",
+    "data_type": "text"
+  },
+  {
+    "table_name": "trek_events",
+    "column_name": "gpx_file_url",
+    "data_type": "text"
+  },
+  {
+    "table_name": "comments",
+    "column_name": "body",
+    "data_type": "text"
+  },
+  {
+    "table_name": "users",
+    "column_name": "full_name",
+    "data_type": "character varying"
+  },
+  {
+    "table_name": "users",
+    "column_name": "phone_number",
+    "data_type": "character varying"
+  },
+  {
+    "table_name": "users",
+    "column_name": "address",
+    "data_type": "text"
+  },
+  {
+    "table_name": "geography_columns",
+    "column_name": "type",
+    "data_type": "text"
+  },
+  {
+    "table_name": "packing_list_templates",
+    "column_name": "description",
+    "data_type": "text"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "title",
+    "data_type": "character varying"
+  },
+  {
+    "table_name": "geometry_columns",
+    "column_name": "type",
+    "data_type": "character varying"
+  },
+  {
+    "table_name": "community_posts",
+    "column_name": "body",
+    "data_type": "text"
+  },
+  {
+    "table_name": "spatial_ref_sys",
+    "column_name": "auth_name",
+    "data_type": "character varying"
+  },
+  {
+    "table_name": "users",
+    "column_name": "trekking_experience",
+    "data_type": "character varying"
+  },
+  {
+    "table_name": "spatial_ref_sys",
+    "column_name": "srtext",
+    "data_type": "character varying"
+  }
+]
