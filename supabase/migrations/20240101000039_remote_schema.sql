@@ -1,0 +1,3 @@
+-- This migration (originally a remote schema dump 20250422...) was emptied 
+-- because its contents were redundant and/or conflicting with earlier migrations.
+-- Conflicts involved non-existent tables/relations like ad_hoc_expense_shares, packing_list_items, etc. 

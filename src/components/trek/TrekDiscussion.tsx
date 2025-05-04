@@ -13,12 +13,12 @@ import { Badge } from '@/components/ui/badge';
 // Updated interface to match useTrekCommunity hook
 export interface Comment {
   id: string;
-  user_id: string; // Changed from userId
-  user_name: string; // Changed from userName
-  user_avatar_url?: string | null; // Changed from userAvatar
+  userId: string;
+  userName: string;
+  userAvatar: string | null;
   content: string;
-  created_at: string; // Changed from createdAt
-  is_event_creator?: boolean; // Changed from isEventCreator
+  createdAt: string;
+  isEventCreator: boolean;
 }
 
 interface TrekDiscussionProps {
@@ -26,14 +26,13 @@ interface TrekDiscussionProps {
   comments: Comment[];
   onAddComment?: (content: string) => Promise<boolean>; // Callback returns success status
   isLoading?: boolean; // Loading state for comments list
-  commentsLoading?: boolean; // Alias or separate loading state? Use isLoading
 }
 
 export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({ 
   trekId,
   comments,
   onAddComment,
-  isLoading = false // Renamed/unified prop
+  isLoading = false
 }) => {
   const { user, userProfile } = useAuth();
   const [newComment, setNewComment] = useState('');
@@ -105,7 +104,7 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
   
   // Sort comments by creation date (newest first)
   const sortedComments = [...comments].sort((a, b) => 
-     new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
   return (
@@ -182,7 +181,6 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
         <div className="bg-muted p-4 rounded-lg text-center border border-dashed">
           <User className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
           <p className="text-sm text-muted-foreground mb-2">Login to join the conversation</p>
-          {/* Consider linking to auth page */} 
           <Button variant="outline" size="sm" onClick={() => { /* navigate('/auth') ? */ }}>Login</Button>
         </div>
       )}
@@ -206,20 +204,20 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
         <div className="space-y-5 mt-6">
           {sortedComments.map((comment) => (
             <div key={comment.id} className="flex gap-3 items-start">
-              <Avatar className={`h-10 w-10 ${comment.is_event_creator ? 'ring-2 ring-primary ring-offset-1' : ''}`}>
-                <AvatarImage src={comment.user_avatar_url || undefined} alt={comment.user_name} />
+              <Avatar className={`h-10 w-10 ${comment.isEventCreator ? 'ring-2 ring-primary ring-offset-1' : ''}`}>
+                <AvatarImage src={comment.userAvatar || undefined} alt={comment.userName} />
                 <AvatarFallback className="bg-muted text-muted-foreground">
-                  {(comment.user_name || 'A').substring(0, 2).toUpperCase()}
+                  {(comment.userName || 'A').substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 bg-background rounded-md pb-2">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-sm">{comment.user_name || 'Anonymous User'}</span>
-                  {comment.is_event_creator && (
+                  <span className="font-medium text-sm">{comment.userName || 'Anonymous User'}</span>
+                  {comment.isEventCreator && (
                     <Badge variant="outline" className="text-xs h-5 border-primary/50 text-primary bg-primary/10">Organizer</Badge>
                   )}
                   <span className="text-xs text-muted-foreground ml-auto whitespace-nowrap">
-                     {formatDistanceToNow(new Date(comment.created_at), { addSuffix: true })}
+                     {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
                   </span>
                 </div>
                 {/* Use whitespace-pre-wrap to respect newlines in comments */}

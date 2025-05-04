@@ -2,12 +2,12 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Calendar, MapPin, Users, Clock } from 'lucide-react';
+import { Calendar, MapPin, Users, Clock, Wifi } from 'lucide-react';
 import { formatDistanceToNow, isPast, isToday, isTomorrow, format } from 'date-fns';
 // import { formatCurrency } from '@/lib/utils'; // Assuming formatCurrency is also in utils or defined below
 
 // Define type for Trek Events
-interface TrekEvent {
+export interface TrekEvent {
   trek_id: number;
   trek_name: string;
   description: string | null;
@@ -116,15 +116,21 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {treks.map((trek) => {
         let startDate: Date | null = null;
+        let isLive = false; // Initialize isLive flag
+
         try {
           startDate = new Date(trek.start_datetime);
           if (isNaN(startDate.getTime())) throw new Error('Invalid date');
+          // Simplistic definition: Live if the start date is today.
+          // A more robust solution would check if now is between start and end.
+          isLive = isToday(startDate); 
         } catch (e) {
            console.error("Error parsing start_datetime for trek:", trek.trek_id, trek.start_datetime, e);
-           // Optionally render a fallback card or skip rendering this trek
         }
 
-        const timeStatus = startDate ? getTimeStatus(trek.start_datetime) : null;
+        // Get the standard time status (Tomorrow, In X days)
+        // We will override this with "Live" if isLive is true
+        const timeStatus = startDate && !isLive ? getTimeStatus(trek.start_datetime) : null; 
 
         const cardContent = (
           <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/20 relative group">
@@ -144,11 +150,20 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
               </div>
             )}
 
-            {timeStatus && (
-              <Badge className={`absolute top-3 right-3 z-10 ${timeStatus.class}`}>
-                {timeStatus.label}
-              </Badge>
-            )}
+            {/* Status Badge Area */}
+            <div className="absolute top-3 right-3 z-10 flex gap-1">
+              {isLive && (
+                <Badge className="bg-red-500 text-white border-red-600 flex items-center gap-1">
+                  <Wifi size={14} className="animate-pulse"/> 
+                  Live
+                </Badge>
+              )}
+              {timeStatus && ( // Only show other statuses if not live
+                <Badge className={`${timeStatus.class}`}>
+                  {timeStatus.label}
+                </Badge>
+              )}
+            </div>
 
             <CardHeader className="pb-3">
               <div className="flex justify-between items-start gap-2 mb-1">

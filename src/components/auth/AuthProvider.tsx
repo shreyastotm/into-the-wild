@@ -1,27 +1,50 @@
-import { createContext, useState, useEffect, useContext, ReactNode } from 'react';
+import { createContext, useState, useEffect, useContext, ReactNode, useCallback, useMemo, PropsWithChildren } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
-type AuthContextType = {
-  session: Session | null;
+export interface UserProfile {
+  user_id: string;
+  full_name?: string | null;
+  email?: string | null;
+  phone_number?: string | null;
+  date_of_birth?: string | null;
+  address?: string | null;
+  interests?: string | null;
+  trekking_experience?: string | null;
+  health_data?: string | null;
+  image_url?: string | null;
+  avatar_url?: string | null;
+  user_type?: string | null;
+  partner_id?: string | null;
+  verification_status?: string | null;
+  verification_docs?: string | null;
+  points?: number | null;
+  badges?: string[] | null;
+  legacy_int_id?: number | null;
+  created_at?: string | null;
+  updated_at?: string | null;
+  latitude?: number | null;
+  longitude?: number | null;
+  has_car?: boolean | null;
+  car_seating_capacity?: number | null;
+  vehicle_number?: string | null;
+  pet_details?: string | null;
+}
+
+interface AuthContextType {
   user: User | null;
-  userProfile: any | null;
+  userProfile: UserProfile | null;
   loading: boolean;
+  setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
+  refreshUserProfile: () => Promise<void>;
   signOut: () => Promise<void>;
-};
+}
 
-const AuthContext = createContext<AuthContextType>({
-  session: null,
-  user: null,
-  userProfile: null,
-  loading: true,
-  signOut: async () => {},
-});
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
+export const AuthProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userProfile, setUserProfile] = useState<any | null>(null);
+  const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,7 +52,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, currentSession) => {
         console.log("Auth event:", event);
-        setSession(currentSession);
         setUser(currentSession?.user ?? null);
         if (currentSession?.user?.email === 'shreyasmadhan82@gmail.com') {
           // Automatically promote this user to admin if not already
@@ -82,7 +104,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     // Then check for existing session
     supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
-      setSession(currentSession);
       setUser(currentSession?.user ?? null);
       
       if (currentSession?.user) {
@@ -97,46 +118,50 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  async function fetchUserProfile(userId: string) {
+  const fetchUserProfile = useCallback(async (userId: string) => {
+    console.log("Fetching user profile for ID:", userId);
     try {
-      console.log("Fetching user profile for ID:", userId);
-      
       const { data, error } = await supabase
         .from('users')
         .select('*')
         .eq('user_id', userId)
-        .maybeSingle();
+        .single();
 
-      if (error) {
-        console.error('Error fetching user profile:', error);
-        return;
-      }
-
-      console.log("User profile data:", data);
-      setUserProfile(data);
-    } catch (error) {
-      console.error('Error in fetchUserProfile:', error);
-    }
-  }
-
-  async function signOut() {
-    try {
-      const { error } = await supabase.auth.signOut();
-      if (error) {
-        console.error('[DEBUG] Supabase signOut error:', error);
-        alert('Sign out failed: ' + error.message);
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching user profile:", error);
+        setUserProfile(null);
+      } else {
+        console.log("User profile data:", data);
+        setUserProfile(data as UserProfile);
       }
     } catch (err) {
-      console.error('[DEBUG] signOut exception:', err);
-      alert('Sign out failed: ' + (err.message || err));
+      console.error("Exception fetching profile:", err);
+      setUserProfile(null);
     }
-  }
+  }, []);
 
-  return (
-    <AuthContext.Provider value={{ session, user, userProfile, loading, signOut }}>
-      {children}
-    </AuthContext.Provider>
-  );
-}
+  const refreshUserProfile = useCallback(async () => {
+    if (user) {
+      await fetchUserProfile(user.id);
+    }
+  }, [user, fetchUserProfile]);
+
+  const signOut = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    setUserProfile(null);
+  };
+
+  const value = useMemo(() => ({
+    user,
+    userProfile,
+    loading,
+    setUserProfile,
+    refreshUserProfile,
+    signOut,
+  }), [user, userProfile, loading, refreshUserProfile, signOut]);
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
 
 export const useAuth = () => useContext(AuthContext);

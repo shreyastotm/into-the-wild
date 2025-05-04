@@ -1,271 +1,346 @@
-
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/components/ui/use-toast';
+import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useToast } from "@/components/ui/use-toast";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, CheckCircle, XCircle, MapPin, Car, PawPrint } from 'lucide-react';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
 
-interface FormData {
-  full_name: string;
-  email: string;
-  phone: string;
-  address: string;
-  date_of_birth: string;
-  health_data: string;
-  trekking_experience: string;
-  interests: string;
-  pet_details: string;
+// Fix default Leaflet icon issue with bundlers
+// @ts-ignore
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
+
+interface ProfileFormData {
+    full_name: string;
+    email: string;
+    phone_number: string;
+    date_of_birth: string;
+    address: string;
+    interests: string;
+    trekking_experience: string;
+    latitude: number | null;
+    longitude: number | null;
+    has_car: boolean;
+    car_seating_capacity: number | string;
+    vehicle_number: string;
+    pet_details: string;
 }
 
-export default function ProfileForm() {
-  const { user, userProfile } = useAuth();
-  const [formData, setFormData] = useState<FormData>({
-    full_name: '',
-    email: '',
-    phone: '',
-    address: '',
-    date_of_birth: '',
-    health_data: '',
-    trekking_experience: '',
-    interests: '',
-    pet_details: '',
-  });
-  const [updating, setUpdating] = useState(false);
+// Component to handle map interaction
+function LocationMarker({ position, onPositionChange }: { position: L.LatLngTuple, onPositionChange: (pos: L.LatLngTuple) => void }) {
+    const [markerPosition, setMarkerPosition] = useState<L.LatLngTuple>(position);
 
-  // Update form data when userProfile changes
-  useEffect(() => {
-    if (user) {
-      // Always set email from user object
-      setFormData(prev => ({
-        ...prev,
-        email: user.email || '',
-      }));
-    }
-    
-    if (userProfile) {
-      setFormData({
-        full_name: userProfile?.full_name || '',
-        email: user?.email || '',
-        phone: userProfile?.phone_number || '',
-        address: userProfile?.address || '',
-        date_of_birth: userProfile?.date_of_birth || '',
-        health_data: userProfile?.health_data || '',
-        trekking_experience: userProfile?.trekking_experience || '',
-        interests: userProfile?.interests || '',
-        pet_details: userProfile?.pet_details || '',
-      });
-    }
-  }, [userProfile, user]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setUpdating(true);
-
-    try {
-      if (!user) {
-        toast({
-          title: "Error",
-          description: "You need to be logged in to update your profile",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      console.log("Updating profile for user:", user.id);
-      console.log("Profile data:", formData);
-
-      // Update user metadata
-      const { error: metadataError } = await supabase.auth.updateUser({
-        data: {
-          full_name: formData.full_name,
-          phone: formData.phone,
+    const map = useMapEvents({
+        click(e) {
+            const newPos: L.LatLngTuple = [e.latlng.lat, e.latlng.lng];
+            setMarkerPosition(newPos);
+            onPositionChange(newPos);
+            map.flyTo(e.latlng, map.getZoom());
         },
-      });
+    });
 
-      if (metadataError) throw metadataError;
+    // Update marker if external position changes
+    useEffect(() => {
+        setMarkerPosition(position);
+    }, [position]);
 
-      // Check if profile exists
-      const { data: existingProfile } = await supabase
-        .from('users')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      let profileError;
-      
-      if (existingProfile) {
-        // Update existing profile
-        const { error } = await supabase
-          .from('users')
-          .update({
-            full_name: formData.full_name,
-            phone_number: formData.phone,
-            address: formData.address,
-            date_of_birth: formData.date_of_birth,
-            health_data: formData.health_data,
-            trekking_experience: formData.trekking_experience,
-            interests: formData.interests,
-            pet_details: formData.pet_details,
-          })
-          .eq('user_id', user.id);
-        
-        profileError = error;
-      } else {
-        // Create new profile if it doesn't exist
-        // Note: We need to include all required fields based on the database schema
-        const { error } = await supabase
-          .from('users')
-          .insert({
-            user_id: user.id,
-            full_name: formData.full_name,
-            email: user.email || '',
-            // Include a default password_hash value since it's required by the schema
-            // This is just a placeholder as authentication is handled by Supabase Auth
-            password_hash: 'handled_by_auth_system',
-            subscription_type: 'community', // Valid enum value
-            phone_number: formData.phone,
-            address: formData.address,
-            date_of_birth: formData.date_of_birth,
-            health_data: formData.health_data || null,
-            trekking_experience: formData.trekking_experience || null,
-            interests: formData.interests || null,
-            pet_details: formData.pet_details || null,
-          });
-        
-        profileError = error;
-      }
-
-      if (profileError) throw profileError;
-
-      toast({
-        title: "Profile updated successfully",
-        description: "Your profile information has been saved.",
-      });
-    } catch (error: any) {
-      toast({
-        title: "Error updating profile",
-        description: error.message || "An error occurred while updating your profile",
-        variant: "destructive",
-      });
-      console.error("Profile update error:", error);
-    } finally {
-      setUpdating(false);
-    }
-  };
-
-  return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Full Name</label>
-          <Input
-            name="full_name"
-            value={formData.full_name}
-            onChange={handleChange}
-            className="mt-1"
-          />
-        </div>
-        
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Email</label>
-          <Input
-            name="email"
-            value={formData.email}
-            disabled
-            className="mt-1 bg-gray-50"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Phone</label>
-          <Input
-            name="phone"
-            value={formData.phone}
-            onChange={handleChange}
-            className="mt-1"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Address</label>
-          <Input
-            name="address"
-            value={formData.address}
-            onChange={handleChange}
-            className="mt-1"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Date of Birth</label>
-          <Input
-            type="date"
-            name="date_of_birth"
-            value={formData.date_of_birth}
-            onChange={handleChange}
-            className="mt-1"
-          />
-        </div>
-        
-        <div className="col-span-1 md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700">Health Data</label>
-          <Textarea
-            name="health_data"
-            value={formData.health_data}
-            onChange={handleChange}
-            className="mt-1"
-            placeholder="Share any health conditions or allergies that trek organizers should know about"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Trekking Experience</label>
-          <Textarea
-            name="trekking_experience"
-            value={formData.trekking_experience}
-            onChange={handleChange}
-            className="mt-1"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700">Interests</label>
-          <Textarea
-            name="interests"
-            value={formData.interests}
-            onChange={handleChange}
-            className="mt-1"
-            placeholder="Mountain climbing, Photography, Bird watching, etc."
-          />
-        </div>
-
-        <div className="col-span-1 md:col-span-2">
-          <label className="block text-sm font-medium text-gray-700">Pet Details</label>
-          <Textarea
-            name="pet_details"
-            value={formData.pet_details}
-            onChange={handleChange}
-            className="mt-1"
-            placeholder="Information about pets you might bring on treks"
-          />
-        </div>
-      </div>
-
-      <div className="flex justify-end">
-        <Button type="submit" disabled={updating}>
-          {updating ? 'Updating...' : 'Save Profile'}
-        </Button>
-      </div>
-    </form>
-  );
+    return markerPosition ? (
+        <Marker position={markerPosition}></Marker>
+    ) : null;
 }
+
+export const ProfileForm: React.FC = () => {
+    const { user, userProfile, loading: authLoading, refreshUserProfile } = useAuth();
+    const { toast } = useToast();
+    const [formData, setFormData] = useState<ProfileFormData>({
+        full_name: '',
+        email: '',
+        phone_number: '',
+        date_of_birth: '',
+        address: '',
+        interests: '',
+        trekking_experience: '',
+        latitude: null,
+        longitude: null,
+        has_car: false,
+        car_seating_capacity: '',
+        vehicle_number: '',
+        pet_details: '',
+    });
+    const [loading, setLoading] = useState(false);
+    // Default map center to Bangalore, India
+    const [mapCenter, setMapCenter] = useState<L.LatLngTuple>([12.9716, 77.5946]); 
+
+    useEffect(() => {
+        if (userProfile) {
+            setFormData({
+                full_name: userProfile.full_name || '',
+                email: user?.email || '',
+                phone_number: userProfile.phone_number || '',
+                date_of_birth: userProfile.date_of_birth || '',
+                address: userProfile.address || '',
+                interests: userProfile.interests || '',
+                trekking_experience: userProfile.trekking_experience || '',
+                latitude: userProfile.latitude || null,
+                longitude: userProfile.longitude || null,
+                has_car: userProfile.has_car || false,
+                car_seating_capacity: userProfile.car_seating_capacity?.toString() || '',
+                vehicle_number: userProfile.vehicle_number || '',
+                pet_details: userProfile.pet_details || '',
+            });
+            if (userProfile.latitude && userProfile.longitude) {
+                setMapCenter([userProfile.latitude, userProfile.longitude]);
+            }
+        } else if (user) {
+            setFormData(prev => ({ ...prev, email: user.email || '' }));
+        }
+    }, [userProfile, user]);
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleCheckboxChange = (checked: boolean | 'indeterminate', name: keyof ProfileFormData) => {
+         if (typeof checked === 'boolean') {
+            setFormData(prev => ({ ...prev, [name]: checked }));
+        }
+    };
+
+    const handleMapPositionChange = useCallback((pos: L.LatLngTuple) => {
+        setFormData(prev => ({ ...prev, latitude: pos[0], longitude: pos[1] }));
+    }, []);
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!user) return;
+        setLoading(true);
+
+        const carCapacity = formData.has_car 
+                            ? (parseInt(formData.car_seating_capacity.toString(), 10) || 0) 
+                            : null;
+
+        // Define a more specific type for the updates object
+        type UserUpdatePayload = Omit<Partial<ProfileFormData>, 'car_seating_capacity'> & { 
+            car_seating_capacity?: number | null; // Explicitly type this as number | null
+            updated_at: string; 
+        };
+
+        const updates: UserUpdatePayload = {
+            full_name: formData.full_name,
+            phone_number: formData.phone_number,
+            date_of_birth: formData.date_of_birth || null,
+            address: formData.address || null,
+            interests: formData.interests || null,
+            trekking_experience: formData.trekking_experience || null,
+            latitude: formData.latitude,
+            longitude: formData.longitude,
+            has_car: formData.has_car,
+            vehicle_number: formData.has_car ? (formData.vehicle_number || null) : null,
+            pet_details: formData.pet_details || null,
+            updated_at: new Date().toISOString(),
+        };
+
+        // Only include car_seating_capacity if the user has a car
+        if (formData.has_car) {
+            try {
+                // First attempt to update with car_seating_capacity
+                const result = await supabase
+                    .from('users')
+                    .update({...updates, car_seating_capacity: carCapacity})
+                    .eq('user_id', user.id);
+                
+                if (result.error) {
+                    // If there's an error related to car_seating_capacity, retry without it
+                    if (result.error.message.includes('car_seating_capacity')) {
+                        console.warn("car_seating_capacity column not found, updating without it");
+                        const { error: retryError } = await supabase
+                            .from('users')
+                            .update(updates)
+                            .eq('user_id', user.id);
+                        
+                        if (retryError) throw retryError;
+                    } else {
+                        throw result.error;
+                    }
+                }
+                
+                toast({
+                    title: "Profile Updated",
+                    description: "Your profile information has been saved successfully.",
+                    variant: "default",
+                    action: <CheckCircle className="text-green-500" />,
+                });
+                refreshUserProfile();
+            } catch (error: any) {    
+                console.error("Error updating profile:", error);
+                toast({
+                    title: "Update Failed",
+                    description: error.message || "Could not update your profile. Please try again.",
+                    variant: "destructive",
+                    action: <XCircle className="text-red-500" />,
+                });
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            // If user doesn't have a car, just update without car_seating_capacity
+            try {
+                const { error } = await supabase
+                    .from('users')
+                    .update(updates)
+                    .eq('user_id', user.id);
+                
+                if (error) throw error;
+                
+                toast({
+                    title: "Profile Updated",
+                    description: "Your profile information has been saved successfully.",
+                    variant: "default",
+                    action: <CheckCircle className="text-green-500" />,
+                });
+                refreshUserProfile();
+            } catch (error: any) {
+                console.error("Error updating profile:", error);
+                toast({
+                    title: "Update Failed",
+                    description: error.message || "Could not update your profile. Please try again.",
+                    variant: "destructive",
+                    action: <XCircle className="text-red-500" />,
+                });
+            } finally {
+                setLoading(false);
+            }
+        }
+    };
+
+    if (authLoading) {
+         return <div className="flex justify-center items-center p-10"><Loader2 className="h-8 w-8 animate-spin" /></div>;
+    }
+
+    return (
+        <form onSubmit={handleSubmit}>
+            <Card>
+                <CardHeader>
+                    <CardTitle>My Profile</CardTitle>
+                    <CardDescription>Update your personal information, preferences, and settings.</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-8">
+                    <div className="space-y-4">
+                         <h3 className="text-lg font-medium border-b pb-2">Personal Information</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <Label htmlFor="fullName">Full Name</Label>
+                                <Input id="fullName" name="full_name" value={formData.full_name} onChange={handleChange} required />
+                            </div>
+                             <div>
+                                <Label htmlFor="email">Email Address</Label>
+                                <Input id="email" name="email" type="email" value={formData.email} disabled className="text-muted-foreground" />
+                                <p className="text-xs text-muted-foreground mt-1">Email cannot be changed here.</p>
+                            </div>
+                            <div>
+                                <Label htmlFor="phone_number">Phone Number</Label>
+                                <Input id="phone_number" name="phone_number" value={formData.phone_number} onChange={handleChange} />
+                            </div>
+                            <div>
+                                <Label htmlFor="date_of_birth">Date of Birth</Label>
+                                <Input id="date_of_birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} />
+                            </div>
+                            <div className="md:col-span-2">
+                                <Label htmlFor="address">Address</Label>
+                                <Textarea id="address" name="address" value={formData.address} onChange={handleChange} placeholder="Your street address" />
+                            </div>
+                        </div>
+                    </div>
+
+                    <div className="space-y-4">
+                         <h3 className="text-lg font-medium border-b pb-2">Trekking Preferences</h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                           <div className="md:col-span-2">
+                                <Label htmlFor="interests">Interests & Hobbies</Label>
+                                <Textarea id="interests" name="interests" value={formData.interests} onChange={handleChange} placeholder="e.g., Photography, Bird watching, Camping..." />
+                            </div>
+                           <div className="md:col-span-2">
+                                <Label htmlFor="trekking_experience">Trekking Experience</Label>
+                                <Textarea id="trekking_experience" name="trekking_experience" value={formData.trekking_experience} onChange={handleChange} placeholder="Describe your hiking/trekking experience level (beginner, intermediate, advanced) and any notable treks completed."/>
+                            </div>
+                         </div>
+                    </div>
+
+                    <div className="space-y-4">
+                         <h3 className="text-lg font-medium border-b pb-2 flex items-center">
+                             <PawPrint className="h-5 w-5 mr-2" /> Pet Details
+                         </h3>
+                         <div>
+                             <Label htmlFor="pet_details">Information about your Pet(s)</Label>
+                             <Textarea id="pet_details" name="pet_details" value={formData.pet_details} onChange={handleChange} placeholder="If you plan to bring pets on treks, please provide details like name, breed, size, temperament, and any special requirements."/>
+                             <p className="text-xs text-muted-foreground mt-1">Specify pet details here if you sometimes trek with them. You can confirm or adjust details when registering for a specific trek.</p>
+                         </div>
+                     </div>
+
+                    <div className="space-y-4">
+                         <h3 className="text-lg font-medium border-b pb-2 flex items-center">
+                             <Car className="h-5 w-5 mr-2"/> Vehicle Information
+                        </h3>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="has_car" name="has_car" checked={formData.has_car} onCheckedChange={(checked) => handleCheckboxChange(checked, 'has_car')} />
+                            <Label htmlFor="has_car" className="font-medium">I have a car and may be willing to help carpool.</Label>
+                        </div>
+                         {formData.has_car && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6 border-l-2 ml-2 border-muted">
+                                <div>
+                                    <Label htmlFor="car_seating_capacity">Passenger Capacity (excluding driver)</Label>
+                                    <Input id="car_seating_capacity" name="car_seating_capacity" type="number" min="0" value={formData.car_seating_capacity} onChange={handleChange} placeholder="e.g., 3" />
+                                </div>
+                                <div>
+                                    <Label htmlFor="vehicle_number">Vehicle Number / License Plate</Label>
+                                    <Input id="vehicle_number" name="vehicle_number" value={formData.vehicle_number} onChange={handleChange} placeholder="Optional, for identification" />
+                                </div>
+                            </div>
+                        )}
+                     </div>
+
+                    <div className="space-y-4">
+                         <h3 className="text-lg font-medium border-b pb-2 flex items-center">
+                             <MapPin className="h-5 w-5 mr-2" /> Home Location for Pickup
+                         </h3>
+                         <p className="text-sm text-muted-foreground">Click on the map to set your approximate home location. This helps organizers plan carpooling routes if needed. Your exact address is not required.</p>
+                         <div className="h-64 w-full rounded-md overflow-hidden z-0">
+                             <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }} key={JSON.stringify(mapCenter)} >
+                                 <TileLayer
+                                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                     url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                 />
+                                 <LocationMarker 
+                                     position={formData.latitude && formData.longitude ? [formData.latitude, formData.longitude] : mapCenter} 
+                                     onPositionChange={handleMapPositionChange} 
+                                 />
+                             </MapContainer>
+                        </div>
+                         <div className="text-sm text-muted-foreground">
+                            Selected Coordinates: {formData.latitude?.toFixed(5) ?? 'N/A'}, {formData.longitude?.toFixed(5) ?? 'N/A'}
+                        </div>
+                     </div>
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" disabled={loading || authLoading}>
+                        {loading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                        Save Changes
+                    </Button>
+                </CardFooter>
+            </Card>
+        </form>
+    );
+};

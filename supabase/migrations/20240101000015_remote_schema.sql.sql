@@ -1,0 +1,4 @@
+-- This migration (originally a remote schema dump 20250418...) was emptied 
+-- because its contents were redundant and causing errors due to conflicts 
+-- with earlier, more specific migrations (e.g., 0004, 0017).
+-- Key conflicts included: payment_status type, trek_ad_hoc_expenses table. 

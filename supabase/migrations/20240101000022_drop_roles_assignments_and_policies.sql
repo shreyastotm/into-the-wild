@@ -1,13 +1,17 @@
 -- Drop all policies depending on roles_assignments, then drop the table
 
 -- 1. Drop policies from trek_fixed_expenses
+/* -- Commented out as trek_fixed_expenses may not exist
 DROP POLICY IF EXISTS "Only administrators can insert trek fixed expenses" ON trek_fixed_expenses;
 DROP POLICY IF EXISTS "Only administrators can update trek fixed expenses" ON trek_fixed_expenses;
 DROP POLICY IF EXISTS "Only administrators can delete trek fixed expenses" ON trek_fixed_expenses;
+*/
 
 -- 2. Drop policies from trek_admin_approved_expenses
+/* -- Commented out as trek_admin_approved_expenses may not exist
 DROP POLICY IF EXISTS "Only administrators can update admin approved expenses" ON trek_admin_approved_expenses;
 DROP POLICY IF EXISTS "Only administrators can delete admin approved expenses" ON trek_admin_approved_expenses;
+*/
 
 -- 3. Drop policies from user_expense_penalties (commented out as table no longer exists)
 -- DROP POLICY IF EXISTS "Only administrators can create penalties" ON user_expense_penalties;
@@ -25,3 +29,9 @@ BEGIN
         DROP POLICY IF EXISTS "Allow select for authenticated users on trek_packing_lists" ON public.trek_packing_lists;
     END IF;
 END $$;
+
+-- 2. Drop policies from trek_groups
+/* -- Commented out as trek_groups may not exist
+DROP POLICY IF EXISTS "Authenticated users can view trek groups" ON trek_groups;
+DROP POLICY IF EXISTS "Group members can view their own groups" ON trek_groups;
+*/

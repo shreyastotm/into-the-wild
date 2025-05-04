@@ -1,8 +1,16 @@
+-- Define the role_type enum first
+CREATE TYPE public.role_type AS ENUM (
+  'admin',
+  'guide',
+  'participant',
+  'driver' -- Add other roles as needed
+);
+
 -- Migration: Recreate roles_assignments table for admin/role RLS
 CREATE TABLE IF NOT EXISTS public.roles_assignments (
     role_id integer PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    user_id integer NOT NULL,
-    trek_id integer,
+    user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE, -- Corrected to UUID and references public.users
+    trek_id integer REFERENCES public.trek_events(trek_id) ON DELETE CASCADE, -- Optional trek association
     role_type role_type NOT NULL,
     assignment_details jsonb,
     community_vote_score numeric(10,2),
@@ -25,3 +33,6 @@ BEGIN
         DROP POLICY IF EXISTS "Allow select for authenticated users on trek_packing_lists" ON public.trek_packing_lists;
     END IF;
 END $$;
+
+-- RLS Policies
+ALTER TABLE public.roles_assignments ENABLE ROW LEVEL SECURITY;

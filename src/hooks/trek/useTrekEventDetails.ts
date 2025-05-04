@@ -8,6 +8,9 @@ interface TrekEvent {
   description: string | null;
   category: string | null;
   start_datetime: string;
+  end_datetime: string;
+  difficulty: string | null;
+  status: 'planned' | 'confirmed' | 'ongoing' | 'completed' | 'cancelled' | null;
   duration: string | null;
   cost: number;
   max_participants: number;
@@ -18,9 +21,11 @@ interface TrekEvent {
   vendor_contacts: any | null;
   pickup_time_window: string | null;
   cancellation_policy: string | null;
-  event_creator_type: 'internal' | 'external' | null;
-  partner_id: number | null;
+  partner_id: string | null;
   image_url?: string | null;
+  is_finalized?: boolean | null;
+  created_at?: string | null;
+  updated_at?: string | null;
 }
 
 export function useTrekEventDetails(trek_id: string | undefined) {

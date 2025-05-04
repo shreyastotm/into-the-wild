@@ -6,6 +6,9 @@ import { RegistrationCard } from '@/components/trek/RegistrationCard';
 import { TravelCoordination } from '@/components/trek/TravelCoordination';
 import { TrekParticipants } from '@/components/trek/TrekParticipants';
 import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
+import { ExpenseSplitting } from '@/components/expenses/ExpenseSplitting';
+import { TrekRatings } from '@/components/trek/TrekRatings';
+import { TrekPackingList } from '@/components/trek/TrekPackingList';
 import { useTrekRegistration } from '../hooks/trek/useTrekRegistration';
 import { useTrekCommunity } from '@/hooks/useTrekCommunity';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -13,14 +16,18 @@ import {
   ChevronLeft, 
   Map, 
   MessageSquare, 
-  Users 
+  Users,
+  Receipt,
+  Award,
+  ClipboardList,
+  Info
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { 
     trekEvent, 
     loading, 
@@ -38,6 +45,9 @@ export default function TrekEventDetails() {
     commentsLoading,
     addComment
   } = useTrekCommunity(id);
+
+  const isRegistered = !!userRegistration && userRegistration.payment_status !== 'Cancelled';
+  const isAdmin = userProfile?.user_type === 'admin';
 
   const formattedParticipants = participants.map(participant => ({
     user_id: participant.id,
@@ -99,20 +109,35 @@ export default function TrekEventDetails() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         <div className="md:col-span-2">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="mb-4">
-              <TabsTrigger value="details">Details</TabsTrigger>
+            <TabsList className="mb-4 grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+              <TabsTrigger value="details">
+                <Info className="h-4 w-4 mr-2" />
+                Details
+              </TabsTrigger>
+              <TabsTrigger value="participants-discussion">
+                <Users className="h-4 w-4 mr-2" />
+                Participants
+              </TabsTrigger>
+              <TabsTrigger value="packing-list">
+                <ClipboardList className="h-4 w-4 mr-2" />
+                Packing List
+              </TabsTrigger>
               <TabsTrigger value="travel">
                 <Map className="h-4 w-4 mr-2" />
                 Travel
               </TabsTrigger>
-              <TabsTrigger value="participants">
-                <Users className="h-4 w-4 mr-2" />
-                Participants ({participantCount})
-              </TabsTrigger>
-              <TabsTrigger value="discussion">
-                <MessageSquare className="h-4 w-4 mr-2" />
-                Discussion ({comments.length})
-              </TabsTrigger>
+              {isRegistered && (
+                <TabsTrigger value="expenses">
+                  <Receipt className="h-4 w-4 mr-2" />
+                  Expenses
+                </TabsTrigger>
+              )}
+              {trekEvent.status === 'completed' && (
+                <TabsTrigger value="ratings">
+                  <Award className="h-4 w-4 mr-2" />
+                  Ratings
+                </TabsTrigger>
+              )}
             </TabsList>
             
             <TabsContent value="details">
@@ -127,6 +152,31 @@ export default function TrekEventDetails() {
               />
             </TabsContent>
             
+            <TabsContent value="participants-discussion" className="space-y-6">
+              <div>
+                <h3 className="text-xl font-semibold mb-4">Participants ({participantCount})</h3>
+                 <TrekParticipants 
+                  participants={participants} 
+                  maxParticipants={trekEvent.max_participants}
+                  currentUser={user?.id} 
+                />
+              </div>
+              <hr /> 
+              <div>
+                 <h3 className="text-xl font-semibold mb-4">Discussion ({comments.length})</h3>
+                 <TrekDiscussion 
+                  trekId={id || ''} 
+                  comments={comments}
+                  onAddComment={addComment}
+                  isLoading={commentsLoading}
+                />
+              </div>
+            </TabsContent>
+            
+            <TabsContent value="packing-list">
+              <TrekPackingList trekId={id} />
+            </TabsContent>
+            
             <TabsContent value="travel">
               <TravelCoordination
                 transportMode={trekEvent.transport_mode}
@@ -135,21 +185,23 @@ export default function TrekEventDetails() {
               />
             </TabsContent>
             
-            <TabsContent value="participants">
-              <TrekParticipants 
-                participants={participants} 
-                maxParticipants={trekEvent.max_participants}
-                currentUser={user?.id} 
-              />
-            </TabsContent>
+            {isRegistered && (
+              <TabsContent value="expenses">
+                <ExpenseSplitting
+                  trekId={id || ''}
+                  isAdmin={isAdmin}
+                />
+              </TabsContent>
+            )}
             
-            <TabsContent value="discussion">
-              <TrekDiscussion 
-                trekId={id || ''} 
-                comments={comments}
-                onAddComment={addComment}
-              />
-            </TabsContent>
+            {trekEvent.status === 'completed' && (
+              <TabsContent value="ratings">
+                <TrekRatings
+                  trekId={id || ''}
+                  isCompleted={true}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
 

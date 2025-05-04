@@ -10,6 +10,7 @@ import { AuthProvider } from './components/auth/AuthProvider';
 import TrekEvents from './pages/TrekEvents';
 import TrekEventDetails from './pages/TrekEventDetails';
 import CreateTrekEvent from './pages/CreateTrekEvent';
+import TrekArchives from './pages/TrekArchives';
 import { Toaster } from './components/ui/toaster';
 import AdminHome from './pages/admin';
 import ResetPassword from './pages/ResetPassword';
@@ -26,6 +27,7 @@ function App() {
           <Route path="/trek-events" element={<Layout><TrekEvents /></Layout>} />
           <Route path="/trek-events/:id" element={<Layout><TrekEventDetails /></Layout>} />
           <Route path="/trek-events/create" element={<Layout><CreateTrekEvent /></Layout>} />
+          <Route path="/trek-archives" element={<Layout><TrekArchives /></Layout>} />
           <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
           <Route path="/admin/*" element={<AdminHome />} />
           <Route path="*" element={<Layout><NotFound /></Layout>} />

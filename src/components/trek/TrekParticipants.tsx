@@ -3,13 +3,13 @@ import { User } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
-// Updated interface to match hook structure (assuming useTrekCommunity provides these)
+// Updated interface to match useTrekCommunity hook
 export interface Participant {
-  id: string;         // Typically user_id from Supabase
+  id: string;
   name: string | null;
-  avatar_url?: string | null;
-  joinedAt?: string;   // May come from registration timestamp
-  isEventCreator?: boolean;
+  avatar: string | null;
+  joinedAt: string;
+  isEventCreator: boolean;
 }
 
 interface TrekParticipantsProps {
@@ -55,7 +55,7 @@ export const TrekParticipants: React.FC<TrekParticipantsProps> = ({
                   <div className="flex flex-col items-center text-center w-16">
                     <Avatar className={`h-12 w-12 mb-1 ${participant.isEventCreator ? 'ring-2 ring-primary ring-offset-2' : ''} ${participant.id === currentUser ? 'ring-2 ring-blue-500 ring-offset-1' : ''}`}>
                       <AvatarImage 
-                        src={participant.avatar_url || undefined} 
+                        src={participant.avatar || undefined} 
                         alt={participant.name || 'Anonymous User'} 
                       />
                       <AvatarFallback className="bg-muted text-muted-foreground font-medium">
