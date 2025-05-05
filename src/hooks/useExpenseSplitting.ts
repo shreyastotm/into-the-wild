@@ -3,12 +3,20 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
 
+export interface ExpenseCategory {
+  id: number;
+  name: string;
+  icon: string | null;
+}
+
 export interface Expense {
   id: number;
   trek_id: number;
   creator_id: string;
   creator_name: string | null;
-  expense_type: string;
+  category_id: number | null;
+  category_name: string | null;
+  category_icon: string | null;
   amount: number;
   description: string;
   expense_date: string;
@@ -36,7 +44,7 @@ export interface ExpenseSummary {
 
 export interface CreateExpenseInput {
   trekId: number;
-  expenseType: string;
+  categoryId: number;
   amount: number;
   description: string;
   expenseDate: string;
@@ -52,6 +60,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [myExpenses, setMyExpenses] = useState<Expense[]>([]);
   const [expensesSharedWithMe, setExpensesSharedWithMe] = useState<Expense[]>([]);
+  const [expenseCategories, setExpenseCategories] = useState<ExpenseCategory[]>([]);
   const [summary, setSummary] = useState<ExpenseSummary>({
     owedToMe: 0,
     iOwe: 0,
@@ -63,6 +72,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
 
   useEffect(() => {
     if (trekId && user) {
+      fetchExpenseCategories();
       fetchExpenses();
     }
   }, [trekId, user]);
@@ -79,10 +89,21 @@ export function useExpenseSplitting(trekId: string | undefined) {
       const trekIdNumber = parseInt(trekId);
       if (isNaN(trekIdNumber)) throw new Error('Invalid trek ID');
 
-      // --- Fetch expenses (Phase 1: Raw data) ---
+      // --- Fetch expenses (Phase 1: Raw data with category_id) ---
       const { data: rawExpenses, error: expensesError } = await supabase
         .from('trek_expenses')
-        .select('*, expense_shares(*)') // Fetch expenses and their shares
+        .select(`
+          id,
+          trek_id,
+          creator_id,
+          category_id,
+          amount,
+          description,
+          expense_date,
+          receipt_url,
+          expense_shares(*),
+          trek_expense_categories!inner( name, icon ) 
+        `)
         .eq('trek_id', trekIdNumber);
         
       if (expensesError) throw expensesError;
@@ -100,26 +121,28 @@ export function useExpenseSplitting(trekId: string | undefined) {
       const uniqueUserIds = [...new Set([...allCreatorIds, ...allShareUserIds, user.id])]; // Include current user
 
       // --- Fetch User Details (Phase 2) ---
-      let userMap: Record<string, { full_name: string | null }> = {};
+      let userMap: Record<string, { name: string | null }> = {};
       if (uniqueUserIds.length > 0) {
           const { data: usersData, error: usersError } = await supabase
               .from('users') // Query public.users
-              .select('user_id, full_name')
+              .select('user_id, name') // Corrected to select 'name'
               .in('user_id', uniqueUserIds);
           if (usersError) console.error('Error fetching user details for expenses:', usersError);
           else {
-              usersData?.forEach(u => { userMap[u.user_id] = { full_name: u.full_name || null }; });
+              usersData?.forEach(u => { userMap[u.user_id] = { name: u.name || null }; });
           }
       }
 
       // --- Process and Combine Data (Phase 3) ---
       const processedExpenses = rawExpenses.map(expense => {
-          const creatorName = userMap[expense.creator_id]?.full_name || null;
+          const creatorName = userMap[expense.creator_id]?.name || null;
+          // Extract category details from the joined data
+          const categoryDetails = expense.trek_expense_categories as ExpenseCategory | null;
           const processedShares = (expense.expense_shares || []).map((share: any) => ({
               id: share.id,
               expense_id: expense.id,
               user_id: share.user_id,
-              user_name: userMap[share.user_id]?.full_name || null,
+              user_name: userMap[share.user_id]?.name || null,
               amount: share.amount,
               status: share.status,
               payment_method: share.payment_method,
@@ -131,7 +154,9 @@ export function useExpenseSplitting(trekId: string | undefined) {
               trek_id: expense.trek_id,
               creator_id: expense.creator_id,
               creator_name: creatorName,
-              expense_type: expense.expense_type,
+              category_id: expense.category_id,
+              category_name: categoryDetails?.name || 'Uncategorized',
+              category_icon: categoryDetails?.icon || null,
               amount: expense.amount,
               description: expense.description,
               expense_date: expense.expense_date,
@@ -234,7 +259,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
         .insert({
           trek_id: expenseData.trekId,
           creator_id: user.id,
-          expense_type: expenseData.expenseType,
+          category_id: expenseData.categoryId,
           amount: expenseData.amount,
           description: expenseData.description,
           expense_date: expenseData.expenseDate,
@@ -375,10 +400,31 @@ export function useExpenseSplitting(trekId: string | undefined) {
     }
   };
 
+  const fetchExpenseCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('trek_expense_categories')
+        .select('id, name, icon')
+        .order('name');
+
+      if (error) throw error;
+      setExpenseCategories(data || []);
+    } catch (error) {
+      console.error('Error fetching expense categories:', error);
+      toast({
+        title: 'Error loading categories',
+        description: 'Could not load expense categories',
+        variant: 'destructive'
+      });
+      setExpenseCategories([]);
+    }
+  };
+
   return {
     expenses,
     myExpenses,
     expensesSharedWithMe,
+    expenseCategories,
     summary,
     loading,
     submitting,

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import PackingItemsAdmin from '@/components/trek/PackingItemsAdmin';
-import TrekEventsAdmin from '@/components/trek/TrekEventsAdmin';
+import TrekEventsAdmin from './admin/TrekEventsAdmin';
 import UserVerificationPanel from '@/components/admin/UserVerificationPanel';
 import RegistrationAdmin from '@/components/admin/RegistrationAdmin';
 import { useAuth } from '@/components/auth/AuthProvider';

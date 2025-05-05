@@ -13,11 +13,12 @@ import {
   Star,
   Package
 } from 'lucide-react';
-import { AdminTransportCoordination } from '@/components/admin/AdminTransportCoordination';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { formatCurrency } from '@/lib/utils';
+import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
+// import { AdminTransportCoordination } from '@/components/admin/AdminTransportCoordination'; // Keep commented out or remove
 
 // Define a more flexible interface to handle field name variations
 interface TrekEvent {
@@ -369,7 +370,19 @@ export default function AdminTrekDetails() {
             </TabsContent>
 
             <TabsContent value="transport">
-              <AdminTransportCoordination />
+              <Card>
+                <CardHeader>
+                  <CardTitle>Transport Management</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-8 text-muted-foreground">
+                    Transport management is now handled within the main Trek Details page 
+                    using the 'Travel Coordination' section when viewed as an admin.
+                    (Or display the TravelCoordination component here if preferred:
+                     e.g., &lt;TravelCoordination trekId={trekId} isAdmin={true} /&gt; )
+                  </div>
+                </CardContent>
+              </Card>
             </TabsContent>
 
             <TabsContent value="expenses">

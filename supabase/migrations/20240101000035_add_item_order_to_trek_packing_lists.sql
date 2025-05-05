@@ -1,2 +1,0 @@
--- This migration is obsolete. All logic for item_order is now in the main schema migration.
--- Remove any references to 'profiles' or grants/revokes on 'profiles'.

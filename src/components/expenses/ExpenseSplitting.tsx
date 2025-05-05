@@ -34,7 +34,8 @@ import {
   useExpenseSplitting, 
   Expense, 
   ExpenseShare, 
-  CreateExpenseInput 
+  CreateExpenseInput, 
+  ExpenseCategory
 } from '@/hooks/useExpenseSplitting';
 import { formatCurrency } from '@/lib/utils';
 
@@ -56,6 +57,7 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({
     expenses,
     myExpenses,
     expensesSharedWithMe,
+    expenseCategories,
     summary,
     loading,
     submitting,
@@ -68,7 +70,7 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({
   // Create expense form state
   const [showAddExpense, setShowAddExpense] = useState(false);
   const [newExpenseForm, setNewExpenseForm] = useState({
-    expenseType: '',
+    categoryId: '' as number | '',
     amount: '',
     description: '',
     expenseDate: new Date().toISOString().substring(0, 10),
@@ -93,7 +95,7 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({
   useEffect(() => {
     if (!showAddExpense) {
       setNewExpenseForm({
-        expenseType: '',
+        categoryId: '',
         amount: '',
         description: '',
         expenseDate: new Date().toISOString().substring(0, 10),
@@ -202,10 +204,10 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({
       return;
     }
     
-    if (!newExpenseForm.expenseType) {
+    if (newExpenseForm.categoryId === '') {
       toast({ 
-        title: 'Missing expense type', 
-        description: 'Please select an expense type', 
+        title: 'Missing category', 
+        description: 'Please select an expense category', 
         variant: 'destructive' 
       });
       return;
@@ -253,7 +255,7 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({
     
     const expenseData: CreateExpenseInput = {
       trekId: parseInt(actualTrekId),
-      expenseType: newExpenseForm.expenseType,
+      categoryId: Number(newExpenseForm.categoryId),
       amount: totalAmount,
       description: newExpenseForm.description,
       expenseDate: newExpenseForm.expenseDate,
@@ -474,34 +476,31 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({
 
       {/* Add Expense Dialog */}
       <Dialog open={showAddExpense} onOpenChange={setShowAddExpense}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="sm:max-w-[600px]">
           <DialogHeader>
             <DialogTitle>Add New Expense</DialogTitle>
             <DialogDescription>
-              Share expenses with other trek participants.
+              Enter expense details and choose how to split it.
             </DialogDescription>
           </DialogHeader>
           
-          <div className="space-y-6 py-4">
-            {/* Basic Expense Details */}
+          <div className="py-4 space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="expenseType">Expense Type</Label>
+                <Label htmlFor="categoryId">Category</Label>
                 <Select 
-                  name="expenseType" 
-                  value={newExpenseForm.expenseType} 
-                  onValueChange={value => setNewExpenseForm(prev => ({ ...prev, expenseType: value }))}
+                  value={newExpenseForm.categoryId !== '' ? String(newExpenseForm.categoryId) : ''}
+                  onValueChange={(value) => setNewExpenseForm(prev => ({ ...prev, categoryId: value ? Number(value) : ''}))}
                 >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select expense type" />
+                  <SelectTrigger id="categoryId">
+                    <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="Food">Food</SelectItem>
-                    <SelectItem value="Transport">Transport</SelectItem>
-                    <SelectItem value="Accommodation">Accommodation</SelectItem>
-                    <SelectItem value="Activities">Activities</SelectItem>
-                    <SelectItem value="Equipment">Equipment</SelectItem>
-                    <SelectItem value="Misc">Miscellaneous</SelectItem>
+                    {expenseCategories.map((category) => (
+                      <SelectItem key={category.id} value={String(category.id)}>
+                        {category.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -761,19 +760,32 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
   const isCreator = expense.creator_id === currentUserId;
   const myShare = expense.shares.find(share => share.user_id === currentUserId);
   
-  // Get expense icon based on type
+  // Get expense icon based on category icon or name
   const getExpenseIcon = () => {
-    switch (expense.expense_type.toLowerCase()) {
+    const iconName = expense.category_icon || expense.category_name?.toLowerCase() || 'other';
+
+    switch (iconName) {
       case 'food':
+      case 'utensils':
         return <Receipt className="h-5 w-5 text-amber-500" />;
       case 'transport':
+      case 'car':
         return <Car className="h-5 w-5 text-blue-500" />;
       case 'accommodation':
+      case 'home':
+      case 'stay':
         return <Buildings className="h-5 w-5 text-purple-500" />;
       case 'activities':
+      case 'map':
         return <MapPin className="h-5 w-5 text-green-500" />;
       case 'equipment':
+      case 'tool':
+      case 'tickets':
+      case 'ticket':
         return <Package className="h-5 w-5 text-red-500" />;
+      case 'misc':
+      case 'package':
+        return <Receipt className="h-5 w-5 text-gray-500" />;
       default:
         return <Receipt className="h-5 w-5 text-gray-500" />;
     }
@@ -805,7 +817,11 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
               <CardTitle className="text-base">{expense.description}</CardTitle>
               <CardDescription className="flex items-center gap-1">
                 <Calendar className="h-3 w-3" />
-                <span>{format(new Date(expense.expense_date), 'MMM d, yyyy')}</span>
+                <span>
+                  {expense.expense_date && !isNaN(new Date(expense.expense_date).getTime())
+                    ? format(new Date(expense.expense_date), 'MMM d, yyyy')
+                    : 'Invalid date'}
+                </span>
                 <span className="mx-1">•</span>
                 <span>{expense.creator_name || 'Unknown'}</span>
               </CardDescription>
@@ -813,7 +829,7 @@ const ExpenseCard: React.FC<ExpenseCardProps> = ({
           </div>
           <div className="text-right">
             <div className="font-bold">{formatCurrency(expense.amount)}</div>
-            <div className="text-xs text-muted-foreground">{expense.expense_type}</div>
+            <div className="text-xs text-muted-foreground">{expense.category_name || 'Uncategorized'}</div>
           </div>
         </div>
       </CardHeader>

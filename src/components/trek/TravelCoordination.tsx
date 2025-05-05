@@ -347,7 +347,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                 {drivers.length === 0 ? (
                   <p className="text-muted-foreground text-sm">No drivers assigned yet.</p>
                 ) : (
-                  <div className="space-y-4">
+            <div className="space-y-4">
                     {drivers.map(driver => (
                       <Card key={driver.user_id}>
                         <CardHeader className="pb-2">
@@ -359,7 +359,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                                   {(driver.full_name || 'D').substring(0, 2).toUpperCase()}
                                 </AvatarFallback>
                               </Avatar>
-                              <div>
+                  <div>
                                 <CardTitle className="text-base">{driver.full_name || 'Driver'}</CardTitle>
                                 <CardDescription className="text-xs">
                                   {driver.vehicle_details?.vehicle_name} ({driver.vehicle_details?.registration_number})
@@ -387,8 +387,8 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                         </CardContent>
                       </Card>
                     ))}
-                  </div>
-                )}
+                </div>
+              )}
               </TabsContent>
               
               <TabsContent value="participants" className="pt-4">
@@ -449,8 +449,8 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                         </div>
                       );
                     })}
-                  </div>
-                )}
+                </div>
+              )}
               </TabsContent>
               
               <TabsContent value="locations" className="pt-4">

@@ -22,6 +22,22 @@ interface Comment {
   isEventCreator: boolean;
 }
 
+// Define interfaces for database records to fix type issues
+interface TrekComment {
+  comment_id: number;
+  user_id: string;
+  comment_text: string;
+  created_at: string;
+  updated_at?: string;
+  trek_id: number;
+}
+
+interface UserProfile {
+  user_id: string;
+  name: string;
+  avatar_url: string | null;
+}
+
 export const useTrekCommunity = (trekId: string | undefined) => {
   const { user } = useAuth();
   const [participants, setParticipants] = useState<Participant[]>([]);
@@ -37,6 +53,7 @@ export const useTrekCommunity = (trekId: string | undefined) => {
   const fetchCommunityData = useCallback(async () => {
     if (!numericTrekId) return;
     setLoading(true);
+    setCommentsLoading(true);
     setError(null);
 
     try {
@@ -83,12 +100,13 @@ export const useTrekCommunity = (trekId: string | undefined) => {
           }
       }
       setParticipants(fetchedParticipants);
+      setParticipantCount(fetchedParticipants.length);
 
       // Fetch Comments (Two-Step)
-      // Step 1: Fetch comments
-      const { data: commentsData, error: commentsError } = await supabase
+      // Step 1: Fetch comments - select only comment_text
+      const { data: rawCommentsData, error: commentsError } = await supabase
           .from('trek_comments')
-          .select('comment_id, user_id, body, created_at') // Use body
+          .select('comment_id, user_id, comment_text, created_at') // Only select comment_text
           .eq('trek_id', numericTrekId)
           .order('created_at', { ascending: true });
       
@@ -97,87 +115,106 @@ export const useTrekCommunity = (trekId: string | undefined) => {
         throw new Error(`Failed to fetch comments: ${commentsError.message}`);
       }
 
+      // SafeCast with unknown intermediate type to satisfy TypeScript
+      const commentsData = (rawCommentsData as unknown) as TrekComment[];
+      
       let fetchedComments: Comment[] = [];
       if (commentsData && commentsData.length > 0) {
            // Step 2: Fetch user details for comment authors
            const commentUserIds = [...new Set(commentsData.map(c => c.user_id).filter(Boolean))];
-           let commentUsersData: { user_id: string; name: string; avatar_url: string | null }[] = [];
+           let commentUsersData: UserProfile[] = [];
            if (commentUserIds.length > 0) {
                const { data: usersData, error: usersError } = await supabase
                    .from('users')
-                   .select('user_id, name, avatar_url') // Use name
+                   .select('user_id, name, avatar_url') 
                    .in('user_id', commentUserIds);
                if (usersError) {
                    console.error("Error fetching comment user details:", usersError);
                } else {
-                   commentUsersData = usersData || [];
+                   commentUsersData = (usersData as unknown) as UserProfile[] || [];
                }
            }
 
            // Step 3: Combine comment and user data, mapping to Comment interface
            fetchedComments = commentsData.map(comment => {
                const author = commentUsersData.find(u => u.user_id === comment.user_id);
+               // Use only comment_text field
+               const commentContent = comment.comment_text || '';
+               
                return {
-                   id: comment.comment_id.toString(), // Map comment_id to id (as string)
+                   id: comment.comment_id.toString(), 
                    userId: comment.user_id,
                    userName: author?.name || 'Unknown User',
                    userAvatar: author?.avatar_url || null,
-                   content: comment.body, // Map body to content
+                   content: commentContent, 
                    createdAt: comment.created_at,
-                   isEventCreator: false // Determine if needed
+                   isEventCreator: false 
                };
            });
       }
       setComments(fetchedComments);
+      setCommentsLoading(false);
 
     } catch (err: any) {
       console.error("Error fetching community data:", err);
       setError(err.message || 'Failed to load community data');
       setParticipants([]);
+      setParticipantCount(0);
       setComments([]);
+      setCommentsLoading(false);
     } finally {
       setLoading(false);
     }
   }, [numericTrekId]);
 
   // Add Comment Function
-  const addComment = useCallback(async (commentText: string) => {
+  const addComment = useCallback(async (commentText: string): Promise<boolean> => {
     if (!numericTrekId || !commentText.trim() || !user) {
         toast({ title: "Cannot add comment", description: "Missing information or not logged in.", variant: "destructive" });
-        return; 
+        return false;
     }
 
     setSubmitting(true);
+    let success = false;
     try {
-        const { data: newCommentData, error } = await supabase
+        // Insert only comment_text
+        const { data: rawCommentData, error } = await supabase
             .from('trek_comments')
-            .insert({
+            .insert(({
                 trek_id: numericTrekId,
-                user_id: user.id, // Safe now due to check above
-                body: commentText.trim(), // Use body
-            })
-            .select('comment_id, user_id, body, created_at') // Use body
+                user_id: user.id,
+                comment_text: commentText.trim() // Only set comment_text
+            } as any)) // Cast to any to bypass strict type check for insert
+            .select('comment_id, user_id, comment_text, created_at') // Only select comment_text
             .single();
 
         if (error) throw error;
+        
+        // Type assertion with unknown intermediate type for safety
+        const newCommentData = (rawCommentData as unknown) as TrekComment;
 
         if (newCommentData) {
             // Use the updated Participant interface which uses 'id'
             const author = participants.find(p => p.id === newCommentData.user_id) 
-                        ?? { id: newCommentData.user_id, name: 'You', avatar: user?.user_metadata?.avatar_url || null, joinedAt: '' }; // Use id, avatar
+                        ?? { id: newCommentData.user_id, name: 'You', avatar: user?.user_metadata?.avatar_url || null, joinedAt: '' };
+            
+            // Get content only from comment_text
+            const commentContent = newCommentData.comment_text || '';
             
             // Map to the Comment interface
             const formattedComment: Comment = {
                 id: newCommentData.comment_id.toString(),
                 userId: newCommentData.user_id,
                 userName: author.name,
-                userAvatar: author.avatar, // Use avatar
-                content: newCommentData.body,
+                userAvatar: author.avatar,
+                content: commentContent,
                 createdAt: newCommentData.created_at,
-                isEventCreator: false // Determine if needed
+                isEventCreator: false
             };
-            setComments(prev => [...prev, formattedComment]);
-            toast({ title: "Comment added", variant: "default" });
+            setComments(prev => [...prev, formattedComment].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()));
+            success = true;
+        } else {
+           console.error("Insert succeeded but no comment data returned.");
         }
     } catch (error: any) {
         console.error("Error adding comment:", error);
@@ -185,13 +222,14 @@ export const useTrekCommunity = (trekId: string | undefined) => {
     } finally {
         setSubmitting(false);
     }
+    return success;
   }, [numericTrekId, user, participants, user?.user_metadata?.avatar_url]);
 
   useEffect(() => {
     if (trekId) {
       fetchCommunityData();
     }
-  }, [trekId]);
+  }, [trekId, fetchCommunityData]);
 
   return {
     participants,

@@ -54,7 +54,7 @@ export const UserTreks = () => {
         const trekIds = data.map((reg: any) => reg.trek_id);
         const { data: trekEvents, error: trekEventsError } = await supabase
           .from('trek_events')
-          .select('trek_id, trek_name, start_datetime, cost, category, location, max_participants, image_url')
+          .select('trek_id, name, start_datetime, base_price, category, location, max_participants, image_url')
           .in('trek_id', trekIds);
         if (trekEventsError) throw trekEventsError;
         const trekMap = (trekEvents || []).reduce((acc, trek) => {
@@ -70,12 +70,11 @@ export const UserTreks = () => {
           const startDate = trekData ? new Date(trekData.start_datetime) : new Date('');
           return {
             ...reg,
-            trek_name: trekData?.trek_name || '(Event Missing)',
+            trek_name: trekData?.name || '(Event Missing)',
             start_datetime: trekData?.start_datetime || '',
-            cost: trekData?.cost ?? 0,
+            cost: trekData?.base_price ?? 0,
             category: trekData?.category ?? null,
             location: trekData?.location ?? null,
-            participant_count: trekData?.participant_count ?? 0,
             max_participants: trekData?.max_participants ?? 0,
             isPast: trekData ? startDate < now : false,
             image_url: trekData?.image_url || null

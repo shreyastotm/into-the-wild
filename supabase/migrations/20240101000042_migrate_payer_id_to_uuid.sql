@@ -1,3 +1,0 @@
--- This migration (originally 20250422...) was emptied 
--- because it attempted to migrate an integer payer_id to UUID,
--- but the relevant tables (trek_ad_hoc_expenses, users) already use UUIDs. 

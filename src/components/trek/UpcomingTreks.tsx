@@ -76,20 +76,19 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
         
         // Try to fetch trek_name/name
         try {
+          // Try with 'trek_name' first
           const nameResult = await supabase
             .from('trek_events')
-            .select('trek_id, trek_name')
+            .select('trek_id, name')
             .in('trek_id', trekEvents.map(t => t.trek_id));
             
           if (!nameResult.error && nameResult.data) {
             // Create a mapping of trek_id to trek_name
             const nameMap: Record<number, string> = {};
             
-            // Use explicit type to help TypeScript understand the structure
-            const safeData = nameResult.data as Array<{trek_id?: number, trek_name?: string}>;
-            safeData.forEach(item => {
-              if (item?.trek_id !== undefined && item?.trek_name !== undefined) {
-                nameMap[item.trek_id] = item.trek_name;
+            nameResult.data.forEach(item => {
+              if (item && typeof item === 'object' && 'trek_id' in item && 'name' in item) {
+                nameMap[item.trek_id] = item.name;
               }
             });
             
@@ -112,7 +111,9 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
               // Create a mapping of trek_id to name
               const nameMap = {};
               for (const item of altNameResult.data) {
-                nameMap[item.trek_id] = item.name;
+                if (item && typeof item === 'object' && 'trek_id' in item && 'name' in item) {
+                  nameMap[item.trek_id] = item.name;
+                }
               }
               
               // Update the trek events with names
@@ -123,96 +124,155 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
             }
           } catch (altNameErr) {
             console.log("Error fetching alternative name:", altNameErr);
+            // Set default names as fallback
+            trekEvents = trekEvents.map(trek => ({
+              ...trek,
+              trek_name: `Trek ${trek.trek_id}`
+            }));
           }
         }
         
-        // Try to fetch difficulty/category
+        // Try to fetch difficulty/category more safely
         let categoryMap = {};
         try {
-          const difficultyResult = await supabase
+          // Use a safer approach: Get all columns first, then only query those that exist
+          // This avoids all 400 Bad Request errors
+          const { data: columns } = await supabase
             .from('trek_events')
-            .select('trek_id, difficulty')
-            .in('trek_id', trekEvents.map(t => t.trek_id));
+            .select('*')
+            .eq('trek_id', trekEvents[0].trek_id)
+            .limit(1);
             
-          if (!difficultyResult.error && difficultyResult.data) {
-            // Create a mapping of trek_id to difficulty
-            for (const item of difficultyResult.data) {
-              categoryMap[item.trek_id] = item.difficulty;
-            }
-          }
-        } catch (diffErr) {
-          console.log("Error fetching difficulty:", diffErr);
-          // Try with 'category' instead
-          try {
-            const categoryResult = await supabase
-              .from('trek_events')
-              .select('trek_id, category')
-              .in('trek_id', trekEvents.map(t => t.trek_id));
-              
-            if (!categoryResult.error && categoryResult.data) {
-              // Type the data array explicitly
-              const safeData = categoryResult.data as Array<{trek_id?: number, category?: string}>;
-              safeData.forEach(item => {
-                if (item?.trek_id !== undefined && item?.category !== undefined) {
-                  categoryMap[item.trek_id] = item.category;
+          if (columns && columns.length > 0) {
+            const firstItem = columns[0] as Record<string, any>;
+            const hasCategory = 'category' in firstItem;
+            const hasDifficulty = 'difficulty' in firstItem;
+            const hasImageUrl = 'image_url' in firstItem;
+            
+            // Fetch image URLs if they exist
+            let imageMap = {};
+            if (hasImageUrl) {
+              const imageResult = await supabase
+                .from('trek_events')
+                .select('trek_id, image_url')
+                .in('trek_id', trekEvents.map(t => t.trek_id));
+                
+              if (!imageResult.error && imageResult.data) {
+                for (const item of imageResult.data) {
+                  if (item && typeof item === 'object' && 'trek_id' in item && 'image_url' in item) {
+                    imageMap[item.trek_id] = item.image_url;
+                  }
                 }
-              });
+              }
             }
-          } catch (catErr) {
-            console.log("Error fetching category:", catErr);
-          }
-        }
-        
-        // Try to fetch cost/base_price
-        let costMap = {};
-        try {
-          const costResult = await supabase
-            .from('trek_events')
-            .select('trek_id, cost')
-            .in('trek_id', trekEvents.map(t => t.trek_id));
             
-          if (!costResult.error && costResult.data) {
-            // Type the data array explicitly
-            const safeData = costResult.data as Array<{trek_id?: number, cost?: number}>;
-            safeData.forEach(item => {
-              if (item?.trek_id !== undefined && item?.cost !== undefined) {
-                costMap[item.trek_id] = item.cost;
-              }
-            });
-          }
-        } catch (costErr) {
-          console.log("Error fetching cost:", costErr);
-          // Try with 'base_price' instead
-          try {
-            const priceResult = await supabase
-              .from('trek_events')
-              .select('trek_id, base_price')
-              .in('trek_id', trekEvents.map(t => t.trek_id));
-              
-            if (!priceResult.error && priceResult.data) {
-              // Create a mapping of trek_id to base_price
-              for (const item of priceResult.data) {
-                costMap[item.trek_id] = item.base_price;
-              }
+            // Only query difficulty if it exists as a column
+            if (hasDifficulty) {
+              const difficultyResult = await supabase
+                .from('trek_events')
+                .select('trek_id, difficulty')
+                .in('trek_id', trekEvents.map(t => t.trek_id));
+                
+                if (!difficultyResult.error && difficultyResult.data) {
+                  // Create a mapping of trek_id to difficulty
+                  for (const item of difficultyResult.data) {
+                    if (item && typeof item === 'object' && 'trek_id' in item && 'difficulty' in item) {
+                      categoryMap[item.trek_id] = item.difficulty;
+                    }
+                  }
+                }
+            } 
+            // Only query category if it exists and difficulty doesn't
+            else if (hasCategory) {
+              const categoryResult = await supabase
+                .from('trek_events')
+                .select('trek_id, category')
+                .in('trek_id', trekEvents.map(t => t.trek_id));
+                
+                if (!categoryResult.error && categoryResult.data) {
+                  for (const item of categoryResult.data) {
+                    if (item && typeof item === 'object' && 'trek_id' in item && 'category' in item) {
+                      categoryMap[item.trek_id] = item.category;
+                    }
+                  }
+                }
+            } else {
+              console.log("Neither 'difficulty' nor 'category' columns exist in trek_events table");
             }
-          } catch (priceErr) {
-            console.log("Error fetching base_price:", priceErr);
+            
+            // Similarly, check cost fields to avoid 400 errors
+            const hasCost = 'cost' in firstItem;
+            const hasBasePrice = 'base_price' in firstItem;
+            
+            // Try to fetch cost/base_price with the same approach
+            let costMap = {};
+            
+            // Only query cost if it exists as a column
+            if (hasCost) {
+              const costResult = await supabase
+                .from('trek_events')
+                .select('trek_id, cost')
+                .in('trek_id', trekEvents.map(t => t.trek_id));
+                
+                if (!costResult.error && costResult.data) {
+                  for (const item of costResult.data) {
+                    if (item && typeof item === 'object' && 'trek_id' in item && 'cost' in item) {
+                      costMap[item.trek_id] = item.cost;
+                    }
+                  }
+                }
+            } 
+            // Only query base_price if it exists and cost doesn't
+            else if (hasBasePrice) {
+              const priceResult = await supabase
+                .from('trek_events')
+                .select('trek_id, base_price')
+                .in('trek_id', trekEvents.map(t => t.trek_id));
+                
+                if (!priceResult.error && priceResult.data) {
+                  for (const item of priceResult.data) {
+                    if (item && typeof item === 'object' && 'trek_id' in item && 'base_price' in item) {
+                      costMap[item.trek_id] = item.base_price;
+                    }
+                  }
+                }
+            } else {
+              console.log("Neither 'cost' nor 'base_price' columns exist in trek_events table");
+            }
+            
+            // Create final trek objects combining all the data
+            const mappedTreks = trekEvents.map(trek => ({
+                trek_id: trek.trek_id,
+                trek_name: trek.trek_name || `Trek ${trek.trek_id}`,
+                category: categoryMap[trek.trek_id] || 'General',
+                start_datetime: trek.start_datetime,
+                cost: costMap[trek.trek_id] || 0,
+                max_participants: trek.max_participants || 0,
+                description: trek.description,
+                image_url: imageMap[trek.trek_id] || null
+            })) as Trek[];
+            
+            setTreks(mappedTreks);
+          } else {
+            console.log("No trek data found to determine schema");
+            setTreks([]);
           }
-        }
-        
-        // Create final trek objects combining all the data
-        const mappedTreks = trekEvents.map(trek => ({
+        } catch (error) {
+          console.error("Error processing trek data:", error);
+          // Set simple trek objects as fallback
+          const simpleTrips = trekEvents.map(trek => ({
             trek_id: trek.trek_id,
             trek_name: trek.trek_name || `Trek ${trek.trek_id}`,
-            category: categoryMap[trek.trek_id] || 'General',
+            category: 'General',
             start_datetime: trek.start_datetime,
-            cost: costMap[trek.trek_id] || 0,
+            cost: 0,
             max_participants: trek.max_participants || 0,
             description: trek.description,
             image_url: null
-        })) as Trek[];
+          })) as Trek[];
+          setTreks(simpleTrips);
+        }
         
-        setTreks(mappedTreks);
         setParticipantCounts({});
       } else {
         setTreks([]);
@@ -235,33 +295,38 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     try {
       await Promise.all(
         treks.map(async (trek) => {
-          const { data, error } = await supabase
-            .from('trek_registrations')
-            .select('user_id, payment_status', { count: 'exact', head: true }) // Use count for efficiency
-            .eq('trek_id', trek.trek_id)
-            .not('payment_status', 'eq', 'Cancelled');
-          
-          // Supabase count might be null if query fails or has no rows
-          // Need to check for error explicitly
-          if (error) {
-             console.error(`Error fetching count for trek ${trek.trek_id}:`, error);
-             counts[trek.trek_id] = 0; // Default to 0 on error
-          } else {
-             // If no error, use the count. It will be 0 if no registrations found.
-             const { count } = await supabase
-                .from('trek_registrations')
-                .select('user_id', { count: 'exact' })
-                .eq('trek_id', trek.trek_id)
-                .not('payment_status', 'eq', 'Cancelled')
-                .then(res => ({ count: res.count ?? 0 })); // Fetch actual count safely
-             counts[trek.trek_id] = count;
+          // Original structure - assuming trek is valid here
+          try {
+            // Get an accurate count by just counting all non-cancelled registrations
+            // Removed head: true to potentially avoid 500 errors, fetch minimal column instead.
+            const { count, error } = await supabase
+              .from('trek_registrations')
+              .select('registration_id', { count: 'exact' }) // Select minimal column, keep count
+              .eq('trek_id', trek.trek_id)
+              .not('payment_status', 'eq', 'Cancelled');
+            
+            if (error) {
+              console.error(`Error fetching count for trek ${trek.trek_id}:`, error);
+              counts[trek.trek_id] = 0; // Default to 0 on error
+            } else {
+              // Use the count directly if available
+              counts[trek.trek_id] = count || 0;
+            }
+          } catch (err) {
+            console.error(`Error processing count for trek ${trek.trek_id}:`, err);
+            counts[trek.trek_id] = 0;
           }
         })
       );
       setParticipantCounts(counts);
     } catch (err) {
       console.error("Error in Promise.all for participant counts:", err);
-      // Optionally set counts to 0 or handle the error state
+      // Set all counts to 0 on error
+      const zeroCounts = treks.reduce((acc, trek) => {
+        acc[trek.trek_id] = 0;
+        return acc;
+      }, {} as Record<number, number>);
+      setParticipantCounts(zeroCounts);
     }
   };
 
