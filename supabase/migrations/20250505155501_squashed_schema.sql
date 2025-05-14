@@ -313,11 +313,11 @@ CREATE TABLE IF NOT EXISTS public.trek_driver_assignments (
     trek_id INTEGER NOT NULL REFERENCES public.trek_events(trek_id) ON DELETE CASCADE,
     driver_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE, -- Refers to user_id from trek_drivers
     participant_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE, -- Refers to user_id from trek_registrations
-    pickup_status VARCHAR(20) DEFAULT 'pending',
+    status VARCHAR(20) DEFAULT 'pending', -- Corrected: use 'status'
     assigned_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     UNIQUE(trek_id, driver_id, participant_id),
-    CONSTRAINT valid_pickup_status CHECK (pickup_status IN ('pending', 'confirmed', 'picked_up', 'cancelled'))
+    CONSTRAINT valid_assignment_status CHECK (status IN ('pending', 'confirmed', 'picked_up', 'cancelled')) -- Corrected: check 'status'
 );
 COMMENT ON TABLE public.trek_driver_assignments IS 'Assigns participants to specific drivers for a trek.';
 
@@ -816,5 +816,22 @@ DROP POLICY IF EXISTS "Allow admin full access to master packing items" ON publi
 CREATE POLICY "Allow admin full access to master packing items" ON public.master_packing_items FOR ALL USING (EXISTS (SELECT 1 FROM public.users WHERE users.user_id = auth.uid() AND users.user_type = 'admin'));
 DROP POLICY IF EXISTS "Allow admin full access to trek packing assignments" ON public.trek_packing_list_assignments;
 CREATE POLICY "Allow admin full access to trek packing assignments" ON public.trek_packing_list_assignments FOR ALL USING (EXISTS (SELECT 1 FROM public.users WHERE users.user_id = auth.uid() AND users.user_type = 'admin'));
+
+-- Add category_id to trek_expenses if it doesn't exist and add FK constraint
+DO $$
+BEGIN
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'trek_expenses' AND column_name = 'category_id') THEN
+        ALTER TABLE public.trek_expenses ADD COLUMN category_id INTEGER;
+    END IF;
+
+    -- Add foreign key constraint if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.table_constraints WHERE constraint_schema = 'public' AND table_name = 'trek_expenses' AND constraint_name = 'trek_expenses_category_id_fkey') THEN
+        ALTER TABLE public.trek_expenses
+        ADD CONSTRAINT trek_expenses_category_id_fkey
+        FOREIGN KEY (category_id)
+        REFERENCES public.trek_expense_categories (id)
+        ON DELETE SET NULL;
+    END IF;
+END $$;
 
 COMMIT; 

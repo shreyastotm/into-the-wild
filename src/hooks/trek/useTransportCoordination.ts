@@ -158,21 +158,23 @@ export function useTransportCoordination(trekId: string | undefined) {
       // --- Fetch Assignments (Raw) ---
       const { data: rawAssignmentsData, error: assignmentsError } = await supabase
         .from('trek_driver_assignments')
-        .select('driver_id, participant_id, pickup_status')
+        .select('driver_id, participant_id, status')
         .eq('trek_id', numericTrekId);
       if (assignmentsError) throw assignmentsError;
 
       // --- Process Assignments Manually ---
       driversWithNames.forEach(driver => {
           driver.assigned_participants = []; // Reset
-          driver.pickup_status = {}; // Reset (maps participant_id to status)
+          driver.pickup_status = {}; // Keep this state name for now, but populate using 'status'
           if (rawAssignmentsData) {
               rawAssignmentsData.forEach(assignment => {
                   if (assignment.driver_id === driver.user_id) {
                       const participant = participantsWithDetails.find(p => p.user_id === assignment.participant_id);
                       if (participant) {
                           driver.assigned_participants.push(participant);
-                          driver.pickup_status[participant.user_id] = (assignment.pickup_status as PickupStatus) || 'pending';
+                          // Populate using the correct column name 'status'
+                          // Use 'as any' temporarily to bypass TS type error
+                          driver.pickup_status[participant.user_id] = ((assignment as any).status as PickupStatus) || 'pending'; 
                       }
                   }
               });
@@ -239,8 +241,8 @@ export function useTransportCoordination(trekId: string | undefined) {
           trek_id: numericTrekId,
           driver_id: driverId,
           participant_id: participantId,
-          pickup_status: 'pending'
-        });
+          status: 'pending'
+        } as any);
 
       if (error) throw error;
 
@@ -271,7 +273,7 @@ export function useTransportCoordination(trekId: string | undefined) {
       
       const { error } = await supabase
         .from('trek_driver_assignments')
-        .update({ pickup_status: statusValue })
+        .update({ status: statusValue } as any)
         .eq('trek_id', numericTrekId)
         .eq('driver_id', driverId)
         .eq('participant_id', participantId);

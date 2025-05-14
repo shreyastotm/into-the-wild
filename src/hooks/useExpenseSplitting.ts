@@ -89,43 +89,47 @@ export function useExpenseSplitting(trekId: string | undefined) {
       const trekIdNumber = parseInt(trekId);
       if (isNaN(trekIdNumber)) throw new Error('Invalid trek ID');
 
-      // --- Fetch expenses (Phase 1: Raw data with category_id) ---
+      // --- Fetch expenses (Phase 1: Raw data WITHOUT category join) ---
       const { data: rawExpenses, error: expensesError } = await supabase
         .from('trek_expenses')
-        .select(`
-          id,
-          trek_id,
-          creator_id,
-          category_id,
-          amount,
-          description,
-          expense_date,
-          receipt_url,
-          expense_shares(*),
-          trek_expense_categories!inner( name, icon ) 
-        `)
+        .select('id, trek_id, creator_id, category_id, amount, description, expense_date, receipt_url, expense_shares(*)')
         .eq('trek_id', trekIdNumber);
         
       if (expensesError) throw expensesError;
-      if (!rawExpenses) {
+      if (!rawExpenses || rawExpenses.length === 0) { // Check length explicitly
           setMyExpenses([]);
           setExpensesSharedWithMe([]);
           setExpenses([]);
           setLoading(false);
           return;
       }
-
-      // --- Prepare for User Lookups ---
+      
+      // --- Fetch Categories (Phase 2) ---
+      const categoryIds = [...new Set(rawExpenses.map(e => e.category_id).filter(Boolean))]; // Get unique category IDs
+      let categoryMap: Record<number, ExpenseCategory> = {};
+      if (categoryIds.length > 0) {
+        const { data: categoriesData, error: categoriesError } = await supabase
+            .from('trek_expense_categories')
+            .select('id, name, icon')
+            .in('id', categoryIds);
+            
+        if (categoriesError) console.error('Error fetching expense categories:', categoriesError);
+        else {
+            categoriesData?.forEach(cat => { categoryMap[cat.id] = cat; });
+        }
+      }
+      
+      // --- Prepare for User Lookups (Phase 3) ---
       const allCreatorIds = rawExpenses.map(e => e.creator_id).filter(Boolean);
       const allShareUserIds = rawExpenses.flatMap(e => e.expense_shares?.map((s: any) => s.user_id) || []).filter(Boolean);
-      const uniqueUserIds = [...new Set([...allCreatorIds, ...allShareUserIds, user.id])]; // Include current user
+      const uniqueUserIds = [...new Set([...allCreatorIds, ...allShareUserIds, user.id])]; 
 
-      // --- Fetch User Details (Phase 2) ---
+      // --- Fetch User Details (Phase 4) ---
       let userMap: Record<string, { name: string | null }> = {};
       if (uniqueUserIds.length > 0) {
           const { data: usersData, error: usersError } = await supabase
-              .from('users') // Query public.users
-              .select('user_id, name') // Corrected to select 'name'
+              .from('users') 
+              .select('user_id, name') 
               .in('user_id', uniqueUserIds);
           if (usersError) console.error('Error fetching user details for expenses:', usersError);
           else {
@@ -133,11 +137,10 @@ export function useExpenseSplitting(trekId: string | undefined) {
           }
       }
 
-      // --- Process and Combine Data (Phase 3) ---
+      // --- Process and Combine Data (Phase 5) ---
       const processedExpenses = rawExpenses.map(expense => {
           const creatorName = userMap[expense.creator_id]?.name || null;
-          // Extract category details from the joined data
-          const categoryDetails = expense.trek_expense_categories as ExpenseCategory | null;
+          const categoryDetails = expense.category_id ? categoryMap[expense.category_id] : null; // Look up category
           const processedShares = (expense.expense_shares || []).map((share: any) => ({
               id: share.id,
               expense_id: expense.id,

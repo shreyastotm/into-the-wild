@@ -11,10 +11,10 @@ interface TrekPackingListProps {
 }
 
 interface PackingListItem {
-  item_id: number;
-  name: string; // From joined trek_packing_items
-  category: string | null; // From joined trek_packing_items
-  mandatory: boolean;
+  item_id: number; // This will be master_item_id
+  name: string; // From master_packing_items
+  category: string | null; // From master_packing_items
+  mandatory: boolean; // From trek_packing_list_assignments
   // item_order: number; // Can add later if needed
 }
 
@@ -37,14 +37,14 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
         // Convert trekId to a number since the database expects a number
         const trekIdNumber = parseInt(trekId, 10);
         
-        // Fetch items associated with this trek_id from trek_packing_lists
-        // Join with trek_packing_items to get item details (name, category)
+        // Fetch items associated with this trek_id from trek_packing_list_assignments
+        // Join with master_packing_items to get item details (name, category)
         const { data, error: fetchError } = await supabase
-          .from('trek_packing_lists')
+          .from('trek_packing_list_assignments')
           .select(`
             mandatory,
-            item_id,
-            trek_packing_items (
+            master_item_id,
+            master_packing_items (
               name,
               category
             )
@@ -58,11 +58,12 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
 
         // Transform data to match PackingListItem interface
         const formattedList = data?.map(item => ({
-            item_id: item.item_id,
-            // @ts-ignore - Supabase TS inference might need help here
-            name: item.trek_packing_items?.name || 'Unknown Item',
+            // @ts-ignore Supabase type inference might need adjustment for joined tables
+            item_id: item.master_item_id, 
             // @ts-ignore
-            category: item.trek_packing_items?.category || null,
+            name: item.master_packing_items?.name || 'Unknown Item',
+            // @ts-ignore
+            category: item.master_packing_items?.category || null,
             mandatory: item.mandatory,
         })) || [];
 
