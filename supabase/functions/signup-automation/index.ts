@@ -5,7 +5,7 @@
 // - Designed for use with Supabase Auth hooks (on signup)
 
 // @ts-expect-error: 'std/server' is a Deno runtime import
-import { serve } from 'std/server';
+import { serve } from 'std/http/server.ts';
 import { createClient } from '@supabase/supabase-js';
 
 serve(async (req) => {

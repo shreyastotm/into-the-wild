@@ -52,7 +52,6 @@ DROP TABLE IF EXISTS public.expense_shares CASCADE; -- Add explicit drop here
 -- ==============================
 --       CORE TABLES
 -- ==============================
-
 -- Users Table (Reflecting additions from migrations)
 CREATE TABLE IF NOT EXISTS public.users (
     user_id UUID PRIMARY KEY DEFAULT auth.uid() NOT NULL,
@@ -116,6 +115,41 @@ EXCEPTION
         RAISE WARNING 'Error ensuring primary key on public.users: %', SQLERRM;
 END $$;
 
+-- Trek Events Table (Consolidated columns)
+CREATE TABLE IF NOT EXISTS public.trek_events (
+    trek_id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL, -- Use 'name'
+    description TEXT,
+    category VARCHAR(100), -- Keep category as per dbSchema.txt
+    difficulty VARCHAR(50), -- Keep difficulty added by migration
+    start_datetime TIMESTAMPTZ NOT NULL,
+    duration INTERVAL,
+    base_price DECIMAL(10, 2), -- Use 'base_price'
+    cancellation_policy TEXT,
+    penalty_details DECIMAL(10, 2),
+    max_participants INTEGER NOT NULL,
+    location TEXT,
+    route_data JSONB,
+    transport_mode public.transport_mode,
+    vendor_contacts JSONB,
+    pickup_time_window TEXT,
+    event_creator_type public.event_creator_type DEFAULT 'internal'::public.event_creator_type,
+    partner_id UUID REFERENCES public.users(user_id) ON DELETE SET NULL, -- FK to users for micro-communities
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW(),
+    booking_amount DECIMAL(10, 2),
+    collect_full_fee BOOLEAN DEFAULT false,
+    image_url TEXT, -- Added by migration
+    gpx_file_url TEXT,
+    is_finalized BOOLEAN DEFAULT false, -- Added by migration
+    created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL -- Assuming trek creator link
+);
+COMMENT ON TABLE public.trek_events IS 'Defines the details of each trek event.';
+COMMENT ON COLUMN public.trek_events.partner_id IS 'Null for internal events; set for micro-community (external) events';
+COMMENT ON COLUMN public.trek_events.is_finalized IS 'True if trek event is fully detailed and registration requires payment/terms';
+
+
+
 -- Rename trek_events.trek_name to name if necessary
 DO $$
 BEGIN
@@ -177,39 +211,6 @@ BEGIN
         
     END IF;
 END $$;
-
--- Trek Events Table (Consolidated columns)
-CREATE TABLE IF NOT EXISTS public.trek_events (
-    trek_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL, -- Use 'name'
-    description TEXT,
-    category VARCHAR(100), -- Keep category as per dbSchema.txt
-    difficulty VARCHAR(50), -- Keep difficulty added by migration
-    start_datetime TIMESTAMPTZ NOT NULL,
-    duration INTERVAL,
-    base_price DECIMAL(10, 2), -- Use 'base_price'
-    cancellation_policy TEXT,
-    penalty_details DECIMAL(10, 2),
-    max_participants INTEGER NOT NULL,
-    location TEXT,
-    route_data JSONB,
-    transport_mode public.transport_mode,
-    vendor_contacts JSONB,
-    pickup_time_window TEXT,
-    event_creator_type public.event_creator_type DEFAULT 'internal'::public.event_creator_type,
-    partner_id UUID REFERENCES public.users(user_id) ON DELETE SET NULL, -- FK to users for micro-communities
-    created_at TIMESTAMPTZ DEFAULT NOW(),
-    updated_at TIMESTAMPTZ DEFAULT NOW(),
-    booking_amount DECIMAL(10, 2),
-    collect_full_fee BOOLEAN DEFAULT false,
-    image_url TEXT, -- Added by migration
-    gpx_file_url TEXT,
-    is_finalized BOOLEAN DEFAULT false, -- Added by migration
-    created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL -- Assuming trek creator link
-);
-COMMENT ON TABLE public.trek_events IS 'Defines the details of each trek event.';
-COMMENT ON COLUMN public.trek_events.partner_id IS 'Null for internal events; set for micro-community (external) events';
-COMMENT ON COLUMN public.trek_events.is_finalized IS 'True if trek event is fully detailed and registration requires payment/terms';
 
 -- Trek Pickup Locations Table (MOVED EARLIER)
 CREATE TABLE IF NOT EXISTS public.trek_pickup_locations (
