@@ -24,17 +24,21 @@ import {
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { TrekEventStatus } from '@/types/trek';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
   const { user, userProfile } = useAuth();
+  const [isUploadingProof, setIsUploadingProof] = useState(false);
+
   const { 
     trekEvent, 
     loading, 
     registering, 
     userRegistration,
     registerForTrek, 
-    cancelRegistration 
+    cancelRegistration,
+    uploadPaymentProof
   } = useTrekRegistration(id);
   
   const {
@@ -88,6 +92,31 @@ export default function TrekEventDetails() {
     );
   }
 
+  const handleRegistration = async (indemnityAccepted: boolean) => {
+    if (!user || !trekEvent) return { success: false, registrationId: null };
+    const success = await registerForTrek(indemnityAccepted);
+    return { success: success, registrationId: null }; 
+  };
+
+  const handleUploadProof = async (registrationId: number, file: File): Promise<boolean> => {
+    if (!trekEvent || !userRegistration) return false;
+    setIsUploadingProof(true);
+    try {
+      const uploadSuccess = await uploadPaymentProof(file);
+      if (uploadSuccess) {
+        console.log('Payment proof uploaded successfully');
+      } else {
+        console.error('Payment proof upload failed');
+      }
+      return !!uploadSuccess;
+    } catch (error) {
+      console.error('Error uploading payment proof:', error);
+      return false;
+    } finally {
+      setIsUploadingProof(false);
+    }
+  };
+
   return (
     <div className="container mx-auto py-8 px-4">
       <Link to="/trek-events" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
@@ -99,6 +128,7 @@ export default function TrekEventDetails() {
         trekName={trekEvent.trek_name}
         startDatetime={trekEvent.start_datetime}
         category={trekEvent.category}
+        status={trekEvent.status as TrekEventStatus | undefined}
         imageUrl={trekEvent.image_url}
         cost={trekEvent.cost}
         description={trekEvent.description}
@@ -212,11 +242,15 @@ export default function TrekEventDetails() {
               max_participants: trekEvent.max_participants,
               participant_count: participantCount,
               cost: trekEvent.cost,
+              name: trekEvent.trek_name,
+              status: trekEvent.status,
             }}
             userRegistration={userRegistration}
-            onRegister={registerForTrek}
+            onRegister={handleRegistration}
             onCancel={cancelRegistration}
             isLoading={registering}
+            onUploadProof={handleUploadProof}
+            isUploadingProof={isUploadingProof}
           />
         </div>
       </div>

@@ -40,8 +40,17 @@ export default function AuthForm() {
   const [resetEmail, setResetEmail] = useState('');
   const [showReset, setShowReset] = useState(false);
 
-  const toggleMode = () => {
-    setMode(mode === 'signin' ? 'signup' : 'signin');
+  const handleGoogleSignIn = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+    });
+    if (error) {
+      toast({
+        title: 'Google Sign-In Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,49 +106,6 @@ export default function AuthForm() {
           });
           setLoading(false);
           return;
-        }
-
-        // Call Edge Function for signup automation (only if available)
-        let edgeFunctionError = null;
-        try {
-          // Use remote URL if not localhost
-          const edgeUrl = window.location.hostname === 'localhost'
-            ? 'http://localhost:54321/functions/v1/signup-automation'
-            : 'https://lojnpkunoufmwwcifwan.functions.supabase.co/signup-automation';
-          const edgeRes = await fetch(edgeUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user: data.user,
-              data: {
-                user_type: userType,
-                partner_id: partnerId,
-                indemnity_accepted: indemnityAccepted,
-                verification_docs: verificationDocs
-              }
-            }),
-          });
-          if (!edgeRes.ok) {
-            edgeFunctionError = `Edge Function failed: ${edgeRes.status} ${edgeRes.statusText}`;
-          } else {
-            try {
-              const edgeJson = await edgeRes.json();
-              if (edgeJson.error) {
-                edgeFunctionError = edgeJson.error;
-              }
-            } catch {
-              // ignore empty response
-            }
-          }
-        } catch (err) {
-          edgeFunctionError = 'Could not reach signup automation function.';
-        }
-        if (edgeFunctionError) {
-          toast({
-            title: 'Signup Automation Warning',
-            description: edgeFunctionError,
-            variant: 'destructive',
-          });
         }
 
         toast({
@@ -203,7 +169,8 @@ export default function AuthForm() {
   };
 
   return (
-    <Card className="w-full max-w-md mx-auto">
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
+      <Card className="w-full max-w-md">
       <CardHeader>
         <CardTitle className="text-2xl font-bold text-center">
           {mode === 'signin' ? 'Sign In' : 'Create Account'}
@@ -216,8 +183,8 @@ export default function AuthForm() {
         </CardDescription>
       </CardHeader>
       
-      <CardContent>
         {showReset ? (
+          <CardContent>
           <form onSubmit={handleResetPassword} className="space-y-4">
             <div className="space-y-2">
               <Label htmlFor="resetEmail">Email</Label>
@@ -236,7 +203,10 @@ export default function AuthForm() {
               Back to Sign In
             </Button>
           </form>
+          </CardContent>
         ) : (
+          <>
+            <CardContent>
           <form onSubmit={handleSubmit} className="space-y-4">
             {mode === 'signup' && (
               <>
@@ -294,17 +264,18 @@ export default function AuthForm() {
                     </SelectContent>
                   </Select>
                 </div>
+
                 <div className="flex items-center space-x-2">
                   <input id="indemnityAccepted" type="checkbox" checked={indemnityAccepted} onChange={e => setIndemnityAccepted(e.target.checked)} required />
                   <Label htmlFor="indemnityAccepted">I accept the indemnity and terms</Label>
                 </div>
+
                 <div className="space-y-2">
                   <Label htmlFor="verificationDocs">Verification Documents (optional)</Label>
                   <Input id="verificationDocs" type="file" multiple onChange={e => setVerificationDocs(e.target.files ? Array.from(e.target.files) : null)} />
                 </div>
               </>
             )}
-
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -313,9 +284,9 @@ export default function AuthForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                    autoComplete='email'
               />
             </div>
-
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -324,32 +295,48 @@ export default function AuthForm() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
+                    autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
               />
             </div>
-
+                {mode === 'signin' && (
+                  <div className="text-sm text-right">
+                    <Button variant="link" size="sm" onClick={() => setShowReset(true)}>
+                      Forgot password?
+                    </Button>
+                  </div>
+                )}
             <Button type="submit" className="w-full" disabled={loading}>
-              {loading ? 'Loading...' : mode === 'signin' ? 'Sign In' : 'Sign Up'}
+                  {loading ? 'Processing...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
             </Button>
-            {mode === 'signin' && (
-              <button
-                type="button"
-                className="text-xs text-blue-600 hover:underline mt-2 w-full"
-                onClick={() => setShowReset(true)}
+              </form>
+            </CardContent>
+            <CardFooter className="flex-col space-y-4">
+              <Button 
+                onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')} 
+                variant="link"
+                className="w-full"
               >
-                Forgot password?
-              </button>
-            )}
-          </form>
-        )}
-      </CardContent>
+                {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
+              </Button>
 
-      <CardFooter className="justify-center">
-        <button onClick={toggleMode} className="text-sm text-blue-600 hover:underline">
-          {mode === 'signin'
-            ? "Don't have an account? Sign up"
-            : 'Already have an account? Sign in'}
-        </button>
+              <div className="relative w-full">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="px-2 text-muted-foreground bg-card">
+                    Or continue with
+                  </span>
+                </div>
+              </div>
+
+              <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+                Sign in with Google
+              </Button>
       </CardFooter>
+          </>
+        )}
     </Card>
+    </div>
   );
 }

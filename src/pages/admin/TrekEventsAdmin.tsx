@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { CalendarIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import {
@@ -35,9 +35,6 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from 'zod';
 import { supabase } from '../../integrations/supabase/client';
 import {
   Table,
@@ -47,6 +44,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import CreateTrekMultiStepForm from '@/components/trek/CreateTrekMultiStepForm';
+import { TrekEventStatus } from '@/types/trek';
 
 interface TrekEvent { 
   trek_id: number;
@@ -55,41 +54,20 @@ interface TrekEvent {
   location?: string | null;
   category?: string | null;
   difficulty?: string | null;
-  start_datetime: string; // From Supabase
-  end_datetime?: string | null; // From Supabase
+  start_datetime: string;
+  end_datetime?: string | null;
   base_price?: number | null;
   max_participants: number;
-  status?: string | null;
+  status?: TrekEventStatus | string | null;
   image_url?: string | null;
-  // Add other fields corresponding to your trek_events table
+  gpx_file_url?: string | null;
+  route_data?: any | null;
 }
-
-const formSchema = z.object({ 
-  name: z.string().min(1, { message: "Trek name is required." }),
-  description: z.string().optional(),
-  location: z.string().optional(),
-  category: z.string().optional(),
-  difficulty: z.string().optional(),
-  start_datetime: z.date({ required_error: "Start date is required." }), // Use z.date()
-  end_datetime: z.date().optional(), // Use z.date()
-  base_price: z.preprocess(
-    (val) => (val === "" || val === undefined || val === null || Number.isNaN(Number(val))) ? undefined : Number(val),
-    z.number().positive({ message: "Base price must be a positive number." }).optional()
-  ),
-  max_participants: z.preprocess(
-    (val) => (val === "" || val === undefined || val === null || Number.isNaN(Number(val))) ? undefined : Number(val),
-    z.number().int().positive({ message: "Max participants must be a positive integer." })
-  ),
-  status: z.string().optional(),
-  image_url: z.string().url({ message: "Please enter a valid URL." }).optional().or(z.literal('')),
-  // Ensure all fields used in the form are in the schema
-});
-
-type TrekFormValues = z.infer<typeof formSchema>;
 
 const TrekEventsAdmin = () => {
   const [treks, setTreks] = useState<TrekEvent[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
+  const [formSubmitting, setFormSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [isEditDialogOpen, setEditDialogOpen] = useState<boolean>(false);
   const [trekToEdit, setTrekToEdit] = useState<TrekEvent | null>(null);
@@ -99,12 +77,11 @@ const TrekEventsAdmin = () => {
     try {
       const { data, error: fetchError } = await supabase
         .from('trek_events')
-        // Temporarily removed end_datetime to resolve TS error - investigate schema sync later
-        .select('trek_id, name, description, location, category, difficulty, start_datetime, base_price, max_participants, status, image_url'); 
+        .select('trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, gpx_file_url, route_data')
+        .order('start_datetime', { ascending: false }); 
       
       if (fetchError) throw fetchError;
-      // Cast to TrekEvent[] - assuming the fetched data matches the relevant parts
-      setTreks((data as any[]) || []); // Use any[] temporarily due to type mismatch error
+      setTreks((data as TrekEvent[]) || []);
     } catch (err: any) {
       setError(`Failed to fetch treks: ${err.message}`);
       console.error("Fetch error:", err);
@@ -117,6 +94,31 @@ const TrekEventsAdmin = () => {
     fetchTreks();
   }, [fetchTreks]);
 
+  const handleStatusChange = async (trekId: number, newStatus: TrekEventStatus) => {
+    try {
+      const { error: updateError } = await supabase
+        .from('trek_events')
+        .update({ status: newStatus })
+        .eq('trek_id', trekId);
+
+      if (updateError) throw updateError;
+
+      // Update local state to reflect change immediately
+      setTreks(prevTreks => 
+        prevTreks.map(t => 
+          t.trek_id === trekId ? { ...t, status: newStatus } : t
+        )
+      );
+      // Optionally, show a success toast
+      // toast({ title: "Status Updated", description: `Trek status changed to ${newStatus}` });
+    } catch (err: any) {
+      setError(`Failed to update status: ${err.message}`);
+      console.error("Status update error:", err);
+      // Optionally, show an error toast
+      // toast({ title: "Error Updating Status", description: err.message, variant: "destructive" });
+    }
+  };
+
   const handleEdit = (trek: TrekEvent) => {
     setTrekToEdit(trek);
     setEditDialogOpen(true);
@@ -127,79 +129,81 @@ const TrekEventsAdmin = () => {
     setEditDialogOpen(true);
   };
 
-  // Define default values based on whether editing or adding
-  const defaultValues: Partial<TrekFormValues> = useMemo(() => ({
-    name: trekToEdit?.name ?? '',
-    description: trekToEdit?.description ?? '',
-    location: trekToEdit?.location ?? '',
-    category: trekToEdit?.category ?? '',
-    difficulty: trekToEdit?.difficulty ?? '',
-    start_datetime: trekToEdit?.start_datetime ? new Date(trekToEdit.start_datetime) : undefined,
-    end_datetime: undefined, // Explicitly set to undefined for now
-    base_price: trekToEdit?.base_price ?? undefined,
-    max_participants: trekToEdit?.max_participants ?? undefined,
-    status: trekToEdit?.status ?? 'Draft',
-    image_url: trekToEdit?.image_url ?? '',
-  }), [trekToEdit]);
-
-  const form = useForm<TrekFormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues,
-    mode: 'onChange', // Or 'onBlur' depending on preference
-  });
-
-  // Reset form when dialog opens or trekToEdit changes
-  useEffect(() => {
-    form.reset(defaultValues);
-  }, [defaultValues, form]);
-
-  const onSubmit = async (data: TrekFormValues) => {
-    setLoading(true);
+  const handleFormSubmit = async ({ trekData, packingList }) => {
+    setFormSubmitting(true);
     setError(null);
 
-    // Construct the object for Supabase ensuring required fields are present
-    const baseData = {
-        name: data.name, // name is required by schema
-        description: data.description || null,
-        location: data.location || null,
-        category: data.category || null,
-        difficulty: data.difficulty || null,
-        start_datetime: data.start_datetime.toISOString(), // required by schema
-        end_datetime: data.end_datetime?.toISOString() || null,
-        base_price: data.base_price ?? null, // Use null if undefined/NaN
-        max_participants: Number(data.max_participants), // required by schema
-        status: data.status || 'Draft',
-        image_url: data.image_url || null,
-    };
-
-    // Conditionally add trek_id only when editing
-    const upsertData = trekToEdit 
-        ? { ...baseData, trek_id: trekToEdit.trek_id } 
-        : baseData;
-
-    console.log("Submitting data:", upsertData);
-
     try {
-      const { error: upsertError } = await supabase
-        .from('trek_events')
-        .upsert(upsertData)
-        .select('trek_id') 
-        .single();
+        let trekIdToUpdate;
+        // Step 1: Upsert the main trek data
+        if (trekToEdit?.trek_id) {
+            // We are editing an existing trek
+            trekIdToUpdate = trekToEdit.trek_id;
+            const { error: trekError } = await supabase
+                .from('trek_events')
+                .update(trekData)
+                .eq('trek_id', trekIdToUpdate);
 
-      if (upsertError) {
-        throw upsertError;
-      }
+            if (trekError) throw new Error(`Failed to update trek: ${trekError.message}`);
+        } else {
+            // We are creating a new trek
+            const { data: newTrek, error: trekError } = await supabase
+                .from('trek_events')
+                .insert(trekData)
+                .select('trek_id')
+                .single();
 
-      await fetchTreks(); 
-      setEditDialogOpen(false);
-      setTrekToEdit(null); 
+            if (trekError) throw new Error(`Failed to create trek: ${trekError.message}`);
+            trekIdToUpdate = newTrek.trek_id;
+        }
 
-    } catch (err: any) {
-      console.error('Error submitting trek:', err);
-      setError(`Error saving trek: ${err.message}`);
+        if (!trekIdToUpdate) {
+            throw new Error("Could not determine trek ID for packing list update.");
+        }
+
+        // Step 2: Clear existing packing list assignments for this trek
+        const { error: deleteError } = await supabase
+            .from('trek_packing_list_assignments')
+            .delete()
+            .eq('trek_id', trekIdToUpdate);
+        
+        if (deleteError) {
+            // Log the error but don't block the user; maybe the table was empty.
+            console.warn(`Could not clear old packing list, continuing...`, deleteError);
+        }
+
+        // Step 3: Insert new packing list assignments if any are provided
+        if (packingList && packingList.length > 0) {
+            const assignments = packingList.map(item => ({
+                trek_id: trekIdToUpdate,
+                master_item_id: item.master_item_id,
+                mandatory: item.is_mandatory,
+            }));
+
+            const { error: assignmentError } = await supabase
+                .from('trek_packing_list_assignments')
+                .insert(assignments);
+
+            if (assignmentError) throw new Error(`Failed to assign packing list: ${assignmentError.message}`);
+        }
+
+        // Step 4: Refresh UI
+        await fetchTreks();
+        setEditDialogOpen(false);
+        setTrekToEdit(null);
+
+    } catch (e: any) {
+        setError(`Submission failed: ${e.message}`);
+        console.error("Form submission error:", e);
     } finally {
-      setLoading(false);
+        setFormSubmitting(false);
     }
+  };
+
+  const handleFormCancel = () => {
+    setEditDialogOpen(false);
+    setTrekToEdit(null);
+    setError(null);
   };
 
   return (
@@ -208,13 +212,9 @@ const TrekEventsAdmin = () => {
 
       <Button onClick={handleAddNew} className="mb-4">Add New Trek</Button>
 
-      {/* Error Display */}
       {error && !isEditDialogOpen && <p className="text-red-500 mb-4">{error}</p>} 
-
-      {/* Loading State */}
       {loading && !isEditDialogOpen && <p>Loading treks...</p>}
 
-      {/* Treks Table */}
       {!loading && treks.length > 0 && (
          <Table>
             <TableHeader>
@@ -222,6 +222,8 @@ const TrekEventsAdmin = () => {
                 <TableHead>Name</TableHead>
                 <TableHead>Start Date</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Price</TableHead>
+                <TableHead>Participants</TableHead>
                 <TableHead>Actions</TableHead>
               </TableRow>
             </TableHeader>
@@ -230,12 +232,31 @@ const TrekEventsAdmin = () => {
                 <TableRow key={trek.trek_id}>
                   <TableCell>{trek.name}</TableCell>
                   <TableCell>{format(new Date(trek.start_datetime), 'PPP')}</TableCell> 
-                  <TableCell>{trek.status || 'N/A'}</TableCell>
+                  <TableCell>
+                    <Select
+                      value={trek.status || ''}
+                      onValueChange={(newStatusValue) => {
+                        handleStatusChange(trek.trek_id, newStatusValue as TrekEventStatus);
+                      }}
+                    >
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Set status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.values(TrekEventStatus).map((statusVal) => (
+                          <SelectItem key={statusVal} value={statusVal}>
+                            {statusVal}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableCell>
+                  <TableCell>{trek.base_price !== null && trek.base_price !== undefined ? `₹${trek.base_price}` : 'N/A'}</TableCell>
+                  <TableCell>{trek.max_participants}</TableCell>
                   <TableCell>
                     <Button variant="outline" size="sm" onClick={() => handleEdit(trek)}>
                       Edit
                     </Button>
-                    {/* Add Delete button/logic here if needed */}
                   </TableCell>
                 </TableRow>
               ))}
@@ -244,343 +265,21 @@ const TrekEventsAdmin = () => {
       )}
       {!loading && treks.length === 0 && !error && <p>No treks found.</p>}
 
-      {/* Add/Edit Dialog */}
       <Dialog open={isEditDialogOpen} onOpenChange={(open) => { 
+          if (!open) {
+            handleFormCancel();
+          } else {
           setEditDialogOpen(open); 
-          if (!open) setTrekToEdit(null); // Clear trekToEdit when closing
-          setError(null); // Clear dialog error on close
+          }
        }}>
-        <DialogContent className="sm:max-w-[600px]">
-          <DialogHeader>
-            <DialogTitle>{trekToEdit ? 'Edit Trek Event' : 'Add New Trek Event'}</DialogTitle>
-            <DialogDescription>
-              {trekToEdit ? 'Update the details for this trek.' : 'Fill in the details for the new trek.'}
-            </DialogDescription>
-          </DialogHeader>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {/* Trek Name */}
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Trek Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter trek name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Description */}
-              <FormField
-                control={form.control}
-                name="description"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Description</FormLabel>
-                    <FormControl>
-                      <Textarea placeholder="Enter trek description" {...field} value={field.value ?? ''} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              {/* Location */}
-              <FormField
-                control={form.control}
-                name="location"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Location</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Enter general location (e.g., Lonavala)" {...field} value={field.value ?? ''} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                 {/* Category */}
-                 <FormField
-                  control={form.control}
-                  name="category"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Category</FormLabel>
-                      <FormControl>
-                        {/* Consider changing to Select if categories become fixed */}
-                        <Input placeholder="Enter category (e.g., Monsoon Trek)" {...field} value={field.value ?? ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Difficulty */}
-                 <FormField
-                  control={form.control}
-                  name="difficulty"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Difficulty</FormLabel>
-                      <FormControl>
-                         {/* Consider changing to Select (Easy, Medium, Hard) */}
-                        <Input placeholder="Enter difficulty (e.g., Easy, Medium)" {...field} value={field.value ?? ''} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-              
-              {/* Image URL */}
-              <FormField
-                control={form.control}
-                name="image_url"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Image URL</FormLabel>
-                    <FormControl>
-                      <Input type="url" placeholder="Enter image URL (optional)" {...field} value={field.value ?? ''} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="grid grid-cols-2 gap-4"> {/* Grid for dates */}
-                {/* Start DateTime */}
-                <FormField
-                  control={form.control}
-                  name="start_datetime"
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>Start Date & Time</FormLabel>
-                      <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP HH:mm") // Display date and time
-                              ) : (
-                                <span>Pick a date</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            // Handle date selection - keeps existing time
-                            onSelect={(date) => {
-                              if (!date) return;
-                              const currentVal = field.value || new Date();
-                              date.setHours(currentVal.getHours());
-                              date.setMinutes(currentVal.getMinutes());
-                              date.setSeconds(0); // Clear seconds
-                              field.onChange(date);
-                            }}
-                            initialFocus
-                          />
-                          {/* Time Input within Popover */}
-                          <div className="p-3 border-t border-border">
-                              <FormLabel className="text-sm">Time</FormLabel>
-                              <Input 
-                                type="time"
-                                className="mt-1 w-full" // Ensure full width
-                                value={field.value ? format(field.value, 'HH:mm') : ''}
-                                onChange={(e) => {
-                                    const time = e.target.value;
-                                    if (!time) return;
-                                    const [hours, minutes] = time.split(':').map(Number);
-                                    const newDate = field.value ? new Date(field.value) : new Date();
-                                    newDate.setHours(hours);
-                                    newDate.setMinutes(minutes);
-                                    newDate.setSeconds(0);
-                                    field.onChange(newDate);
-                                }}
-                              />
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* End DateTime */}
-                 <FormField
-                  control={form.control}
-                  name="end_datetime" // Corrected name
-                  render={({ field }) => (
-                    <FormItem className="flex flex-col">
-                      <FormLabel>End Date & Time</FormLabel>
-                       <Popover>
-                        <PopoverTrigger asChild>
-                          <FormControl>
-                            <Button
-                              variant={"outline"}
-                              className={cn(
-                                "w-full pl-3 text-left font-normal",
-                                !field.value && "text-muted-foreground"
-                              )}
-                            >
-                              {field.value ? (
-                                format(field.value, "PPP HH:mm") // Display date and time
-                              ) : (
-                                <span>Pick a date (optional)</span>
-                              )}
-                              <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                            </Button>
-                          </FormControl>
-                        </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
-                          <Calendar
-                            mode="single"
-                            selected={field.value}
-                            // Handle date selection - keeps existing time
-                            onSelect={(date) => {
-                              if (!date) { // Allow clearing optional date
-                                  field.onChange(undefined);
-                                  return;
-                              }
-                              const currentVal = field.value || new Date();
-                              date.setHours(currentVal.getHours());
-                              date.setMinutes(currentVal.getMinutes());
-                              date.setSeconds(0);
-                              field.onChange(date);
-                            }}
-                            // Add disabled prop to prevent selecting dates before start_datetime
-                            disabled={(date) =>
-                              form.getValues("start_datetime") ? date < form.getValues("start_datetime") : false
-                            }
-                            initialFocus
-                          />
-                           {/* Time Input within Popover */}
-                           <div className="p-3 border-t border-border">
-                              <FormLabel className="text-sm">Time</FormLabel>
-                              <Input 
-                                type="time"
-                                className="mt-1 w-full"
-                                // Disable time if no date is selected
-                                disabled={!field.value} 
-                                value={field.value ? format(field.value, 'HH:mm') : ''}
-                                  onChange={(e) => {
-                                    const time = e.target.value;
-                                    if (!time || !field.value) return; // Need a date to set time on
-                                    const [hours, minutes] = time.split(':').map(Number);
-                                    // Create a new date object from existing field value to avoid mutation issues
-                                    const newDate = new Date(field.value); 
-                                    newDate.setHours(hours);
-                                    newDate.setMinutes(minutes);
-                                    newDate.setSeconds(0);
-                                    field.onChange(newDate);
-                                }}
-                              />
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4"> {/* Grid for price/participants */}
-                {/* Base Price */}
-                <FormField
-                  control={form.control}
-                  name="base_price"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Base Price</FormLabel>
-                      <FormControl>
-                        {/* Use field.onChange to handle number conversion */}
-                        <Input 
-                          type="number" 
-                          step="0.01" 
-                          placeholder="Enter base price (optional)" 
-                          {...field} 
-                          value={field.value ?? ''} 
-                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseFloat(e.target.value))} // Handle empty string
-                         />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                {/* Max Participants */}
-                <FormField
-                  control={form.control}
-                  name="max_participants"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Max Participants</FormLabel>
-                      <FormControl>
-                         <Input 
-                          type="number" 
-                          placeholder="Enter max participants" 
-                          {...field} 
-                          value={field.value ?? ''} 
-                          onChange={e => field.onChange(e.target.value === '' ? undefined : parseInt(e.target.value, 10))} // Handle empty string & ensure integer
-                        />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              {/* Status */}
-              <FormField
-                  control={form.control}
-                  name="status"
-                  render={({ field }) => (
-                      <FormItem>
-                      <FormLabel>Status</FormLabel>
-                      <Select onValueChange={field.onChange} value={field.value ?? 'Draft'}> {/* Controlled component */}
-                          <FormControl>
-                          <SelectTrigger>
-                              <SelectValue placeholder="Select trek status" />
-                          </SelectTrigger>
-                          </FormControl>
-                          <SelectContent>
-                              <SelectItem value="Draft">Draft</SelectItem> 
-                              <SelectItem value="Published">Published</SelectItem>
-                              <SelectItem value="Completed">Completed</SelectItem>
-                              <SelectItem value="Cancelled">Cancelled</SelectItem>
-                          </SelectContent>
-                      </Select>
-                      <FormMessage />
-                      </FormItem>
-                  )}
-                  />
-
-              {/* Error Message Display inside Dialog */}
-              {error && <p className="text-sm font-medium text-destructive pt-2">{error}</p>}
-
-              <DialogFooter>
-                <DialogClose asChild>
-                  <Button type="button" variant="outline">Cancel</Button>
-                </DialogClose>
-                <Button type="submit" disabled={loading || !form.formState.isValid}>{loading ? 'Saving...' : 'Save Trek'}</Button> {/* Add isValid check */}
-              </DialogFooter>
-            </form>
-          </Form>
+        <DialogContent className="sm:max-w-2xl p-0">
+          {isEditDialogOpen && (
+            <CreateTrekMultiStepForm 
+              trekToEdit={trekToEdit} 
+              onFormSubmit={handleFormSubmit} 
+              onCancel={handleFormCancel} 
+            />
+          )}
         </DialogContent>
       </Dialog>
     </div>

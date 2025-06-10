@@ -52,6 +52,8 @@ interface Participant {
   user_id: string;
   booking_datetime?: string;
   payment_status?: string;
+  payment_proof_url?: string | null;
+  indemnity_agreed_at?: string | null;
   userData?: {
     full_name?: string;
     name?: string;
@@ -124,7 +126,7 @@ export default function AdminTrekDetails() {
       try {
         const { data, error } = await supabase
           .from('trek_registrations')
-          .select('registration_id, user_id, booking_datetime, payment_status')
+          .select('registration_id, user_id, booking_datetime, payment_status, payment_proof_url, indemnity_agreed_at')
           .eq('trek_id', id)
           .order('booking_datetime', { ascending: false });
           
@@ -153,6 +155,8 @@ export default function AdminTrekDetails() {
           registration_id: reg.registration_id,
           booking_datetime: reg.booking_datetime,
           payment_status: reg.payment_status,
+          payment_proof_url: reg.payment_proof_url,
+          indemnity_agreed_at: reg.indemnity_agreed_at,
           userData: { full_name: 'Unknown User' }
         }));
         setParticipants(basicParticipants);
@@ -184,6 +188,8 @@ export default function AdminTrekDetails() {
           registration_id: reg?.registration_id,
           booking_datetime: reg?.booking_datetime,
           payment_status: reg?.payment_status,
+          payment_proof_url: reg?.payment_proof_url,
+          indemnity_agreed_at: reg?.indemnity_agreed_at,
           userData: userDetail ? {
             full_name: userDetail.full_name || userDetail.name || 'N/A',
             email: userDetail.email || 'N/A',
@@ -205,6 +211,31 @@ export default function AdminTrekDetails() {
         variant: 'destructive' 
       });
       setParticipants([]);
+    }
+  };
+
+  const handleVerifyPayment = async (registrationId: number) => {
+    if (!trekId) return;
+    try {
+      const { error } = await supabase
+        .from('trek_registrations')
+        .update({ payment_status: 'Paid', payment_verified_at: new Date().toISOString() })
+        .eq('registration_id', registrationId);
+
+      if (error) throw error;
+
+      toast({
+        title: 'Payment Verified',
+        description: `Registration ID ${registrationId} marked as Paid.`,
+      });
+      fetchParticipants(parseInt(trekId)); // Refresh participant list
+    } catch (error: any) {
+      console.error('Error verifying payment:', error);
+      toast({
+        title: 'Error Verifying Payment',
+        description: error.message || 'Could not update payment status.',
+        variant: 'destructive'
+      });
     }
   };
 
@@ -310,6 +341,9 @@ export default function AdminTrekDetails() {
               <TabsTrigger value="ratings">
                 <Star className="h-4 w-4 mr-2" /> Ratings
               </TabsTrigger>
+              <TabsTrigger value="discussion">
+                <Users className="h-4 w-4 mr-2" /> Discussion
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value="participants">
@@ -332,32 +366,60 @@ export default function AdminTrekDetails() {
                       <table className="w-full text-sm">
                         <thead className="bg-muted">
                           <tr>
-                            <th className="py-2 px-4 text-left">Name</th>
-                            <th className="py-2 px-4 text-left">Email</th>
-                            <th className="py-2 px-4 text-left">Phone</th>
-                            <th className="py-2 px-4 text-left">Registration Date</th>
-                            <th className="py-2 px-4 text-left">Status</th>
+                            <th className="py-3 px-4 text-left font-semibold">Name</th>
+                            <th className="py-3 px-4 text-left font-semibold">Email</th>
+                            <th className="py-3 px-4 text-left font-semibold">Registered At</th>
+                            <th className="py-3 px-4 text-left font-semibold">Status</th>
+                            <th className="py-3 px-4 text-left font-semibold">Proof</th>
+                            <th className="py-3 px-4 text-left font-semibold">Actions</th>
                           </tr>
                         </thead>
                         <tbody>
                           {participants.map((participant, index) => (
-                            <tr key={participant.registration_id} className={index % 2 === 0 ? '' : 'bg-muted/50'}>
-                              <td className="py-2 px-4">{participant.userData?.full_name || 'Unknown'}</td>
+                            <tr key={participant.registration_id || participant.user_id} className={`border-b ${index % 2 === 0 ? '' : 'bg-muted/50'}`}>
+                              <td className="py-2 px-4">{participant.userData?.full_name || participant.userData?.name || 'Unknown'}</td>
                               <td className="py-2 px-4">{participant.userData?.email || 'N/A'}</td>
-                              <td className="py-2 px-4">{participant.userData?.phone_number || 'N/A'}</td>
                               <td className="py-2 px-4">
-                                {format(new Date(participant.booking_datetime), 'PP')}
+                                {participant.booking_datetime ? format(new Date(participant.booking_datetime), 'PPpp') : 'N/A'}
                               </td>
                               <td className="py-2 px-4">
-                                <span className={`px-2 py-1 rounded-full text-xs ${
+                                <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                                   participant.payment_status === 'Paid' 
                                     ? 'bg-green-100 text-green-800' 
                                     : participant.payment_status === 'Cancelled'
                                     ? 'bg-red-100 text-red-800'
-                                    : 'bg-yellow-100 text-yellow-800'
+                                    : participant.payment_status === 'ProofUploaded'
+                                    ? 'bg-blue-100 text-blue-800'
+                                    : 'bg-yellow-100 text-yellow-800' // Pending or other
                                 }`}>
                                   {participant.payment_status}
                                 </span>
+                              </td>
+                              <td className="py-2 px-4">
+                                {participant.payment_proof_url ? (
+                                  <a 
+                                    href={participant.payment_proof_url} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer" 
+                                    className="text-blue-600 hover:underline"
+                                  >
+                                    View Proof
+                                  </a>
+                                ) : (
+                                  <span className="text-muted-foreground">N/A</span>
+                                )}
+                              </td>
+                              <td className="py-2 px-4">
+                                {(participant.payment_status === 'ProofUploaded' || (participant.payment_status === 'Pending' && participant.payment_proof_url)) && (
+                                  <Button 
+                                    size="sm" 
+                                    variant="outline"
+                                    onClick={() => participant.registration_id && handleVerifyPayment(participant.registration_id)}
+                                    disabled={!participant.registration_id}
+                                  >
+                                    Verify Payment
+                                  </Button>
+                                )}
                               </td>
                             </tr>
                           ))}
@@ -438,6 +500,30 @@ export default function AdminTrekDetails() {
                 </CardContent>
               </Card>
             </TabsContent>
+
+            <TabsContent value="discussion">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center">
+                            <Users className="h-5 w-5 mr-2" /> Discussion
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                         <TrekDiscussion 
+                            trekId={trekId || ''} 
+                            // These props might need adjustment based on how AdminTrekDetails handles comments
+                            // For now, assuming it does not manage comments directly in this component
+                            comments={[]} 
+                            onAddComment={async (content: string) => { 
+                              console.log('Admin adding comment (not implemented):', content); 
+                              return false; 
+                            }} 
+                            isLoading={false} 
+                         />
+                    </CardContent>
+                </Card>
+            </TabsContent>
+
           </Tabs>
         </>
       )}

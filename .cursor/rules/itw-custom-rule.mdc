@@ -1,0 +1,9 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+Keep going until the job is completely solved before ending your turn.
+If you are unsure about code or files, open them—do not hallucinate.
+
+Plan thoroughly before every tool call and reflect on the outcome after.

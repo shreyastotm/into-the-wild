@@ -16,13 +16,13 @@ export function useUserVerificationStatus() {
 
       const { data, error } = await supabase
         .from('users')
-        .select('user_type, verification_status, indemnity_accepted')
+        .select('user_type, is_verified, indemnity_accepted')
         .eq('user_id', user.id)
         .single();
 
       if (!error && data && ['admin', 'micro_community', 'trekker'].includes(data.user_type)) {
         setStatus({
-          isVerified: data.verification_status === 'verified',
+          isVerified: !!data.is_verified,
           isIndemnityAccepted: !!data.indemnity_accepted,
           userType: data.user_type,
           loading: false,

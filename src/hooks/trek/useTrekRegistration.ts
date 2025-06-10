@@ -2,41 +2,47 @@ import { useState, useEffect } from 'react';
 import { supabase, WithStringId, convertDbRecordToStringIds } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
-import { useTrekEventDetails } from './useTrekEventDetails';
+import { useTrekEventDetails, TrekEvent } from './useTrekEventDetails';
 
 interface DbRegistration {
   registration_id: number;
   trek_id: number;
   user_id: string;
   booking_datetime: string;
-  payment_status: 'Pending' | 'Paid' | 'Cancelled';
+  payment_status: 'Pending' | 'Paid' | 'Cancelled' | 'ProofUploaded';
   cancellation_datetime?: string | null;
   penalty_applied?: number | null;
   created_at?: string | null;
+  indemnity_agreed_at?: string | null;
+  payment_proof_url?: string | null;
+  payment_verified_at?: string | null;
 }
 
 type Registration = WithStringId<DbRegistration>;
 
 export function useTrekRegistration(trek_id: string | undefined) {
   const { user } = useAuth();
-  const { trekEvent, loading: trekLoading, setTrekEvent } = useTrekEventDetails(trek_id);
+  const { trekEvent, loading: trekLoading } = useTrekEventDetails(trek_id);
   const [registering, setRegistering] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
+  const [uploadingProof, setUploadingProof] = useState(false);
 
   useEffect(() => {
-    if (trek_id && user) {
+    if (trek_id && user && !isNaN(parseInt(trek_id))) {
       checkUserRegistration(parseInt(trek_id));
+    } else if (trek_id) {
+      console.error("Invalid trek_id provided to useTrekRegistration:", trek_id);
     }
   }, [trek_id, user]);
 
-  async function checkUserRegistration(trek_id: number) {
+  async function checkUserRegistration(currentTrekId: number) {
     if (!user) return;
     
     try {
       const { data, error } = await supabase
         .from('trek_registrations')
         .select('*')
-        .eq('trek_id', trek_id)
+        .eq('trek_id', currentTrekId)
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -46,36 +52,52 @@ export function useTrekRegistration(trek_id: string | undefined) {
       
       if (data) {
         setUserRegistration(convertDbRecordToStringIds(data as DbRegistration));
+      } else {
+        setUserRegistration(null);
       }
     } catch (error: any) {
       console.error("Error checking registration:", error);
+      toast({ title: "Error", description: "Could not check registration status.", variant: "destructive" });
     }
   }
 
-  async function registerForTrek() {
+  async function registerForTrek(indemnityAccepted: boolean) {
     if (!user) {
       toast({
         title: "Authentication required",
         description: "Please log in to register for this trek",
-        variant: "default",
+        variant: "destructive",
       });
       return false;
     }
 
-    if (!trekEvent) return false;
+    if (!indemnityAccepted) {
+      toast({
+        title: "Indemnity Agreement Required",
+        description: "You must accept the indemnity agreement to register for this trek.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!trekEvent) {
+        toast({ title: "Trek details not loaded", description: "Cannot register at this moment.", variant: "destructive" });
+        return false;
+    }
 
     try {
       setRegistering(true);
       
-      // Fetch current count of unique, non-cancelled registrations for this trek
       const { data: regs, error: regsError } = await supabase
         .from('trek_registrations')
-        .select('user_id, payment_status')
+        .select('user_id, payment_status', { count: 'exact' })
         .eq('trek_id', trekEvent.trek_id)
         .not('payment_status', 'eq', 'Cancelled');
+
       if (regsError) throw regsError;
       const uniqueUserCount = new Set((regs || []).map(r => r.user_id)).size;
-      if (uniqueUserCount >= trekEvent.max_participants) {
+
+      if (trekEvent.max_participants && uniqueUserCount >= trekEvent.max_participants) {
         toast({
           title: "Registration failed",
           description: "This trek is already full",
@@ -83,37 +105,50 @@ export function useTrekRegistration(trek_id: string | undefined) {
         });
         return false;
       }
-      // Ensure user can only register once for a trek
-      const trekIdNum = typeof trekEvent.trek_id === 'number' ? trekEvent.trek_id : parseInt(trekEvent.trek_id);
+      
+      const trekIdNum = typeof trekEvent.trek_id === 'number' ? trekEvent.trek_id : parseInt(trekEvent.trek_id, 10);
+      if (isNaN(trekIdNum)) {
+        toast({title: "Error", description: "Invalid Trek ID for registration.", variant: "destructive"});
+        return false;
+      }
+
       const { data: existing, error: existingError } = await supabase
         .from('trek_registrations')
         .select('registration_id')
         .eq('trek_id', trekIdNum)
         .eq('user_id', user.id)
         .maybeSingle();
-      if (existing && !existingError) {
+
+      if (existingError) throw existingError;
+
+      if (existing) {
         toast({
           title: "Already Registered",
-          description: "You have already registered for this trek.",
+          description: "You have an existing registration for this trek.",
           variant: "destructive",
         });
         return false;
       }
-      const { error: registrationError } = await supabase
-        .from('trek_registrations')
-        .insert({
+      
+      const newRegistrationData = {
           trek_id: trekIdNum,
           user_id: user.id,
-          payment_status: 'Pending',
-          booking_datetime: new Date().toISOString()
-        });
+          payment_status: 'Pending' as const,
+          booking_datetime: new Date().toISOString(),
+          indemnity_agreed_at: new Date().toISOString(),
+      };
+
+      const { error: registrationError } = await supabase
+        .from('trek_registrations')
+        .insert(newRegistrationData);
+
       if (registrationError) {
         throw registrationError;
       }
       await checkUserRegistration(trekIdNum);
       toast({
         title: "Registration successful",
-        description: "You have been registered for this trek. Please complete payment to confirm your spot.",
+        description: "Please complete payment and upload proof to confirm your spot.",
         variant: "default",
       });
       return true;
@@ -127,6 +162,55 @@ export function useTrekRegistration(trek_id: string | undefined) {
       return false;
     } finally {
       setRegistering(false);
+    }
+  }
+  
+  async function uploadPaymentProof(file: File) {
+    if (!user || !userRegistration || !trekEvent) {
+        toast({ title: "Error", description: "Cannot upload proof at this time.", variant: "destructive" });
+        return false;
+    }
+    if (!file) {
+        toast({ title: "No file selected", description: "Please select a file to upload.", variant: "destructive"});
+        return false;
+    }
+
+    setUploadingProof(true);
+    try {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `payment_proofs/${user.id}_${userRegistration.trek_id}_${Date.now()}.${fileExt}`;
+
+        const { error: uploadError } = await supabase.storage
+            .from('trek_assets')
+            .upload(fileName, file, {
+                upsert: true,
+            });
+
+        if (uploadError) throw uploadError;
+
+        const { data: publicURLData } = supabase.storage.from('trek_assets').getPublicUrl(fileName);
+        const proofUrl = publicURLData?.publicUrl;
+
+        if (!proofUrl) throw new Error("Failed to get public URL for payment proof.");
+
+        const { error: updateError } = await supabase
+            .from('trek_registrations')
+            .update({ payment_proof_url: proofUrl, payment_status: 'Pending' })
+            .eq('registration_id', userRegistration.registration_id);
+
+        if (updateError) throw updateError;
+
+        setUserRegistration(prev => prev ? { ...prev, payment_proof_url: proofUrl, payment_status: 'Pending' } : null);
+
+        toast({ title: "Payment proof uploaded", description: "Admin will verify your payment shortly.", variant: "default" });
+        return true;
+
+    } catch (error: any) {
+        toast({ title: "Proof Upload Failed", description: error.message, variant: "destructive" });
+        console.error("Error uploading payment proof:", error);
+        return false;
+    } finally {
+        setUploadingProof(false);
     }
   }
 
@@ -144,10 +228,11 @@ export function useTrekRegistration(trek_id: string | undefined) {
       if (updateRegError) {
         throw updateRegError;
       }
-      setUserRegistration({
-        ...userRegistration,
-        payment_status: 'Cancelled'
-      });
+      setUserRegistration(prev => prev ? {
+        ...prev,
+        payment_status: 'Cancelled',
+        cancellation_datetime: new Date().toISOString()
+      } : null);
       toast({
         title: "Registration cancelled",
         description: "Your registration has been cancelled",
@@ -169,10 +254,11 @@ export function useTrekRegistration(trek_id: string | undefined) {
 
   return {
     trekEvent,
-    loading: trekLoading,
+    loading: trekLoading || uploadingProof,
     registering,
     userRegistration,
     registerForTrek,
-    cancelRegistration
+    cancelRegistration,
+    uploadPaymentProof
   };
 }

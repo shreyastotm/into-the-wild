@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import PackingItemsAdmin from '@/components/trek/PackingItemsAdmin';
 import TrekEventsAdmin from './admin/TrekEventsAdmin';
@@ -7,7 +7,11 @@ import RegistrationAdmin from '@/components/admin/RegistrationAdmin';
 import { useAuth } from '@/components/auth/AuthProvider';
 
 export default function AdminPanel() {
-  const { userProfile, loading } = useAuth();
+  const { userProfile, loading, refreshUserProfile } = useAuth();
+
+  useEffect(() => {
+    refreshUserProfile();
+  }, [refreshUserProfile]);
 
   // Allow access only to admins
   if (loading) {

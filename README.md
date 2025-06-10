@@ -15,12 +15,17 @@ This application seems to support several key functionalities:
     *   Profile management (bio, avatar, contact details, etc.).
     *   Indemnity acceptance.
 *   **Trek Event Management:**
-    *   Creating, viewing, updating, and managing trek events.
+    *   Creating, viewing, updating, and managing trek events (Implemented via a multi-step form in the admin panel for both creation and editing).
     *   Details likely include name, description, category, difficulty, dates, location, cost/pricing, capacity, etc.
+    *   Trek Event Statuses & Basic Lifecycle: Admins can manage trek statuses (e.g., Draft, Upcoming, Open for Registration, Cancelled, Completed) which control visibility and registration availability (Implemented).
     *   *(User: Describe the workflow for creating/managing a trek event.)*
 *   **Trek Discovery & Registration:**
-    *   Users can browse and search for available treks.
-    *   Workflow for users to register for a trek, including payment status and pickup location selection.
+    *   Users can browse and search for available treks (Public listing filters out 'Draft' and 'Cancelled' treks).
+    *   Workflow for users to register for a trek:
+        *   Indemnity Acceptance: Users must accept indemnity terms before registering (Implemented).
+        *   Payment Proof: Users upload payment proof after initial registration (Implemented).
+        *   Admin Verification: Admins review payment proof and verify/complete the registration (Implemented).
+        *   Pickup location selection (Details to be confirmed).
     *   *(User: Detail the trek discovery and registration process from a user's perspective.)*
 *   **Packing List Management:**
     *   Generating and viewing packing lists for specific treks.
@@ -37,8 +42,13 @@ This application seems to support several key functionalities:
 *   **Admin Panel & User Verification:**
     *   Dedicated interface for administrators.
     *   Managing users, potentially verifying micro-community partners.
-    *   Overseeing trek events and other platform aspects.
+    *   Overseeing trek events (including status changes, participant management, payment verification).
     *   *(User: Outline the key admin functionalities and the user verification process.)*
+*   **In-App Notifications (Basic - POC):**
+    *   **Database & RPCs (Implemented):** `notifications` table schema, related ENUMs, and RPC functions for creating, fetching, and marking notifications as read are in place (`..._create_notifications.sql`, `..._create_notification_rpc.sql`).
+    *   **Client-Side Hook (Partially Implemented):** `src/hooks/useNotifications.ts` is set up to interact with these RPCs. Core functions for fetching/updating notification state need completion.
+    *   **UI Components (Pending):** Notification bell icon, dropdown/list view for notifications.
+    *   **Server-Side Triggers (Pending):** Logic to automatically create notifications for key events (e.g., payment verification).
 *   **Comments & Ratings (Potentially):**
     *   Users might be able to comment on treks or rate them.
     *   *(User: If this feature exists, describe how it works.)*
@@ -47,9 +57,9 @@ This application seems to support several key functionalities:
 
 ## 3. Tech Stack
 
-*   **Frontend:** Next.js (React Framework)
-*   **Backend & Database:** Supabase (PostgreSQL, Auth, Storage, Edge Functions)
-*   **Styling:** Tailwind CSS
+*   **Frontend:** React (Vite) - *Correction: Previously noted Next.js, but project structure and `vite.config.ts` indicate Vite.*
+*   **Backend & Database:** Supabase (PostgreSQL, Auth, Storage, Edge Functions, Realtime)
+*   **Styling:** Tailwind CSS, shadcn/ui components
 *   **Language:** TypeScript
 *   **Package Management:** npm / bun (based on `package-lock.json` / `bun.lockb`)
 *   **Local Development:** Docker, Supabase CLI, Deno (for Edge Functions)
@@ -91,42 +101,55 @@ This application seems to support several key functionalities:
         supabase start
         ```
     *   This will pull necessary Docker images and set up your local database, auth, storage, etc.
-    *   API URL, anon key, and other local Supabase details will be printed to the console. You'll need these for your frontend `.env` file.
+    *   API URL, anon key, and other local Supabase details will be printed to the console. `supabase status` can be used to retrieve these later.
+    *   **Inbucket (Mail Catcher):** Access local emails (password resets, confirmations) via the Inbucket URL shown in `supabase status` (e.g., `http://127.0.0.1:54324`).
 
 4.  **Set up Environment Variables:**
-    *   Create a `.env.local` file in the root of your project (if it doesn't exist).
-    *   Add the Supabase URL and anon key provided by `supabase start`:
+    *   Create a `.env.local` file in the root of your project.
+    *   Add the Supabase URL and anon key. For Vite projects, these must be prefixed with `VITE_`:
         ```env
-        NEXT_PUBLIC_SUPABASE_URL=http://localhost:54321 # Or your local Supabase URL
-        NEXT_PUBLIC_SUPABASE_ANON_KEY=<your-local-supabase-anon-key>
+        VITE_SUPABASE_URL=http://127.0.0.1:54321 # Or your local Supabase API URL from 'supabase status'
+        VITE_SUPABASE_ANON_KEY=<your-local-supabase-anon-key-from-supabase-status>
         # Add any other required environment variables
         ```
+    *   **Important:** Restart your Vite development server after creating or changing `.env.local`.
 
-5.  **Run Database Migrations:**
-    *   The local database schema should be set up automatically by `supabase start` based on your `supabase/migrations` folder.
-    *   If you encounter issues or need to reset, use `supabase db reset` (after stopping Supabase and potentially clearing Docker volumes if reset fails).
+5.  **Run Database Migrations & Seeding:**
+    *   The local database schema is set up by `supabase start` based on your `supabase/migrations` folder.
+    *   To ensure a clean state and apply all migrations (including the squashed schema and subsequent ones like notifications), and to populate data:
+        ```bash
+        supabase db reset
+        ```
+    *   This command will also execute `supabase/seed.sql` if it exists. Create this file to populate your database with initial/test data (e.g., sample treks, users, categories). This is crucial after a reset to have data to work with.
 
-6.  **Deploy Edge Functions Locally:**
+6.  **Generate Supabase Types for Client:**
+    *   After any database schema changes (including adding RPCs), regenerate TypeScript types for your Supabase client:
+        ```bash
+        supabase gen types typescript --local > src/integrations/supabase/types.ts
+        ```
+
+7.  **Deploy Edge Functions Locally:**
     ```bash
     supabase functions deploy --no-verify-jwt
     ```
     *   Ensure Deno is installed and in your PATH.
     *   An `supabase/functions/import_map.json` is used to manage Deno dependencies.
 
-7.  **Run the Development Server (Frontend):**
+8.  **Run the Development Server (Frontend):**
     ```bash
     npm run dev
     # OR if using bun
     # bun run dev
     ```
-    Your Next.js application should now be running, typically on `http://localhost:3000`.
+    Your Vite application should now be running, typically on `http://localhost:8080` (or as specified in `vite.config.ts`).
 
 ## 6. Database Migrations
 
 *   Migrations are located in the `supabase/migrations` directory.
-*   The primary schema definition appears to be `supabase/migrations/20250505155501_squashed_schema.sql`.
+*   The primary schema definition is `supabase/migrations/20250505155501_squashed_schema.sql`. Subsequent migrations (e.g., for notifications, RPCs) are applied in chronological order based on their filename timestamps.
 *   **Creating New Migrations:**
-    *   For schema changes, it's best to make changes to your local database (e.g., via Supabase Studio or `psql`) and then diff:
+    *   For schema changes, it's often best to make changes to your local database using Supabase Studio (accessible via `supabase status`, e.g., `http://127.0.0.1:54323`) or another database tool.
+    *   Then, diff the changes to create a new migration file:
         ```bash
         supabase db diff -f <migration_name>
         ```
@@ -134,7 +157,7 @@ This application seems to support several key functionalities:
         ```bash
         supabase migration new <migration_name>
         ```
-*   **Applying Migrations:** Migrations are applied automatically when you run `supabase start` or can be applied with `supabase db reset` (for a clean setup).
+*   **Applying Migrations:** Migrations are applied automatically during `supabase start` if they haven't been applied before. `supabase db reset` drops the local database, re-runs all migrations, and then runs `supabase/seed.sql`.
 
 ## 7. Edge Functions
 

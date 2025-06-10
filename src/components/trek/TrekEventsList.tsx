@@ -4,7 +4,8 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Calendar, MapPin, Users, Clock, Wifi } from 'lucide-react';
 import { formatDistanceToNow, isPast, isToday, isTomorrow, format } from 'date-fns';
-// import { formatCurrency } from '@/lib/utils'; // Assuming formatCurrency is also in utils or defined below
+import { TrekEventStatus } from '@/types/trek';
+import { getTrekStatusBadgeProps, formatCurrency } from '@/lib/utils'; // Import formatCurrency
 
 // Define type for Trek Events
 export interface TrekEvent {
@@ -13,7 +14,7 @@ export interface TrekEvent {
   description: string | null;
   category: string | null;
   start_datetime: string;
-  duration: string | null;
+  duration?: string | null; // Made duration optional
   cost: number;
   max_participants: number;
   participant_count: number | null;
@@ -22,6 +23,7 @@ export interface TrekEvent {
   cancellation_policy: string | null;
   image_url?: string | null;
   event_creator_type: string;
+  status?: TrekEventStatus | string | null;
 }
 
 interface TrekEventsListProps {
@@ -65,14 +67,6 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
       return null; // Don't crash if date is invalid
     }
     return null;
-  };
-
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
-    }).format(amount);
   };
 
   const getSpacesLeftText = (participantCount: number | null, max: number) => {
@@ -151,15 +145,26 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
             )}
 
             {/* Status Badge Area */}
-            <div className="absolute top-3 right-3 z-10 flex gap-1">
+            <div className="absolute top-3 right-3 z-10 flex gap-1 flex-wrap justify-end">
+              {trek.status && trek.status !== TrekEventStatus.UPCOMING && trek.status !== TrekEventStatus.OPEN_FOR_REGISTRATION && (
+                (() => {
+                  const badgeProps = getTrekStatusBadgeProps(trek.status);
+                  return (
+                    <Badge variant={badgeProps.variant} 
+                           className={`text-xs capitalize whitespace-nowrap ${badgeProps.className}`}>
+                      {trek.status}
+                    </Badge>
+                  );
+                })()
+              )}
               {isLive && (
-                <Badge className="bg-red-500 text-white border-red-600 flex items-center gap-1">
-                  <Wifi size={14} className="animate-pulse"/> 
+                <Badge className="bg-red-500 text-white border-red-600 flex items-center gap-1 text-xs">
+                  <Wifi size={12} className="animate-pulse"/> 
                   Live
                 </Badge>
               )}
               {timeStatus && ( // Only show other statuses if not live
-                <Badge className={`${timeStatus.class}`}>
+                <Badge className={`${timeStatus.class} text-xs`}> {/* Ensure text size consistency */}
                   {timeStatus.label}
                 </Badge>
               )}

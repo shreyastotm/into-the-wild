@@ -4,11 +4,13 @@ import { Badge } from '@/components/ui/badge';
 import { format } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
 import { MapPin, CalendarDays, Users, IndianRupee } from 'lucide-react';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, getTrekStatusBadgeProps } from '@/lib/utils';
+import { TrekEventStatus } from '@/types/trek';
 
 interface TrekEventHeaderProps {
   trekName: string;
   category: string | null;
+  status?: TrekEventStatus | string | null;
   startDatetime: string;
   imageUrl?: string | null;
   cost?: number;
@@ -20,6 +22,7 @@ interface TrekEventHeaderProps {
 export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
   trekName,
   category,
+  status,
   startDatetime,
   imageUrl,
   cost,
@@ -50,11 +53,24 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
       
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
         <CardTitle className="text-3xl font-bold tracking-tight">{trekName}</CardTitle>
-        {category && (
-          <Badge variant="outline" className="border-primary/50 text-primary bg-primary/10 text-sm capitalize whitespace-nowrap">
-            {category}
-          </Badge>
-        )}
+        <div className="flex items-center gap-2">
+          {status && (
+            (() => {
+              const badgeProps = getTrekStatusBadgeProps(status);
+              return (
+                <Badge variant={badgeProps.variant} 
+                       className={`text-sm capitalize whitespace-nowrap ${badgeProps.className}`}>
+                  {status}
+                </Badge>
+              );
+            })()
+          )}
+          {category && (
+            <Badge variant="outline" className="border-primary/50 text-primary bg-primary/10 text-sm capitalize whitespace-nowrap">
+              {category}
+            </Badge>
+          )}
+        </div>
       </div>
       
       <div className="flex flex-wrap gap-x-4 gap-y-2 text-sm text-muted-foreground">

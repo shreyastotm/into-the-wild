@@ -10,14 +10,14 @@ interface TrekEvent {
   start_datetime: string;
   end_datetime: string;
   difficulty: string | null;
-  status: 'planned' | 'confirmed' | 'ongoing' | 'completed' | 'cancelled' | null;
+  status: 'planned' | 'confirmed' | 'ongoing' | 'completed' | 'cancelled' | 'draft' | null;
   duration: string | null;
   cost: number;
   max_participants: number;
   participant_count: number | null;
   location: any | null;
   route_data: any | null;
-  transport_mode: 'cars' | 'mini_van' | 'bus' | null;
+  transport_mode: 'cars' | 'mini_van' | 'bus' | 'self_drive' | null;
   vendor_contacts: any | null;
   pickup_time_window: string | null;
   cancellation_policy: string | null;
@@ -33,8 +33,12 @@ export function useTrekEventDetails(trek_id: string | undefined) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (trek_id) {
+    if (trek_id && !isNaN(parseInt(trek_id))) {
       fetchTrekEvent(parseInt(trek_id));
+    } else if (trek_id) {
+      console.error("Invalid trek_id provided to useTrekEventDetails:", trek_id);
+      setTrekEvent(null);
+      setLoading(false);
     }
   }, [trek_id]);
 
@@ -54,8 +58,29 @@ export function useTrekEventDetails(trek_id: string | undefined) {
       
       if (data) {
         setTrekEvent({
-          ...data as TrekEvent,
-          image_url: data.image_url || null
+          trek_id: data.trek_id,
+          trek_name: data.name,
+          description: data.description,
+          category: data.category,
+          start_datetime: data.start_datetime,
+          end_datetime: data.end_datetime,
+          difficulty: data.difficulty,
+          status: data.status as TrekEvent['status'],
+          duration: data.duration as string | null,
+          cost: data.base_price,
+          max_participants: data.max_participants,
+          participant_count: null,
+          location: data.location,
+          route_data: data.route_data,
+          transport_mode: data.transport_mode as TrekEvent['transport_mode'],
+          vendor_contacts: data.vendor_contacts,
+          pickup_time_window: data.pickup_time_window,
+          cancellation_policy: data.cancellation_policy,
+          partner_id: data.partner_id,
+          image_url: data.image_url || null,
+          is_finalized: data.is_finalized,
+          created_at: data.created_at,
+          updated_at: data.updated_at
         });
       }
     } catch (error: any) {

@@ -9,6 +9,39 @@ import { useUserVerificationStatus } from '@/components/auth/useUserVerification
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Checkbox } from "@/components/ui/checkbox";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { TrekEventStatus } from '@/types/trek';
+
+// Define TrekEvent type based on TrekEventsAdmin.tsx for the prop
+interface AdminTrekEvent {
+  trek_id: number;
+  name: string;
+  description?: string | null;
+  location?: string | null;
+  category?: string | null; // Added from form
+  difficulty?: string | null; // Added from form
+  start_datetime: string;
+  end_datetime?: string | null;
+  base_price?: number | null;
+  max_participants: number;
+  status?: string | null;
+  image_url?: string | null;
+  // Note: CreateTrekMultiStepForm also handles gpx_file_url internally
+  // and packing list items, which are not part of this AdminTrekEvent interface directly
+}
+
+interface CreateTrekMultiStepFormProps {
+  trekToEdit?: AdminTrekEvent | null;
+  onFormSubmit: (trekData: any) => Promise<void>; // Callback after successful submission
+  onCancel: () => void; // Callback for cancelling/closing the form
+}
 
 // Step 1: Trek Details
 function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChange, gpxFile, handleGpxChange, errors }) {
@@ -32,17 +65,17 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
   return (
     <div className="space-y-4">
       <div>
-        <Label htmlFor="trek_name">Trek Name *</Label>
-        <Input id="trek_name" name="trek_name" value={formData.trek_name} onChange={e => setFormData(f => ({ ...f, trek_name: e.target.value }))} required />
-        {errors.trek_name && <div className="text-red-500 text-xs mt-1">{errors.trek_name}</div>}
+        <Label htmlFor="name">Trek Name *</Label>
+        <Input id="name" name="name" value={formData.name || ''} onChange={e => setFormData(f => ({ ...f, name: e.target.value }))} required />
+        {errors.name && <div className="text-red-500 text-xs mt-1">{errors.name}</div>}
       </div>
       <div>
         <Label htmlFor="description">Description</Label>
-        <Textarea id="description" name="description" value={formData.description} onChange={e => setFormData(f => ({ ...f, description: e.target.value }))} rows={3} />
+        <Textarea id="description" name="description" value={formData.description || ''} onChange={e => setFormData(f => ({ ...f, description: e.target.value }))} rows={3} />
         <div className="text-gray-500 text-xs mt-1">Share a short, catchy description for your trek.</div>
       </div>
       <div>
-        <Label htmlFor="trek-image">Trek Image</Label>
+        <Label htmlFor="trek-image">Trek Image (Main)</Label>
         <Input type="file" id="trek-image" accept="image/*" onChange={handleImageInputChange} />
         {imgError && <div className="text-red-500 text-xs mt-1">{imgError}</div>}
         {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-full max-h-48 object-cover rounded" />}
@@ -55,26 +88,71 @@ function TrekDetailsStep({ formData, setFormData, imagePreview, handleImageChang
       </div>
       <div>
         <Label htmlFor="start_datetime">Start Date and Time *</Label>
-        <Input id="start_datetime" name="start_datetime" type="datetime-local" value={formData.start_datetime} onChange={e => setFormData(f => ({ ...f, start_datetime: e.target.value }))} required />
+        <Input id="start_datetime" name="start_datetime" type="datetime-local" value={formData.start_datetime || ''} onChange={e => setFormData(f => ({ ...f, start_datetime: e.target.value }))} required />
         {errors.start_datetime && <div className="text-red-500 text-xs mt-1">{errors.start_datetime}</div>}
         <div className="text-gray-500 text-xs mt-1">Choose when your trek begins. Participants will be notified.</div>
       </div>
       <div>
         <Label htmlFor="location">Location</Label>
-        <Input id="location" name="location" value={formData.location} onChange={e => setFormData(f => ({ ...f, location: e.target.value }))} />
+        <Input id="location" name="location" value={formData.location || ''} onChange={e => setFormData(f => ({ ...f, location: e.target.value }))} />
         <div className="text-gray-500 text-xs mt-1">Where will the trek start? (e.g., "Matheran Hill Base")</div>
       </div>
       <div>
+        <Label htmlFor="category">Category</Label>
+        <Input id="category" name="category" value={formData.category || ''} onChange={e => setFormData(f => ({ ...f, category: e.target.value }))} />
+      </div>
+      <div>
+        <Label htmlFor="difficulty">Difficulty</Label>
+        <Input id="difficulty" name="difficulty" value={formData.difficulty || ''} onChange={e => setFormData(f => ({ ...f, difficulty: e.target.value }))} />
+      </div>
+      <div>
         <Label htmlFor="base_price">Base Cost (₹) *</Label>
-        <Input id="base_price" name="base_price" type="number" min="0" value={formData.base_price || ''} onChange={e => setFormData(f => ({ ...f, base_price: e.target.value }))} required />
+        <Input 
+          id="base_price" 
+          name="base_price" 
+          type="number" 
+          min="0" 
+          value={formData.base_price === undefined || formData.base_price === null ? '' : formData.base_price} 
+          onChange={e => {
+            const val = e.target.value;
+            setFormData(f => ({ ...f, base_price: val === '' ? undefined : parseFloat(val) }));
+          }} 
+          required 
+        />
         {errors.base_price && <div className="text-red-500 text-xs mt-1">{errors.base_price}</div>}
         <div className="text-gray-500 text-xs mt-1">Base cost per participant (required)</div>
       </div>
       <div>
         <Label htmlFor="max_participants">Max Participants *</Label>
-        <Input id="max_participants" name="max_participants" type="text" value={formData.max_participants || ''} onChange={e => setFormData(f => ({ ...f, max_participants: e.target.value }))} required />
+        <Input 
+          id="max_participants" 
+          name="max_participants" 
+          type="number" 
+          min="1" 
+          value={formData.max_participants === undefined || formData.max_participants === null ? '' : formData.max_participants} 
+          onChange={e => {
+            const val = e.target.value;
+            setFormData(f => ({ ...f, max_participants: val === '' ? undefined : parseInt(val, 10) }));
+          }} 
+          required 
+        />
         {errors.max_participants && <div className="text-red-500 text-xs mt-1">{errors.max_participants}</div>}
         <div className="text-gray-500 text-xs mt-1">Maximum number of participants allowed (required)</div>
+      </div>
+      <div>
+        <Label htmlFor="status">Status</Label>
+        <select 
+          id="status" 
+          name="status" 
+          value={formData.status || TrekEventStatus.DRAFT} 
+          onChange={e => setFormData(f => ({ ...f, status: e.target.value }))} 
+          className="w-full p-2 border rounded"
+        >
+          <option value={TrekEventStatus.DRAFT}>Draft</option>
+          <option value={TrekEventStatus.UPCOMING}>Upcoming</option>
+          <option value={TrekEventStatus.OPEN_FOR_REGISTRATION}>Open for Registration</option>
+          <option value={TrekEventStatus.CANCELLED}>Cancelled</option>
+        </select>
       </div>
     </div>
   );
@@ -198,146 +276,130 @@ function PackingListStep({ selectedItems, setSelectedItems, mandatoryItems, setM
 
 // Step 3 (was 4): Review & Submit
 function ReviewStep({ formData, selectedPackingItems, mandatoryPackingItems, masterPackingList, imagePreview, gpxFile, gpxRouteData }) {
-  // Find the names of selected packing items from the master list
   const getSelectedItemDetails = (itemId: number) => {
-      return masterPackingList.find(item => item.id === itemId);
-  }
+    const item = masterPackingList.find(i => i.id === itemId);
+    if (!item) return { name: "Unknown Item", category: "N/A", mandatory: false };
+    return { name: item.name, category: item.category || 'Misc', mandatory: mandatoryPackingItems.has(itemId) };
+  };
 
   return (
     <div className="space-y-4">
-      <div><b>Trek Name:</b> {formData.name}</div>
-      <div><b>Description:</b> {formData.description}</div>
-      <div><b>Start Date:</b> {formData.start_datetime}</div>
-      <div><b>Location:</b> {formData.location}</div>
-      <div><b>Base Cost:</b> ₹{formData.base_price}</div>
-      <div><b>Max Participants:</b> {formData.max_participants}</div>
-      {imagePreview && <img src={imagePreview} alt="Preview" className="mt-2 w-full max-h-32 object-cover rounded" />}
-      {gpxFile && (
-        <div className="text-xs text-blue-700">GPX File: {gpxFile.name}</div>
-      )}
-      {gpxRouteData && (
-        <div className="text-xs text-green-700">
-          Route: {gpxRouteData.distance_km} km, Elevation Gain: {gpxRouteData.elevation_gain} m, Points: {gpxRouteData.points}
-        </div>
-      )}
-      <div>
-        <b>Packing List:</b>
-        {selectedPackingItems.size === 0 ? (
-            <p className="text-muted-foreground">No items selected.</p>
-        ) : (
-            <ul className="list-disc pl-5">
-            {[...selectedPackingItems].map((itemId) => {
-                const itemDetails = getSelectedItemDetails(itemId);
-                return (
-                    <li key={itemId}>
-                        {itemDetails?.name || `Item ID: ${itemId}`}
-                        {mandatoryPackingItems.has(itemId) && <span className="text-red-600 font-semibold ml-2">(Mandatory)</span>}
-                    </li>
-                );
-            })}
-            </ul>
-        )}
+      <h3 className="font-bold text-lg">Review Your Trek Details</h3>
+      
+      {/* Trek Details Review */}
+      <div className="p-4 border rounded-md bg-gray-50">
+        <h4 className="font-semibold mb-2">General Information</h4>
+        <p><strong>Name:</strong> {formData.name || 'N/A'}</p>
+        <p><strong>Description:</strong> {formData.description || 'N/A'}</p>
+        <p><strong>Location:</strong> {formData.location || 'N/A'}</p>
+        <p><strong>Start Date:</strong> {formData.start_datetime ? new Date(formData.start_datetime).toLocaleString() : 'N/A'}</p>
+        <p><strong>Cost:</strong> ₹{formData.base_price ?? '0'}</p>
+        <p><strong>Max Participants:</strong> {formData.max_participants || 'N/A'}</p>
+        <p><strong>Status:</strong> {formData.status || 'Draft'}</p>
+        {imagePreview && <img src={imagePreview} alt="Trek" className="mt-2 w-full max-h-40 object-cover rounded"/>}
+        {gpxFile && <div className="mt-2 text-sm text-green-700">GPX File: {gpxFile.name}</div>}
+      </div>
+
+      {/* Packing List Review */}
+      <div className="p-4 border rounded-md bg-gray-50">
+          <h4 className="font-semibold mb-2">Packing List</h4>
+          {selectedPackingItems.size > 0 ? (
+              <ul className="list-disc pl-5">
+                  {Array.from(selectedPackingItems).map((id: number) => {
+                      const itemDetails = getSelectedItemDetails(id);
+                      return <li key={id}>{itemDetails.name} {itemDetails.mandatory && <strong>(Mandatory)</strong>}</li>;
+                  })}
+              </ul>
+          ) : (
+              <p>No packing items selected.</p>
+          )}
       </div>
     </div>
   );
 }
 
 // Main Multi-Step Form
-export default function CreateTrekMultiStepForm() {
-  const { user } = useAuth(); // Use basic useAuth
-  const { isVerified, isIndemnityAccepted, userType, loading } = useUserVerificationStatus();
+export default function CreateTrekMultiStepForm({ trekToEdit, onFormSubmit, onCancel }: CreateTrekMultiStepFormProps) {
+  const { user } = useAuth();
+  const { isVerified, isIndemnityAccepted, userType, loading: authLoading } = useUserVerificationStatus();
 
-  // Validation for user type and status
-  const validCreatorTypes = ['admin', 'micro_community'];
-  const canCreate = !loading &&
-                      userType &&
-                      validCreatorTypes.includes(userType) &&
-                      (userType === 'admin' || (userType === 'micro_community' && isVerified && isIndemnityAccepted));
-
-  const [step, setStep] = useState(0);
-  // Updated formData state to use name and base_price
-  const [formData, setFormData] = useState({ name: '', description: '', start_datetime: '', location: '', base_price: '', max_participants: '' });
+  const [step, setStep] = useState(1);
+  const [formData, setFormData] = useState<Partial<AdminTrekEvent>>({});
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [gpxFile, setGpxFile] = useState<File | null>(null);
-  const [gpxRouteData, setGpxRouteData] = useState<any>(null);
-  // Refactored Packing List state
+  const [gpxRouteData, setGpxRouteData] = useState<any>(null); // To store parsed GPX data
+
+  // Packing List state
   const [selectedPackingItems, setSelectedPackingItems] = useState<Set<number>>(new Set());
   const [mandatoryPackingItems, setMandatoryPackingItems] = useState<Set<number>>(new Set());
-  const [masterPackingList, setMasterPackingList] = useState<MasterPackingItem[]>([]); // Need master list for Review step
+  const [masterPackingList, setMasterPackingList] = useState<MasterPackingItem[]>([]);
 
-  const [submitting, setSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(false);
 
-   // Fetch master packing list once for the Review step
-   useEffect(() => {
+  useEffect(() => {
+    // Fetch master packing list once for the review step
     const fetchMasterListForReview = async () => {
-      const { data, error } = await supabase
-        .from('master_packing_items')
-        .select('id, name, category');
-      if (!error) {
-        setMasterPackingList(data || []);
-      }
+        const { data, error } = await supabase.from('master_packing_items').select('id, name, category');
+        if (data) setMasterPackingList(data);
     };
     fetchMasterListForReview();
   }, []);
 
-  if (loading) return <div>Loading user status...</div>;
+  useEffect(() => {
+    if (trekToEdit) {
+      // Pre-fill form data from trekToEdit
+      setFormData({
+        ...trekToEdit,
+        start_datetime: trekToEdit.start_datetime ? new Date(trekToEdit.start_datetime).toISOString().slice(0, 16) : '',
+        end_datetime: trekToEdit.end_datetime ? new Date(trekToEdit.end_datetime).toISOString().slice(0, 16) : '',
+      });
+      if (trekToEdit.image_url) {
+        setImagePreview(trekToEdit.image_url);
+      }
 
-  if (!canCreate) {
-      let message = 'Trek creation not allowed.';
-      if (userType === 'trekker') message = 'Trekkers cannot create trek events.';
-      else if (userType === 'micro_community' && (!isVerified || !isIndemnityAccepted)) message = 'Micro-community users must be verified and accept indemnity to create events.';
-      else if (!userType || !validCreatorTypes.includes(userType)) message = 'Invalid user type for trek creation.';
+      // Fetch assigned packing items for the trek being edited
+      const fetchAssignedItems = async () => {
+          const { data, error } = await supabase
+              .from('trek_packing_list_assignments')
+              .select('master_item_id, mandatory')
+              .eq('trek_id', trekToEdit.trek_id);
 
-    return (
-      <div className="max-w-2xl mx-auto p-8 text-center text-red-600">
-        <h2 className="text-xl font-semibold mb-2">{message}</h2>
-      </div>
-    );
-  }
+          if (error) {
+              console.error("Error fetching assigned packing items:", error);
+              return;
+          }
 
-  // Ensure location is always a string before submit
+          const selectedIds = new Set<number>();
+          const mandatoryIds = new Set<number>();
+          data.forEach(item => {
+              selectedIds.add(item.master_item_id);
+              if (item.mandatory) {
+                  mandatoryIds.add(item.master_item_id);
+              }
+          });
+          setSelectedPackingItems(selectedIds);
+          setMandatoryPackingItems(mandatoryIds);
+      };
+      fetchAssignedItems();
+    }
+  }, [trekToEdit]);
+
   function sanitizeLocation(location: any): string {
     if (typeof location === 'string') return location;
-    // Handle potential GeoJSON Point object (example)
-    if (location && typeof location === 'object' && location.type === 'Point' && Array.isArray(location.coordinates)) {
-        return `Coords: ${location.coordinates[1]}, ${location.coordinates[0]}`;
+    if (location && typeof location === 'object' && typeof location.name === 'string') {
+      return location.name;
     }
-    return JSON.stringify(location) || ''; // Fallback
+    return '';
   }
 
   const handleGpxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       setGpxFile(file);
-      // Simple GPX parsing placeholder (replace with actual library if needed)
-      const reader = new FileReader();
-      reader.onload = (event) => {
-          const text = event.target?.result as string;
-          if (text) {
-              try {
-                  // Example: Count points (replace with real parsing)
-                  const pointCount = (text.match(/<trkpt/g) || []).length;
-                  setGpxRouteData({ points: pointCount, distance_km: 'N/A', elevation_gain: 'N/A' });
-                  console.log("Simulated GPX data:", { points: pointCount });
-              } catch (parseError) {
-                  console.error("Error parsing GPX:", parseError);
-                  toast({ title: 'GPX Parse Error', description: 'Could not read basic GPX data.', variant: 'destructive' });
-                  setGpxRouteData(null);
-              }
-          } else {
-              setGpxRouteData(null);
-          }
-      };
-      reader.onerror = () => {
-          toast({ title: 'GPX Read Error', description: 'Could not read the GPX file.', variant: 'destructive' });
-          setGpxRouteData(null);
-      };
-      reader.readAsText(file);
-    } else {
-      setGpxFile(null);
-      setGpxRouteData(null);
+      // Optional: Parse GPX here to show a preview if needed
+      // For simplicity, we'll just store the file and process on submit
     }
   };
 
@@ -346,153 +408,131 @@ export default function CreateTrekMultiStepForm() {
     if (file) {
       setImageFile(file);
       setImagePreview(URL.createObjectURL(file));
-    } else {
-      setImageFile(null);
-      setImagePreview(null);
     }
   };
 
   const handleSubmit = async () => {
-    if (!user) return toast({ title: 'User not found', variant: 'destructive'});
+    if (!validateStep()) return;
+    if (!user) {
+      toast({ title: "Authentication Error", description: "You must be logged in to create a trek.", variant: "destructive" });
+      return;
+    }
+    if (!isVerified) {
+      toast({ title: "Verification Required", description: "Your account must be verified to create treks.", variant: "destructive" });
+      return;
+    }
 
-    setSubmitting(true);
+    setLoading(true);
+
+    let imageUrl = trekToEdit?.image_url || null;
+    if (imageFile) {
+      const { data: imageData, error: imageError } = await supabase.storage
+        .from('trek-assets')
+        .upload(`${user.id}/${Date.now()}_${imageFile.name}`, imageFile);
+      if (imageError) {
+        toast({ title: "Image Upload Failed", description: imageError.message, variant: "destructive" });
+        setLoading(false);
+        return;
+      }
+      const { data: urlData } = supabase.storage.from('trek-assets').getPublicUrl(imageData.path);
+      imageUrl = urlData.publicUrl;
+    }
+
+    let gpxFileUrl: string | null = null;
+    if (gpxFile) {
+        const { data: gpxData, error: gpxError } = await supabase.storage
+            .from('trek-assets') // Use the same bucket for GPX files
+            .upload(`gpx/${user.id}/${Date.now()}_${gpxFile.name}`, gpxFile);
+        if (gpxError) {
+            toast({ title: "GPX Upload Failed", description: gpxError.message, variant: "destructive" });
+            setLoading(false);
+            return;
+        }
+        const { data: urlData } = supabase.storage.from('trek-assets').getPublicUrl(gpxData.path);
+        gpxFileUrl = urlData.publicUrl;
+    }
+
+    const trekDataToSubmit = {
+      ...formData,
+      image_url: imageUrl,
+      gpx_file_url: gpxFileUrl, // Add GPX file URL to the data
+      created_by: user.id,
+      location: sanitizeLocation(formData.location), // Sanitize location
+    };
+    
+    // Remove trek_id if it's a new trek
+    if (!trekToEdit) {
+      delete trekDataToSubmit.trek_id;
+    }
+
+    // This now calls the callback function passed in props
     try {
-      let imageUrl: string | null = null;
-      let gpxUrl: string | null = null;
-      let routeData: any = gpxRouteData || null;
-
-      // Upload Image
-      if (imageFile) {
-        const fileExt = imageFile.name.split('.').pop();
-        const filePath = `trek-images/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('trek_assets').upload(filePath, imageFile, { upsert: false });
-        if (uploadError) throw new Error(`Image Upload Error: ${uploadError.message}`);
-        const { data: publicUrlData } = supabase.storage.from('trek_assets').getPublicUrl(filePath);
-        imageUrl = publicUrlData?.publicUrl || null;
-      }
-
-      // Upload GPX
-      if (gpxFile) {
-        const fileExt = gpxFile.name.split('.').pop();
-        const filePath = `trek-gpx/${Date.now()}-${Math.random().toString(36).substr(2, 9)}.${fileExt}`;
-        const { error: uploadError } = await supabase.storage.from('trek_assets').upload(filePath, gpxFile, { upsert: false });
-        if (uploadError) throw new Error(`GPX Upload Error: ${uploadError.message}`);
-        const { data: gpxPublicUrlData } = supabase.storage.from('trek_assets').getPublicUrl(filePath);
-        gpxUrl = gpxPublicUrlData?.publicUrl || null;
-      }
-
-      // Sanitize data
-      const sanitizedLocation = sanitizeLocation(formData.location);
-      const sanitizedBasePrice = formData.base_price;
-      const sanitizedMaxParticipants = formData.max_participants;
-
-      // Validate required numeric fields
-      if (sanitizedBasePrice === '' || isNaN(Number(sanitizedBasePrice))) {
-        throw new Error('Base Cost is required and must be a valid number.');
-      }
-      if (sanitizedMaxParticipants === '' || isNaN(Number(sanitizedMaxParticipants))) {
-        throw new Error('Max participants is required and must be a valid number.');
-      }
-      const maxParticipantsNumber = Number(sanitizedMaxParticipants);
-      const basePriceNumber = Number(sanitizedBasePrice);
-
-      // 1. Insert trek event
-      const { data: trekData, error: trekError } = await supabase.from('trek_events').insert({
-        name: formData.name, // Ensure correct key 'name'
-        description: formData.description,
-        start_datetime: formData.start_datetime,
-        location: sanitizedLocation,
-        image_url: imageUrl,
-        gpx_file_url: gpxUrl,
-        route_data: routeData,
-        base_price: basePriceNumber, // Ensure correct key 'base_price'
-        max_participants: maxParticipantsNumber,
-        created_by: user.id // Set creator
-        // Add other relevant fields from formData if needed (e.g., difficulty, category)
-        // Ensuring NO old keys like trek_name or cost are present
-      }).select('trek_id').single();
-
-      if (trekError) throw trekError;
-      const trek_id = Number(trekData.trek_id);
-
-      // 2. (was 3) Insert trek_packing_list_assignments
-      const assignmentsToInsert = Array.from(selectedPackingItems).map((itemId, index) => ({
-          trek_id: trek_id,
-          master_item_id: itemId,
-          mandatory: mandatoryPackingItems.has(itemId),
-          item_order: index // Add order based on selection sequence (optional)
-      }));
-
-      if (assignmentsToInsert.length > 0) {
-          const { error: itemError } = await supabase.from('trek_packing_list_assignments').insert(assignmentsToInsert);
-          if (itemError) throw itemError;
-      }
-
-      toast({ title: 'Trek created successfully!' });
-      // Optionally redirect or reset form: reset state, setStep(0)
-      setFormData({ name: '', description: '', start_datetime: '', location: '', base_price: '', max_participants: '' });
-      setImageFile(null);
-      setImagePreview(null);
-      setGpxFile(null);
-      setGpxRouteData(null);
-      setSelectedPackingItems(new Set());
-      setMandatoryPackingItems(new Set());
-      setStep(0);
-
+      await onFormSubmit({
+        trekData: trekDataToSubmit,
+        packingList: Array.from(selectedPackingItems).map(id => ({
+          master_item_id: id,
+          is_mandatory: mandatoryPackingItems.has(id),
+        })),
+      });
+      toast({ title: "Success", description: `Trek ${trekToEdit ? 'updated' : 'created'} successfully!` });
     } catch (error: any) {
-      toast({ title: 'Error creating trek', description: error.message || JSON.stringify(error), variant: 'destructive' });
-      console.error('Error creating trek event:', error);
+      console.error("Error submitting form from multi-step", error);
+      toast({ title: "Submission Error", description: error.message, variant: "destructive" });
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 
-  // Validation logic
-  const validateStep = () => {
-    const newErrors: { [key: string]: string } = {};
-    if (step === 0) {
-      if (!formData.name) newErrors.name = 'Trek name is required.'; // Check name
-      if (!formData.start_datetime) newErrors.start_datetime = 'Start date & time required.';
-      if (!formData.base_price || formData.base_price === '') newErrors.base_price = 'Base Cost is required.'; // Check base_price
-      if (!formData.max_participants || formData.max_participants === '') newErrors.max_participants = 'Max participants is required.';
-      // Add further validation for numeric types if desired
-      if (formData.base_price && isNaN(Number(formData.base_price))) newErrors.base_price = 'Base Cost must be a number.';
-      if (formData.max_participants && isNaN(Number(formData.max_participants))) newErrors.max_participants = 'Max participants must be a number.';
+  const steps = [
+    { name: 'Trek Details', component: <TrekDetailsStep formData={formData} setFormData={setFormData} imagePreview={imagePreview} handleImageChange={handleImageChange} gpxFile={gpxFile} handleGpxChange={handleGpxChange} errors={errors} /> },
+    { name: 'Packing List', component: <PackingListStep selectedItems={selectedPackingItems} setSelectedItems={setSelectedPackingItems} mandatoryItems={mandatoryPackingItems} setMandatoryItems={setMandatoryPackingItems} /> },
+    { name: 'Review & Submit', component: <ReviewStep formData={formData} selectedPackingItems={selectedPackingItems} mandatoryPackingItems={mandatoryPackingItems} masterPackingList={masterPackingList} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} /> },
+  ];
 
+  const validateStep = () => {
+    const newErrors: Record<string, string> = {};
+    if (step === 1) {
+      if (!formData.name) newErrors.name = "Trek name is required.";
+      if (!formData.start_datetime) newErrors.start_datetime = "Start date is required.";
+      if (formData.base_price === undefined || formData.base_price === null) newErrors.base_price = "Base cost is required.";
+      if (formData.max_participants === undefined || formData.max_participants === null) newErrors.max_participants = "Max participants is required.";
     }
-    // Add validation for other steps if needed
-    return newErrors;
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleNext = () => {
-    const validation = validateStep();
-    setErrors(validation);
-    if (Object.keys(validation).length === 0) setStep(s => s + 1);
+    if (validateStep()) {
+      setStep(s => Math.min(s + 1, steps.length));
+    }
   };
-
-  const steps = ['Trek Details', 'Packing List', 'Review']; // Removed 'Fixed Expenses'
+  const handlePrev = () => setStep(s => Math.max(s - 1, 1));
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
-      <div className="mb-6 flex justify-between items-center">
-        <div className="text-xl font-bold">Create New Trek</div>
-        <div className="space-x-2">
-          {steps.map((label, idx) => (
-            <Button key={label} variant={step === idx ? 'default' : 'outline'} onClick={() => setStep(idx)}>{idx + 1}. {label}</Button>
-          ))}
-        </div>
-      </div>
-      {/* Pass correct props to steps */} 
-      {step === 0 && <TrekDetailsStep formData={formData} setFormData={setFormData} imagePreview={imagePreview} handleImageChange={handleImageChange} gpxFile={gpxFile} handleGpxChange={handleGpxChange} errors={errors} />}
-      {step === 1 && <PackingListStep selectedItems={selectedPackingItems} setSelectedItems={setSelectedPackingItems} mandatoryItems={mandatoryPackingItems} setMandatoryItems={setMandatoryPackingItems} />}
-      {step === 2 && <ReviewStep formData={formData} selectedPackingItems={selectedPackingItems} mandatoryPackingItems={mandatoryPackingItems} masterPackingList={masterPackingList} imagePreview={imagePreview} gpxFile={gpxFile} gpxRouteData={gpxRouteData} />}
-
-      <form onSubmit={e => { e.preventDefault(); if (step === steps.length - 1) handleSubmit(); else handleNext(); }}>
-        <div className="mt-8 flex justify-between">
-          <Button type="button" variant="outline" disabled={step === 0} onClick={() => setStep(s => s - 1)}>Back</Button>
-          <Button type="submit" disabled={submitting}>{step === steps.length - 1 ? (submitting ? 'Submitting...' : 'Create Trek') : 'Next'}</Button>
-        </div>
-      </form>
-    </div>
+    <Dialog open={true} onOpenChange={onCancel}>
+      <DialogContent className="sm:max-w-4xl">
+        <DialogHeader>
+          <DialogTitle>{trekToEdit ? 'Edit Trek' : 'Create New Trek'}</DialogTitle>
+          <DialogDescription>
+            Step {step} of {steps.length}: {steps[step - 1].name}
+          </DialogDescription>
+        </DialogHeader>
+        <ScrollArea className="h-[70vh] w-full p-4">
+          <div className="p-1">{steps[step - 1].component}</div>
+        </ScrollArea>
+        <DialogFooter>
+          <div className="flex justify-between w-full">
+            <div>
+              {step > 1 && <Button variant="outline" onClick={handlePrev}>Previous</Button>}
+            </div>
+            <div className="flex gap-2">
+              <Button variant="ghost" onClick={onCancel}>Cancel</Button>
+              {step < steps.length && <Button onClick={handleNext}>Next</Button>}
+              {step === steps.length && <Button onClick={handleSubmit} disabled={loading}>{loading ? 'Submitting...' : 'Submit'}</Button>}
+            </div>
+          </div>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
