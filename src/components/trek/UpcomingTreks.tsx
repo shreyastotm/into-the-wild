@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { getUniqueParticipantCount, formatCurrency } from '@/lib/utils';
 import { format, formatRelative } from 'date-fns';
 import { toZonedTime } from 'date-fns-tz';
+import { useCallback } from 'react';
 
 interface Trek {
   trek_id: number;
@@ -47,18 +48,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   const [participantCounts, setParticipantCounts] = useState<Record<number, number>>({});
   const navigate = useNavigate();
 
-  useEffect(() => {
-    fetchUpcomingTreks();
-  }, [limit]);
-
-  // Fetch counts only after treks are loaded
-  useEffect(() => {
-    if (treks.length > 0) {
-      fetchAllParticipantCounts();
-    }
-  }, [treks]);
-
-  const fetchUpcomingTreks = async () => {
+  const fetchUpcomingTreks = useCallback(async () => {
     try {
       setLoading(true);
       const now = new Date().toISOString();
@@ -78,35 +68,45 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
       // Cast fetched data to the explicit type
       const fetchedData = (data as FetchedTrekData[]) || [];
 
-      // Map fetched data to Trek interface with defaults
-      const mappedTreks: Trek[] = fetchedData.map(trek => ({
-        trek_id: trek.trek_id, // trek_id should always exist
-        name: trek.name ?? 'Unnamed Trek',
-        category: trek.category ?? null,
-        difficulty: trek.difficulty ?? null,
-        start_datetime: trek.start_datetime ?? new Date().toISOString(), // Provide a sensible default
-        base_price: trek.base_price ?? 0,
-        max_participants: trek.max_participants ?? 0,
-        description: trek.description ?? null,
-        image_url: trek.image_url ?? null,
-      }));
+      // Map fetched data to Trek interface with defaults and resolve image URLs
+      const mappedTreks: Trek[] = await Promise.all(
+        fetchedData.map(async (trek) => {
+          let imageUrl = null;
+          if (trek.image_url) {
+            const { data: urlData } = await supabase.storage.from('trek_assets').getPublicUrl(trek.image_url);
+            imageUrl = urlData.publicUrl;
+          }
+          return {
+            trek_id: trek.trek_id,
+            name: trek.name ?? 'Unnamed Trek',
+            category: trek.category ?? null,
+            difficulty: trek.difficulty ?? null,
+            start_datetime: trek.start_datetime ?? new Date().toISOString(),
+            base_price: trek.base_price ?? 0,
+            max_participants: trek.max_participants ?? 0,
+            description: trek.description ?? null,
+            image_url: imageUrl,
+          };
+        })
+      );
 
       setTreks(mappedTreks);
       setParticipantCounts({}); 
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load upcoming treks";
       toast({
         title: "Error fetching treks",
-        description: error.message || "Failed to load upcoming treks",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error("Error fetching upcoming treks:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [limit]);
 
-  const fetchAllParticipantCounts = async () => {
+  const fetchAllParticipantCounts = useCallback(async () => {
     const counts: Record<number, number> = {};
     try {
       await Promise.all(
@@ -144,7 +144,18 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
       }, {} as Record<number, number>);
       setParticipantCounts(zeroCounts);
     }
-  };
+  }, [treks]);
+
+  useEffect(() => {
+    fetchUpcomingTreks();
+  }, [limit, fetchUpcomingTreks]);
+
+  // Fetch counts only after treks are loaded
+  useEffect(() => {
+    if (treks.length > 0) {
+      fetchAllParticipantCounts();
+    }
+  }, [treks, fetchAllParticipantCounts]);
 
   const toIndianTime = (utcDateString: string) => {
     try {

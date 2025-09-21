@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Outlet, Navigate, useParams } from 'react-router-dom';
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
@@ -13,22 +13,50 @@ import TrekArchives from './pages/TrekArchives';
 import { Toaster } from './components/ui/toaster';
 import AdminHome from './pages/admin';
 import ResetPassword from './pages/ResetPassword';
+import { ProtectedRoute } from './components/ProtectedRoute';
+
+const AppLayout = () => (
+  <Layout>
+    <Outlet />
+  </Layout>
+);
+
+// Redirect component for old trek-events URLs
+const TrekEventRedirect = () => {
+  const { id } = useParams();
+  return <Navigate to={`/events/${id}`} replace />;
+};
 
 function App() {
   return (
     <AuthProvider>
       <Router>
         <Routes>
-          <Route path="/" element={<Layout><Index /></Layout>} />
-          <Route path="/auth" element={<Layout><Auth /></Layout>} />
-          <Route path="/profile" element={<Layout><Profile /></Layout>} />
-          <Route path="/dashboard" element={<Layout><Dashboard /></Layout>} />
-          <Route path="/trek-events" element={<Layout><TrekEvents /></Layout>} />
-          <Route path="/trek-events/:id" element={<Layout><TrekEventDetails /></Layout>} />
-          <Route path="/trek-archives" element={<Layout><TrekArchives /></Layout>} />
-          <Route path="/reset-password" element={<Layout><ResetPassword /></Layout>} />
-          <Route path="/admin/*" element={<AdminHome />} />
-          <Route path="*" element={<Layout><NotFound /></Layout>} />
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Auth />} />
+            <Route path="/auth" element={<Auth />} />
+
+            <Route element={<ProtectedRoute />}>
+              <Route path="/profile" element={<Profile />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route element={<ProtectedRoute isAdminRoute />}>
+                 <Route path="/admin/*" element={<AdminHome />} />
+              </Route>
+            </Route>
+            
+            <Route path="/events" element={<TrekEvents />} />
+            <Route path="/events/:id" element={<TrekEventDetails />} />
+            
+            {/* Backwards compatibility redirects */}
+            <Route path="/trek-events" element={<Navigate to="/events" replace />} />
+            <Route path="/trek-events/:id" element={<TrekEventRedirect />} />
+            
+            <Route path="/trek-archives" element={<TrekArchives />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            
+            <Route path="*" element={<NotFound />} />
+          </Route>
         </Routes>
         <Toaster />
       </Router>

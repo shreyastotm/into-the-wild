@@ -11,13 +11,16 @@ import {
   DollarSign,
   Car,
   Star,
-  Package
+  Package,
+  Tent
 } from 'lucide-react';
 import { format } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { formatCurrency } from '@/lib/utils';
 import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
+import TrekCostsManager from '@/components/trek/TrekCostsManager';
+import { TentRequestsAdmin } from '@/components/admin/TentRequestsAdmin';
 // import { AdminTransportCoordination } from '@/components/admin/AdminTransportCoordination'; // Keep commented out or remove
 
 // Define a more flexible interface to handle field name variations
@@ -43,7 +46,8 @@ interface TrekEvent {
   destination_longitude?: number;
   created_at?: string;
   updated_at?: string;
-  [key: string]: any; // Allow any extra fields
+  event_type?: string;
+  [key: string]: unknown; // Allow any extra fields
 }
 
 // Simplify participant structure
@@ -87,7 +91,7 @@ export default function AdminTrekDetails() {
       if (error) throw error;
       
       // Type assertion to avoid property access errors
-      const trekData = data as Record<string, any>;
+      const trekData = data as Record<string, unknown>;
       
       // Normalize field names - ensures required fields are present
       const normalizedData: TrekEvent = {
@@ -122,7 +126,7 @@ export default function AdminTrekDetails() {
     try {
       // Safer approach that avoids complex type issues
       // First fetch registrations
-      let registrationsData: Array<any> = [];
+      let registrationsData: Array<Record<string, unknown>> = [];
       try {
         const { data, error } = await supabase
           .from('trek_registrations')
@@ -164,7 +168,7 @@ export default function AdminTrekDetails() {
       }
 
       // Fetch user details
-      let usersData: Array<any> = [];
+      let usersData: Array<Record<string, unknown>> = [];
       try {
         const { data, error } = await supabase
           .from('users')
@@ -229,11 +233,12 @@ export default function AdminTrekDetails() {
         description: `Registration ID ${registrationId} marked as Paid.`,
       });
       fetchParticipants(parseInt(trekId)); // Refresh participant list
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Could not update payment status.';
       console.error('Error verifying payment:', error);
       toast({
         title: 'Error Verifying Payment',
-        description: error.message || 'Could not update payment status.',
+        description: errorMessage,
         variant: 'destructive'
       });
     }
@@ -344,6 +349,11 @@ export default function AdminTrekDetails() {
               <TabsTrigger value="discussion">
                 <Users className="h-4 w-4 mr-2" /> Discussion
               </TabsTrigger>
+              {trekEvent.event_type === 'camping' && (
+                <TabsTrigger value="tent-requests">
+                  <Tent className="h-4 w-4 mr-2" /> Tent Requests
+                </TabsTrigger>
+              )}
             </TabsList>
 
             <TabsContent value="participants">
@@ -454,13 +464,11 @@ export default function AdminTrekDetails() {
                     <DollarSign className="h-5 w-5 mr-2" /> Expense Management
                   </CardTitle>
                   <CardDescription>
-                    Manage expenses and payments for this trek
+                    Manage fixed costs and participant expenses for this trek
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
-                    Expense management admin panel coming soon
-                  </div>
+                  <TrekCostsManager trekId={parseInt(trekId)} isAdmin={true} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -523,6 +531,12 @@ export default function AdminTrekDetails() {
                     </CardContent>
                 </Card>
             </TabsContent>
+
+            {trekEvent.event_type === 'camping' && (
+              <TabsContent value="tent-requests">
+                <TentRequestsAdmin eventId={trekEvent.trek_id} />
+              </TabsContent>
+            )}
 
           </Tabs>
         </>

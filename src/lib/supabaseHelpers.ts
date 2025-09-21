@@ -8,12 +8,12 @@ export interface SimpleUser {
   user_id: string;
   name?: string;
   full_name?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 export interface SimpleRegistration {
   user_id: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 /**
@@ -28,7 +28,7 @@ export async function fetchTrekRegistrationUserIds(trekId: number): Promise<stri
       AND payment_status != 'Cancelled'
     `;
     
-    // @ts-ignore - Bypass TypeScript's deep type recursion
+    // @ts-expect-error - Bypass TypeScript's deep type recursion
     const { data, error } = await supabase.rpc('execute_sql_readonly', { sql_query: query });
     
     if (error) {
@@ -40,7 +40,7 @@ export async function fetchTrekRegistrationUserIds(trekId: number): Promise<stri
     const userIds: string[] = [];
     if (data && Array.isArray(data)) {
       // Type assertion to let TypeScript know data is iterable
-      const itemsArray = data as Array<any>;
+      const itemsArray = data as Array<Record<string, unknown>>;
       for (const item of itemsArray) {
         if (item && typeof item === 'object' && 'user_id' in item) {
           const userId = item.user_id;
@@ -85,7 +85,7 @@ export async function fetchUsersByIds(userIds: string[]): Promise<SimpleUser[]> 
         WHERE user_id IN (${idList})
       `;
       
-      // @ts-ignore - Bypass TypeScript's deep type recursion
+      // @ts-expect-error - Bypass TypeScript's deep type recursion
       const { data, error } = await supabase.rpc('execute_sql_readonly', { sql_query: query });
       
       if (error) {
@@ -96,7 +96,7 @@ export async function fetchUsersByIds(userIds: string[]): Promise<SimpleUser[]> 
       // Process the result safely
       if (data && Array.isArray(data)) {
         // Type assertion to let TypeScript know data is iterable
-        const itemsArray = data as Array<any>;
+        const itemsArray = data as Array<Record<string, unknown>>;
         for (const item of itemsArray) {
           if (item && typeof item === 'object' && 'user_id' in item) {
             allUsers.push({

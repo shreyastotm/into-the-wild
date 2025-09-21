@@ -1,23 +1,30 @@
-
 import { Link } from 'react-router-dom';
 import { useAuth } from './auth/AuthProvider';
 import { User, MapPin, Menu, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 
 const Header = () => {
-  const { user, loading, signOut } = useAuth();
+  const { user, userProfile, loading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  useEffect(() => {
+    console.log('Auth state changed:', { loading, user: !!user });
+  }, [loading, user]);
   
   const navLinks = [
     { to: '/', label: 'Home' },
-    { to: '/trek-events', label: 'Trek Events' },
+    { to: '/events', label: 'Events' },
   ];
 
   const authLinks = user ? [
     { to: '/dashboard', label: 'Dashboard' },
     { to: '/profile', label: 'Profile' },
   ] : [];
+
+  if (userProfile?.user_type === 'admin') {
+    authLinks.push({ to: '/admin', label: 'Admin' });
+  }
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
@@ -58,7 +65,7 @@ const Header = () => {
                 </>
               ) : (
                 <Link 
-                  to="/auth" 
+                  to="/login" 
                   className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
                 >
                   Sign In
@@ -118,7 +125,7 @@ const Header = () => {
                   </>
                 ) : (
                   <Link 
-                    to="/auth" 
+                    to="/login" 
                     className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded inline-block"
                     onClick={() => setMobileMenuOpen(false)}
                   >

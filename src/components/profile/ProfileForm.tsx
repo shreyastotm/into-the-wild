@@ -14,7 +14,7 @@ import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
 
 // Fix default Leaflet icon issue with bundlers
-// @ts-ignore
+// @ts-expect-error - This is a known workaround for a Leaflet-bundler issue
 delete L.Icon.Default.prototype._getIconUrl;
 L.Icon.Default.mergeOptions({
     iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
@@ -62,7 +62,7 @@ function LocationMarker({ position, onPositionChange }: { position: L.LatLngTupl
 }
 
 export const ProfileForm: React.FC = () => {
-    const { user, userProfile, loading: authLoading, refreshUserProfile } = useAuth();
+    const { user, userProfile, loading: authLoading, fetchUserProfile } = useAuth();
     const { toast } = useToast();
     const [formData, setFormData] = useState<ProfileFormData>({
         full_name: '',
@@ -183,12 +183,13 @@ export const ProfileForm: React.FC = () => {
                     variant: "default",
                     action: <CheckCircle className="text-green-500" />,
                 });
-                refreshUserProfile();
-            } catch (error: any) {    
+                fetchUserProfile();
+            } catch (error: unknown) {    
+                const errorMessage = error instanceof Error ? error.message : "Could not update your profile. Please try again.";
                 console.error("Error updating profile:", error);
                 toast({
                     title: "Update Failed",
-                    description: error.message || "Could not update your profile. Please try again.",
+                    description: errorMessage,
                     variant: "destructive",
                     action: <XCircle className="text-red-500" />,
                 });
@@ -211,12 +212,13 @@ export const ProfileForm: React.FC = () => {
                     variant: "default",
                     action: <CheckCircle className="text-green-500" />,
                 });
-                refreshUserProfile();
-            } catch (error: any) {
+                fetchUserProfile();
+            } catch (error: unknown) {
+                const errorMessage = error instanceof Error ? error.message : "Could not update your profile. Please try again.";
                 console.error("Error updating profile:", error);
                 toast({
                     title: "Update Failed",
-                    description: error.message || "Could not update your profile. Please try again.",
+                    description: errorMessage,
                     variant: "destructive",
                     action: <XCircle className="text-red-500" />,
                 });

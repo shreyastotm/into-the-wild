@@ -11,6 +11,7 @@ import { toast } from '@/components/ui/use-toast';
 import { CalendarDays, MapPin, Clock, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useCallback } from 'react';
 
 interface TrekRegistration {
   trek_id: number;
@@ -19,7 +20,7 @@ interface TrekRegistration {
   payment_status: string;
   cost: number;
   category: string | null;
-  location: any;
+  location: { name?: string } | null;
   participant_count: number | null;
   max_participants: number;
   isPast: boolean;
@@ -32,17 +33,12 @@ export const UserTreks = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (user) {
-      fetchUserTrekRegistrations();
-    }
-  }, [user]);
-
-  const fetchUserTrekRegistrations = async () => {
+  const fetchUserTrekRegistrations = useCallback(async () => {
+    if (!user) return;
     try {
       setLoading(true);
       
-      const userId = user?.id ? (typeof user.id === 'string' ? user.id : String(user.id)) : '';
+      const userId = user.id ? (typeof user.id === 'string' ? user.id : String(user.id)) : '';
       
       const { data, error } = await supabase
         .from('trek_registrations')
@@ -51,7 +47,19 @@ export const UserTreks = () => {
       if (error) throw error;
       if (data && data.length > 0) {
         // Fetch trek event details for all trek_ids
-        const trekIds = data.map((reg: any) => reg.trek_id);
+        type RawRegistration = { trek_id: number; [key: string]: unknown };
+        type MappedTrek = {
+          trek_id: number;
+          name: string;
+          start_datetime: string;
+          base_price: number;
+          category: string | null;
+          location: { name?: string } | null;
+          max_participants: number;
+          image_url: string | null;
+        };
+
+        const trekIds = data.map((reg: RawRegistration) => reg.trek_id);
         const { data: trekEvents, error: trekEventsError } = await supabase
           .from('trek_events')
           .select('trek_id, name, start_datetime, base_price, category, location, max_participants, image_url')
@@ -60,41 +68,52 @@ export const UserTreks = () => {
         const trekMap = (trekEvents || []).reduce((acc, trek) => {
           acc[trek.trek_id] = trek;
           return acc;
-        }, {} as Record<number, any>);
+        }, {} as Record<number, MappedTrek>);
         const now = new Date();
-        const transformedData = data.map((reg: any) => {
-          const trekData = trekMap[reg.trek_id];
-          if (!trekData) {
-            console.error('Missing trek event for registration:', reg);
-          }
-          const startDate = trekData ? new Date(trekData.start_datetime) : new Date('');
-          return {
-            ...reg,
-            trek_name: trekData?.name || '(Event Missing)',
-            start_datetime: trekData?.start_datetime || '',
-            cost: trekData?.base_price ?? 0,
-            category: trekData?.category ?? null,
-            location: trekData?.location ?? null,
-            max_participants: trekData?.max_participants ?? 0,
-            isPast: trekData ? startDate < now : false,
-            image_url: trekData?.image_url || null
-          };
-        });
+        const transformedData = data
+          .map((reg: RawRegistration) => {
+            const trekData = trekMap[reg.trek_id];
+            if (!trekData) {
+              console.warn('Orphaned registration found and skipped. Registration ID:', reg.registration_id, 'Trek ID:', reg.trek_id);
+              return null; // Mark for removal
+            }
+            const startDate = new Date(trekData.start_datetime);
+            return {
+              ...reg,
+              trek_name: trekData.name,
+              start_datetime: trekData.start_datetime,
+              cost: trekData.base_price ?? 0,
+              category: trekData.category ?? null,
+              location: trekData.location ?? null,
+              max_participants: trekData.max_participants ?? 0,
+              isPast: startDate < now,
+              image_url: trekData.image_url || null
+            };
+          })
+          .filter(Boolean) as TrekRegistration[]; // Filter out the nulls
+
         setTrekRegistrations(transformedData);
       } else {
         setTrekRegistrations([]);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load trek registrations";
       toast({
         title: "Error loading your treks",
-        description: error.message || "Failed to load trek registrations",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error("Error fetching user registrations:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [user]);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserTrekRegistrations();
+    }
+  }, [user, fetchUserTrekRegistrations]);
 
   const goToTrekDetails = (trekId: number) => {
     navigate(`/trek-events/${trekId}`);

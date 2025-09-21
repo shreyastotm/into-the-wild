@@ -9,8 +9,10 @@ import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
 import { ExpenseSplitting } from '@/components/expenses/ExpenseSplitting';
 import { TrekRatings } from '@/components/trek/TrekRatings';
 import { TrekPackingList } from '@/components/trek/TrekPackingList';
+import { TentRental } from '@/components/trek/TentRental';
 import { useTrekRegistration } from '../hooks/trek/useTrekRegistration';
 import { useTrekCommunity } from '@/hooks/useTrekCommunity';
+import { useTrekCosts } from '@/hooks/trek/useTrekCosts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   ChevronLeft, 
@@ -20,11 +22,12 @@ import {
   Receipt,
   Award,
   ClipboardList,
-  Info
+  Info,
+  Tent
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { TrekEventStatus } from '@/types/trek';
+import { TrekEventStatus, EventType } from '@/types/trek';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -33,7 +36,7 @@ export default function TrekEventDetails() {
 
   const { 
     trekEvent, 
-    loading, 
+    loading: trekLoading, 
     registering, 
     userRegistration,
     registerForTrek, 
@@ -41,6 +44,10 @@ export default function TrekEventDetails() {
     uploadPaymentProof
   } = useTrekRegistration(id);
   
+  const { costs, loading: costsLoading } = useTrekCosts(id);
+
+  const trekIdNum = id ? parseInt(id, 10) : 0;
+
   const {
     participants,
     participantCount,
@@ -58,7 +65,7 @@ export default function TrekEventDetails() {
     full_name: participant.name || 'Unknown User'
   }));
 
-  if (loading) {
+  if (trekLoading || costsLoading) {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="animate-pulse">
@@ -82,10 +89,10 @@ export default function TrekEventDetails() {
       <div className="container mx-auto py-8 px-4 text-center">
         <h1 className="text-2xl font-bold mb-4">Trek Not Found</h1>
         <p className="mb-6">The trek event you're looking for doesn't exist or has been removed.</p>
-        <Link to="/trek-events">
+        <Link to="/events">
           <Button>
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Trek Events
+            Back to Events
           </Button>
         </Link>
       </div>
@@ -121,7 +128,7 @@ export default function TrekEventDetails() {
     <div className="container mx-auto py-8 px-4">
       <Link to="/trek-events" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
         <ChevronLeft className="mr-1 h-4 w-4" />
-        Back to Trek Events
+        Back to Events
       </Link>
 
       <TrekEventHeader
@@ -139,7 +146,7 @@ export default function TrekEventDetails() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         <div className="md:col-span-2">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="mb-4 grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+            <TabsList className="mb-4 grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
               <TabsTrigger value="details">
                 <Info className="h-4 w-4 mr-2" />
                 Details
@@ -156,6 +163,12 @@ export default function TrekEventDetails() {
                 <Map className="h-4 w-4 mr-2" />
                 Travel
               </TabsTrigger>
+              {trekEvent.event_type === EventType.CAMPING && (
+                <TabsTrigger value="tent-rental">
+                  <Tent className="h-4 w-4 mr-2" />
+                  Tent Rental
+                </TabsTrigger>
+              )}
               {isRegistered && (
                 <TabsTrigger value="expenses">
                   <Receipt className="h-4 w-4 mr-2" />
@@ -179,6 +192,7 @@ export default function TrekEventDetails() {
                 currentParticipants={participantCount}
                 pickupTimeWindow={trekEvent.pickup_time_window}
                 cancellationPolicy={trekEvent.cancellation_policy}
+                fixedCosts={costs}
               />
             </TabsContent>
             
@@ -195,9 +209,10 @@ export default function TrekEventDetails() {
               <div>
                  <h3 className="text-xl font-semibold mb-4">Discussion ({comments.length})</h3>
                  <TrekDiscussion 
-                  trekId={id || ''} 
+                  trekId={trekIdNum} 
                   comments={comments}
                   onAddComment={addComment}
+                  isRegistered={isRegistered}
                   isLoading={commentsLoading}
                 />
               </div>
@@ -215,11 +230,23 @@ export default function TrekEventDetails() {
               />
             </TabsContent>
             
+            {trekEvent.event_type === EventType.CAMPING && (
+              <TabsContent value="tent-rental">
+                <TentRental
+                  eventId={trekIdNum}
+                  eventStartDate={trekEvent.start_datetime}
+                  eventEndDate={trekEvent.end_datetime}
+                  isRegistered={isRegistered}
+                />
+              </TabsContent>
+            )}
+            
             {isRegistered && (
               <TabsContent value="expenses">
                 <ExpenseSplitting
                   trekId={id || ''}
                   isAdmin={isAdmin}
+                  fixedCosts={costs}
                 />
               </TabsContent>
             )}

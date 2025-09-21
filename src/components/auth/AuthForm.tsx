@@ -1,16 +1,5 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { toast } from '@/components/ui/use-toast';
-import { 
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue
-} from '@/components/ui/select';
 import { 
   Card,
   CardContent,
@@ -19,324 +8,182 @@ import {
   CardHeader,
   CardTitle 
 } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
-
-type AuthMode = 'signin' | 'signup';
+import { useAuthForm } from '@/hooks/useAuthForm';
+import { SignInForm } from './SignInForm';
+import { SignUpForm } from './SignUpForm';
+import { PasswordResetForm } from './PasswordResetForm';
+import { 
+  UserType, 
+  SubscriptionType 
+} from '@/types/auth';
 
 export default function AuthForm() {
-  const navigate = useNavigate();
-  const [mode, setMode] = useState<AuthMode>('signin');
-  const [loading, setLoading] = useState(false);
+  // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
-  const [subscriptionType, setSubscriptionType] = useState<'community' | 'self_service'>('community');
-  const [userType, setUserType] = useState<'trekker' | 'micro_community' | 'admin'>('trekker');
+  const [subscriptionType, setSubscriptionType] = useState<SubscriptionType>('community');
+  const [userType, setUserType] = useState<UserType>('trekker');
   const [partnerId, setPartnerId] = useState('');
   const [indemnityAccepted, setIndemnityAccepted] = useState(false);
-  const [verificationDocs, setVerificationDocs] = useState<File[] | null>(null);
-  const [resetting, setResetting] = useState(false);
   const [resetEmail, setResetEmail] = useState('');
-  const [showReset, setShowReset] = useState(false);
 
-  const handleGoogleSignIn = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({
-      provider: 'google',
+  // Auth hook
+  const {
+    mode,
+    loading,
+    showReset,
+    errors,
+    setMode,
+    setShowReset,
+    handleSignIn,
+    handleSignUp,
+    handlePasswordReset,
+    handleGoogleSignIn,
+    clearError,
+  } = useAuthForm();
+
+  // Auto-select Community plan for Micro-community account type
+  useEffect(() => {
+    if (userType === 'micro_community') {
+      setSubscriptionType('community');
+    }
+  }, [userType]);
+
+  // Event handlers
+  const handleSignInSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSignIn({ email, password });
+  };
+
+  const handleSignUpSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    await handleSignUp({
+      email,
+      password,
+      fullName,
+      phone,
+      userType,
+      subscriptionType,
+      partnerId,
+      indemnityAccepted,
     });
-    if (error) {
-      toast({
-        title: 'Google Sign-In Error',
-        description: error.message,
-        variant: 'destructive',
-      });
-    }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handlePasswordResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
-
-    try {
-      if (mode === 'signup') {
-        // Defensive: Ensure required fields for DB trigger
-        if (!email || !password || !fullName || !subscriptionType) {
-          toast({
-            title: 'Missing Required Fields',
-            description: 'Email, password, full name, and subscription type are required.',
-            variant: 'destructive',
-          });
-          setLoading(false);
-          return;
-        }
-        // Validate subscriptionType
-        const validSubscriptionTypes = ['community', 'self_service'];
-        if (!validSubscriptionTypes.includes(subscriptionType)) {
-          toast({
-            title: 'Invalid Subscription Type',
-            description: `Subscription type must be one of: ${validSubscriptionTypes.join(', ')}`,
-            variant: 'destructive',
-          });
-          setLoading(false);
-          return;
-        }
-        // Handle signup
-        console.log('Attempting to sign up with:', { email, fullName, phone, subscriptionType, userType, partnerId, indemnityAccepted, verificationDocs });
-        
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName,
-              phone: phone,
-              subscription_type: subscriptionType,
-              user_type: userType,
-              partner_id: userType === 'micro_community' ? partnerId : null,
-            }
-          }
-        });
-
-        if (error) {
-          // Show detailed error from Supabase
-          toast({
-            title: 'Signup Error',
-            description: error.message || 'Database error saving new user',
-            variant: 'destructive',
-          });
-          setLoading(false);
-          return;
-        }
-
-        toast({
-          title: "Account created successfully!",
-          description: "Please check your email to verify your account.",
-        });
-        
-        // Clear form fields
-        setEmail(''); setPassword(''); setFullName(''); setPhone(''); setPartnerId(''); setIndemnityAccepted(false); setVerificationDocs(null);
-        
-        // Navigate to profile page
-        navigate('/profile');
-      } else {
-        // Handle signin
-        const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-
-        if (error) throw error;
-
-        toast({
-          title: "Welcome back!",
-          description: "You've been signed in successfully.",
-        });
-        navigate('/');
-      }
-    } catch (error: any) {
-      console.error("Auth error details:", error);
-      toast({
-        title: "Error",
-        description: error?.message || "An error occurred during authentication",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
+    await handlePasswordReset({ email: resetEmail });
   };
 
-  const handleResetPassword = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setResetting(true);
-    try {
-      const { data, error } = await supabase.auth.resetPasswordForEmail(resetEmail);
-      if (error) throw error;
-      toast({
-        title: 'Password Reset Email Sent',
-        description: 'Check your inbox for a password reset link.',
-      });
-      setShowReset(false);
-      setResetEmail('');
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error?.message || 'Failed to send reset email',
-        variant: 'destructive',
-      });
-    } finally {
-      setResetting(false);
-    }
+  const handleFieldFocus = (field: string) => {
+    clearError(field as keyof AuthFormErrors);
   };
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
       <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="text-2xl font-bold text-center">
-          {mode === 'signin' ? 'Sign In' : 'Create Account'}
-        </CardTitle>
-        <CardDescription className="text-center">
-          {mode === 'signin' 
-            ? 'Enter your credentials to access your account' 
-            : 'Join the trekking community today'
-          }
-        </CardDescription>
-      </CardHeader>
-      
-        {showReset ? (
-          <CardContent>
-          <form onSubmit={handleResetPassword} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="resetEmail">Email</Label>
-              <Input
-                id="resetEmail"
-                type="email"
-                value={resetEmail}
-                onChange={(e) => setResetEmail(e.target.value)}
-                required
-              />
-            </div>
-            <Button type="submit" className="w-full" disabled={resetting}>
-              {resetting ? 'Sending...' : 'Send Reset Link'}
-            </Button>
-            <Button type="button" variant="ghost" className="w-full" onClick={() => setShowReset(false)}>
-              Back to Sign In
-            </Button>
-          </form>
-          </CardContent>
-        ) : (
-          <>
-            <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-4">
-            {mode === 'signup' && (
-              <>
-                <div className="space-y-2">
-                  <Label htmlFor="userType">User Type</Label>
-                  <Select value={userType} onValueChange={v => setUserType(v as any)}>
-                    <SelectTrigger><SelectValue placeholder="Select user type" /></SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="trekker">Trekker</SelectItem>
-                      <SelectItem value="micro_community">Micro-Community</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {userType === 'micro_community' && (
-                  <div className="space-y-2">
-                    <Label htmlFor="partnerId">Partner/Community ID</Label>
-                    <Input id="partnerId" type="text" value={partnerId} onChange={e => setPartnerId(e.target.value)} required />
-                  </div>
-                )}
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="phone">Phone Number</Label>
-                  <Input
-                    id="phone"
-                    type="tel"
-                    value={phone}
-                    onChange={(e) => setPhone(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="subscriptionType">Subscription Type</Label>
-                  <Select 
-                    value={subscriptionType}
-                    onValueChange={(value) => setSubscriptionType(value as 'community' | 'self_service')}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a subscription type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="community">Community (₹499/year)</SelectItem>
-                      <SelectItem value="self_service">Self-Service (₹99/month)</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+        <CardHeader>
+          <CardTitle className="text-2xl font-bold text-center">
+            {showReset ? 'Reset Password' : 
+             mode === 'signin' ? 'Welcome Back' : 'Join Into The Wild'}
+          </CardTitle>
+          <CardDescription className="text-center">
+            {showReset ? 'Enter your email to reset your password' :
+             mode === 'signin' ? 'Sign in to your account to continue' : 
+             'Create an account to start your adventure'}
+          </CardDescription>
+        </CardHeader>
+        
+        <CardContent>
+          {showReset ? (
+            <PasswordResetForm
+              email={resetEmail}
+              loading={loading}
+              errors={errors}
+              onEmailChange={setResetEmail}
+              onSubmit={handlePasswordResetSubmit}
+              onBackToSignIn={() => setShowReset(false)}
+              onFieldFocus={handleFieldFocus}
+            />
+          ) : mode === 'signin' ? (
+            <SignInForm
+              email={email}
+              password={password}
+              loading={loading}
+              errors={errors}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              onSubmit={handleSignInSubmit}
+              onForgotPassword={() => setShowReset(true)}
+              onFieldFocus={handleFieldFocus}
+            />
+          ) : (
+            <SignUpForm
+              email={email}
+              password={password}
+              fullName={fullName}
+              phone={phone}
+              userType={userType}
+              subscriptionType={subscriptionType}
+              partnerId={partnerId}
+              indemnityAccepted={indemnityAccepted}
+              loading={loading}
+              errors={errors}
+              onEmailChange={setEmail}
+              onPasswordChange={setPassword}
+              onFullNameChange={setFullName}
+              onPhoneChange={setPhone}
+              onUserTypeChange={setUserType}
+              onSubscriptionTypeChange={setSubscriptionType}
+              onPartnerIdChange={setPartnerId}
+              onIndemnityChange={setIndemnityAccepted}
+              onSubmit={handleSignUpSubmit}
+              onFieldFocus={handleFieldFocus}
+            />
+          )}
+        </CardContent>
 
-                <div className="flex items-center space-x-2">
-                  <input id="indemnityAccepted" type="checkbox" checked={indemnityAccepted} onChange={e => setIndemnityAccepted(e.target.checked)} required />
-                  <Label htmlFor="indemnityAccepted">I accept the indemnity and terms</Label>
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="verificationDocs">Verification Documents (optional)</Label>
-                  <Input id="verificationDocs" type="file" multiple onChange={e => setVerificationDocs(e.target.files ? Array.from(e.target.files) : null)} />
-                </div>
-              </>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                    autoComplete='email'
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                    autoComplete={mode === 'signin' ? 'current-password' : 'new-password'}
-              />
-            </div>
-                {mode === 'signin' && (
-                  <div className="text-sm text-right">
-                    <Button variant="link" size="sm" onClick={() => setShowReset(true)}>
-                      Forgot password?
-                    </Button>
-                  </div>
-                )}
-            <Button type="submit" className="w-full" disabled={loading}>
-                  {loading ? 'Processing...' : (mode === 'signin' ? 'Sign In' : 'Sign Up')}
+        {!showReset && (
+          <CardFooter className="flex-col space-y-4">
+            <Button 
+              onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')} 
+              variant="link"
+              className="w-full"
+              disabled={loading}
+            >
+              {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
             </Button>
-              </form>
-            </CardContent>
-            <CardFooter className="flex-col space-y-4">
-              <Button 
-                onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')} 
-                variant="link"
-                className="w-full"
-              >
-                {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
-              </Button>
 
-              <div className="relative w-full">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="px-2 text-muted-foreground bg-card">
-                    Or continue with
-                  </span>
-                </div>
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="px-2 text-muted-foreground bg-card">
+                  Or continue with
+                </span>
+              </div>
+            </div>
 
-              <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
-                Sign in with Google
-              </Button>
-      </CardFooter>
-          </>
+            <Button 
+              variant="outline" 
+              className="w-full" 
+              onClick={handleGoogleSignIn}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                  Connecting...
+                </>
+              ) : (
+                'Sign in with Google'
+              )}
+            </Button>
+          </CardFooter>
         )}
-    </Card>
+      </Card>
     </div>
   );
 }

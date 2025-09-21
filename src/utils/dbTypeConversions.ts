@@ -13,7 +13,7 @@ export const userIdToString = (userId: string | number): string => {
 /**
  * Type guard to check if a value is a valid UUID (basic check)
  */
-export const isValidUserId = (userId: any): boolean => {
+export const isValidUserId = (userId: unknown): boolean => {
   if (typeof userId !== 'string') return false;
   // Basic UUID v4 pattern check
   return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(userId);
@@ -23,9 +23,9 @@ export const isValidUserId = (userId: any): boolean => {
  * A helper function to standardize ID types in API responses
  * Useful for maintaining consistent types throughout the application
  */
-export const standardizeIds = <T extends Record<string, any>>(data: T): T => {
+export const standardizeIds = <T extends Record<string, unknown>>(data: T): T => {
   // Create an intermediate result object with a more flexible type
-  const result: Record<string, any> = { ...data };
+  const result: Record<string, unknown> = { ...data };
   
   // Convert ID fields to their expected types
   for (const key in result) {

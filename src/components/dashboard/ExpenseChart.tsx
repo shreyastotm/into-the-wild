@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, TooltipProps } from 'recharts';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/use-toast';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -76,20 +76,21 @@ export const ExpenseChart = () => {
 
       setChartData(formattedChartData);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "An unknown error occurred";
       console.error("Error fetching expense data for chart:", error);
-      toast({ title: 'Error loading expense chart', description: error.message, variant: 'destructive' });
+      toast({ title: 'Error loading expense chart', description: errorMessage, variant: 'destructive' });
     } finally {
       setLoading(false);
     }
   };
 
-  const CustomTooltip = ({ active, payload }: any) => {
+  const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
       return (
         <div className="bg-white p-2 border rounded shadow text-sm">
           <p className="font-semibold">{payload[0].name}</p>
-          <p className="text-gray-700">{formatCurrency(payload[0].value)}</p>
+          <p className="text-gray-700">{formatCurrency(payload[0].value ?? 0)}</p>
         </div>
       );
     }

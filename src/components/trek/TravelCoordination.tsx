@@ -13,9 +13,9 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { useTransportCoordination, PickupStatus } from '@/hooks/trek/useTransportCoordination';
 
 interface TravelCoordinationProps {
-  transportMode?: 'cars' | 'mini_van' | 'bus' | null;
+  transportMode?: 'cars' | 'mini_van' | 'bus' | 'self_drive' | null;
   pickupTimeWindow?: string | null;
-  vendorContacts?: any | null;
+  vendorContacts?: Record<string, { phone?: string; email?: string }> | null;
   isAdmin?: boolean;
 }
 
@@ -495,14 +495,14 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
       )}
 
       {/* Special Service Providers */}
-      {vendorContacts && Object.keys(vendorContacts).length > 0 && (
+      {vendorContacts && typeof vendorContacts === 'object' && Object.keys(vendorContacts).length > 0 && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">Service Providers</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              {Object.entries(vendorContacts).map(([name, contact]: [string, any]) => (
+              {Object.entries(vendorContacts).map(([name, contact]) => (
                 <div key={name} className="p-2 border rounded">
                   <p className="font-medium">{name}</p>
                   <p className="text-sm text-muted-foreground">{contact.phone || contact.email || 'No contact details'}</p>

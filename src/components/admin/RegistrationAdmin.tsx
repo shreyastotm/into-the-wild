@@ -31,7 +31,6 @@ interface RegistrationData {
   // Nested objects
   trek_event: TrekEventInfo | null; // Use the specific interface
   user: UserInfo | null; // Use the specific interface
-  [key: string]: any; // Allow other fields from trek_registrations if needed
 }
 
 export default function RegistrationAdmin() {
@@ -56,8 +55,10 @@ export default function RegistrationAdmin() {
     } else {
       if (!data || data.length === 0) { return; }
 
-      const trekIds = (data || []).map((reg: any) => reg.trek_id);
-      const userIds = (data || []).map((reg: any) => reg.user_id);
+      type RawRegistration = { trek_id: number; user_id: string; [key: string]: unknown };
+
+      const trekIds = (data || []).map((reg: RawRegistration) => reg.trek_id);
+      const userIds = (data || []).map((reg: RawRegistration) => reg.user_id);
 
       // Fetch trek and user data in parallel
       const [trekResult, userResult] = await Promise.all([
@@ -83,7 +84,7 @@ export default function RegistrationAdmin() {
       }, {} as Record<string, UserInfo>); // Use UserInfo type
 
       // Combine data
-      const combinedData = (data || []).map((reg: any): RegistrationData => ({
+      const combinedData = (data || []).map((reg: RawRegistration): RegistrationData => ({
         ...reg,
         trek_event: trekInfoMap[reg.trek_id] || null,
         user: userMap[reg.user_id] || null,

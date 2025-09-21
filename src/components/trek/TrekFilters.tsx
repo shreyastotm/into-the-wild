@@ -9,6 +9,7 @@ export interface FilterOptions {
   priceRange: string;
   timeFrame: string;
   sortBy: string;
+  eventType: string;
 }
 
 interface TrekFiltersProps {
@@ -28,10 +29,10 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
   // This is just to provide a non-placeholder component body
   return (
     <div className="mb-6 p-4 border rounded-lg bg-card shadow-sm">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 items-end">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 items-end">
         {/* Search Input */}
         <div className="lg:col-span-2">
-          <label htmlFor="search" className="block text-sm font-medium text-muted-foreground mb-1">Search Treks</label>
+          <label htmlFor="search" className="block text-sm font-medium text-muted-foreground mb-1">Search Events</label>
           <Input
             id="search"
             placeholder="Search by name or description..."
@@ -58,6 +59,26 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
               {categories.map(cat => (
                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>
               ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Event Type Select */}
+        <div>
+          <label htmlFor="eventType" className="block text-sm font-medium text-muted-foreground mb-1">Event Type</label>
+          <Select
+            value={options.eventType || "all"}
+            onValueChange={(value) => {
+              onFilterChange('eventType', value === "all" ? "" : value);
+            }}
+          >
+            <SelectTrigger id="eventType">
+              <SelectValue placeholder="All Events" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Events</SelectItem>
+              <SelectItem value="trek">Trek Events</SelectItem>
+              <SelectItem value="camping">Camping Events</SelectItem>
             </SelectContent>
           </Select>
         </div>

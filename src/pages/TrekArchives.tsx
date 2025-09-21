@@ -68,10 +68,11 @@ const TrekArchives = () => {
 
       setTreks(formattedTreks);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load trek archives";
       toast({
         title: "Error fetching archived treks",
-        description: error.message || "Failed to load trek archives",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error("Error fetching archived treks:", error);

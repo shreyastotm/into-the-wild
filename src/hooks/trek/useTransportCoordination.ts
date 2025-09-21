@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
+import { useCallback } from 'react';
 
 export interface Driver {
   user_id: string;
@@ -50,13 +51,7 @@ export function useTransportCoordination(trekId: string | undefined) {
   const [userAssignedDriver, setUserAssignedDriver] = useState<Driver | null>(null);
   const [userPickupLocation, setUserPickupLocation] = useState<PickupLocation | null>(null);
 
-  useEffect(() => {
-    if (trekId) {
-      fetchTransportData();
-    }
-  }, [trekId]);
-
-  const fetchTransportData = async () => {
+  const fetchTransportData = useCallback(async () => {
     if (!trekId) return;
     
     setLoading(true);
@@ -82,7 +77,7 @@ export function useTransportCoordination(trekId: string | undefined) {
           if (driverUsersError) console.error('Error fetching driver user details:', driverUsersError);
           else driverUserDetails = driverUsersData || [];
         }
-        driversWithNames = rawDriversData.map((driver: any) => {
+        driversWithNames = rawDriversData.map((driver: Record<string, unknown>) => {
           const userDetail = driverUserDetails.find(u => u.user_id === driver.user_id);
           return {
             user_id: driver.user_id,
@@ -109,7 +104,7 @@ export function useTransportCoordination(trekId: string | undefined) {
       if (rawParticipantsError) throw rawParticipantsError;
       
       let participantsWithDetails: Participant[] = [];
-      let participantIdMap: Record<string, any> = {}; // Temp map to hold raw participant data
+      const participantIdMap: Record<string, unknown> = {}; // Temp map to hold raw participant data
       if (rawParticipantsData && rawParticipantsData.length > 0) {
           const participantUserIds = [...new Set(rawParticipantsData.map(p => p.user_id).filter(Boolean))];
           let participantUserDetails: { user_id: string; name: string | null; avatar_url: string | null; }[] = [];
@@ -123,7 +118,7 @@ export function useTransportCoordination(trekId: string | undefined) {
               else participantUserDetails = participantUsersData || [];
           }
           // Map raw data and user details, keep location_id for now
-          participantsWithDetails = rawParticipantsData.map((p: any) => {
+          participantsWithDetails = rawParticipantsData.map((p: Record<string, unknown>) => {
               const userDetail = participantUserDetails.find(u => u.user_id === p.user_id);
               participantIdMap[p.user_id] = p.pickup_location_id; // Store pickup_location_id temporarily
               return {
@@ -174,7 +169,7 @@ export function useTransportCoordination(trekId: string | undefined) {
                           driver.assigned_participants.push(participant);
                           // Populate using the correct column name 'status'
                           // Use 'as any' temporarily to bypass TS type error
-                          driver.pickup_status[participant.user_id] = ((assignment as any).status as PickupStatus) || 'pending'; 
+                          driver.pickup_status[participant.user_id] = ((assignment as Record<string, unknown>).status as PickupStatus) || 'pending'; 
                       }
                   }
               });
@@ -215,9 +210,15 @@ export function useTransportCoordination(trekId: string | undefined) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [trekId, user]);
 
-  const processLocationsData = (locationsData: any[]): PickupLocation[] => {
+  useEffect(() => {
+    if (trekId) {
+      fetchTransportData();
+    }
+  }, [trekId, fetchTransportData]);
+
+  const processLocationsData = (locationsData: Array<Record<string, unknown>>): PickupLocation[] => {
     return locationsData.map(location => ({
       id: location.id.toString(),
       name: location.name,
@@ -242,7 +243,7 @@ export function useTransportCoordination(trekId: string | undefined) {
           driver_id: driverId,
           participant_id: participantId,
           status: 'pending'
-        } as any);
+        } as Record<string, unknown>);
 
       if (error) throw error;
 
@@ -273,7 +274,7 @@ export function useTransportCoordination(trekId: string | undefined) {
       
       const { error } = await supabase
         .from('trek_driver_assignments')
-        .update({ status: statusValue } as any)
+        .update({ status: statusValue } as Record<string, unknown>)
         .eq('trek_id', numericTrekId)
         .eq('driver_id', driverId)
         .eq('participant_id', participantId);

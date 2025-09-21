@@ -61,9 +61,8 @@ export const useTrekCommunity = (trekId: string | undefined) => {
       // Step 1: Fetch registrations
       const { data: registrationsData, error: registrationsError } = await supabase
         .from('trek_registrations')
-        .select('user_id, booking_datetime') // Select needed fields, removed payment_status if problematic/not needed here
+        .select('user_id, booking_datetime')
         .eq('trek_id', numericTrekId)
-        // .not('payment_status', 'eq', 'Cancelled') // Temporarily remove filter causing issues?
         .order('booking_datetime', { ascending: true });
 
       if (registrationsError) {
@@ -74,11 +73,11 @@ export const useTrekCommunity = (trekId: string | undefined) => {
       let fetchedParticipants: Participant[] = [];
       if (registrationsData && registrationsData.length > 0) {
           // Step 2: Fetch user details
-          const userIds = registrationsData.map(reg => reg.user_id).filter(Boolean);
+          const userIds = (registrationsData as Array<{ user_id: string; booking_datetime: string }>).map(reg => reg.user_id).filter(Boolean);
           if (userIds.length > 0) {
               const { data: usersData, error: usersError } = await supabase
                   .from('users')
-                  .select('user_id, name, avatar_url') // Use name
+                  .select('user_id, name, avatar_url')
                   .in('user_id', userIds);
               
               if (usersError) {
@@ -87,14 +86,17 @@ export const useTrekCommunity = (trekId: string | undefined) => {
               }
 
               // Step 3: Combine registration and user data, mapping to Participant interface
-              fetchedParticipants = registrationsData.map(reg => {
-                  const userDetail = usersData?.find(u => u.user_id === reg.user_id);
+              const typedRegistrations = registrationsData as Array<{ user_id: string; booking_datetime: string }>;
+              const typedUsers = usersData as Array<{ user_id: string; name: string | null; avatar_url: string | null }> | null;
+              
+              fetchedParticipants = typedRegistrations.map(reg => {
+                  const userDetail = typedUsers?.find(u => u.user_id === reg.user_id);
                   return {
-                      id: reg.user_id, // Map user_id to id
+                      id: reg.user_id,
                       name: userDetail?.name || 'Loading...',
-                      avatar: userDetail?.avatar_url || null, // Map avatar_url to avatar
-                      joinedAt: reg.booking_datetime || new Date().toISOString(), // Map booking_datetime to joinedAt
-                      isEventCreator: false // Determine this based on roles/creator logic if needed elsewhere
+                      avatar: userDetail?.avatar_url || null,
+                      joinedAt: reg.booking_datetime || new Date().toISOString(),
+                      isEventCreator: false
                   };
               });
           }
@@ -155,9 +157,10 @@ export const useTrekCommunity = (trekId: string | undefined) => {
       setComments(fetchedComments);
       setCommentsLoading(false);
 
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Failed to load community data';
       console.error("Error fetching community data:", err);
-      setError(err.message || 'Failed to load community data');
+      setError(errorMessage);
       setParticipants([]);
       setParticipantCount(0);
       setComments([]);
@@ -180,12 +183,12 @@ export const useTrekCommunity = (trekId: string | undefined) => {
         // Insert only comment_text
         const { data: rawCommentData, error } = await supabase
             .from('trek_comments')
-            .insert(({
+            .insert({
                 trek_id: numericTrekId,
                 user_id: user.id,
-                comment_text: commentText.trim() // Only set comment_text
-            } as any)) // Cast to any to bypass strict type check for insert
-            .select('comment_id, user_id, comment_text, created_at') // Only select comment_text
+                comment_text: commentText.trim()
+            })
+            .select('comment_id, user_id, comment_text, created_at')
             .single();
 
         if (error) throw error;
@@ -216,14 +219,15 @@ export const useTrekCommunity = (trekId: string | undefined) => {
         } else {
            console.error("Insert succeeded but no comment data returned.");
         }
-    } catch (error: any) {
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : 'Failed to add comment';
         console.error("Error adding comment:", error);
-        toast({ title: "Error", description: `Failed to add comment: ${error.message}`, variant: "destructive" });
+        toast({ title: "Error", description: `Failed to add comment: ${errorMessage}`, variant: "destructive" });
     } finally {
         setSubmitting(false);
     }
     return success;
-  }, [numericTrekId, user, participants, user?.user_metadata?.avatar_url]);
+  }, [numericTrekId, user, participants]);
 
   useEffect(() => {
     if (trekId) {

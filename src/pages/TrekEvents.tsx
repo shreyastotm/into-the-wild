@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { TrekEventsList, TrekEvent as TrekEventListItem } from '@/components/trek/TrekEventsList';
 import { TrekFilters, FilterOptions } from '@/components/trek/TrekFilters';
 import { NoTreksFound } from '@/components/trek/NoTreksFound';
@@ -10,7 +10,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getUniqueParticipantCount } from '@/lib/utils';
-import { TrekEventStatus } from '@/types/trek';
+import { TrekEventStatus, EventType } from '@/types/trek';
 
 // This interface should match the shape of data AFTER aliasing in the select query
 export interface FetchedTrekData {
@@ -28,29 +28,36 @@ export interface FetchedTrekData {
   cancellation_policy?: string | null;
   event_creator_type?: string; 
   transport_mode?: 'cars' | 'mini_van' | 'bus' | null;
+  event_type?: EventType;
 }
 
 export type DisplayTrekEvent = TrekEventListItem;
 
 const TrekEvents = () => {
-  const [treks, setTreks] = useState<DisplayTrekEvent[]>([]);
+  const [events, setEvents] = useState<DisplayTrekEvent[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Set page title
+  React.useEffect(() => {
+    document.title = 'Events - Into the Wild';
+  }, []);
   const [categories, setCategories] = useState<string[]>([]);
   const [filterOptions, setFilterOptions] = useState<FilterOptions>({
     search: '',
     category: '',
     priceRange: '',
     timeFrame: '',
-    sortBy: 'date-asc'
+    sortBy: 'date-asc',
+    eventType: '' // Add event type filter
   });
   const [participantCounts, setParticipantCounts] = useState<Record<number, number>>({});
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
   useEffect(() => {
-    fetchTreks();
+    fetchEvents();
     fetchCategories();
-  }, [filterOptions]);
+  }, [filterOptions, fetchEvents]);
 
   const fetchCategories = async () => {
     try {
@@ -65,20 +72,21 @@ const TrekEvents = () => {
         const uniqueCategories = Array.from(new Set(data.map(item => item.category))).filter(Boolean);
         setCategories(uniqueCategories as string[]);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to fetch categories";
       console.error("Error fetching categories:", error);
     }
   };
 
-  const fetchTreks = async () => {
+  const fetchEvents = useCallback(async () => {
     try {
       setLoading(true);
       
-      // Select with aliasing: 'name' as 'trek_name', 'base_price' as 'cost'
-      const selectString = 'trek_id,name,description,category,base_price,start_datetime,max_participants,image_url,location,status,duration,cancellation_policy,event_creator_type,transport_mode';
+      // Select with aliasing: 'name' as 'trek_name', 'base_price' as 'cost' - include event_type
+      const selectString = 'trek_id,name,description,category,base_price,start_datetime,max_participants,image_url,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type';
       let query = supabase.from('trek_events').select(selectString);
 
-      // Filter out DRAFT and CANCELLED treks - IMPORTANT FOR PUBLIC VIEW
+      // Filter out DRAFT and CANCELLED events - IMPORTANT FOR PUBLIC VIEW
       query = query.not('status', 'in', `(${TrekEventStatus.DRAFT},${TrekEventStatus.CANCELLED})`);
 
       // Apply search filter (uses DB column 'name')
@@ -89,6 +97,11 @@ const TrekEvents = () => {
       // Apply category filter (uses DB column 'category')
       if (filterOptions.category) {
         query = query.eq('category', filterOptions.category);
+      }
+
+      // Apply event type filter
+      if (filterOptions.eventType) {
+        query = query.eq('event_type', filterOptions.eventType);
       }
       
       // Apply price range filter (uses DB column 'base_price')
@@ -177,35 +190,36 @@ const TrekEvents = () => {
       // console.log('[TrekEvents.tsx] Trek 63 Calculated Participant Count:', trek63Count === undefined ? 'Undefined' : trek63Count);
       // --- END DIAGNOSTIC LOGS ---
 
-      const displayTreks: DisplayTrekEvent[] = fetchedData.map(trekFromDb => {
-        const { name, base_price, ...restOfTrek } = trekFromDb;
+      const displayEvents: DisplayTrekEvent[] = fetchedData.map(eventFromDb => {
+        const { name, base_price, ...restOfEvent } = eventFromDb;
         return {
-          ...restOfTrek,
+          ...restOfEvent,
           trek_name: name, // Manual aliasing
           cost: base_price, // Manual aliasing
-          participant_count: newParticipantCounts[trekFromDb.trek_id] ?? 0,
+          participant_count: newParticipantCounts[eventFromDb.trek_id] ?? 0,
           // Ensure all fields required by TrekEventListItem are present
-          duration: trekFromDb.duration || null, 
-          location: trekFromDb.location || null,
-          cancellation_policy: trekFromDb.cancellation_policy || null,
-          event_creator_type: trekFromDb.event_creator_type || '',
-          transport_mode: trekFromDb.transport_mode || null, 
+          duration: eventFromDb.duration || null, 
+          location: eventFromDb.location || null,
+          cancellation_policy: eventFromDb.cancellation_policy || null,
+          event_creator_type: eventFromDb.event_creator_type || '',
+          transport_mode: eventFromDb.transport_mode || null, 
         };
       });
       
-      setTreks(displayTreks);
+      setEvents(displayEvents);
 
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load events";
       toast({
-        title: "Error fetching treks",
-        description: error.message || "Failed to load trek events",
+        title: "Error fetching events",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error("Error fetching treks:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filterOptions]);
 
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
     setFilterOptions(prev => ({ ...prev, [key]: value }));
@@ -217,14 +231,15 @@ const TrekEvents = () => {
       category: '',
       priceRange: '',
       timeFrame: '',
-      sortBy: 'date-asc'
+      sortBy: 'date-asc',
+      eventType: ''
     });
   };
 
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Upcoming Trek Events</h1>
+        <h1 className="text-3xl font-bold">Upcoming Events</h1>
         {userProfile?.user_type === 'admin' && (
           <div className="flex justify-end mb-4">
             <Button
@@ -232,7 +247,7 @@ const TrekEvents = () => {
               onClick={() => navigate('/trek-events/create')}
               className="shadow"
             >
-              + Create Trek
+              + Create Event
             </Button>
           </div>
         )}
@@ -250,8 +265,8 @@ const TrekEvents = () => {
             <TrekCardSkeleton key={index} />
           ))}
         </div>
-      ) : treks.length > 0 ? (
-        <TrekEventsList treks={treks} />
+      ) : events.length > 0 ? (
+        <TrekEventsList treks={events} />
       ) : (
         <NoTreksFound />
       )}

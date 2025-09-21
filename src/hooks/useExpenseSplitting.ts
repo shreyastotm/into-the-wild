@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
@@ -75,13 +75,13 @@ export function useExpenseSplitting(trekId: string | undefined) {
       fetchExpenseCategories();
       fetchExpenses();
     }
-  }, [trekId, user]);
+  }, [trekId, user, fetchExpenses]);
 
   useEffect(() => {
     calculateSummary();
-  }, [myExpenses, expensesSharedWithMe]);
+  }, [myExpenses, expensesSharedWithMe, calculateSummary]);
 
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     if (!user || !trekId) return;
 
     setLoading(true);
@@ -106,7 +106,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
       
       // --- Fetch Categories (Phase 2) ---
       const categoryIds = [...new Set(rawExpenses.map(e => e.category_id).filter(Boolean))]; // Get unique category IDs
-      let categoryMap: Record<number, ExpenseCategory> = {};
+      const categoryMap: Record<number, ExpenseCategory> = {};
       if (categoryIds.length > 0) {
         const { data: categoriesData, error: categoriesError } = await supabase
             .from('trek_expense_categories')
@@ -121,11 +121,11 @@ export function useExpenseSplitting(trekId: string | undefined) {
       
       // --- Prepare for User Lookups (Phase 3) ---
       const allCreatorIds = rawExpenses.map(e => e.creator_id).filter(Boolean);
-      const allShareUserIds = rawExpenses.flatMap(e => e.expense_shares?.map((s: any) => s.user_id) || []).filter(Boolean);
+      const allShareUserIds = rawExpenses.flatMap(e => e.expense_shares?.map((s: Record<string, unknown>) => s.user_id as string) || []).filter(Boolean);
       const uniqueUserIds = [...new Set([...allCreatorIds, ...allShareUserIds, user.id])]; 
 
       // --- Fetch User Details (Phase 4) ---
-      let userMap: Record<string, { name: string | null }> = {};
+      const userMap: Record<string, { name: string | null }> = {};
       if (uniqueUserIds.length > 0) {
           const { data: usersData, error: usersError } = await supabase
               .from('users') 
@@ -141,7 +141,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
       const processedExpenses = rawExpenses.map(expense => {
           const creatorName = userMap[expense.creator_id]?.name || null;
           const categoryDetails = expense.category_id ? categoryMap[expense.category_id] : null; // Look up category
-          const processedShares = (expense.expense_shares || []).map((share: any) => ({
+          const processedShares = (expense.expense_shares || []).map((share: Record<string, unknown>) => ({
               id: share.id,
               expense_id: expense.id,
               user_id: share.user_id,
@@ -192,9 +192,9 @@ export function useExpenseSplitting(trekId: string | undefined) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user, trekId]);
 
-  const calculateSummary = () => {
+  const calculateSummary = useCallback(() => {
     if (!user) return;
 
     let owedToMe = 0;
@@ -231,7 +231,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
       myExpenses: myTotalExpenses,
       myShares: myTotalShares
     });
-  };
+  }, [user, myExpenses, expensesSharedWithMe]);
 
   const createExpense = async (expenseData: CreateExpenseInput): Promise<boolean> => {
     if (!user || !trekId) return false;
@@ -317,7 +317,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
 
     setSubmitting(true);
     try {
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         status,
       };
 

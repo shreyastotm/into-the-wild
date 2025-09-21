@@ -58,7 +58,7 @@ export function formatCurrency(amount: number): string {
  * @param registrations Array of registration objects, each with a user_id field
  * @returns Number of unique user IDs
  */
-export function getUniqueParticipantCount(participants: any[]): number {
+export function getUniqueParticipantCount(participants: Array<{ user_id?: string; id?: string }>): number {
   if (!participants || !Array.isArray(participants)) return 0;
   const uniqueIds = new Set(participants.map(p => p.user_id || p.id));
   return uniqueIds.size;

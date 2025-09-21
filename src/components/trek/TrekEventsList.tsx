@@ -18,7 +18,7 @@ export interface TrekEvent {
   cost: number;
   max_participants: number;
   participant_count: number | null;
-  location: any | null;
+  location: { name?: string } | null;
   transport_mode: 'cars' | 'mini_van' | 'bus' | null;
   cancellation_policy: string | null;
   image_url?: string | null;

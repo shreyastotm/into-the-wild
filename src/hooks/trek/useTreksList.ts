@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/use-toast';
+import { EventType } from '@/types/trek';
 
 interface TrekEvent {
   trek_id: number;
@@ -12,15 +13,16 @@ interface TrekEvent {
   cost: number;
   max_participants: number;
   participant_count: number | null;
-  location: any | null;
-  route_data: any | null;
+  location: Record<string, unknown> | null;
+  route_data: Record<string, unknown> | null;
   transport_mode: 'cars' | 'mini_van' | 'bus' | null;
-  vendor_contacts: any | null;
+  vendor_contacts: Record<string, unknown> | null;
   pickup_time_window: string | null;
   cancellation_policy: string | null;
   event_creator_type: 'internal' | 'external' | null;
   partner_id: number | null;
   image_url?: string | null;
+  event_type: EventType;
 }
 
 export function useTreksList() {
@@ -47,11 +49,12 @@ export function useTreksList() {
       
       setTreks(data as TrekEvent[]);
       setHasMore(count !== null && start + data.length < count);
-    } catch (err: any) {
-      setError(err);
+    } catch (err: unknown) {
+      const error = err instanceof Error ? err : new Error("Failed to load trek events");
+      setError(error);
       toast({
         title: "Error fetching treks",
-        description: err.message || "Failed to load trek events",
+        description: error.message,
         variant: "destructive",
       });
     } finally {

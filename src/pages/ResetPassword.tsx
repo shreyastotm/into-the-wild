@@ -34,7 +34,6 @@ export default function ResetPassword() {
       setRecoveryChecked(true);
     };
     checkRecovery();
-    // eslint-disable-next-line
   }, [location]);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -56,8 +55,9 @@ export default function ResetPassword() {
       localStorage.removeItem('supabase.auth.token');
       sessionStorage.removeItem('supabase.auth.token');
       navigate('/auth');
-    } catch (error: any) {
-      toast({ title: 'Error', description: error?.message || 'Failed to reset password', variant: 'destructive' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Failed to reset password';
+      toast({ title: 'Error', description: errorMessage, variant: 'destructive' });
     } finally {
       setLoading(false);
     }

@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from '@/components/ui/use-toast';
+import { Event, EventType, CampingItinerary, ActivitySchedule, VolunteerRoles } from '@/types/trek';
 
 interface TrekEvent {
   trek_id: number;
@@ -15,10 +16,10 @@ interface TrekEvent {
   cost: number;
   max_participants: number;
   participant_count: number | null;
-  location: any | null;
-  route_data: any | null;
+  location: Record<string, unknown> | null;
+  route_data: Record<string, unknown> | null;
   transport_mode: 'cars' | 'mini_van' | 'bus' | 'self_drive' | null;
-  vendor_contacts: any | null;
+  vendor_contacts: Record<string, unknown> | null;
   pickup_time_window: string | null;
   cancellation_policy: string | null;
   partner_id: string | null;
@@ -26,6 +27,11 @@ interface TrekEvent {
   is_finalized?: boolean | null;
   created_at?: string | null;
   updated_at?: string | null;
+  // New fields for event types
+  event_type: EventType;
+  itinerary?: CampingItinerary | null;
+  activity_schedule?: ActivitySchedule | null;
+  volunteer_roles?: VolunteerRoles | null;
 }
 
 export function useTrekEventDetails(trek_id: string | undefined) {
@@ -80,13 +86,19 @@ export function useTrekEventDetails(trek_id: string | undefined) {
           image_url: data.image_url || null,
           is_finalized: data.is_finalized,
           created_at: data.created_at,
-          updated_at: data.updated_at
+          updated_at: data.updated_at,
+          // New event type fields
+          event_type: (data.event_type as EventType) || EventType.TREK,
+          itinerary: data.itinerary as CampingItinerary | null,
+          activity_schedule: data.activity_schedule as ActivitySchedule | null,
+          volunteer_roles: data.volunteer_roles as VolunteerRoles | null,
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to load trek event details";
       toast({
         title: "Error fetching trek event",
-        description: error.message || "Failed to load trek event details",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error("Error fetching trek event:", error);

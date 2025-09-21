@@ -11,7 +11,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      // We don't navigate automatically anymore, we show a message instead.
+      // navigate('/auth');
     }
   }, [user, loading, navigate]);
 
@@ -26,7 +27,13 @@ const Dashboard = () => {
   }
 
   if (!user) {
-    return null; // Will redirect in the useEffect
+    return (
+      <div className="container mx-auto px-4 py-8 text-center">
+        <h1 className="text-3xl font-bold mb-4">Access Denied</h1>
+        <p className="text-muted-foreground mb-6">You must be signed in to view your dashboard.</p>
+        <Button onClick={() => navigate('/auth')}>Sign In</Button>
+      </div>
+    );
   }
 
   return (

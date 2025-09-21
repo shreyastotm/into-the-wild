@@ -6,16 +6,17 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ClipboardList, AlertCircle, Loader2 } from 'lucide-react';
 
-interface TrekPackingListProps {
-  trekId: string | undefined;
-}
-
 interface PackingListItem {
   item_id: number; // This will be master_item_id
   name: string; // From master_packing_items
   category: string | null; // From master_packing_items
   mandatory: boolean; // From trek_packing_list_assignments
+  is_packed?: boolean;
   // item_order: number; // Can add later if needed
+}
+
+interface TrekPackingListProps {
+  trekId: string | undefined;
 }
 
 export function TrekPackingList({ trekId }: TrekPackingListProps) {
@@ -56,20 +57,28 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
           throw fetchError;
         }
 
+        // Define a type for the fetched data structure
+        type FetchedItem = {
+          mandatory: boolean;
+          master_item_id: number;
+          master_packing_items: {
+            name: string;
+            category: string | null;
+          } | null;
+        };
+
         // Transform data to match PackingListItem interface
-        const formattedList = data?.map(item => ({
-            // @ts-ignore Supabase type inference might need adjustment for joined tables
+        const formattedList = (data as FetchedItem[] | null)?.map(item => ({
             item_id: item.master_item_id, 
-            // @ts-ignore
             name: item.master_packing_items?.name || 'Unknown Item',
-            // @ts-ignore
             category: item.master_packing_items?.category || null,
             mandatory: item.mandatory,
         })) || [];
 
         setPackingList(formattedList);
 
-      } catch (err: any) {
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
         console.error('Error fetching packing list:', err);
         setError('Failed to load packing list. Please try again.');
       } finally {

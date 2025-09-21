@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase, WithStringId, convertDbRecordToStringIds } from "@/integrations/supabase/client";
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
@@ -20,7 +20,7 @@ interface DbRegistration {
 
 type Registration = WithStringId<DbRegistration>;
 
-export function useTrekRegistration(trek_id: string | undefined) {
+export function useTrekRegistration(trek_id: string | number | undefined) {
   const { user } = useAuth();
   const { trekEvent, loading: trekLoading } = useTrekEventDetails(trek_id);
   const [registering, setRegistering] = useState(false);
@@ -28,14 +28,17 @@ export function useTrekRegistration(trek_id: string | undefined) {
   const [uploadingProof, setUploadingProof] = useState(false);
 
   useEffect(() => {
-    if (trek_id && user && !isNaN(parseInt(trek_id))) {
-      checkUserRegistration(parseInt(trek_id));
-    } else if (trek_id) {
-      console.error("Invalid trek_id provided to useTrekRegistration:", trek_id);
+    if (trek_id && user) {
+      const numericTrekId = typeof trek_id === 'number' ? trek_id : parseInt(trek_id, 10);
+      if (!isNaN(numericTrekId)) {
+        checkUserRegistration(numericTrekId);
+      } else {
+        console.error("Invalid trek_id provided to useTrekRegistration:", trek_id);
+      }
     }
-  }, [trek_id, user]);
+  }, [trek_id, user, checkUserRegistration]);
 
-  async function checkUserRegistration(currentTrekId: number) {
+  const checkUserRegistration = useCallback(async (currentTrekId: number) => {
     if (!user) return;
     
     try {
@@ -55,11 +58,12 @@ export function useTrekRegistration(trek_id: string | undefined) {
       } else {
         setUserRegistration(null);
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Could not check registration status.";
       console.error("Error checking registration:", error);
-      toast({ title: "Error", description: "Could not check registration status.", variant: "destructive" });
+      toast({ title: "Error", description: errorMessage, variant: "destructive" });
     }
-  }
+  }, [user]);
 
   async function registerForTrek(indemnityAccepted: boolean) {
     if (!user) {
@@ -152,10 +156,11 @@ export function useTrekRegistration(trek_id: string | undefined) {
         variant: "default",
       });
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to register for this trek";
       toast({
         title: "Registration failed",
-        description: error.message || "Failed to register for this trek",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error("Registration error:", error);
@@ -205,8 +210,9 @@ export function useTrekRegistration(trek_id: string | undefined) {
         toast({ title: "Payment proof uploaded", description: "Admin will verify your payment shortly.", variant: "default" });
         return true;
 
-    } catch (error: any) {
-        toast({ title: "Proof Upload Failed", description: error.message, variant: "destructive" });
+    } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : "Failed to upload payment proof";
+        toast({ title: "Proof Upload Failed", description: errorMessage, variant: "destructive" });
         console.error("Error uploading payment proof:", error);
         return false;
     } finally {
@@ -239,10 +245,11 @@ export function useTrekRegistration(trek_id: string | undefined) {
         variant: "default",
       });
       return true;
-    } catch (error: any) {
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to cancel registration";
       toast({
         title: "Cancellation failed",
-        description: error.message || "Failed to cancel registration",
+        description: errorMessage,
         variant: "destructive",
       });
       console.error("Cancellation error:", error);

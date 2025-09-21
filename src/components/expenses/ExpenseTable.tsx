@@ -63,10 +63,11 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
       });
       // Optionally trigger a refresh if available
       // refreshExpenses && refreshExpenses();
-    } catch (e: any) {
+    } catch (e: unknown) {
+      const errorMessage = e instanceof Error ? e.message : 'Failed to update expense status';
       toast({
         title: 'Error',
-        description: e.message || 'Failed to update expense status',
+        description: errorMessage,
         variant: 'destructive',
       });
     }

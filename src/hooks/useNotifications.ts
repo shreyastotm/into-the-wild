@@ -22,7 +22,7 @@ interface UseNotificationsReturn {
   notifications: Notification[];
   unreadCount: number;
   isLoading: boolean;
-  error: any;
+  error: unknown;
   fetchNotifications: (limit?: number, offset?: number) => Promise<void>;
   markAsRead: (notificationId: number) => Promise<void>;
   markAllAsRead: () => Promise<void>;
@@ -38,7 +38,7 @@ const useNotifications = (): UseNotificationsReturn => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [error, setError] = useState<any>(null);
+  const [error, setError] = useState<unknown>(null);
 
   const fetchNotifications = useCallback(async (limit: number = 10, offset: number = 0) => {
     if (!user) return;

@@ -4,6 +4,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { ProfileForm } from '@/components/profile/ProfileForm';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileSummaryCard from '@/components/profile/ProfileSummaryCard';
+import IdVerification from '@/components/profile/IdVerification';
 
 export default function Profile() {
   const { user, loading } = useAuth();
@@ -24,9 +25,10 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8">
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <ProfileHeader />
       <ProfileSummaryCard />
+      <IdVerification />
       <div className="bg-white rounded-lg shadow p-6">
         <ProfileForm />
       </div>

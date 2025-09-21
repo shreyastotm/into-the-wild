@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
@@ -54,9 +54,9 @@ export function useTrekRatings(trekId: string | undefined) {
       fetchParticipants();
       fetchParticipantRatings();
     }
-  }, [trekId, user]);
+  }, [trekId, user, fetchTrekRatings, fetchParticipants, fetchParticipantRatings]);
 
-  const fetchTrekRatings = async () => {
+  const fetchTrekRatings = useCallback(async () => {
     if (!trekId) return;
     
     setLoading(true);
@@ -108,9 +108,9 @@ export function useTrekRatings(trekId: string | undefined) {
     } finally {
       setLoading(false);
     }
-  };
+  }, [trekId, user]);
 
-  const fetchParticipants = async () => {
+  const fetchParticipants = useCallback(async () => {
     if (!trekId) return;
     
     try {
@@ -132,9 +132,9 @@ export function useTrekRatings(trekId: string | undefined) {
     } catch (error) {
       console.error('Error fetching participants:', error);
     }
-  };
+  }, [trekId]);
 
-  const fetchParticipantRatings = async () => {
+  const fetchParticipantRatings = useCallback(async () => {
     if (!trekId || !user) return;
     
     try {
@@ -152,7 +152,7 @@ export function useTrekRatings(trekId: string | undefined) {
     } catch (error) {
       console.error('Error fetching participant ratings:', error);
     }
-  };
+  }, [trekId, user]);
 
   const rateTrek = async (
     difficultyRating: number,

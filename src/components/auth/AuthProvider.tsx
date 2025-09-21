@@ -1,119 +1,88 @@
 import { createContext, useState, useEffect, useContext, ReactNode, useCallback, useMemo, PropsWithChildren } from 'react';
 import { Session, User } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
-
-export interface UserProfile {
-  user_id: string;
-  full_name?: string | null;
-  email?: string | null;
-  phone_number?: string | null;
-  date_of_birth?: string | null;
-  address?: string | null;
-  interests?: string | null;
-  trekking_experience?: string | null;
-  health_data?: string | null;
-  image_url?: string | null;
-  avatar_url?: string | null;
-  user_type?: string | null;
-  partner_id?: string | null;
-  verification_status?: string | null;
-  verification_docs?: string | null;
-  points?: number | null;
-  badges?: string[] | null;
-  legacy_int_id?: number | null;
-  created_at?: string | null;
-  updated_at?: string | null;
-  latitude?: number | null;
-  longitude?: number | null;
-  has_car?: boolean | null;
-  car_seating_capacity?: number | null;
-  vehicle_number?: string | null;
-  pet_details?: string | null;
-}
+import { UserProfile } from '@/types/user';
+import { useToast } from '@/components/ui/use-toast';
 
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;
   loading: boolean;
-  setUserProfile: React.Dispatch<React.SetStateAction<UserProfile | null>>;
-  refreshUserProfile: () => Promise<void>;
   signOut: () => Promise<void>;
+  fetchUserProfile: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export const AuthProvider: React.FC<PropsWithChildren<{}>> = ({ children }) => {
+export const AuthProvider: React.FC<PropsWithChildren<Record<string, never>>> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
-  const fetchUserProfile = useCallback(async (userId: string) => {
-    console.log("Fetching user profile for ID:", userId);
-    try {
-      const { data, error } = await supabase
+  const fetchUserProfile = useCallback(async () => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      const { data: profile, error } = await supabase
         .from('users')
         .select('*')
-        .eq('user_id', userId)
+        .eq('user_id', session.user.id)
         .single();
 
-      if (error && error.code !== 'PGRST116') { // 'PGRST116' means no rows found, which is not an error here
-        console.error("Error fetching user profile:", error);
-        setUserProfile(null);
+      if (error && error.code !== 'PGRST116') {
+        console.error("Error fetching profile:", error);
+        toast({ title: "Error", description: "Could not fetch user profile.", variant: "destructive" });
       } else {
-        console.log("User profile data:", data);
-        setUserProfile(data as UserProfile);
+        setUserProfile(profile);
       }
-    } catch (err) {
-      console.error("Exception fetching profile:", err);
-      setUserProfile(null);
-    } finally {
-      setLoading(false); // Stop loading once profile is fetched or fails
     }
-  }, []);
+  }, [toast]);
 
   useEffect(() => {
+    setLoading(true);
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (session?.user) {
+        fetchUserProfile();
+      }
+      setLoading(false);
+    });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        console.log("Auth event:", event, session);
+      (_event, session) => {
         setUser(session?.user ?? null);
-        
-        // Fetch profile if we have a user, otherwise stop loading
         if (session?.user) {
-          fetchUserProfile(session.user.id);
+            fetchUserProfile();
         } else {
-          setLoading(false);
+            setUserProfile(null);
         }
       }
     );
 
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [fetchUserProfile]);
-
-  const refreshUserProfile = useCallback(async () => {
-    if (user) {
-      setLoading(true); // Set loading to true while refreshing
-      await fetchUserProfile(user.id);
-    }
-  }, [user, fetchUserProfile]);
+    return () => subscription.unsubscribe();
+  }, [fetchUserProfile, toast]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
     setUser(null);
     setUserProfile(null);
   };
-
+  
   const value = useMemo(() => ({
     user,
     userProfile,
     loading,
-    setUserProfile,
-    refreshUserProfile,
     signOut,
-  }), [user, userProfile, loading, refreshUserProfile, signOut]);
+    fetchUserProfile,
+  }), [user, userProfile, loading, fetchUserProfile]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => useContext(AuthContext);
+export const useAuth = (): AuthContextType => {
+  const context = useContext(AuthContext);
+  if (context === undefined) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
