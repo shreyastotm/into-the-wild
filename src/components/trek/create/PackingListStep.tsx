@@ -18,6 +18,7 @@ interface PackingListStepProps extends StepProps {
   selectedItems: Set<number>;
   mandatoryItems: Set<number>;
   onItemToggle: (itemId: number, mandatory: boolean) => void;
+  isLoadingExistingData?: boolean;
 }
 
 export const PackingListStep: React.FC<PackingListStepProps> = ({
@@ -26,7 +27,8 @@ export const PackingListStep: React.FC<PackingListStepProps> = ({
   errors,
   selectedItems,
   mandatoryItems,
-  onItemToggle
+  onItemToggle,
+  isLoadingExistingData = false
 }) => {
   const [packingItems, setPackingItems] = useState<PackingItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -66,11 +68,13 @@ export const PackingListStep: React.FC<PackingListStepProps> = ({
     return acc;
   }, {} as Record<string, PackingItem[]>);
 
-  if (loading) {
+  if (loading || isLoadingExistingData) {
     return (
       <div className="flex items-center justify-center py-8">
         <Loader2 className="h-8 w-8 animate-spin" />
-        <span className="ml-2">Loading packing items...</span>
+        <span className="ml-2">
+          {isLoadingExistingData ? 'Loading existing selections...' : 'Loading packing items...'}
+        </span>
       </div>
     );
   }

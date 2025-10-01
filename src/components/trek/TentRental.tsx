@@ -42,6 +42,22 @@ export const TentRental: React.FC<TentRentalProps> = ({
     if (!user) return;
     try {
       setLoading(true);
+      setHasError(false);
+      
+      // First check if tent tables exist by trying to query tent_types
+      const { data: tentTypesData, error: tentTypesError } = await supabase
+        .from('tent_types')
+        .select('id')
+        .limit(1);
+
+      // If tent_types table doesn't exist, show setup message
+      if (tentTypesError && tentTypesError.code === 'PGRST116') {
+        console.log('Tent rental tables not found - feature not set up');
+        setHasError(true);
+        return;
+      }
+
+      if (tentTypesError) throw tentTypesError;
       
       // Fetch tent inventory for this event
       const { data: inventoryData, error: inventoryError } = await supabase
@@ -69,14 +85,18 @@ export const TentRental: React.FC<TentRentalProps> = ({
       setTentInventory(inventoryData || []);
       setExistingRequests(requestsData || []);
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to load tent rental information. The tent rental feature may not be available for this event.";
+      const errorMessage = error instanceof Error ? error.message : "Failed to load tent rental information.";
       console.error('Error fetching tent data:', error);
       setHasError(true);
-      toast({
-        title: "Error",
-        description: errorMessage,
-        variant: "destructive"
-      });
+      
+      // Don't show toast for missing tables - just show the error state
+      if (!errorMessage.includes('relation') && !errorMessage.includes('does not exist')) {
+        toast({
+          title: "Error",
+          description: errorMessage,
+          variant: "destructive"
+        });
+      }
     } finally {
       setLoading(false);
     }
@@ -251,16 +271,24 @@ export const TentRental: React.FC<TentRentalProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <Alert variant="destructive">
+          <Alert>
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>
-              Tent rental feature is currently unavailable. This may be because:
-              <ul className="list-disc list-inside mt-2 space-y-1">
-                <li>The feature is not set up for this event</li>
-                <li>Database tables are not initialized</li>
-                <li>You don't have permission to access this feature</li>
-              </ul>
-              Please contact the event organizer for assistance.
+              <div className="space-y-3">
+                <p className="font-medium">Tent rental feature is not yet set up for this event.</p>
+                <div className="text-sm">
+                  <p className="mb-2">To enable tent rentals, the admin needs to:</p>
+                  <ol className="list-decimal list-inside space-y-1 ml-2">
+                    <li>Run the tent rental database migration</li>
+                    <li>Add tent inventory for this camping event</li>
+                    <li>Configure tent types and pricing</li>
+                  </ol>
+                </div>
+                <div className="mt-3 p-3 bg-muted rounded-lg text-xs">
+                  <p className="font-medium mb-1">For Developers:</p>
+                  <p>Run: <code className="bg-background px-1 rounded">supabase db push</code> to apply tent rental migrations</p>
+                </div>
+              </div>
             </AlertDescription>
           </Alert>
         </CardContent>

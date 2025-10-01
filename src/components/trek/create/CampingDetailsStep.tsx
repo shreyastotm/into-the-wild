@@ -8,15 +8,15 @@ import { PlusCircle, Trash2, Clock, Users, Tent } from 'lucide-react';
 import { StepProps } from './types';
 import { useCallback } from 'react';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface CampingDetailsStepProps extends StepProps {
-  // Additional props can be added here
+  isLoadingExistingData?: boolean;
 }
 
 export const CampingDetailsStep: React.FC<CampingDetailsStepProps> = ({
   formData,
   setFormData,
-  errors
+  errors,
+  isLoadingExistingData = false
 }) => {
   // Initialize camping-specific data if not present
   const initializeCampingData = useCallback(() => {
@@ -193,6 +193,15 @@ export const CampingDetailsStep: React.FC<CampingDetailsStepProps> = ({
 
   const itinerary = formData.itinerary || { days: [] };
   const volunteerRoles = formData.volunteer_roles || { roles: [] };
+
+  if (isLoadingExistingData) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <span className="ml-2">Loading existing camping details...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

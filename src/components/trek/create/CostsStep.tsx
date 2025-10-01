@@ -21,6 +21,7 @@ interface TrekCost {
 interface CostsStepProps extends StepProps {
   costs: TrekCost[];
   onCostsChange: (costs: TrekCost[]) => void;
+  isLoadingExistingData?: boolean;
 }
 
 export const CostsStep: React.FC<CostsStepProps> = ({
@@ -28,7 +29,8 @@ export const CostsStep: React.FC<CostsStepProps> = ({
   setFormData,
   errors,
   costs,
-  onCostsChange
+  onCostsChange,
+  isLoadingExistingData = false
 }) => {
   const [newCost, setNewCost] = useState<Partial<TrekCost>>({
     cost_type: 'transportation',
@@ -80,6 +82,15 @@ export const CostsStep: React.FC<CostsStepProps> = ({
   };
 
   const totalAmount = costs.reduce((sum, cost) => sum + cost.amount, 0);
+
+  if (isLoadingExistingData) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <span className="ml-2">Loading existing costs...</span>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

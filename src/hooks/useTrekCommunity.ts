@@ -181,6 +181,7 @@ export const useTrekCommunity = (trekId: string | undefined) => {
     let success = false;
     try {
         // Insert only comment_text
+        // @ts-expect-error - Supabase insert type inference issue with trek_comments table
         const { data: rawCommentData, error } = await supabase
             .from('trek_comments')
             .insert({

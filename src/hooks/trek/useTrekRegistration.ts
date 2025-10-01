@@ -27,17 +27,6 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
 
-  useEffect(() => {
-    if (trek_id && user) {
-      const numericTrekId = typeof trek_id === 'number' ? trek_id : parseInt(trek_id, 10);
-      if (!isNaN(numericTrekId)) {
-        checkUserRegistration(numericTrekId);
-      } else {
-        console.error("Invalid trek_id provided to useTrekRegistration:", trek_id);
-      }
-    }
-  }, [trek_id, user, checkUserRegistration]);
-
   const checkUserRegistration = useCallback(async (currentTrekId: number) => {
     if (!user) return;
     
@@ -64,6 +53,17 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       toast({ title: "Error", description: errorMessage, variant: "destructive" });
     }
   }, [user]);
+
+  useEffect(() => {
+    if (trek_id && user) {
+      const numericTrekId = typeof trek_id === 'number' ? trek_id : parseInt(trek_id, 10);
+      if (!isNaN(numericTrekId)) {
+        checkUserRegistration(numericTrekId);
+      } else {
+        console.error("Invalid trek_id provided to useTrekRegistration:", trek_id);
+      }
+    }
+  }, [trek_id, user, checkUserRegistration]);
 
   async function registerForTrek(indemnityAccepted: boolean) {
     if (!user) {

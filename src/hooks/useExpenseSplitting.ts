@@ -70,17 +70,6 @@ export function useExpenseSplitting(trekId: string | undefined) {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    if (trekId && user) {
-      fetchExpenseCategories();
-      fetchExpenses();
-    }
-  }, [trekId, user, fetchExpenses]);
-
-  useEffect(() => {
-    calculateSummary();
-  }, [myExpenses, expensesSharedWithMe, calculateSummary]);
-
   const fetchExpenses = useCallback(async () => {
     if (!user || !trekId) return;
 
@@ -232,6 +221,17 @@ export function useExpenseSplitting(trekId: string | undefined) {
       myShares: myTotalShares
     });
   }, [user, myExpenses, expensesSharedWithMe]);
+
+  useEffect(() => {
+    if (trekId && user) {
+      fetchExpenseCategories();
+      fetchExpenses();
+    }
+  }, [trekId, user, fetchExpenses]);
+
+  useEffect(() => {
+    calculateSummary();
+  }, [myExpenses, expensesSharedWithMe, calculateSummary]);
 
   const createExpense = async (expenseData: CreateExpenseInput): Promise<boolean> => {
     if (!user || !trekId) return false;

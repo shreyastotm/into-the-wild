@@ -54,11 +54,6 @@ const TrekEvents = () => {
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
-  useEffect(() => {
-    fetchEvents();
-    fetchCategories();
-  }, [filterOptions, fetchEvents]);
-
   const fetchCategories = async () => {
     try {
       const { data, error } = await supabase
@@ -220,6 +215,11 @@ const TrekEvents = () => {
       setLoading(false);
     }
   }, [filterOptions]);
+
+  useEffect(() => {
+    fetchEvents();
+    fetchCategories();
+  }, [filterOptions, fetchEvents]);
 
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
     setFilterOptions(prev => ({ ...prev, [key]: value }));
