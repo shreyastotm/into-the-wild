@@ -52,7 +52,6 @@ export const TentRental: React.FC<TentRentalProps> = ({
 
       // If tent_types table doesn't exist, show setup message
       if (tentTypesError && tentTypesError.code === 'PGRST116') {
-        console.log('Tent rental tables not found - feature not set up');
         setHasError(true);
         return;
       }

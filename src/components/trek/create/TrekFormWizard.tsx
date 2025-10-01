@@ -180,11 +180,8 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
   const handleSubmit = async () => {
     const validation = validateStep(step);
     if (!validation.isValid) {
-      console.log('Validation failed:', validation.errors);
       return;
     }
-
-    console.log('Form data before submission:', formData);
 
     setSubmitting(true);
     try {

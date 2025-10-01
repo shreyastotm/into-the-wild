@@ -21,8 +21,7 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
   categories,
   activeFilterCount
 }) => {
-  console.log('[FilterPopover] categories:', categories);
-  console.log('[FilterPopover] options:', options);
+  // Debug logging removed for production
 
   const priceRanges = [
     { label: 'Any Price', value: '' },

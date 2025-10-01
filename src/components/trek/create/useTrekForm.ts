@@ -16,11 +16,7 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
     end_datetime: formatDateForInput(initialData.end_datetime)
   } : undefined;
 
-  // Debug logging
-  if (initialData) {
-    console.log('useTrekForm received initialData:', initialData);
-    console.log('Processed data for form:', processedInitialData);
-  }
+  // Debug logging removed for production
 
   const [formData, setFormData] = useState<AdminTrekEvent>({
     event_type: EventType.TREK,

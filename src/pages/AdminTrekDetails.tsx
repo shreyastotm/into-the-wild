@@ -523,7 +523,7 @@ export default function AdminTrekDetails() {
                             // For now, assuming it does not manage comments directly in this component
                             comments={[]} 
                             onAddComment={async (content: string) => { 
-                              console.log('Admin adding comment (not implemented):', content); 
+                              // TODO: Implement admin comment functionality
                               return false; 
                             }} 
                             isLoading={false} 

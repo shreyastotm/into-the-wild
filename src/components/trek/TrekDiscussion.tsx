@@ -38,9 +38,7 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   
-  // --- DEBUG LOGGING START ---
-  console.log(`[TrekDiscussion] Received comments prop (${comments.length}):`, comments);
-  // --- DEBUG LOGGING END ---
+  // Debug logging removed for production
   
   const handleAddComment = async () => {
     if (!user) {
@@ -111,9 +109,7 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
   
-  // --- DEBUG LOGGING START ---
-  console.log(`[TrekDiscussion] Sorted comments for rendering (${sortedComments.length}):`, sortedComments);
-  // --- DEBUG LOGGING END ---
+  // Debug logging removed for production
 
   return (
     <div className="space-y-6">

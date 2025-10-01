@@ -18,7 +18,6 @@ export default function ResetPassword() {
   useEffect(() => {
     const checkRecovery = async () => {
       const params = new URLSearchParams(location.search);
-      console.log('[DEBUG] ResetPassword URL params:', params.toString());
       if (params.get('type') === 'recovery') {
         // Remove any existing Supabase session to prevent auto-login
         await supabase.auth.signOut();
@@ -26,10 +25,8 @@ export default function ResetPassword() {
         localStorage.removeItem('supabase.auth.token');
         sessionStorage.removeItem('supabase.auth.token');
         setShowForm(true);
-        console.log('[DEBUG] Recovery mode detected, session signed out, storage cleared, showing form.');
       } else {
         setShowForm(false);
-        console.log('[DEBUG] Not recovery mode, hiding form.');
       }
       setRecoveryChecked(true);
     };

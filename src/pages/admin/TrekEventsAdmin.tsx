@@ -125,12 +125,6 @@ const TrekEventsAdmin = () => {
     setError(null);
 
     // Debug: Log the incoming data to understand the issue
-    console.log('handleFormSubmit received:', {
-      trekData,
-      packingList,
-      costs,
-      tentInventory
-    });
 
     // Sanitize date fields before submission
     const sanitizedTrekData = {
@@ -139,7 +133,6 @@ const TrekEventsAdmin = () => {
       end_datetime: trekData.end_datetime || null,
     };
 
-    console.log('Sanitized trek data for submission:', sanitizedTrekData);
 
     // Validate required fields before submission
     if (!sanitizedTrekData.name || sanitizedTrekData.name.trim() === '') {

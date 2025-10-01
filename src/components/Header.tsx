@@ -9,7 +9,7 @@ const Header = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   
   useEffect(() => {
-    console.log('Auth state changed:', { loading, user: !!user });
+    // Auth state monitoring (removed console.log for production)
   }, [loading, user]);
   
   const navLinks = [

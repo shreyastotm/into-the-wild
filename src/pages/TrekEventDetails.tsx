@@ -111,7 +111,7 @@ export default function TrekEventDetails() {
     try {
       const uploadSuccess = await uploadPaymentProof(file);
       if (uploadSuccess) {
-        console.log('Payment proof uploaded successfully');
+        // Payment proof uploaded successfully
       } else {
         console.error('Payment proof upload failed');
       }
