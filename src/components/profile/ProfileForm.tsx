@@ -165,7 +165,6 @@ export const ProfileForm: React.FC = () => {
                 if (result.error) {
                     // If there's an error related to car_seating_capacity, retry without it
                     if (result.error.message.includes('car_seating_capacity')) {
-                        console.warn("car_seating_capacity column not found, updating without it");
                         const { error: retryError } = await supabase
                             .from('users')
                             .update(updates)

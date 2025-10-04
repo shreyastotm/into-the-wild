@@ -79,7 +79,6 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
            });
         }
       } else {
-        console.warn('TrekDiscussion: onAddComment prop is not provided.');
         toast({
           title: "Cannot add comment",
           description: "Comment functionality not connected.",

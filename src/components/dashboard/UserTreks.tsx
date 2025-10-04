@@ -74,7 +74,6 @@ export const UserTreks = () => {
           .map((reg: RawRegistration) => {
             const trekData = trekMap[reg.trek_id];
             if (!trekData) {
-              console.warn('Orphaned registration found and skipped. Registration ID:', reg.registration_id, 'Trek ID:', reg.trek_id);
               return null; // Mark for removal
             }
             const startDate = new Date(trekData.start_datetime);

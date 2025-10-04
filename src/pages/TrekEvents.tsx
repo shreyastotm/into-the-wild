@@ -176,14 +176,6 @@ const TrekEvents = () => {
       }
       setParticipantCounts(newParticipantCounts); 
 
-      // --- BEGIN DIAGNOSTIC LOGS ---
-      // console.log('[TrekEvents.tsx] Fetched Data (raw from DB):', JSON.parse(JSON.stringify(fetchedData)));
-      // console.log('[TrekEvents.tsx] Participant Counts (newParticipantCounts before mapping):', JSON.parse(JSON.stringify(newParticipantCounts)));
-      // const trek63Data = fetchedData.find(t => t.trek_id === 63);
-      // const trek63Count = newParticipantCounts[63];
-      // console.log('[TrekEvents.tsx] Trek 63 Raw Data:', trek63Data ? JSON.parse(JSON.stringify(trek63Data)) : 'Not found');
-      // console.log('[TrekEvents.tsx] Trek 63 Calculated Participant Count:', trek63Count === undefined ? 'Undefined' : trek63Count);
-      // --- END DIAGNOSTIC LOGS ---
 
       const displayEvents: DisplayTrekEvent[] = fetchedData.map(eventFromDb => {
         const { name, base_price, ...restOfEvent } = eventFromDb;
