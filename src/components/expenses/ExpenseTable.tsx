@@ -76,12 +76,12 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   // Activity log state
   const [expandedExpenseId, setExpandedExpenseId] = useState<string | null>(null);
 
-  // Dummy activity log data for demonstration (replace with real data from DB if available)
-  const getExpenseActivityLog = (expenseId: string) => [
-    { timestamp: '2025-04-15 10:00', user: 'Amit', action: 'Created', status: 'Pending' },
-    { timestamp: '2025-04-15 12:00', user: 'Priya', action: 'Accepted', status: 'Accepted' },
-    { timestamp: '2025-04-15 14:00', user: 'Amit', action: 'Marked as Paid', status: 'Paid' },
-  ];
+  // Activity log data - currently not implemented in the database
+  // This would need to be implemented as a separate table to track expense changes
+  const getExpenseActivityLog = (expenseId: string) => {
+    // Return empty array until activity logging is implemented
+    return [];
+  };
 
   return (
     <div className="space-y-8">

@@ -6,10 +6,9 @@ import { Badge } from '@/components/ui/badge';
 export default function ProfileSummaryCard() {
   const { user, userProfile } = useAuth();
 
-  // Dummy data for badges and stats, replace with real queries if available
+  // Simple static badges - no dynamic data for now
   const badges = [
     { label: 'Trekker', color: 'bg-green-100 text-green-800' },
-    { label: 'Expense Settler', color: 'bg-blue-100 text-blue-800' },
     { label: 'Community Member', color: 'bg-purple-100 text-purple-800' },
   ];
 
@@ -27,9 +26,7 @@ export default function ProfileSummaryCard() {
           ))}
         </div>
         <div className="text-sm text-gray-500">
-          <span className="mr-4">Upcoming Treks: <b>2</b></span>
-          <span className="mr-4">Settled Expenses: <b>7</b></span>
-          <span>Community Since: <b>2024</b></span>
+          <span className="mr-4">Member since: <b>{userProfile?.created_at ? new Date(userProfile.created_at).getFullYear() : 'N/A'}</b></span>
         </div>
       </div>
     </Card>

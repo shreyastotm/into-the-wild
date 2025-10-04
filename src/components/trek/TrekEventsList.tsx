@@ -139,7 +139,7 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
               </div>
             ) : (
               <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400">
-                 {/* Placeholder Icon or Text */}
+                 {/* Icon could be added here */}
                  <MapPin className="h-12 w-12" />
               </div>
             )}

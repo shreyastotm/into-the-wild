@@ -31,17 +31,8 @@ export default function AdminPanel() {
           setUpcomingTreksCount(treksCount || 0);
         }
 
-        // Fetch pending verifications count
-        const { count: verificationsCount, error: verificationsError } = await supabase
-          .from('users')
-          .select('*', { count: 'exact', head: true })
-          .eq('id_verification_status', 'pending');
-
-        if (verificationsError) {
-          console.error('Error fetching pending verifications count:', verificationsError);
-        } else {
-          setPendingVerificationsCount(verificationsCount || 0);
-        }
+        // Verification system not implemented yet
+        setPendingVerificationsCount(0);
 
         // Fetch total users count
         const { count: usersCount, error: usersError } = await supabase

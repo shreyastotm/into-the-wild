@@ -217,7 +217,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   };
 
   const getCategoryIcon = (category: string | null) => {
-    // Simple placeholder, can be expanded with specific icons per category
+    // Default navigation icon for all categories
     return <Navigation className="h-12 w-12 opacity-40 text-gray-600" />;
   };
 
@@ -315,7 +315,7 @@ const TrekCardSkeleton = () => (
       </div>
       <div className="flex justify-between items-center pt-3 border-t mt-3">
         <Skeleton className="h-6 w-1/4" />
-        {/* <Skeleton className="h-4 w-4 rounded-full" /> Placeholder for potential icon */}
+        {/* Icon could be added here in the future */}
       </div>
     </div>
   </div>

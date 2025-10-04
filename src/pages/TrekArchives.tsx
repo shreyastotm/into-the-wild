@@ -41,7 +41,7 @@ const TrekArchives = () => {
           difficulty, 
           partner_id
         `)
-        .lt('start_datetime', new Date().toISOString()) // Placeholder filter - Needs update
+        .lt('start_datetime', new Date().toISOString()) // Filter for past events
         .order('start_datetime', { ascending: false });
 
       const { data, error } = await query;

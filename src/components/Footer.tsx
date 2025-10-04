@@ -69,11 +69,11 @@ const Footer = () => {
             <ul className="space-y-2">
               <li className="flex items-start">
                 <Mail className="h-5 w-5 mr-2 text-gray-400 mt-0.5" />
-                <span className="text-gray-600">contact@intothewild.com</span>
+                <span className="text-gray-600">Get in touch with us</span>
               </li>
               <li className="flex items-start">
                 <Phone className="h-5 w-5 mr-2 text-gray-400 mt-0.5" />
-                <span className="text-gray-600">+91 9876543210</span>
+                <span className="text-gray-600">Contact details coming soon</span>
               </li>
             </ul>
           </div>
