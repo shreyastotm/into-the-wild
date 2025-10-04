@@ -151,11 +151,9 @@ export const useAuthForm = () => {
         full_name: sanitizedData.fullName,
         phone: sanitizedData.phone,
         user_type: sanitizedData.userType,
-        subscription_type: sanitizedData.subscriptionType,
-        subscription_status: 'active',
-        subscription_expiry: subscriptionExpiry,
-        verification_status: 'NOT_SUBMITTED',
-        partner_id: sanitizedData.partnerId || null,
+        // Only include columns that definitely exist
+        ...(sanitizedData.subscriptionType && { subscription_type: sanitizedData.subscriptionType }),
+        ...(sanitizedData.partnerId && { partner_id: sanitizedData.partnerId }),
       }]);
 
       if (profileError) {
