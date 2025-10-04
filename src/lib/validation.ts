@@ -41,11 +41,15 @@ export const authValidationSchema = {
     required: true,
     minLength: 2,
     maxLength: 100,
-    pattern: /^[a-zA-Z\s'-]+$/,
+    pattern: /^[a-zA-Z\s'-\.]+$/,
     custom: (value: string) => {
-      const sanitized = sanitizeInput(value);
-      if (sanitized !== value) {
-        return 'Name contains invalid characters';
+      // Allow common name characters including periods, hyphens, apostrophes, and spaces
+      const trimmed = value.trim();
+      if (trimmed.length < 2) {
+        return 'Name must be at least 2 characters long';
+      }
+      if (!/^[a-zA-Z\s'-\.]+$/.test(trimmed)) {
+        return 'Name can only contain letters, spaces, hyphens, apostrophes, and periods';
       }
       return null;
     }

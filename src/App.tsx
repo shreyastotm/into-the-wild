@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, Outlet, Navigate, useParams } f
 import Layout from './components/Layout';
 import Index from './pages/Index';
 import Auth from './pages/Auth';
+import AuthCallback from './pages/AuthCallback';
 import Profile from './pages/Profile';
 import Dashboard from './pages/Dashboard';
 import NotFound from './pages/NotFound';
@@ -36,6 +37,7 @@ function App() {
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/auth/callback" element={<AuthCallback />} />
 
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<Profile />} />
