@@ -145,18 +145,31 @@ export const useAuthForm = () => {
       await new Promise(resolve => setTimeout(resolve, 1000));
       
       // Update the profile with additional fields that the trigger doesn't set
-      const { error: profileError } = await supabase.from('users')
-        .update({
-          phone: sanitizedData.phone,
-          user_type: sanitizedData.userType,
-          ...(sanitizedData.subscriptionType && { subscription_type: sanitizedData.subscriptionType }),
-          ...(sanitizedData.partnerId && { partner_id: sanitizedData.partnerId }),
-        })
-        .eq('user_id', authData.user.id);
+      // Only update fields that definitely exist in the database
+      const updateData: Record<string, any> = {};
+      
+      if (sanitizedData.userType) {
+        updateData.user_type = sanitizedData.userType;
+      }
+      
+      if (sanitizedData.subscriptionType) {
+        updateData.subscription_type = sanitizedData.subscriptionType;
+      }
+      
+      if (sanitizedData.partnerId) {
+        updateData.partner_id = sanitizedData.partnerId;
+      }
+      
+      // Only update if we have fields to update
+      if (Object.keys(updateData).length > 0) {
+        const { error: profileError } = await supabase.from('users')
+          .update(updateData)
+          .eq('user_id', authData.user.id);
 
-      if (profileError) {
-        console.warn('Profile update error (non-critical):', profileError);
-        // Don't fail signup if profile update fails
+        if (profileError) {
+          console.warn('Profile update error (non-critical):', profileError);
+          // Don't fail signup if profile update fails
+        }
       }
 
       toast({
