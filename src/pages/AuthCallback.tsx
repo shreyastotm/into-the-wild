@@ -10,8 +10,8 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Get the session from the URL hash
-        const { data: { session }, error } = await supabase.auth.getSession();
+        // Handle OAuth callback by getting session from URL hash
+        const { data, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Auth callback error:', error);
@@ -19,12 +19,38 @@ export default function AuthCallback() {
           return;
         }
 
-        if (session?.user) {
+        if (data.session?.user) {
           // Fetch user profile after successful auth
           await fetchUserProfile();
           navigate('/dashboard');
         } else {
-          navigate('/auth');
+          // If no session, try to get it from the URL hash
+          const hashParams = new URLSearchParams(window.location.hash.substring(1));
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
+          
+          if (accessToken && refreshToken) {
+            // Set the session manually
+            const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken
+            });
+            
+            if (sessionError) {
+              console.error('Session error:', sessionError);
+              navigate('/auth?error=' + encodeURIComponent(sessionError.message));
+              return;
+            }
+            
+            if (sessionData.session?.user) {
+              await fetchUserProfile();
+              navigate('/dashboard');
+            } else {
+              navigate('/auth');
+            }
+          } else {
+            navigate('/auth');
+          }
         }
       } catch (error) {
         console.error('Auth callback error:', error);
