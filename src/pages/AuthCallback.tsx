@@ -10,8 +10,11 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // Handle OAuth callback by getting session from URL hash
-        const { data, error } = await supabase.auth.getSession();
+        // Wait a moment for Supabase to process the OAuth callback
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        // Get the current session
+        const { data: { session }, error } = await supabase.auth.getSession();
         
         if (error) {
           console.error('Auth callback error:', error);
@@ -19,38 +22,26 @@ export default function AuthCallback() {
           return;
         }
 
-        if (data.session?.user) {
+        if (session?.user) {
+          console.log('OAuth callback successful, user:', session.user.email);
           // Fetch user profile after successful auth
           await fetchUserProfile();
           navigate('/dashboard');
         } else {
-          // If no session, try to get it from the URL hash
-          const hashParams = new URLSearchParams(window.location.hash.substring(1));
-          const accessToken = hashParams.get('access_token');
-          const refreshToken = hashParams.get('refresh_token');
+          // Check URL parameters for OAuth errors
+          const urlParams = new URLSearchParams(window.location.search);
+          const errorParam = urlParams.get('error');
+          const errorDescription = urlParams.get('error_description');
           
-          if (accessToken && refreshToken) {
-            // Set the session manually
-            const { data: sessionData, error: sessionError } = await supabase.auth.setSession({
-              access_token: accessToken,
-              refresh_token: refreshToken
-            });
-            
-            if (sessionError) {
-              console.error('Session error:', sessionError);
-              navigate('/auth?error=' + encodeURIComponent(sessionError.message));
-              return;
-            }
-            
-            if (sessionData.session?.user) {
-              await fetchUserProfile();
-              navigate('/dashboard');
-            } else {
-              navigate('/auth');
-            }
-          } else {
-            navigate('/auth');
+          if (errorParam) {
+            console.error('OAuth error:', errorParam, errorDescription);
+            navigate('/auth?error=' + encodeURIComponent(errorDescription || errorParam));
+            return;
           }
+          
+          // If no session and no error, redirect to auth
+          console.log('No session found, redirecting to auth');
+          navigate('/auth');
         }
       } catch (error) {
         console.error('Auth callback error:', error);
