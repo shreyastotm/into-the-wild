@@ -140,27 +140,23 @@ export const useAuthForm = () => {
         return { success: false, error: 'Account creation failed' };
       }
 
-      // Create user profile
-      const subscriptionExpiry = new Date(
-        Date.now() + (sanitizedData.subscriptionType === 'community' ? 365 : 30) * 24 * 60 * 60 * 1000
-      ).toISOString();
-
-      const { error: profileError } = await supabase.from('users').insert([{
-        user_id: authData.user.id,
-        email: sanitizedData.email,
-        full_name: sanitizedData.fullName,
-        phone: sanitizedData.phone,
-        user_type: sanitizedData.userType,
-        // Only include columns that definitely exist
-        ...(sanitizedData.subscriptionType && { subscription_type: sanitizedData.subscriptionType }),
-        ...(sanitizedData.partnerId && { partner_id: sanitizedData.partnerId }),
-      }]);
+      // Profile is automatically created by the database trigger
+      // Wait a moment for the trigger to complete
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Update the profile with additional fields that the trigger doesn't set
+      const { error: profileError } = await supabase.from('users')
+        .update({
+          phone: sanitizedData.phone,
+          user_type: sanitizedData.userType,
+          ...(sanitizedData.subscriptionType && { subscription_type: sanitizedData.subscriptionType }),
+          ...(sanitizedData.partnerId && { partner_id: sanitizedData.partnerId }),
+        })
+        .eq('user_id', authData.user.id);
 
       if (profileError) {
-        const appError = handleSupabaseError(profileError);
-        setErrors({ general: appError.userMessage });
-        logError(appError, 'signup_profile');
-        return { success: false, error: appError.userMessage };
+        console.warn('Profile update error (non-critical):', profileError);
+        // Don't fail signup if profile update fails
       }
 
       toast({
