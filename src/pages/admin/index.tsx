@@ -4,6 +4,7 @@ import AdminLayout from '../AdminLayout';
 import AdminPanel from '../AdminPanel';
 import TrekEventsAdmin from './TrekEventsAdmin';
 import UserVerificationPanel from '@/components/admin/UserVerificationPanel';
+import EventRegistrations from './EventRegistrations';
 
 export default function AdminHome() {
   return (
@@ -12,6 +13,7 @@ export default function AdminHome() {
         <Route path="/" element={<AdminPanel />} />
         <Route path="/events" element={<TrekEventsAdmin />} />
         <Route path="/id" element={<UserVerificationPanel />} />
+        <Route path="/event-registrations" element={<EventRegistrations />} />
       </Routes>
     </AdminLayout>
   );
