@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { UserTreks } from '@/components/dashboard/UserTreks';
 import { Button } from '@/components/ui/button';
+import LoadingScreen from '@/components/LoadingScreen';
 import { MapPin, CalendarDays, Plus } from 'lucide-react';
 
 const Dashboard = () => {
@@ -17,13 +18,7 @@ const Dashboard = () => {
   }, [user, loading, navigate]);
 
   if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="h-8 w-64 bg-gray-200 rounded animate-pulse mb-8"></div>
-        <div className="h-32 bg-gray-200 rounded animate-pulse mb-8"></div>
-        <div className="h-64 bg-gray-200 rounded animate-pulse"></div>
-      </div>
-    );
+    return <LoadingScreen message="Loading your dashboard..." />;
   }
 
   if (!user) {

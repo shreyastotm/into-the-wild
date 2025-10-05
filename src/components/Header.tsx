@@ -34,9 +34,15 @@ const Header = () => {
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
-          <Link to="/" className="text-xl font-bold text-gray-800 flex items-center">
-            <MapPin className="mr-2 h-6 w-6 text-blue-600" />
-            Into the Wild
+          <Link to="/" className="flex items-center gap-3 group">
+            <img 
+              src="/itw_logo.jpg" 
+              alt="Into the Wild" 
+              className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
+            />
+            <span className="text-xl font-bold text-gray-800 hidden lg:inline">
+              Into the Wild
+            </span>
           </Link>
           
           {/* Desktop Navigation */}
@@ -88,6 +94,14 @@ const Header = () => {
         {/* Mobile Navigation */}
         {mobileMenuOpen && (
           <nav className="mt-4 pb-2 md:hidden">
+            {/* Mobile Logo */}
+            <div className="mb-4 flex justify-center">
+              <img 
+                src="/itw_logo.jpg" 
+                alt="Into the Wild" 
+                className="h-10 w-auto"
+              />
+            </div>
             <div className="flex flex-col space-y-3">
               {navLinks.map((link) => (
                 <Link 

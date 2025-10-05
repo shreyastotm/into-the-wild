@@ -15,14 +15,27 @@ const Index = () => {
   return (
     <div>
       {/* Hero Section */}
-      <section className="w-full py-12 md:py-24 lg:py-32 xl:py-48 bg-[url('/hero-image.jpg')] bg-cover bg-center">
-        <div className="container mx-auto px-4">
+      <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
+        {/* Logo Watermark */}
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <img 
+            src="/itw_logo.jpg" 
+            alt="" 
+            aria-hidden="true"
+            className="w-[600px] md:w-[800px] h-auto object-contain opacity-[0.03] blur-[0.5px]"
+          />
+        </div>
+        
+        {/* Content Layer */}
+        <div className="relative z-10 container mx-auto px-4">
           <div className="flex flex-col items-center justify-center py-16 md:py-24">
-            <h1 className="text-4xl md:text-5xl font-bold text-center mb-4">Into the Wild</h1>
-            <p className="text-lg md:text-xl text-center text-gray-700 max-w-2xl mb-8">
+            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-center mb-6">
+              Into the Wild
+            </h1>
+            <p className="text-lg md:text-xl text-center text-gray-600 max-w-2xl mb-8">
               Discover breathtaking treks and connect with a community of adventurers.
             </p>
-            <Button size="lg" onClick={handleExploreClick}>
+            <Button variant="accent" size="lg" onClick={handleExploreClick}>
               Explore Treks
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>

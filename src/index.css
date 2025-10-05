@@ -4,33 +4,53 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Bold Adventure Color Palette */
+    /* Primary - Deep Teal/Turquoise (from logo's natural elements) */
+    --primary: 174 64% 40%;                    /* #26A69A - Teal */
+    --primary-hover: 174 64% 32%;              /* Darker on hover */
+    --primary-light: 174 64% 92%;              /* Light backgrounds */
+    --primary-foreground: 0 0% 100%;           /* White text */
+    
+    /* Secondary - Warm Amber/Yellow (from logo's sun & signs) */
+    --secondary: 45 95% 58%;                   /* #FFC107 - Amber */
+    --secondary-hover: 45 95% 48%;             
+    --secondary-light: 45 95% 95%;
+    --secondary-foreground: 220 20% 20%;       /* Dark text */
+    
+    /* Accent - Warm Terracotta (from logo's earth tones) */
+    --accent: 14 91% 58%;                      /* #F2705D - Terracotta */
+    --accent-hover: 14 91% 48%;
+    --accent-light: 14 91% 95%;
+    --accent-foreground: 0 0% 100%;
+    
+    /* Supporting - Sky Blue (from logo's sky/water) */
+    --info: 204 94% 63%;                       /* #42A5F5 - Sky Blue */
+    --info-light: 204 94% 95%;
+    
+    /* Success - Fresh Green (from logo's nature) */
+    --success: 142 71% 45%;                    /* #4CAF50 - Green */
+    --success-light: 142 71% 95%;
+    
+    /* Neutral - Balanced grays */
+    --background: 0 0% 100%;                   /* White */
+    --background-subtle: 174 20% 97%;          /* Light teal tint */
+    --foreground: 220 20% 20%;                 /* Near black */
+    
+    --muted: 220 14% 96%;                      /* Light gray */
+    --muted-foreground: 220 8% 46%;            /* Medium gray */
+    
+    --border: 220 13% 91%;                     /* Border gray */
+    --input: 220 13% 91%;                      /* Input borders */
+    --ring: 174 64% 40%;                       /* Focus rings (teal) */
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 20% 20%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
-
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
-
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 220 20% 20%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
 
@@ -97,5 +117,137 @@
 
   body {
     @apply bg-background text-foreground;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6, .heading {
+    font-family: 'Poppins', sans-serif;
+  }
+}
+
+@layer utilities {
+  /* Typography Scale */
+  .text-display-xl { font-size: 4.5rem; line-height: 1.1; font-weight: 800; }  /* 72px - Hero only */
+  .text-display-lg { font-size: 3.75rem; line-height: 1.1; font-weight: 800; } /* 60px */
+  .text-display { font-size: 3rem; line-height: 1.2; font-weight: 700; }    /* 48px */
+
+  .text-h1 { font-size: 2.25rem; line-height: 1.2; font-weight: 700; } /* 36px */
+  .text-h2 { font-size: 1.875rem; line-height: 1.3; font-weight: 700; }/* 30px */
+  .text-h3 { font-size: 1.5rem; line-height: 1.3; font-weight: 600; }  /* 24px */
+  .text-h4 { font-size: 1.25rem; line-height: 1.4; font-weight: 600; } /* 20px */
+  .text-h5 { font-size: 1.125rem; line-height: 1.4; font-weight: 600; }/* 18px */
+
+  .text-body-xl { font-size: 1.25rem; line-height: 1.6; }                   /* 20px */
+  .text-body-lg { font-size: 1.125rem; line-height: 1.6; }                  /* 18px */
+  .text-body { font-size: 1rem; line-height: 1.6; }                      /* 16px - Base */
+  .text-body-sm { font-size: 0.875rem; line-height: 1.5; }                  /* 14px */
+  .text-body-xs { font-size: 0.75rem; line-height: 1.4; }                   /* 12px */
+
+  /* Custom Animations */
+  @keyframes pulse-scale {
+    0%, 100% { 
+      transform: scale(1);
+      opacity: 1;
+    }
+    50% { 
+      transform: scale(1.05);
+      opacity: 0.8;
+    }
+  }
+
+  .animate-pulse-scale {
+    animation: pulse-scale 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
+  .animate-pulse-subtle {
+    animation: pulse-subtle 3s ease-in-out infinite;
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  .skeleton {
+    @apply bg-gradient-to-r from-gray-200 via-gray-300 to-gray-200;
+    @apply bg-[length:1000px_100%];
+    animation: shimmer 2s infinite linear;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes bounceIn {
+    0% {
+      transform: scale(0.9);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.05);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  .bounce-in {
+    animation: bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  }
+
+  /* Button Effects */
+  .btn-accent::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s ease;
+  }
+
+  .btn-accent:hover::before {
+    left: 100%;
+  }
+
+  /* Ripple Effect */
+  .btn-ripple {
+    @apply relative overflow-hidden;
+  }
+
+  .btn-ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.5);
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+  }
+
+  .btn-ripple:active::after {
+    width: 300px;
+    height: 300px;
   }
 }
