@@ -16,8 +16,7 @@ export default function AdminSidebar() {
   const navItems = [
     { name: 'Dashboard', path: '/admin', icon: <LayoutDashboard className="mr-2 h-4 w-4" /> },
     { name: 'Events', path: '/admin/events', icon: <CalendarClock className="mr-2 h-4 w-4" /> },
-    { name: 'Verification', path: '/admin/verification', icon: <ShieldCheck className="mr-2 h-4 w-4" /> },
-    { name: 'Registrations', path: '/admin/registrations', icon: <Ticket className="mr-2 h-4 w-4" /> },
+    { name: 'Identification', path: '/admin/id', icon: <ShieldCheck className="mr-2 h-4 w-4" /> },
   ];
 
   return (
