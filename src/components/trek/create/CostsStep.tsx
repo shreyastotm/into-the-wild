@@ -33,7 +33,7 @@ export const CostsStep: React.FC<CostsStepProps> = ({
   isLoadingExistingData = false
 }) => {
   const [newCost, setNewCost] = useState<Partial<TrekCost>>({
-    cost_type: 'transportation',
+    cost_type: 'ACCOMMODATION',
     description: '',
     amount: 0,
     url: '',
@@ -41,14 +41,11 @@ export const CostsStep: React.FC<CostsStepProps> = ({
   });
 
   const costTypes = [
-    { value: 'transportation', label: 'Transportation' },
-    { value: 'accommodation', label: 'Accommodation' },
-    { value: 'food', label: 'Food & Meals' },
-    { value: 'permits', label: 'Permits & Fees' },
-    { value: 'guide', label: 'Guide Services' },
-    { value: 'equipment', label: 'Equipment Rental' },
-    { value: 'insurance', label: 'Insurance' },
-    { value: 'other', label: 'Other' }
+    { value: 'ACCOMMODATION', label: 'Accommodation' },
+    { value: 'TICKETS', label: 'Tickets & Permits' },
+    { value: 'LOCAL_VEHICLE', label: 'Local Vehicle' },
+    { value: 'GUIDE', label: 'Guide Services' },
+    { value: 'OTHER', label: 'Other' }
   ];
 
   const addCost = () => {
@@ -57,7 +54,7 @@ export const CostsStep: React.FC<CostsStepProps> = ({
     }
 
     const cost: TrekCost = {
-      cost_type: newCost.cost_type || 'other',
+      cost_type: newCost.cost_type || 'OTHER',
       description: newCost.description.trim(),
       amount: newCost.amount,
       url: newCost.url?.trim() || undefined,
@@ -68,7 +65,7 @@ export const CostsStep: React.FC<CostsStepProps> = ({
     
     // Reset form
     setNewCost({
-      cost_type: 'transportation',
+      cost_type: 'ACCOMMODATION',
       description: '',
       amount: 0,
       url: '',

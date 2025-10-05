@@ -78,7 +78,7 @@ const TrekEvents = () => {
       setLoading(true);
       
       // Select with aliasing: 'name' as 'trek_name', 'base_price' as 'cost' - include event_type
-      const selectString = 'trek_id,name,description,category,base_price,start_datetime,max_participants,image_url,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type';
+      const selectString = 'trek_id,name,description,category,base_price,start_datetime,max_participants,image_url,image,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type';
       let query = supabase.from('trek_events').select(selectString);
 
       // Filter out DRAFT and CANCELLED events - IMPORTANT FOR PUBLIC VIEW

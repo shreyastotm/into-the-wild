@@ -129,10 +129,10 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
         const cardContent = (
           <Card className="h-full flex flex-col overflow-hidden transition-all duration-300 hover:shadow-lg hover:border-primary/20 relative group">
             {/* Trek Image Display */}
-            {trek.image_url ? (
+            {(trek.image_url || trek.image) ? (
               <div className="aspect-video overflow-hidden">
                  <img
-                  src={trek.image_url}
+                  src={trek.image_url || trek.image}
                   alt={trek.trek_name}
                   className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
                  />

@@ -83,7 +83,7 @@ export function useTrekEventDetails(trek_id: string | undefined) {
           pickup_time_window: data.pickup_time_window,
           cancellation_policy: data.cancellation_policy,
           partner_id: data.partner_id,
-          image_url: data.image_url || null,
+          image_url: data.image_url || data.image || null,
           is_finalized: data.is_finalized,
           created_at: data.created_at,
           updated_at: data.updated_at,

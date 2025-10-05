@@ -66,7 +66,7 @@ const TrekEventsAdmin = () => {
     try {
       const { data, error: fetchError } = await supabase
         .from('trek_events')
-        .select('trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, gpx_file_url, route_data, event_type')
+        .select('trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, image, gpx_file_url, route_data, event_type')
         .order('start_datetime', { ascending: false }); 
       
       if (fetchError) throw fetchError;
