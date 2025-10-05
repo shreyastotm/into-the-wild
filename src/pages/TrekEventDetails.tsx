@@ -273,11 +273,14 @@ export default function TrekEventDetails() {
               status: trekEvent.status,
             }}
             userRegistration={userRegistration}
-            onRegister={handleRegistration}
+            onRegister={async (indemnityAccepted, options) => {
+              return await registerForTrek(indemnityAccepted, options);
+            }}
             onCancel={cancelRegistration}
             isLoading={registering}
             onUploadProof={handleUploadProof}
             isUploadingProof={isUploadingProof}
+            canVolunteerDriver={!!userProfile?.has_car && !!userProfile?.transport_volunteer_opt_in}
           />
         </div>
       </div>

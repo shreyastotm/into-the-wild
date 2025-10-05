@@ -70,6 +70,20 @@ export interface BaseEvent {
   collect_full_fee?: boolean;
   image_url?: string | null;
   transport_mode?: string | null;
+  transport_plan?: {
+    allowed_modes?: Array<'self_drive' | 'mini_van' | 'bus' | 'hybrid'>;
+    default_mode?: 'self_drive' | 'mini_van' | 'bus' | 'hybrid';
+    booked_vehicle?: {
+      type: 'mini_van' | 'bus';
+      seats: number;
+      vendor?: string;
+      cost?: number;
+    } | null;
+    self_drive_policy?: {
+      allow_volunteer_drivers: boolean;
+      max_car_seats_per_driver?: number;
+    };
+  } | null;
   vendor_contacts?: Record<string, unknown> | null;
   pickup_time_window?: string | null;
   event_creator_type?: string | null;

@@ -6,6 +6,20 @@ ALTER TABLE public.trek_registrations
   ADD COLUMN IF NOT EXISTS verified_at TIMESTAMPTZ,
   ADD COLUMN IF NOT EXISTS rejection_reason TEXT;
 
+-- Transport: user opt-in and registration driver fields
+ALTER TABLE public.users
+  ADD COLUMN IF NOT EXISTS transport_volunteer_opt_in BOOLEAN DEFAULT false;
+
+ALTER TABLE public.trek_registrations
+  ADD COLUMN IF NOT EXISTS is_driver BOOLEAN DEFAULT false,
+  ADD COLUMN IF NOT EXISTS offered_seats INTEGER,
+  ADD COLUMN IF NOT EXISTS pickup_area TEXT,
+  ADD COLUMN IF NOT EXISTS preferred_pickup_time TEXT;
+
+-- Transport: event-level plan (JSONB for flexibility)
+ALTER TABLE public.trek_events
+  ADD COLUMN IF NOT EXISTS transport_plan JSONB;
+
 -- is_admin helper (idempotent)
 CREATE OR REPLACE FUNCTION public.is_admin(user_id_param UUID DEFAULT auth.uid())
 RETURNS BOOLEAN AS $$
@@ -49,8 +63,26 @@ GRANT EXECUTE ON FUNCTION public.reject_registration(INTEGER, TEXT) TO authentic
 -- Indices for performance
 CREATE INDEX IF NOT EXISTS idx_trek_regs_status_trek ON public.trek_registrations(payment_status, trek_id);
 
+-- Transport assignments table
+CREATE TABLE IF NOT EXISTS public.trek_transport_assignments (
+  id BIGSERIAL PRIMARY KEY,
+  trek_id INTEGER NOT NULL REFERENCES public.trek_events(trek_id) ON DELETE CASCADE,
+  driver_user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
+  passenger_user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
+  seats_reserved INTEGER NOT NULL DEFAULT 1,
+  pickup_point TEXT,
+  notes TEXT,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+-- Helpful indexes
+CREATE INDEX IF NOT EXISTS idx_tta_trek ON public.trek_transport_assignments(trek_id);
+CREATE INDEX IF NOT EXISTS idx_tta_driver ON public.trek_transport_assignments(driver_user_id);
+CREATE INDEX IF NOT EXISTS idx_tta_passenger ON public.trek_transport_assignments(passenger_user_id);
+
 -- RLS policies (idempotent)
 ALTER TABLE public.trek_registrations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.trek_transport_assignments ENABLE ROW LEVEL SECURITY;
 
 -- Allow user to see own registrations
 DROP POLICY IF EXISTS "Users can view own registrations" ON public.trek_registrations;
@@ -87,4 +119,22 @@ CREATE POLICY "Admin can moderate registrations" ON public.trek_registrations
   USING (public.is_admin())
   WITH CHECK (public.is_admin());
 
+-- Transport assignments RLS
+DROP POLICY IF EXISTS "Users can view own transport assignments" ON public.trek_transport_assignments;
+CREATE POLICY "Users can view own transport assignments" ON public.trek_transport_assignments
+  FOR SELECT TO authenticated
+  USING (
+    driver_user_id = auth.uid() OR passenger_user_id = auth.uid() OR public.is_admin()
+  );
+
+DROP POLICY IF EXISTS "Admin can manage transport assignments" ON public.trek_transport_assignments;
+CREATE POLICY "Admin can manage transport assignments" ON public.trek_transport_assignments
+  FOR ALL TO authenticated
+  USING (public.is_admin())
+  WITH CHECK (public.is_admin());
+
+DROP POLICY IF EXISTS "Drivers can remove own passengers" ON public.trek_transport_assignments;
+CREATE POLICY "Drivers can remove own passengers" ON public.trek_transport_assignments
+  FOR DELETE TO authenticated
+  USING (driver_user_id = auth.uid());
 

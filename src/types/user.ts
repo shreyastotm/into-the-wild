@@ -28,4 +28,5 @@ export interface UserProfile {
   subscription_type?: 'community' | 'self_service';
   subscription_status?: 'active' | 'inactive' | 'cancelled';
   subscription_expiry?: string;
+  transport_volunteer_opt_in?: boolean | null;
 } 

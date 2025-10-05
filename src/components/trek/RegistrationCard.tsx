@@ -23,6 +23,8 @@ interface DbRegistration {
   indemnity_agreed_at?: string | null;
   payment_proof_url?: string | null;
   payment_verified_at?: string | null;
+  is_driver?: boolean | null;
+  offered_seats?: number | null;
 }
 
 interface RegistrationCardProps {
@@ -35,11 +37,12 @@ interface RegistrationCardProps {
     status?: TrekEventStatus | string | null;
   };
   userRegistration: WithStringId<DbRegistration> | null;
-  onRegister: (indemnityAccepted: boolean) => Promise<{success: boolean, registrationId?: number | null}>;
+  onRegister: (indemnityAccepted: boolean, options?: { isDriver?: boolean; offeredSeats?: number | null }) => Promise<{success: boolean, registrationId?: number | null}>;
   onCancel: () => Promise<boolean>;
   onUploadProof: (registrationId: number, file: File) => Promise<boolean>;
   isLoading: boolean;
   isUploadingProof: boolean;
+  canVolunteerDriver?: boolean;
 }
 
 export const RegistrationCard: React.FC<RegistrationCardProps> = ({
@@ -50,9 +53,12 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
   onUploadProof,
   isLoading,
   isUploadingProof,
+  canVolunteerDriver = false,
 }) => {
   const [indemnityAccepted, setIndemnityAccepted] = useState(false);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
+  const [volunteerAsDriver, setVolunteerAsDriver] = useState(false);
+  const [offeredSeats, setOfferedSeats] = useState<string>('');
 
   // participantCount should be the count of unique user_ids for this trek
   const participantCount = trek.participant_count ?? 0;
@@ -190,10 +196,36 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                         {indemnityText}
                     </Label>
                 </div>
+                {canVolunteerDriver && (
+                  <div className="mt-3 space-y-2">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="volunteer_driver" 
+                        checked={volunteerAsDriver} 
+                        onCheckedChange={(checked) => setVolunteerAsDriver(!!checked)}
+                        disabled={isLoading || isFull}
+                      />
+                      <Label htmlFor="volunteer_driver" className="text-sm">Volunteer as driver for this event</Label>
+                    </div>
+                    {volunteerAsDriver && (
+                      <div className="pl-6">
+                        <Label htmlFor="offered_seats" className="text-xs">Seats you can offer (excluding you)</Label>
+                        <Input 
+                          id="offered_seats" 
+                          type="number" 
+                          min={0}
+                          value={offeredSeats}
+                          onChange={(e) => setOfferedSeats(e.target.value)}
+                          className="mt-1 h-8 text-sm w-28"
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
             </div>
             <Button 
               className="w-full" 
-              onClick={() => onRegister(indemnityAccepted)} 
+              onClick={() => onRegister(indemnityAccepted, { isDriver: volunteerAsDriver, offeredSeats: volunteerAsDriver ? (parseInt(offeredSeats || '0', 10) || 0) : null })} 
               disabled={isLoading || !canRegister || !indemnityAccepted}
             >
               {isLoading ? 'Processing...' : !canRegister ? (trek.status === TrekEventStatus.REGISTRATION_CLOSED ? 'Registration Closed' : trek.status === TrekEventStatus.COMPLETED ? 'Trek Completed' : trek.status === TrekEventStatus.CANCELLED ? 'Trek Cancelled' : trek.status === TrekEventStatus.ONGOING ? 'Trek Ongoing' : isFull ? 'Trek is Full' : 'Registration Not Open') : 'Register Now'}

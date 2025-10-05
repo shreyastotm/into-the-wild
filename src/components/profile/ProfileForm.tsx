@@ -36,6 +36,7 @@ interface ProfileFormData {
     car_seating_capacity: number | string;
     vehicle_number: string;
     pet_details: string;
+    transport_volunteer_opt_in: boolean;
 }
 
 // Component to handle map interaction
@@ -78,6 +79,7 @@ export const ProfileForm: React.FC = () => {
         car_seating_capacity: '',
         vehicle_number: '',
         pet_details: '',
+        transport_volunteer_opt_in: false,
     });
     const [loading, setLoading] = useState(false);
     // Default map center to Bangalore, India
@@ -99,6 +101,7 @@ export const ProfileForm: React.FC = () => {
                 car_seating_capacity: userProfile.car_seating_capacity?.toString() || '',
                 vehicle_number: userProfile.vehicle_number || '',
                 pet_details: userProfile.pet_details || '',
+                transport_volunteer_opt_in: !!userProfile.transport_volunteer_opt_in,
             });
             if (userProfile.latitude && userProfile.longitude) {
                 setMapCenter([userProfile.latitude, userProfile.longitude]);
@@ -150,6 +153,7 @@ export const ProfileForm: React.FC = () => {
             has_car: formData.has_car,
             vehicle_number: formData.has_car ? (formData.vehicle_number || null) : null,
             pet_details: formData.pet_details || null,
+            transport_volunteer_opt_in: formData.transport_volunteer_opt_in,
             updated_at: new Date().toISOString(),
         };
 
@@ -298,6 +302,10 @@ export const ProfileForm: React.FC = () => {
                         <div className="flex items-center space-x-2">
                             <Checkbox id="has_car" name="has_car" checked={formData.has_car} onCheckedChange={(checked) => handleCheckboxChange(checked, 'has_car')} />
                             <Label htmlFor="has_car" className="font-medium">I have a car and may be willing to help carpool.</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <Checkbox id="transport_volunteer_opt_in" name="transport_volunteer_opt_in" checked={formData.transport_volunteer_opt_in} onCheckedChange={(checked) => handleCheckboxChange(checked, 'transport_volunteer_opt_in')} />
+                            <Label htmlFor="transport_volunteer_opt_in" className="font-medium">I want to volunteer as a driver when events need it.</Label>
                         </div>
                          {formData.has_car && (
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6 border-l-2 ml-2 border-muted">

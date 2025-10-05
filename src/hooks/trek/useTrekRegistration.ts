@@ -16,6 +16,8 @@ interface DbRegistration {
   indemnity_agreed_at?: string | null;
   payment_proof_url?: string | null;
   payment_verified_at?: string | null;
+  is_driver?: boolean | null;
+  offered_seats?: number | null;
 }
 
 type Registration = WithStringId<DbRegistration>;
@@ -65,7 +67,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     }
   }, [trek_id, user, checkUserRegistration]);
 
-  async function registerForTrek(indemnityAccepted: boolean) {
+  async function registerForTrek(indemnityAccepted: boolean, options?: { isDriver?: boolean; offeredSeats?: number | null }) {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -140,6 +142,8 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
           payment_status: 'Pending' as const,
           booking_datetime: new Date().toISOString(),
           indemnity_agreed_at: new Date().toISOString(),
+          is_driver: options?.isDriver ?? false,
+          offered_seats: options?.isDriver ? (options?.offeredSeats ?? null) : null,
       };
 
       const { error: registrationError } = await supabase
