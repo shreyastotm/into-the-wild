@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Signup Test</h1>
+    <form id="signupForm">
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" required>
+        </div>
+        <div>
+            <label for="password">Password:</label>
+            <input type="password" id="password" required>
+        </div>
+        <div>
+            <label for="fullName">Full Name:</label>
+            <input type="text" id="fullName" required>
+        </div>
+        <div>
+            <label for="phone">Phone:</label>
+            <input type="tel" id="phone">
+        </div>
+        <div>
+            <label for="userType">User Type:</label>
+            <select id="userType">
+                <option value="trekker">Trekker</option>
+                <option value="micro_community">Micro Community</option>
+            </select>
+        </div>
+        <div>
+            <label>
+                <input type="checkbox" id="indemnityAccepted" required>
+                I accept the terms and conditions
+            </label>
+        </div>
+        <button type="submit">Sign Up</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        // Initialize Supabase client
+        const supabaseUrl = 'https://lojnpkunoufmwwcifwan.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxvam5wa3Vub3VmbXd3Y2lmd2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMDcyMTMsImV4cCI6MjA1OTg4MzIxM30.MullqAvDPGgkDc3yW-GIuenn87U-Z3KLDmpU6U1BJmU';
+        
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey);
+
+        document.getElementById('signupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const fullName = document.getElementById('fullName').value;
+            const phone = document.getElementById('phone').value;
+            const userType = document.getElementById('userType').value;
+            const indemnityAccepted = document.getElementById('indemnityAccepted').checked;
+
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Signing up...';
+
+            try {
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                    options: {
+                        data: {
+                            full_name: fullName,
+                            name: fullName,
+                            user_type: userType,
+                            phone: phone,
+                            indemnity_accepted: indemnityAccepted
+                        }
+                    }
+                });
+
+                if (error) {
+                    resultDiv.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                    console.error('Signup error:', error);
+                } else {
+                    resultDiv.innerHTML = `<p style="color: green;">Success! Check your email for confirmation.</p>`;
+                    console.log('Signup success:', data);
+                }
+            } catch (err) {
+                resultDiv.innerHTML = `<p style="color: red;">Unexpected error: ${err.message}</p>`;
+                console.error('Unexpected error:', err);
+            }
+        });
+    </script>
+</body>
+</html>
