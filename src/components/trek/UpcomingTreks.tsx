@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from '@/components/ui/button';
 import { toast } from '@/components/ui/use-toast';
 import { MapPin, Calendar, Users, Navigation } from 'lucide-react';
-import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { getUniqueParticipantCount, formatCurrency } from '@/lib/utils';
 import { format, formatRelative } from 'date-fns';
