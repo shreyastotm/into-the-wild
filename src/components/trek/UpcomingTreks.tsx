@@ -227,13 +227,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   }));
 
   if (loading) {
-    return (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {[...Array(limit)].map((_, index) => (
-          <TrekCardSkeleton key={index} />
-        ))}
-      </div>
-    );
+    return null;
   }
 
   if (treks.length === 0) {
@@ -302,21 +296,3 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   );
 };
 
-// Define TrekCardSkeleton here as it was part of the provided code
-const TrekCardSkeleton = () => (
-  <div className="bg-white rounded-lg shadow-md overflow-hidden">
-    <Skeleton className="h-48 w-full" />
-    <div className="p-4 space-y-3">
-      <Skeleton className="h-6 w-3/4" />
-      <Skeleton className="h-4 w-1/4 mb-2" /> {/* Adjusted for badge */}
-      <div className="space-y-2">
-        <Skeleton className="h-4 w-full" />
-        <Skeleton className="h-4 w-5/6" /> {/* Slightly varied width */}
-      </div>
-      <div className="flex justify-between items-center pt-3 border-t mt-3">
-        <Skeleton className="h-6 w-1/4" />
-        {/* Icon could be added here in the future */}
-      </div>
-    </div>
-  </div>
-);

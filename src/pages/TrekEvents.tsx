@@ -5,7 +5,6 @@ import { NoTreksFound } from '@/components/trek/NoTreksFound';
 import { supabase } from '@/integrations/supabase/client';
 import { addMonths, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
-import { TrekCardSkeleton } from '@/components/trek/TrekCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -251,17 +250,11 @@ const TrekEvents = () => {
         categories={categories}
       />
       
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, index) => (
-            <TrekCardSkeleton key={index} />
-          ))}
-        </div>
-      ) : events.length > 0 ? (
+      {!loading && events.length > 0 ? (
         <TrekEventsList treks={events} />
-      ) : (
+      ) : !loading && events.length === 0 ? (
         <NoTreksFound />
-      )}
+      ) : null}
     </div>
   );
 };

@@ -3,7 +3,6 @@ import { TrekEventsList } from '@/components/trek/TrekEventsList';
 import { NoTreksFound } from '@/components/trek/NoTreksFound';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/components/ui/use-toast';
-import { TrekCardSkeleton } from '@/components/trek/TrekCardSkeleton';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -90,22 +89,16 @@ const TrekArchives = () => {
 
       {/* Removed TrekFilters component - add back if filtering archives is desired */}
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, index) => (
-            <TrekCardSkeleton key={index} />
-          ))}
-        </div>
-      ) : treks.length > 0 ? (
+      {!loading && treks.length > 0 ? (
         // Reuse TrekEventsList, disable links if navigating to details isn't desired for archives
         <TrekEventsList treks={treks} useLinks={false} /> 
-      ) : (
+      ) : !loading ? (
         // Use a specific message for no archives, or reuse NoTreksFound
         <div className="text-center py-10">
           <h2 className="text-xl font-semibold mb-2">No Archived Treks Found</h2>
           <p className="text-muted-foreground">Completed treks will appear here.</p>
         </div>
-      )}
+      ) : null}
     </div>
   );
 };
