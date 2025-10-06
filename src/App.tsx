@@ -11,6 +11,7 @@ import NotFound from './pages/NotFound';
 import { AuthProvider } from './components/auth/AuthProvider';
 import TrekEvents from './pages/TrekEvents';
 import TrekEventDetails from './pages/TrekEventDetails';
+import CreateTrekEvent from './pages/CreateTrekEvent';
 import TrekArchives from './pages/TrekArchives';
 import { Toaster } from './components/ui/toaster';
 import AdminHome from './pages/admin';
@@ -51,6 +52,11 @@ function App() {
             
             <Route path="/events" element={<TrekEvents />} />
             <Route path="/events/:id" element={<TrekEventDetails />} />
+            
+            {/* Trek event creation - must be before backwards compatibility redirects */}
+            <Route element={<ProtectedRoute isAdminRoute />}>
+              <Route path="/trek-events/create" element={<CreateTrekEvent />} />
+            </Route>
             
             {/* Backwards compatibility redirects */}
             <Route path="/trek-events" element={<Navigate to="/events" replace />} />
