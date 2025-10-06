@@ -17,7 +17,7 @@ export default function Auth() {
         </div>
         
         {/* Content */}
-        <div className="relative z-10 flex flex-col items-center justify-center p-12 text-white">
+        <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-12 text-white">
           <img 
             src="/itw_logo.jpg" 
             alt="Into the Wild" 

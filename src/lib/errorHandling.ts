@@ -115,6 +115,63 @@ export const handleNetworkError = (error: unknown): AppError => {
 export const handleSupabaseError = (error: unknown): AppError => {
   // Handle specific Supabase error codes
   const errorObj = error as { code?: string; message?: string };
+  
+  // Handle Supabase Auth specific errors
+  if (errorObj?.code === 'user_already_exists') {
+    return createAppError(
+      'User already exists',
+      ErrorCodes.VALIDATION_ERROR,
+      409,
+      'An account with this email already exists. Please try signing in instead.'
+    );
+  }
+  
+  if (errorObj?.message?.includes('No API key found')) {
+    return createAppError(
+      'API configuration error',
+      ErrorCodes.SERVER_ERROR,
+      500,
+      'Authentication service is not properly configured. Please try again later.'
+    );
+  }
+  
+  if (errorObj?.code === 'invalid_credentials') {
+    return createAppError(
+      'Invalid credentials',
+      ErrorCodes.AUTHENTICATION_ERROR,
+      401,
+      'Invalid email or password. Please check your credentials and try again.'
+    );
+  }
+  
+  if (errorObj?.code === 'email_not_confirmed') {
+    return createAppError(
+      'Email not confirmed',
+      ErrorCodes.AUTHENTICATION_ERROR,
+      401,
+      'Please check your email and click the confirmation link before signing in.'
+    );
+  }
+  
+  if (errorObj?.code === 'weak_password') {
+    return createAppError(
+      'Weak password',
+      ErrorCodes.VALIDATION_ERROR,
+      400,
+      'Password is too weak. Please choose a stronger password.'
+    );
+  }
+  
+  if (errorObj?.code === 'invalid_email') {
+    return createAppError(
+      'Invalid email',
+      ErrorCodes.VALIDATION_ERROR,
+      400,
+      'Please enter a valid email address.'
+    );
+  }
+  
+  // Handle database error codes
   switch (errorObj?.code) {
     case 'PGRST301':
       return createAppError(
@@ -146,9 +203,10 @@ export const handleSupabaseError = (error: unknown): AppError => {
       );
     default:
       return createAppError(
-        error?.message || 'Database error',
+        errorObj?.message || 'Database error',
         ErrorCodes.SERVER_ERROR,
-        500
+        500,
+        'An unexpected error occurred. Please try again.'
       );
   }
 };

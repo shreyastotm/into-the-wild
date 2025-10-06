@@ -122,10 +122,21 @@ export const useAuthForm = () => {
       // Sanitize input
       const sanitizedData = sanitizeFormData(formData) as SignUpFormData;
 
-      // Create auth user
+      // Create auth user with metadata
       const { data: authData, error: authError } = await supabase.auth.signUp({
         email: sanitizedData.email,
         password: sanitizedData.password,
+        options: {
+          data: {
+            full_name: sanitizedData.fullName,
+            name: sanitizedData.fullName,
+            user_type: sanitizedData.userType,
+            phone: sanitizedData.phone,
+            subscription_type: sanitizedData.subscriptionType,
+            partner_id: sanitizedData.partnerId,
+            indemnity_accepted: sanitizedData.indemnityAccepted
+          }
+        }
       });
 
       if (authError) {
