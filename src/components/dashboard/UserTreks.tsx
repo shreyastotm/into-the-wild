@@ -12,6 +12,7 @@ import { CalendarDays, MapPin, Clock, Users, ArrowRight, CheckCircle2 } from 'lu
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useCallback } from 'react';
+import { Input } from '@/components/ui/input';
 
 interface TrekRegistration {
   trek_id: number;
@@ -25,6 +26,7 @@ interface TrekRegistration {
   max_participants: number;
   isPast: boolean;
   image_url?: string | null;
+  attended?: boolean;
 }
 
 export const UserTreks = () => {
@@ -70,6 +72,23 @@ export const UserTreks = () => {
           return acc;
         }, {} as Record<number, MappedTrek>);
         const now = new Date();
+        // Fetch participant counts via RPC
+        const countsArray = await Promise.all(
+          trekIds.map(async (id: number) => {
+            const { data: countData, error: countError } = await supabase
+              .rpc('get_trek_participant_count', { p_trek_id: id });
+            if (countError) {
+              console.error('Error fetching participant count for trek', id, countError);
+              return { trek_id: id, count: 0 };
+            }
+            return { trek_id: id, count: countData ?? 0 };
+          })
+        );
+        const countsMap = countsArray.reduce((acc, cur) => {
+          acc[cur.trek_id] = cur.count;
+          return acc;
+        }, {} as Record<number, number>);
+
         const transformedData = data
           .map((reg: RawRegistration) => {
             const trekData = trekMap[reg.trek_id];
@@ -86,7 +105,8 @@ export const UserTreks = () => {
               location: trekData.location ?? null,
               max_participants: trekData.max_participants ?? 0,
               isPast: startDate < now,
-              image_url: trekData.image_url || null
+              image_url: trekData.image_url || null,
+              participant_count: countsMap[reg.trek_id] ?? 0
             };
           })
           .filter(Boolean) as TrekRegistration[]; // Filter out the nulls
@@ -216,7 +236,7 @@ export const UserTreks = () => {
             </div>
             <div className="flex items-center">
               <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span>{trek.participant_count}/{trek.max_participants} participants</span>
+              <span>{(trek.participant_count ?? 0)}/{trek.max_participants} participants</span>
             </div>
             {trek.location && (
               <div className="flex items-center">
@@ -225,16 +245,73 @@ export const UserTreks = () => {
               </div>
             )}
           </div>
-          <div className="mt-4 flex justify-between items-center">
-            <div className="font-bold">{formatCurrency(trek.cost)}</div>
-            <Button 
-              variant="outline" 
-              size="sm" 
-              onClick={() => goToTrekDetails(trek.trek_id)}
-              className="ml-auto"
-            >
-              View Details
-            </Button>
+          <div className="mt-4 flex flex-col gap-3">
+            <div className="flex justify-between items-center">
+              <div className="font-bold">{formatCurrency(trek.cost)}</div>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => goToTrekDetails(trek.trek_id)}
+                className="ml-auto"
+              >
+                View Details
+              </Button>
+            </div>
+            {trek.isPast && (
+              <div className="pt-3 border-t">
+                <div className="flex flex-wrap gap-2 items-center">
+                  <Button
+                    size="sm"
+                    variant={trek.attended ? 'default' : 'secondary'}
+                    onClick={async () => {
+                      try {
+                        setTrekRegistrations(prev => prev.map(t => t.trek_id === trek.trek_id ? { ...t, attended: !t.attended } : t));
+                        const { error } = await supabase
+                          .from('trek_attendance')
+                          .upsert({ trek_id: trek.trek_id, user_id: user?.id, attended: !trek.attended }, { onConflict: 'trek_id,user_id' });
+                        if (error) throw error;
+                        toast({ title: trek.attended ? 'Attendance removed' : 'Attendance marked', description: trek.attended ? 'You have unmarked your attendance.' : 'Glad you were there!' });
+                      } catch (e: unknown) {
+                        setTrekRegistrations(prev => prev.map(t => t.trek_id === trek.trek_id ? { ...t, attended: trek.attended } : t));
+                        const msg = e instanceof Error ? e.message : 'Unable to save attendance';
+                        toast({ title: 'Attendance not saved', description: (msg.includes('relation') ? 'Backend support not available yet.' : msg), variant: 'destructive' });
+                      }
+                    }}
+                  >
+                    {trek.attended ? 'Attended' : 'I was at this trek'}
+                  </Button>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      placeholder="Tag users (comma separated names)"
+                      value={(tagInputs as any)?.[trek.trek_id] ?? ''}
+                      onChange={(e) => setTagInputs(prev => ({ ...(prev as any), [trek.trek_id]: e.target.value }))}
+                      className="w-64"
+                    />
+                    <Button
+                      size="sm"
+                      variant="secondary"
+                      onClick={async () => {
+                        const raw = ((tagInputs as any)?.[trek.trek_id] ?? '').trim();
+                        if (!raw) return;
+                        try {
+                          const tags = raw.split(',').map((s: string) => s.trim()).filter(Boolean);
+                          const payload = tags.map((name: string) => ({ trek_id: trek.trek_id, tagger_user_id: user?.id, tagged_name: name }));
+                          const { error } = await supabase.from('trek_attendance_tags').insert(payload);
+                          if (error) throw error;
+                          setTagInputs(prev => ({ ...(prev as any), [trek.trek_id]: '' }));
+                          toast({ title: 'Tagged users', description: 'Your tags have been saved.' });
+                        } catch (e: unknown) {
+                          const msg = e instanceof Error ? e.message : 'Unable to tag users';
+                          toast({ title: 'Tagging failed', description: (msg.includes('relation') ? 'Backend support not available yet.' : msg), variant: 'destructive' });
+                        }
+                      }}
+                    >
+                      Tag Users
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
@@ -248,7 +325,7 @@ export const UserTreks = () => {
           Upcoming Treks ({upcomingTreks.length})
         </TabsTrigger>
         <TabsTrigger value="past">
-          Past Treks ({pastTreks.length})
+          Past Events ({pastTreks.length})
         </TabsTrigger>
       </TabsList>
       
@@ -275,7 +352,7 @@ export const UserTreks = () => {
           </div>
         ) : (
           <div className="text-center py-6">
-            <p className="text-muted-foreground">You have no past treks</p>
+            <p className="text-muted-foreground">You have no past events</p>
           </div>
         )}
       </TabsContent>
