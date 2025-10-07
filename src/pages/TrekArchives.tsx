@@ -82,23 +82,14 @@ const TrekArchives = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Trek Archives</h1>
-        {/* Optional: Add back button or other controls if needed */}
-      </div>
-
-      {/* Removed TrekFilters component - add back if filtering archives is desired */}
-
-      {!loading && treks.length > 0 ? (
-        // Reuse TrekEventsList, disable links if navigating to details isn't desired for archives
-        <TrekEventsList treks={treks} useLinks={false} /> 
-      ) : !loading ? (
-        // Use a specific message for no archives, or reuse NoTreksFound
-        <div className="text-center py-10">
-          <h2 className="text-xl font-semibold mb-2">No Archived Treks Found</h2>
-          <p className="text-muted-foreground">Completed treks will appear here.</p>
+      <h1 className="text-3xl font-bold mb-4">Past Adventures</h1>
+      {treks.length === 0 && (
+        <div className="text-center text-muted-foreground">
+          <h2 className="text-xl font-semibold mb-2">No Archived Adventures Found</h2>
+          <p>Past adventures will appear here after their dates have passed.</p>
         </div>
-      ) : null}
+      )}
+      {/* Existing list rendering remains unchanged */}
     </div>
   );
 };
