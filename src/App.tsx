@@ -13,6 +13,7 @@ import TrekEvents from './pages/TrekEvents';
 import TrekEventDetails from './pages/TrekEventDetails';
 import CreateTrekEvent from './pages/CreateTrekEvent';
 import TrekArchives from './pages/TrekArchives';
+import Gallery from './pages/Gallery';
 import { Toaster } from './components/ui/toaster';
 import AdminHome from './pages/admin';
 import ResetPassword from './pages/ResetPassword';
@@ -63,6 +64,7 @@ function App() {
             <Route path="/trek-events/:id" element={<TrekEventRedirect />} />
             
             <Route path="/trek-archives" element={<TrekArchives />} />
+            <Route path="/gallery" element={<Gallery />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             
             <Route path="*" element={<NotFound />} />

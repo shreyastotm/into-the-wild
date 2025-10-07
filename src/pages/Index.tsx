@@ -1,30 +1,56 @@
+import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { ArrowRight, MapPin, Users, Calendar } from 'lucide-react';
 import { UpcomingTreks } from '@/components/trek/UpcomingTreks';
+import { getHomeBackground } from '@/lib/siteSettings';
 
 const Index = () => {
   const { user, loading } = useAuth();
+  const [bgUrl, setBgUrl] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleExploreClick = () => {
     navigate('/trek-events');
   };
 
+  useEffect(() => {
+    let mounted = true;
+    (async () => {
+      const url = await getHomeBackground();
+      if (mounted) setBgUrl(url);
+    })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
   return (
     <div>
       {/* Hero Section */}
       <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
-        {/* Logo Watermark */}
-        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-          <img 
-            src="/itw_logo.jpg" 
-            alt="" 
-            aria-hidden="true"
-            className="w-[600px] md:w-[800px] h-auto object-contain opacity-[0.03] blur-[0.5px]"
-          />
-        </div>
+        {/* Background Layer (admin-selected or fallback watermark) */}
+        {bgUrl ? (
+          <div className="absolute inset-0">
+            <img
+              src={bgUrl}
+              alt="Homepage background"
+              aria-hidden="true"
+              className="absolute inset-0 w-full h-full object-cover opacity-30"
+            />
+            <div className="absolute inset-0 bg-white/30" aria-hidden="true" />
+          </div>
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <img
+              src="/itw_logo.jpg"
+              alt=""
+              aria-hidden="true"
+              className="w-[600px] md:w-[800px] h-auto object-contain opacity-[0.03] blur-[0.5px]"
+            />
+          </div>
+        )}
         
         {/* Content Layer */}
         <div className="relative z-10 container mx-auto px-4">
