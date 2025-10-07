@@ -196,12 +196,12 @@ export const CostsStep: React.FC<CostsStepProps> = ({
             <div className="space-y-3">
               {costs.map((cost, index) => (
                 <div key={index} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex-1">
+                  <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">{costTypes.find(t => t.value === cost.cost_type)?.label}</span>
+                      <span className="text-xs font-medium text-muted-foreground">{costTypes.find(t => t.value === cost.cost_type)?.label}</span>
                       <span className="text-lg font-semibold text-green-600">₹{cost.amount.toFixed(2)}</span>
                     </div>
-                    <p className="text-sm text-muted-foreground">{cost.description}</p>
+                    <p className="text-xs text-muted-foreground truncate" title={cost.description}>{cost.description}</p>
                     {cost.pay_by_date && (
                       <p className="text-xs text-blue-600">Due: {new Date(cost.pay_by_date).toLocaleDateString()}</p>
                     )}
