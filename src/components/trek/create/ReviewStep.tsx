@@ -152,7 +152,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         <CardContent>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="font-medium">Base Price per Person</span>
+              <span className="font-medium">Registration Fee per Person</span>
               <span className="text-lg font-semibold text-green-600">₹{formData.base_price?.toFixed(2)}</span>
             </div>
             

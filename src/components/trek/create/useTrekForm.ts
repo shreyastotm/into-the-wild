@@ -71,7 +71,7 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
           newErrors.start_datetime = "Start date and time is required.";
         }
         if (formData.base_price === undefined || formData.base_price === null || formData.base_price < 0) {
-          newErrors.base_price = "Base cost must be a valid positive number.";
+          newErrors.base_price = "Registration fee must be a valid positive number.";
         }
         if (formData.max_participants === undefined || formData.max_participants === null || formData.max_participants < 1) {
           newErrors.max_participants = "Maximum participants must be at least 1.";
@@ -95,7 +95,7 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
           newErrors.start_datetime = "Start date and time is required.";
         }
         if (formData.base_price === undefined || formData.base_price === null || formData.base_price < 0) {
-          newErrors.base_price = "Base price is required and must be positive.";
+          newErrors.base_price = "Registration fee is required and must be positive.";
         }
         if (formData.max_participants === undefined || formData.max_participants === null || formData.max_participants < 1) {
           newErrors.max_participants = "Maximum participants must be at least 1.";

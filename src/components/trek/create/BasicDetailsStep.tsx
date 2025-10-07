@@ -183,7 +183,7 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
         {/* Pricing and Capacity */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-2">
-            <Label htmlFor="base_price">Base Cost (₹) *</Label>
+            <Label htmlFor="base_price">Registration Fee (₹) *</Label>
             <Input 
               id="base_price" 
               name="base_price" 
