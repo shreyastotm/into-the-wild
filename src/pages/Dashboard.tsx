@@ -43,14 +43,14 @@ const Dashboard = () => {
         <div className="flex gap-3">
           <Button variant="outline" onClick={() => navigate('/trek-events')}>
             <CalendarDays className="mr-2 h-4 w-4" />
-            Browse Adventures
+            Browse Treks
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
         <div>
-          <h2 className="text-2xl font-bold mb-4">My Adventures</h2>
+          <h2 className="text-2xl font-bold mb-4">My Treks</h2>
           <UserTreks />
         </div>
       </div>

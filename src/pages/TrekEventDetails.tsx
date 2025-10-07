@@ -92,7 +92,7 @@ export default function TrekEventDetails() {
         <Link to="/events">
           <Button>
             <ChevronLeft className="mr-2 h-4 w-4" />
-            Back to Adventures
+            Back to Events
           </Button>
         </Link>
       </div>
@@ -125,13 +125,11 @@ export default function TrekEventDetails() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="mb-6">
-        <Link to="/events" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to Adventures
-        </Link>
-      </div>
+    <div className="container mx-auto py-8 px-4">
+      <Link to="/trek-events" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
+        <ChevronLeft className="mr-1 h-4 w-4" />
+        Back to Events
+      </Link>
 
       <TrekEventHeader
         trekName={trekEvent.trek_name}
