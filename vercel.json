@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "buildCommand": "npm run build && echo 'Skeleton loading removed - cache busting deployment v2'",
+  "buildCommand": "npm run build && echo 'Skeleton loading removed - deployed by shreyasmadhan82'",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [
