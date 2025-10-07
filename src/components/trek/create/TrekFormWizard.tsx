@@ -217,7 +217,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
 
     switch (step) {
       case 1:
-        return <EventTypeStep {...stepProps} />;
+        return <EventTypeStep {...stepProps} isEdit={!!trekToEdit} />;
       
       case 2:
         return (

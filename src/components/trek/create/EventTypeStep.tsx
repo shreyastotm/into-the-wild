@@ -5,13 +5,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { EventType } from '@/types/trek';
 import { StepProps } from './types';
 
-export const EventTypeStep: React.FC<StepProps> = ({ formData, setFormData, errors }) => {
+export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({ formData, setFormData, errors, isEdit }) => {
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Choose Event Type</h3>
         <p className="text-sm text-muted-foreground">
-          Select the type of event you want to create
+          {isEdit ? 'Select the type of event you want to Edit' : 'Select the type of event you want to create'}
         </p>
       </div>
 
