@@ -34,6 +34,18 @@ import {
 } from "@/components/ui/table";
 import CreateTrekMultiStepFormNew from '@/components/trek/CreateTrekMultiStepFormNew';
 import { TrekEventStatus, EventType } from '@/types/trek';
+import { toast } from '@/components/ui/use-toast';
+import { Trash2, Eye, Copy, Search, Filter, Download, CheckSquare, Square } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 interface TrekEvent { 
   trek_id: number;
@@ -60,6 +72,14 @@ const TrekEventsAdmin = () => {
   const [error, setError] = useState<string | null>(null);
   const [isEditDialogOpen, setEditDialogOpen] = useState<boolean>(false);
   const [eventToEdit, setEventToEdit] = useState<TrekEvent | null>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
+  const [eventToDelete, setEventToDelete] = useState<TrekEvent | null>(null);
+  const [isDeleting, setIsDeleting] = useState<boolean>(false);
+  const [searchTerm, setSearchTerm] = useState<string>('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
+  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
+  const [isBulkActionLoading, setIsBulkActionLoading] = useState<boolean>(false);
 
   const fetchEvents = useCallback(async () => {
     setLoading(true);
@@ -118,6 +138,227 @@ const TrekEventsAdmin = () => {
   const handleAddNew = () => {
     setEventToEdit(null);
     setEditDialogOpen(true);
+  };
+
+  const handleDelete = (event: TrekEvent) => {
+    setEventToDelete(event);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!eventToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      // First, check if there are any registrations for this event
+      const { data: registrations, error: regError } = await supabase
+        .from('trek_registrations')
+        .select('registration_id')
+        .eq('trek_id', eventToDelete.trek_id);
+
+      if (regError) throw regError;
+
+      if (registrations && registrations.length > 0) {
+        toast({
+          title: "Cannot Delete Event",
+          description: `This event has ${registrations.length} registration(s). Please cancel or complete the event instead of deleting it.`,
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Delete related data first (in order of dependencies)
+      await supabase.from('trek_packing_list_assignments').delete().eq('trek_id', eventToDelete.trek_id);
+      await supabase.from('trek_costs').delete().eq('trek_id', eventToDelete.trek_id);
+      await supabase.from('tent_inventory').delete().eq('event_id', eventToDelete.trek_id);
+      await supabase.from('trek_event_images').delete().eq('trek_id', eventToDelete.trek_id);
+
+      // Finally delete the main event
+      const { error: deleteError } = await supabase
+        .from('trek_events')
+        .delete()
+        .eq('trek_id', eventToDelete.trek_id);
+
+      if (deleteError) throw deleteError;
+
+      toast({
+        title: "Event Deleted",
+        description: `"${eventToDelete.name}" has been successfully deleted.`,
+      });
+
+      // Refresh the events list
+      await fetchEvents();
+      setDeleteDialogOpen(false);
+      setEventToDelete(null);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to delete event";
+      toast({
+        title: "Error Deleting Event",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      console.error("Delete error:", err);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleDuplicate = async (event: TrekEvent) => {
+    try {
+      const { data: newEvent, error: insertError } = await supabase
+        .from('trek_events')
+        .insert({
+          name: `${event.name} (Copy)`,
+          description: event.description,
+          location: event.location,
+          category: event.category,
+          difficulty: event.difficulty,
+          start_datetime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+          base_price: event.base_price,
+          max_participants: event.max_participants,
+          status: TrekEventStatus.DRAFT,
+          event_type: event.event_type,
+          image_url: event.image_url,
+          gpx_file_url: event.gpx_file_url,
+        })
+        .select('trek_id')
+        .single();
+
+      if (insertError) throw insertError;
+
+      toast({
+        title: "Event Duplicated",
+        description: `"${event.name}" has been duplicated successfully.`,
+      });
+
+      await fetchEvents();
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to duplicate event";
+      toast({
+        title: "Error Duplicating Event",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      console.error("Duplicate error:", err);
+    }
+  };
+
+  const handleViewEvent = (event: TrekEvent) => {
+    // Navigate to the event details page
+    window.open(`/trek-events/${event.trek_id}`, '_blank');
+  };
+
+  const handleExportEvents = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('trek_events')
+        .select('*')
+        .order('start_datetime', { ascending: false });
+
+      if (error) throw error;
+
+      // Convert to CSV
+      const headers = ['ID', 'Name', 'Description', 'Location', 'Category', 'Start Date', 'End Date', 'Price', 'Max Participants', 'Status', 'Event Type'];
+      const csvContent = [
+        headers.join(','),
+        ...(data || []).map(event => [
+          event.trek_id,
+          `"${event.name || ''}"`,
+          `"${event.description || ''}"`,
+          `"${event.location || ''}"`,
+          `"${event.category || ''}"`,
+          event.start_datetime,
+          event.end_datetime || '',
+          event.base_price || '',
+          event.max_participants,
+          event.status || '',
+          event.event_type || ''
+        ].join(','))
+      ].join('\n');
+
+      // Download CSV
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `events-export-${new Date().toISOString().split('T')[0]}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+
+      toast({
+        title: "Export Successful",
+        description: "Events data has been exported to CSV.",
+      });
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to export events";
+      toast({
+        title: "Export Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    }
+  };
+
+  // Filter events based on search and filters
+  const filteredEvents = events.filter(event => {
+    const matchesSearch = !searchTerm || 
+      event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (event.location && event.location.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesStatus = !statusFilter || event.status === statusFilter;
+    const matchesType = !typeFilter || event.event_type === typeFilter;
+    
+    return matchesSearch && matchesStatus && matchesType;
+  });
+
+  const handleSelectEvent = (eventId: number, checked: boolean) => {
+    if (checked) {
+      setSelectedEvents(prev => [...prev, eventId]);
+    } else {
+      setSelectedEvents(prev => prev.filter(id => id !== eventId));
+    }
+  };
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedEvents(filteredEvents.map(event => event.trek_id));
+    } else {
+      setSelectedEvents([]);
+    }
+  };
+
+  const handleBulkStatusChange = async (newStatus: TrekEventStatus) => {
+    if (selectedEvents.length === 0) return;
+    
+    setIsBulkActionLoading(true);
+    try {
+      const { error } = await supabase
+        .from('trek_events')
+        .update({ status: newStatus })
+        .in('trek_id', selectedEvents);
+
+      if (error) throw error;
+
+      toast({
+        title: "Bulk Update Successful",
+        description: `Updated ${selectedEvents.length} event(s) to ${newStatus} status.`,
+      });
+
+      await fetchEvents();
+      setSelectedEvents([]);
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : "Failed to update events";
+      toast({
+        title: "Bulk Update Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+    } finally {
+      setIsBulkActionLoading(false);
+    }
   };
 
   const handleFormSubmit = async ({ trekData, packingList, costs, tentInventory }) => {
@@ -237,17 +478,119 @@ const TrekEventsAdmin = () => {
 
   return (
     <div className="container mx-auto p-4">
-      <h1 className="text-2xl font-bold mb-4">Manage Events</h1>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">Manage Events</h1>
+        <div className="flex gap-2">
+          <Button onClick={handleExportEvents} variant="outline" size="sm">
+            <Download className="h-4 w-4 mr-2" />
+            Export CSV
+          </Button>
+          <Button onClick={handleAddNew}>
+            Create New Event
+          </Button>
+        </div>
+      </div>
 
-      <Button onClick={handleAddNew} className="mb-4">Create New Event</Button>
+      {/* Search and Filter Controls */}
+      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Input
+              placeholder="Search events..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Statuses</SelectItem>
+              {Object.values(TrekEventStatus).map(status => (
+                <SelectItem key={status} value={status}>{status}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          <Select value={typeFilter} onValueChange={setTypeFilter}>
+            <SelectTrigger>
+              <SelectValue placeholder="Filter by type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="trek">Trek</SelectItem>
+              <SelectItem value="camping">Camping</SelectItem>
+            </SelectContent>
+          </Select>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setSearchTerm('');
+              setStatusFilter('');
+              setTypeFilter('');
+            }}
+          >
+            <Filter className="h-4 w-4 mr-2" />
+            Clear Filters
+          </Button>
+        </div>
+      </div>
 
       {error && !isEditDialogOpen && <p className="text-red-500 mb-4">{error}</p>} 
       {loading && !isEditDialogOpen && <p>Loading events...</p>}
 
-      {!loading && events.length > 0 && (
+      {/* Bulk Actions */}
+      {selectedEvents.length > 0 && (
+        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          <div className="flex items-center justify-between">
+            <span className="text-sm font-medium text-blue-800">
+              {selectedEvents.length} event(s) selected
+            </span>
+            <div className="flex gap-2">
+              <Select onValueChange={handleBulkStatusChange} disabled={isBulkActionLoading}>
+                <SelectTrigger className="w-48">
+                  <SelectValue placeholder="Bulk status change" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Object.values(TrekEventStatus).map(status => (
+                    <SelectItem key={status} value={status}>
+                      Set to {status}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={() => setSelectedEvents([])}
+                disabled={isBulkActionLoading}
+              >
+                Clear Selection
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!loading && filteredEvents.length > 0 && (
          <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-12">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleSelectAll(selectedEvents.length !== filteredEvents.length)}
+                  >
+                    {selectedEvents.length === filteredEvents.length ? (
+                      <CheckSquare className="h-4 w-4" />
+                    ) : (
+                      <Square className="h-4 w-4" />
+                    )}
+                  </Button>
+                </TableHead>
                 <TableHead>Name</TableHead>
                 <TableHead>Type</TableHead>
                 <TableHead>Start Date</TableHead>
@@ -258,8 +601,21 @@ const TrekEventsAdmin = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {events.map((event) => (
+              {filteredEvents.map((event) => (
                 <TableRow key={event.trek_id}>
+                  <TableCell>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSelectEvent(event.trek_id, !selectedEvents.includes(event.trek_id))}
+                    >
+                      {selectedEvents.includes(event.trek_id) ? (
+                        <CheckSquare className="h-4 w-4" />
+                      ) : (
+                        <Square className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableCell>
                   <TableCell>{event.name}</TableCell>
                   <TableCell>
                     <span className={`px-2 py-1 rounded text-xs font-medium ${
@@ -293,14 +649,61 @@ const TrekEventsAdmin = () => {
                   <TableCell>{event.base_price !== null && event.base_price !== undefined ? `₹${event.base_price}` : 'N/A'}</TableCell>
                   <TableCell>{event.max_participants}</TableCell>
                   <TableCell>
-                    <Button variant="outline" size="sm" onClick={() => handleEdit(event)}>
-                      Edit
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleViewEvent(event)}
+                        title="View Event"
+                      >
+                        <Eye className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleEdit(event)}
+                        title="Edit Event"
+                      >
+                        Edit
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => handleDuplicate(event)}
+                        title="Duplicate Event"
+                      >
+                        <Copy className="h-4 w-4" />
+                      </Button>
+                      <Button 
+                        variant="destructive" 
+                        size="sm" 
+                        onClick={() => handleDelete(event)}
+                        title="Delete Event"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </TableCell>
                 </TableRow>
               ))}
             </TableBody>
           </Table>
+      )}
+      {!loading && filteredEvents.length === 0 && events.length > 0 && (
+        <div className="text-center py-8">
+          <p className="text-gray-500">No events match your current filters.</p>
+          <Button 
+            variant="outline" 
+            onClick={() => {
+              setSearchTerm('');
+              setStatusFilter('');
+              setTypeFilter('');
+            }}
+            className="mt-2"
+          >
+            Clear Filters
+          </Button>
+        </div>
       )}
       {!loading && events.length === 0 && !error && <p>No events found.</p>}
 
@@ -311,6 +714,42 @@ const TrekEventsAdmin = () => {
           onCancel={handleFormCancel} 
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Event</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{eventToDelete?.name}"? This action cannot be undone.
+              {eventToDelete && (
+                <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
+                  <p className="text-sm text-red-800">
+                    <strong>Warning:</strong> This will permanently delete the event and all associated data including:
+                  </p>
+                  <ul className="text-sm text-red-700 mt-1 ml-4 list-disc">
+                    <li>Event details and settings</li>
+                    <li>Packing list assignments</li>
+                    <li>Cost information</li>
+                    <li>Tent inventory (for camping events)</li>
+                    <li>Event images</li>
+                  </ul>
+                </div>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete Event"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
