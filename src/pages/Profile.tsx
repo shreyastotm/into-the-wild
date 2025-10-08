@@ -25,24 +25,13 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-4 space-y-4">
-      {/* Compact Header Row */}
-      <div className="flex flex-col lg:flex-row gap-4">
-        <div className="flex-1">
-          <ProfileHeader />
-        </div>
-        <div className="flex-1">
-          <ProfileSummaryCard />
-        </div>
+    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+      <ProfileHeader />
+      <ProfileSummaryCard />
+      <IdVerification />
+      <div className="bg-white rounded-lg shadow p-6">
+        <ProfileForm />
       </div>
-      
-      {/* ID Verification - Compact */}
-      <div className="lg:max-w-2xl">
-        <IdVerification />
-      </div>
-      
-      {/* Profile Form - Full Width */}
-      <ProfileForm />
     </div>
   );
 }

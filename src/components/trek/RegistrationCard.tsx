@@ -74,23 +74,13 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
     }
   }, [userProfile, userRegistration]);
 
-  // Validate phone number in real-time
+  // Simple phone change handler
   const handlePhoneChange = (value: string) => {
     setRegistrantPhone(value);
-    
-    // Validate phone number
-    const phoneError = validateField(value, {
-      required: true,
-      custom: (val: string) => {
-        const { validatePhone } = require('@/lib/security');
-        if (!validatePhone(val)) {
-          return 'Please enter a valid 10-digit Indian phone number';
-        }
-        return null;
-      }
-    });
-    
-    setErrors(prev => ({ ...prev, registrantPhone: phoneError || undefined }));
+    // Clear error when user starts typing
+    if (errors.registrantPhone) {
+      setErrors(prev => ({ ...prev, registrantPhone: undefined }));
+    }
   };
 
   // participantCount should be the count of unique user_ids for this trek

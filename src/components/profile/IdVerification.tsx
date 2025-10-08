@@ -163,17 +163,17 @@ const IdVerification = () => {
   };
 
   return (
-    <Card className="bg-white rounded-lg shadow-sm border">
-      <CardHeader className="pb-3">
-        <CardTitle className="flex justify-between items-center text-lg">
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex justify-between items-center">
           <span>ID Verification</span>
           {renderStatusBadge()}
         </CardTitle>
-        <CardDescription className="text-sm">
+        <CardDescription>
           Your identity must be verified before you can register for any treks.
         </CardDescription>
       </CardHeader>
-      <CardContent className="pt-0">
+      <CardContent>
         {renderContent()}
       </CardContent>
     </Card>

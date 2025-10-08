@@ -112,25 +112,9 @@ export const ProfileForm: React.FC = () => {
 
     const handleFieldChange = (field: keyof ProfileFormData, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        
-        // Validate phone number in real-time
-        if (field === 'phone_number') {
-            const phoneError = validateField(value, {
-                required: true,
-                custom: (val: string) => {
-                    const { validatePhone } = require('@/lib/security');
-                    if (!validatePhone(val)) {
-                        return 'Please enter a valid 10-digit Indian phone number';
-                    }
-                    return null;
-                }
-            });
-            setErrors(prev => ({ ...prev, [field]: phoneError || undefined }));
-        } else {
-            // Clear error when user starts typing
-            if (errors[field]) {
-                setErrors(prev => ({ ...prev, [field]: undefined }));
-            }
+        // Clear error when user starts typing
+        if (errors[field]) {
+            setErrors(prev => ({ ...prev, [field]: undefined }));
         }
     };
 
@@ -271,7 +255,7 @@ export const ProfileForm: React.FC = () => {
     };
 
     return (
-        <div className="space-y-4">
+        <div className="space-y-6">
             {/* Personal Information Section */}
             <FormSection
                 title="Personal Information"
