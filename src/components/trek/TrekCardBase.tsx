@@ -94,6 +94,7 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
   const spotsFillPercent = (participantCount / trek.max_participants) * 100;
   const isFull = availableSpots <= 0;
 
+
   const getCategoryColor = (category: string | null) => {
     if (!category) return "bg-gray-100 text-gray-800";
 
@@ -164,31 +165,18 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
       {/* Image */}
       {showImage && (
         <div className="relative h-56 w-full overflow-hidden rounded-t-lg bg-gradient-to-br from-blue-50 to-indigo-100">
-          {trek.image_url ? (
+          {trek.image_url && (
             <img
               src={trek.image_url}
               alt={trek.trek_name}
               className="h-full w-full object-cover"
               onError={(e) => {
-                // Hide the failed image and show fallback
-                const img = e.currentTarget;
-                img.style.display = 'none';
-                const fallback = img.nextElementSibling as HTMLElement;
-                if (fallback) {
-                  fallback.classList.remove('hidden');
-                }
-              }}
-              onLoad={(e) => {
-                // Hide fallback when image loads successfully
-                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
-                if (fallback) {
-                  fallback.classList.add('hidden');
-                }
+                (e.target as HTMLImageElement).style.display = 'none';
               }}
             />
-          ) : null}
+          )}
           {/* Fallback image when no image_url or image fails to load */}
-          <div className={`h-full w-full flex items-center justify-center ${trek.image_url ? 'hidden' : ''}`}>
+          <div className="h-full w-full flex items-center justify-center">
             <div className="text-center text-muted-foreground">
               <Mountain className="h-12 w-12 mx-auto mb-2 opacity-50" />
               <p className="text-sm font-medium">{trek.trek_name}</p>

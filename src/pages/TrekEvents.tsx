@@ -183,6 +183,8 @@ const TrekEvents = () => {
           trek_name: name, // Manual aliasing
           cost: base_price, // Manual aliasing
           participant_count: newParticipantCounts[eventFromDb.trek_id] ?? 0,
+          // Handle image fallback: use image_url if available, otherwise use image
+          image_url: eventFromDb.image_url || (eventFromDb as any).image || null,
           // Ensure all fields required by TrekEventListItem are present
           duration: eventFromDb.duration || null, 
           location: eventFromDb.location || null,

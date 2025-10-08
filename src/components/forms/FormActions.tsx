@@ -7,7 +7,7 @@ import { cn } from '@/lib/utils';
 
 export interface FormAction {
   label: string;
-  onClick: () => void | Promise<void>;
+  onClick: ((event?: React.MouseEvent) => void | Promise<void>) | (() => void | Promise<void>);
   variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
   size?: 'sm' | 'md' | 'lg';
   disabled?: boolean;
@@ -29,7 +29,7 @@ export interface FormActionsProps {
   showSeparator?: boolean;
   separatorClassName?: string;
   stickyOffset?: number;
-  onSave?: () => void | Promise<void>;
+  onSave?: ((event?: React.MouseEvent) => void | Promise<void>) | (() => void | Promise<void>);
   onCancel?: () => void;
   onReset?: () => void;
   onNext?: () => void;
@@ -102,10 +102,15 @@ const FormActions: React.FC<FormActionsProps> = ({
     lg: 'p-6'
   };
 
-  const handleAction = async (action: FormAction) => {
+  const handleAction = async (action: FormAction, event?: React.MouseEvent) => {
     if (action.disabled || action.loading) return;
     try {
-      await action.onClick();
+      // If the action expects an event (like form submission), pass it
+      if (typeof action.onClick === 'function' && action.onClick.length > 0) {
+        await action.onClick(event as any);
+      } else {
+        await action.onClick();
+      }
     } catch (error) {
       console.error('Form action failed:', error);
     }
@@ -116,7 +121,7 @@ const FormActions: React.FC<FormActionsProps> = ({
       key={index}
       variant={action.variant || 'outline'}
       size={action.size || size}
-      onClick={() => handleAction(action)}
+      onClick={(event) => handleAction(action, event)}
       disabled={disabled || action.disabled || action.loading || loading}
       className={cn(sizeClasses[action.size || size], action.className)}
       type={action.type || 'button'}
@@ -177,7 +182,7 @@ const FormActions: React.FC<FormActionsProps> = ({
     if (showSave && onSave) {
       actions.push({
         label: saveLabel,
-        onClick: onSave,
+        onClick: onSave as ((event?: React.MouseEvent) => void | Promise<void>),
         variant: 'default',
         icon: <Save className="h-4 w-4" />,
         loading: saveLoading,
