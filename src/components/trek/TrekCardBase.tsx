@@ -162,21 +162,30 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
   const cardContent = (
     <Card className={`h-full flex flex-col ${className}`}>
       {/* Image */}
-      {showImage && trek.image_url && (
-        <div className="relative h-48 w-full overflow-hidden rounded-t-lg">
-          <img
-            src={trek.image_url}
-            alt={trek.trek_name}
-            className="h-full w-full object-cover"
-          />
+      {showImage && (
+        <div className="relative h-56 w-full overflow-hidden rounded-t-lg bg-gradient-to-br from-blue-50 to-indigo-100">
+          {trek.image_url ? (
+            <img
+              src={trek.image_url}
+              alt={trek.trek_name}
+              className="h-full w-full object-cover"
+              onError={(e) => {
+                // Fallback to default image if the provided image fails to load
+                e.currentTarget.style.display = 'none';
+                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+              }}
+            />
+          ) : null}
+          {/* Fallback image when no image_url or image fails to load */}
+          <div className={`h-full w-full flex items-center justify-center ${trek.image_url ? 'hidden' : ''}`}>
+            <div className="text-center text-muted-foreground">
+              <Mountain className="h-12 w-12 mx-auto mb-2 opacity-50" />
+              <p className="text-sm font-medium">{trek.trek_name}</p>
+            </div>
+          </div>
           {showTimeStatus && timeStatus && (
             <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${timeStatus.class}`}>
               {timeStatus.label}
-            </div>
-          )}
-          {showStatus && trek.status && (
-            <div className="absolute top-2 left-2">
-              <StatusBadge status={trek.status} size="sm" />
             </div>
           )}
         </div>
@@ -188,6 +197,13 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
             <h3 className="font-semibold text-lg leading-tight mb-2 line-clamp-2">
               {trek.trek_name}
             </h3>
+            
+            {/* Status Tags */}
+            {showStatus && trek.status && (
+              <div className="flex items-center gap-2 mb-2">
+                <StatusBadge status={trek.status} size="sm" />
+              </div>
+            )}
             
             {/* Category and Creator */}
             <div className="flex items-center gap-2 mb-2">
