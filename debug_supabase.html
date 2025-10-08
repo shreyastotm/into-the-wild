@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Supabase Debug</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <h1>Supabase Connection Debug</h1>
+    <div id="output"></div>
+
+    <script>
+        const SUPABASE_URL = 'https://lojnpkunoufmwwcifwan.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxvam5wa3Vub3VmbXd3Y2lmd2FuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDQzMDcyMTMsImV4cCI6MjA1OTg4MzIxM30.MullqAvDPGgkDc3yW-GIuenn87U-Z3KLDmpU6U1BJmU';
+
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const output = document.getElementById('output');
+
+        async function debugSupabase() {
+            output.innerHTML = '<p>🔍 Testing Supabase connection...</p>';
+            
+            try {
+                // Test 1: Basic connection
+                output.innerHTML += '<p>1. Testing basic connection...</p>';
+                const { data: session, error: sessionError } = await supabase.auth.getSession();
+                output.innerHTML += `<p>Session: ${session ? '✅ Connected' : '❌ No session'}</p>`;
+                if (sessionError) output.innerHTML += `<p>Session Error: ${JSON.stringify(sessionError)}</p>`;
+                
+                // Test 2: Test users table access
+                output.innerHTML += '<p>2. Testing users table access...</p>';
+                const { data: users, error: usersError } = await supabase
+                    .from('users')
+                    .select('user_id, name, email')
+                    .limit(1);
+                
+                if (usersError) {
+                    output.innerHTML += `<p>❌ Users table error: ${JSON.stringify(usersError)}</p>`;
+                } else {
+                    output.innerHTML += `<p>✅ Users table accessible: ${users?.length || 0} records</p>`;
+                }
+                
+                // Test 3: Test trek_events table
+                output.innerHTML += '<p>3. Testing trek_events table...</p>';
+                const { data: events, error: eventsError } = await supabase
+                    .from('trek_events')
+                    .select('trek_id, name')
+                    .limit(1);
+                
+                if (eventsError) {
+                    output.innerHTML += `<p>❌ Trek events error: ${JSON.stringify(eventsError)}</p>`;
+                } else {
+                    output.innerHTML += `<p>✅ Trek events accessible: ${events?.length || 0} records</p>`;
+                }
+                
+            } catch (error) {
+                output.innerHTML += `<p>❌ Unexpected error: ${JSON.stringify(error)}</p>`;
+            }
+        }
+
+        debugSupabase();
+    </script>
+</body>
+</html>
