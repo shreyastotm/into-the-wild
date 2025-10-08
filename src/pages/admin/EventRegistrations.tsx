@@ -46,10 +46,21 @@ export default function EventRegistrations() {
   async function fetchRegistrations() {
     setLoading(true);
     try {
+      // Try with new columns first
       let query = supabase
         .from('trek_registrations')
         .select(`
-          *,
+          registration_id,
+          trek_id,
+          user_id,
+          payment_status,
+          payment_proof_url,
+          booking_datetime,
+          verified_by,
+          verified_at,
+          rejection_reason,
+          registrant_name,
+          registrant_phone,
           users:user_id (
             full_name,
             email,
@@ -65,10 +76,61 @@ export default function EventRegistrations() {
       }
       
       const { data, error } = await query.order('booking_datetime', { ascending: false });
-      if (error) throw error;
+      
+      if (error) {
+        console.error('Supabase query error:', error);
+        // If new columns don't exist, try fallback query
+        if (error.message.includes('registrant_name') || error.message.includes('registrant_phone')) {
+          console.log('Falling back to query without new columns...');
+          const fallbackQuery = supabase
+            .from('trek_registrations')
+            .select(`
+              registration_id,
+              trek_id,
+              user_id,
+              payment_status,
+              payment_proof_url,
+              booking_datetime,
+              verified_by,
+              verified_at,
+              rejection_reason,
+              users:user_id (
+                full_name,
+                email,
+                phone_number
+              )
+            `);
+          
+          if (statusFilter) {
+            fallbackQuery.in('payment_status', [statusFilter]);
+          }
+          if (trekIdFilter) {
+            fallbackQuery.eq('trek_id', Number(trekIdFilter));
+          }
+          
+          const { data: fallbackData, error: fallbackError } = await fallbackQuery.order('booking_datetime', { ascending: false });
+          
+          if (fallbackError) {
+            throw fallbackError;
+          }
+          
+          // Add null values for missing columns
+          const fallbackRows = (fallbackData || []).map(row => ({
+            ...row,
+            registrant_name: null,
+            registrant_phone: null
+          }));
+          
+          setRows(fallbackRows as RegistrationWithUser[]);
+          return;
+        }
+        throw error;
+      }
+      
       setRows((data as RegistrationWithUser[]) || []);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Failed to load registrations';
+      console.error('Fetch registrations error:', error);
       toast({ title: 'Error', description: msg, variant: 'destructive' });
     } finally {
       setLoading(false);
