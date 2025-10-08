@@ -109,7 +109,7 @@ const StatusBadge: React.FC<StatusBadgeProps> = ({
         variant: 'secondary',
         icon: <CheckCircle className="h-3 w-3" />
       },
-      'CANCELLED': {
+      'EVENT_CANCELLED': {
         label: 'Cancelled',
         variant: 'destructive',
         icon: <CalendarX className="h-3 w-3" />
