@@ -80,8 +80,8 @@ const TrekEvents = () => {
       const selectString = 'trek_id,name,description,category,base_price,start_datetime,max_participants,image_url,image,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type';
       let query = supabase.from('trek_events').select(selectString);
 
-      // Filter out DRAFT and CANCELLED events - IMPORTANT FOR PUBLIC VIEW
-      query = query.not('status', 'in', `(${TrekEventStatus.DRAFT},${TrekEventStatus.CANCELLED})`);
+      // Filter out only CANCELLED events - show Draft events for public viewing
+      query = query.neq('status', TrekEventStatus.CANCELLED);
 
       // Apply search filter (uses DB column 'name')
       if (filterOptions.search) {

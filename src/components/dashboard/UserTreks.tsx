@@ -57,12 +57,13 @@ export const UserTreks = () => {
           location: { name?: string } | null;
           max_participants: number;
           image_url: string | null;
+          status: string | null;
         };
 
         const trekIds = data.map((reg: RawRegistration) => reg.trek_id);
         const { data: trekEvents, error: trekEventsError } = await supabase
           .from('trek_events')
-          .select('trek_id, name, start_datetime, base_price, category, location, max_participants, image_url')
+          .select('trek_id, name, start_datetime, base_price, category, location, max_participants, image_url, status')
           .in('trek_id', trekIds);
         if (trekEventsError) throw trekEventsError;
         const trekMap = (trekEvents || []).reduce((acc, trek) => {
@@ -77,6 +78,12 @@ export const UserTreks = () => {
               return null; // Mark for removal
             }
             const startDate = new Date(trekData.start_datetime);
+            // Consider a trek as "past" if it's either:
+            // 1. The start date has passed, OR
+            // 2. The status is COMPLETED or ARCHIVED
+            const isPast = startDate < now || 
+                          trekData.status === 'Completed' || 
+                          trekData.status === 'Archived';
             return {
               ...reg,
               trek_name: trekData.name,
@@ -85,7 +92,7 @@ export const UserTreks = () => {
               category: trekData.category ?? null,
               location: trekData.location ?? null,
               max_participants: trekData.max_participants ?? 0,
-              isPast: startDate < now,
+              isPast,
               image_url: trekData.image_url || null
             };
           })
