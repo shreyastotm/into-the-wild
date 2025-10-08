@@ -107,7 +107,7 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
   };
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
       {treks.map((trek) => {
         let startDate: Date | null = null;
         let isLive = false; // Initialize isLive flag
@@ -140,12 +140,12 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
             ) : (
               <div className="aspect-video bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center text-slate-400">
                  {/* Icon could be added here */}
-                 <MapPin className="h-12 w-12" />
+                 <MapPin className="h-8 w-8 sm:h-12 sm:w-12" />
               </div>
             )}
 
             {/* Status Badge Area */}
-            <div className="absolute top-3 right-3 z-10 flex gap-1 flex-wrap justify-end">
+            <div className="absolute top-2 right-2 sm:top-3 sm:right-3 z-10 flex gap-1 flex-wrap justify-end">
               {trek.status && trek.status !== TrekEventStatus.UPCOMING && trek.status !== TrekEventStatus.OPEN_FOR_REGISTRATION && (
                 (() => {
                   const badgeProps = getTrekStatusBadgeProps(trek.status);
@@ -159,7 +159,7 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
               )}
               {isLive && (
                 <Badge className="bg-red-500 text-white border-red-600 flex items-center gap-1 text-xs">
-                  <Wifi size={12} className="animate-pulse"/> 
+                  <Wifi size={10} className="animate-pulse sm:w-3 sm:h-3"/> 
                   Live
                 </Badge>
               )}
@@ -170,43 +170,45 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
               )}
             </div>
 
-            <CardHeader className="pb-3">
-              <div className="flex justify-between items-start gap-2 mb-1">
-                <h3 className="text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors flex items-center">
-                  <span>{trek.trek_name}</span>
-                  {getCreatorBadge(trek)}
+            <CardHeader className="pb-2 sm:pb-3 px-3 sm:px-6">
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 mb-1">
+                <h3 className="text-base sm:text-lg font-semibold line-clamp-2 group-hover:text-primary transition-colors">
+                  <span className="flex items-center gap-2">
+                    <span className="flex-1">{trek.trek_name}</span>
+                    {getCreatorBadge(trek)}
+                  </span>
                 </h3>
                 {trek.category && (
-                  <Badge variant="outline" className={`${getCategoryColor(trek.category)} border-0 whitespace-nowrap`}>
+                  <Badge variant="outline" className={`${getCategoryColor(trek.category)} border-0 whitespace-nowrap self-start`}>
                     {trek.category}
                   </Badge>
                 )}
               </div>
-              <p className="text-sm text-muted-foreground line-clamp-2 h-10">
+              <p className="text-xs sm:text-sm text-muted-foreground line-clamp-2 min-h-[2.5rem] sm:min-h-[2.75rem]">
                 {trek.description || "No description available."}
               </p>
             </CardHeader>
 
-            <CardContent className="pb-3 flex-grow">
-              <div className="space-y-2">
+            <CardContent className="pb-2 sm:pb-3 px-3 sm:px-6 flex-grow">
+              <div className="space-y-1.5 sm:space-y-2">
                 {startDate && (
-                  <div className="flex items-center text-sm">
-                    <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <span>
+                  <div className="flex items-center text-xs sm:text-sm">
+                    <Calendar className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-muted-foreground flex-shrink-0" />
+                    <span className="truncate">
                       {format(startDate, 'EEE, MMM d, yyyy')} at {format(startDate, 'h:mm a')}
                     </span>
                   </div>
                 )}
 
                 {trek.duration && (
-                  <div className="flex items-center text-sm">
-                    <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-                    <span>Duration: {trek.duration}</span>
+                  <div className="flex items-center text-xs sm:text-sm">
+                    <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-muted-foreground flex-shrink-0" />
+                    <span className="truncate">Duration: {trek.duration}</span>
                   </div>
                 )}
 
-                <div className="flex items-center text-sm">
-                  <Users className="h-4 w-4 mr-2 text-muted-foreground" />
+                <div className="flex items-center text-xs sm:text-sm">
+                  <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1.5 sm:mr-2 text-muted-foreground flex-shrink-0" />
                   <span className={`px-2 py-0.5 rounded text-xs font-medium ${getSpacesLeftColor(trek.participant_count, trek.max_participants)}`}>
                     {getSpacesLeftText(trek.participant_count, trek.max_participants)}
                   </span>
@@ -214,16 +216,16 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({ treks, useLinks 
               </div>
             </CardContent>
 
-            <CardFooter className="pt-3 flex justify-between items-center border-t mt-auto">
-               <div>
+            <CardFooter className="pt-2 sm:pt-3 px-3 sm:px-6 flex flex-col sm:flex-row sm:justify-between sm:items-center border-t mt-auto gap-2 sm:gap-0">
+               <div className="order-2 sm:order-1">
                   {startDate && (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-xs sm:text-sm text-muted-foreground">
                        Starts {formatDistanceToNow(startDate, { addSuffix: true })}
                     </p>
                   )}
                </div>
-               <div className="text-right">
-                 <p className="font-bold text-lg">{formatCurrency(trek.cost)}</p>
+               <div className="order-1 sm:order-2 text-left sm:text-right">
+                 <p className="font-bold text-base sm:text-lg">{formatCurrency(trek.cost)}</p>
                </div>
             </CardFooter>
           </Card>

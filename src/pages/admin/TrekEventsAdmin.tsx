@@ -477,24 +477,24 @@ const TrekEventsAdmin = () => {
   };
 
   return (
-    <div className="container mx-auto p-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Manage Events</h1>
-        <div className="flex gap-2">
-          <Button onClick={handleExportEvents} variant="outline" size="sm">
+    <div className="py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold">Manage Events</h1>
+        <div className="flex flex-col sm:flex-row gap-2">
+          <Button onClick={handleExportEvents} variant="outline" size="sm" className="w-full sm:w-auto">
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
-          <Button onClick={handleAddNew}>
+          <Button onClick={handleAddNew} className="w-full sm:w-auto">
             Create New Event
           </Button>
         </div>
       </div>
 
       {/* Search and Filter Controls */}
-      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div className="relative">
+      <div className="mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="relative sm:col-span-2 lg:col-span-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
             <Input
               placeholder="Search events..."
@@ -531,6 +531,7 @@ const TrekEventsAdmin = () => {
               setStatusFilter('');
               setTypeFilter('');
             }}
+            className="w-full sm:w-auto"
           >
             <Filter className="h-4 w-4 mr-2" />
             Clear Filters
@@ -575,39 +576,18 @@ const TrekEventsAdmin = () => {
       )}
 
       {!loading && filteredEvents.length > 0 && (
-         <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-12">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleSelectAll(selectedEvents.length !== filteredEvents.length)}
-                  >
-                    {selectedEvents.length === filteredEvents.length ? (
-                      <CheckSquare className="h-4 w-4" />
-                    ) : (
-                      <Square className="h-4 w-4" />
-                    )}
-                  </Button>
-                </TableHead>
-                <TableHead>Name</TableHead>
-                <TableHead>Type</TableHead>
-                <TableHead>Start Date</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Price</TableHead>
-                <TableHead>Participants</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredEvents.map((event) => (
-                <TableRow key={event.trek_id}>
-                  <TableCell>
+        <>
+          {/* Mobile Card Layout */}
+          <div className="block md:hidden space-y-4">
+            {filteredEvents.map((event) => (
+              <div key={event.trek_id} className="border rounded-lg p-4 bg-white shadow-sm">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={() => handleSelectEvent(event.trek_id, !selectedEvents.includes(event.trek_id))}
+                      className="p-1"
                     >
                       {selectedEvents.includes(event.trek_id) ? (
                         <CheckSquare className="h-4 w-4" />
@@ -615,79 +595,210 @@ const TrekEventsAdmin = () => {
                         <Square className="h-4 w-4" />
                       )}
                     </Button>
-                  </TableCell>
-                  <TableCell>{event.name}</TableCell>
-                  <TableCell>
-                    <span className={`px-2 py-1 rounded text-xs font-medium ${
-                      event.event_type === EventType.CAMPING 
-                        ? 'bg-green-100 text-green-800' 
-                        : 'bg-blue-100 text-blue-800'
-                    }`}>
-                      {event.event_type === EventType.CAMPING ? 'Camping' : 'Trek'}
-                    </span>
-                  </TableCell>
-                  <TableCell>{format(new Date(event.start_datetime), 'PPP')}</TableCell> 
-                  <TableCell>
-                    <Select
-                      value={event.status || ''}
-                      onValueChange={(newStatusValue) => {
-                        handleStatusChange(event.trek_id, newStatusValue as TrekEventStatus);
-                      }}
+                    <h3 className="font-semibold text-sm line-clamp-2">{event.name}</h3>
+                  </div>
+                  <span className={`px-2 py-1 rounded text-xs font-medium ${
+                    event.event_type === EventType.CAMPING 
+                      ? 'bg-green-100 text-green-800' 
+                      : 'bg-blue-100 text-blue-800'
+                  }`}>
+                    {event.event_type === EventType.CAMPING ? 'Camping' : 'Trek'}
+                  </span>
+                </div>
+                
+                <div className="space-y-2 text-xs text-muted-foreground mb-3">
+                  <div className="flex justify-between">
+                    <span>Start Date:</span>
+                    <span>{format(new Date(event.start_datetime), 'MMM d, yyyy')}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Price:</span>
+                    <span>{event.base_price !== null && event.base_price !== undefined ? `₹${event.base_price}` : 'N/A'}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Max Participants:</span>
+                    <span>{event.max_participants}</span>
+                  </div>
+                </div>
+                
+                <div className="mb-3">
+                  <Select
+                    value={event.status || ''}
+                    onValueChange={(newStatusValue) => {
+                      handleStatusChange(event.trek_id, newStatusValue as TrekEventStatus);
+                    }}
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue placeholder="Set status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.values(TrekEventStatus).map((statusVal) => (
+                        <SelectItem key={statusVal} value={statusVal}>
+                          {statusVal}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div className="flex gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleViewEvent(event)}
+                    className="flex-1"
+                  >
+                    <Eye className="h-4 w-4 mr-1" />
+                    View
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleEdit(event)}
+                    className="flex-1"
+                  >
+                    Edit
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    onClick={() => handleDuplicate(event)}
+                    className="flex-1"
+                  >
+                    <Copy className="h-4 w-4 mr-1" />
+                    Copy
+                  </Button>
+                  <Button 
+                    variant="destructive" 
+                    size="sm" 
+                    onClick={() => handleDelete(event)}
+                    className="flex-1"
+                  >
+                    <Trash2 className="h-4 w-4 mr-1" />
+                    Delete
+                  </Button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Desktop Table Layout */}
+          <div className="hidden md:block">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-12">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleSelectAll(selectedEvents.length !== filteredEvents.length)}
                     >
-                      <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Set status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {Object.values(TrekEventStatus).map((statusVal) => (
-                          <SelectItem key={statusVal} value={statusVal}>
-                            {statusVal}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </TableCell>
-                  <TableCell>{event.base_price !== null && event.base_price !== undefined ? `₹${event.base_price}` : 'N/A'}</TableCell>
-                  <TableCell>{event.max_participants}</TableCell>
-                  <TableCell>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleViewEvent(event)}
-                        title="View Event"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleEdit(event)}
-                        title="Edit Event"
-                      >
-                        Edit
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleDuplicate(event)}
-                        title="Duplicate Event"
-                      >
-                        <Copy className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="destructive" 
-                        size="sm" 
-                        onClick={() => handleDelete(event)}
-                        title="Delete Event"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+                      {selectedEvents.length === filteredEvents.length ? (
+                        <CheckSquare className="h-4 w-4" />
+                      ) : (
+                        <Square className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </TableHead>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Type</TableHead>
+                  <TableHead>Start Date</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Participants</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+              </TableHeader>
+              <TableBody>
+                {filteredEvents.map((event) => (
+                  <TableRow key={event.trek_id}>
+                    <TableCell>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleSelectEvent(event.trek_id, !selectedEvents.includes(event.trek_id))}
+                      >
+                        {selectedEvents.includes(event.trek_id) ? (
+                          <CheckSquare className="h-4 w-4" />
+                        ) : (
+                          <Square className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </TableCell>
+                    <TableCell>{event.name}</TableCell>
+                    <TableCell>
+                      <span className={`px-2 py-1 rounded text-xs font-medium ${
+                        event.event_type === EventType.CAMPING 
+                          ? 'bg-green-100 text-green-800' 
+                          : 'bg-blue-100 text-blue-800'
+                      }`}>
+                        {event.event_type === EventType.CAMPING ? 'Camping' : 'Trek'}
+                      </span>
+                    </TableCell>
+                    <TableCell>{format(new Date(event.start_datetime), 'PPP')}</TableCell> 
+                    <TableCell>
+                      <Select
+                        value={event.status || ''}
+                        onValueChange={(newStatusValue) => {
+                          handleStatusChange(event.trek_id, newStatusValue as TrekEventStatus);
+                        }}
+                      >
+                        <SelectTrigger className="w-[180px]">
+                          <SelectValue placeholder="Set status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {Object.values(TrekEventStatus).map((statusVal) => (
+                            <SelectItem key={statusVal} value={statusVal}>
+                              {statusVal}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </TableCell>
+                    <TableCell>{event.base_price !== null && event.base_price !== undefined ? `₹${event.base_price}` : 'N/A'}</TableCell>
+                    <TableCell>{event.max_participants}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleViewEvent(event)}
+                          title="View Event"
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleEdit(event)}
+                          title="Edit Event"
+                        >
+                          Edit
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          onClick={() => handleDuplicate(event)}
+                          title="Duplicate Event"
+                        >
+                          <Copy className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="destructive" 
+                          size="sm" 
+                          onClick={() => handleDelete(event)}
+                          title="Delete Event"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </div>
+        </>
       )}
       {!loading && filteredEvents.length === 0 && events.length > 0 && (
         <div className="text-center py-8">

@@ -210,14 +210,14 @@ export default function EventRegistrations() {
 
   return (
     <>
-      <Card className="m-4">
+      <Card className="py-6 sm:py-8">
         <CardHeader>
-          <CardTitle>Event Registrations - Payment Verification</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Event Registrations - Payment Verification</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex gap-2 mb-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-full sm:w-48">
                 <SelectValue placeholder="Status" />
               </SelectTrigger>
               <SelectContent>
@@ -230,14 +230,98 @@ export default function EventRegistrations() {
               placeholder="Trek ID" 
               value={trekIdFilter} 
               onChange={e => setTrekIdFilter(e.target.value)} 
-              className="w-40" 
+              className="w-full sm:w-40" 
             />
-            <Button variant="outline" onClick={fetchRegistrations} disabled={loading}>
+            <Button variant="outline" onClick={fetchRegistrations} disabled={loading} className="w-full sm:w-auto">
               Refresh
             </Button>
           </div>
 
-          <div className="overflow-x-auto border rounded-lg">
+          {/* Mobile Card Layout */}
+          <div className="block md:hidden space-y-4">
+            {loading ? (
+              <div className="text-center py-8 text-muted-foreground">
+                Loading registrations...
+              </div>
+            ) : rows.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground">
+                No registrations found
+              </div>
+            ) : (
+              rows.map(r => (
+                <div key={r.registration_id} className="border rounded-lg p-4 bg-white shadow-sm">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <h3 className="font-semibold text-sm">Registration #{r.registration_id}</h3>
+                      <p className="text-xs text-muted-foreground">Trek ID: {r.trek_id}</p>
+                    </div>
+                    {getStatusBadge(r.payment_status)}
+                  </div>
+                  
+                  <div className="space-y-2 text-xs text-muted-foreground mb-3">
+                    <div className="flex justify-between">
+                      <span>User Name:</span>
+                      <span className="font-medium">{r.users?.full_name || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Email:</span>
+                      <span className="truncate ml-2">{r.users?.email || 'N/A'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Payer Name:</span>
+                      <span className="font-medium">{r.registrant_name || 'Not provided'}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>Payer Phone:</span>
+                      <span>{r.registrant_phone || 'Not provided'}</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    {r.payment_proof_url ? (
+                      <Button 
+                        size="sm" 
+                        variant="outline"
+                        onClick={() => openModal(r)}
+                        className="flex-1"
+                      >
+                        <Eye className="h-3 w-3 mr-1" />
+                        View Proof
+                      </Button>
+                    ) : (
+                      <div className="flex-1 text-center text-muted-foreground text-sm py-2">
+                        No proof
+                      </div>
+                    )}
+                    
+                    {r.payment_proof_url && r.payment_status === 'ProofUploaded' && (
+                      <Button 
+                        size="sm" 
+                        onClick={() => openModal(r)}
+                        disabled={actionLoadingId === r.registration_id}
+                        className="flex-1"
+                      >
+                        Review
+                      </Button>
+                    )}
+                    {r.payment_status === 'Approved' && (
+                      <div className="flex-1 text-center text-green-600 text-sm py-2">
+                        ✓ Verified
+                      </div>
+                    )}
+                    {r.payment_status === 'Rejected' && (
+                      <div className="flex-1 text-center text-red-600 text-sm py-2">
+                        ✗ Rejected
+                      </div>
+                    )}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+
+          {/* Desktop Table Layout */}
+          <div className="hidden md:block overflow-x-auto border rounded-lg">
             <Table>
               <TableHeader>
                 <TableRow>

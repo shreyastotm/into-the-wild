@@ -242,44 +242,44 @@ export const ProfileForm: React.FC = () => {
                     <CardTitle>My Profile</CardTitle>
                     <CardDescription>Update your personal information, preferences, and settings.</CardDescription>
                 </CardHeader>
-                <CardContent className="space-y-8">
+                <CardContent className="space-y-6 sm:space-y-8 p-4 sm:p-6">
                     <div className="space-y-4">
                          <h3 className="text-lg font-medium border-b pb-2">Personal Information</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div className="sm:col-span-2 lg:col-span-1">
                                 <Label htmlFor="fullName">Full Name</Label>
-                                <Input id="fullName" name="full_name" value={formData.full_name} onChange={handleChange} required />
+                                <Input id="fullName" name="full_name" value={formData.full_name} onChange={handleChange} required className="w-full" />
                             </div>
-                             <div>
+                             <div className="sm:col-span-2 lg:col-span-1">
                                 <Label htmlFor="email">Email Address</Label>
-                                <Input id="email" name="email" type="email" value={formData.email} disabled className="text-muted-foreground" />
+                                <Input id="email" name="email" type="email" value={formData.email} disabled className="text-muted-foreground w-full" />
                                 <p className="text-xs text-muted-foreground mt-1">Email cannot be changed here.</p>
                             </div>
-                            <div>
+                            <div className="sm:col-span-2 lg:col-span-1">
                                 <Label htmlFor="phone_number">Phone Number</Label>
-                                <Input id="phone_number" name="phone_number" value={formData.phone_number} onChange={handleChange} />
+                                <Input id="phone_number" name="phone_number" value={formData.phone_number} onChange={handleChange} className="w-full" />
                             </div>
-                            <div>
+                            <div className="sm:col-span-2 lg:col-span-1">
                                 <Label htmlFor="date_of_birth">Date of Birth</Label>
-                                <Input id="date_of_birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} />
+                                <Input id="date_of_birth" name="date_of_birth" type="date" value={formData.date_of_birth} onChange={handleChange} className="w-full" />
                             </div>
-                            <div className="md:col-span-2">
+                            <div className="sm:col-span-2">
                                 <Label htmlFor="address">Address</Label>
-                                <Textarea id="address" name="address" value={formData.address} onChange={handleChange} placeholder="Your street address" />
+                                <Textarea id="address" name="address" value={formData.address} onChange={handleChange} placeholder="Your street address" className="w-full" />
                             </div>
                         </div>
                     </div>
 
                     <div className="space-y-4">
                          <h3 className="text-lg font-medium border-b pb-2">Trekking Preferences</h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                           <div className="md:col-span-2">
+                        <div className="grid grid-cols-1 gap-4">
+                           <div>
                                 <Label htmlFor="interests">Interests & Hobbies</Label>
-                                <Textarea id="interests" name="interests" value={formData.interests} onChange={handleChange} placeholder="e.g., Photography, Bird watching, Camping..." />
+                                <Textarea id="interests" name="interests" value={formData.interests} onChange={handleChange} placeholder="e.g., Photography, Bird watching, Camping..." className="w-full" />
                             </div>
-                           <div className="md:col-span-2">
+                           <div>
                                 <Label htmlFor="trekking_experience">Trekking Experience</Label>
-                                <Textarea id="trekking_experience" name="trekking_experience" value={formData.trekking_experience} onChange={handleChange} placeholder="Describe your hiking/trekking experience level (beginner, intermediate, advanced) and any notable treks completed."/>
+                                <Textarea id="trekking_experience" name="trekking_experience" value={formData.trekking_experience} onChange={handleChange} placeholder="Describe your hiking/trekking experience level (beginner, intermediate, advanced) and any notable treks completed." className="w-full"/>
                             </div>
                          </div>
                     </div>
@@ -290,7 +290,7 @@ export const ProfileForm: React.FC = () => {
                          </h3>
                          <div>
                              <Label htmlFor="pet_details">Information about your Pet(s)</Label>
-                             <Textarea id="pet_details" name="pet_details" value={formData.pet_details} onChange={handleChange} placeholder="If you plan to bring pets on treks, please provide details like name, breed, size, temperament, and any special requirements."/>
+                             <Textarea id="pet_details" name="pet_details" value={formData.pet_details} onChange={handleChange} placeholder="If you plan to bring pets on treks, please provide details like name, breed, size, temperament, and any special requirements." className="w-full"/>
                              <p className="text-xs text-muted-foreground mt-1">Specify pet details here if you sometimes trek with them. You can confirm or adjust details when registering for a specific trek.</p>
                          </div>
                      </div>
@@ -308,14 +308,14 @@ export const ProfileForm: React.FC = () => {
                             <Label htmlFor="transport_volunteer_opt_in" className="font-medium">I want to volunteer as a driver when events need it.</Label>
                         </div>
                          {formData.has_car && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-6 border-l-2 ml-2 border-muted">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pl-4 sm:pl-6 border-l-2 ml-2 border-muted">
                                 <div>
                                     <Label htmlFor="car_seating_capacity">Passenger Capacity (excluding driver)</Label>
-                                    <Input id="car_seating_capacity" name="car_seating_capacity" type="number" min="0" value={formData.car_seating_capacity} onChange={handleChange} placeholder="e.g., 3" />
+                                    <Input id="car_seating_capacity" name="car_seating_capacity" type="number" min="0" value={formData.car_seating_capacity} onChange={handleChange} placeholder="e.g., 3" className="w-full" />
                                 </div>
                                 <div>
                                     <Label htmlFor="vehicle_number">Vehicle Number / License Plate</Label>
-                                    <Input id="vehicle_number" name="vehicle_number" value={formData.vehicle_number} onChange={handleChange} placeholder="Optional, for identification" />
+                                    <Input id="vehicle_number" name="vehicle_number" value={formData.vehicle_number} onChange={handleChange} placeholder="Optional, for identification" className="w-full" />
                                 </div>
                             </div>
                         )}
@@ -326,7 +326,7 @@ export const ProfileForm: React.FC = () => {
                              <MapPin className="h-5 w-5 mr-2" /> Home Location for Pickup
                          </h3>
                          <p className="text-sm text-muted-foreground">Click on the map to set your approximate home location. This helps organizers plan carpooling routes if needed. Your exact address is not required.</p>
-                         <div className="h-64 w-full rounded-md overflow-hidden z-0">
+                         <div className="h-48 sm:h-64 w-full rounded-md overflow-hidden z-0">
                              <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }} key={JSON.stringify(mapCenter)} >
                                  <TileLayer
                                      attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -338,7 +338,7 @@ export const ProfileForm: React.FC = () => {
                                  />
                              </MapContainer>
                         </div>
-                         <div className="text-sm text-muted-foreground">
+                         <div className="text-xs sm:text-sm text-muted-foreground">
                             Selected Coordinates: {formData.latitude?.toFixed(5) ?? 'N/A'}, {formData.longitude?.toFixed(5) ?? 'N/A'}
                         </div>
                      </div>

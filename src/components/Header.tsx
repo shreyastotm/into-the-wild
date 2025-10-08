@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from './auth/AuthProvider';
-import { User, MapPin, Menu, X } from 'lucide-react';
+import { User, MapPin, Menu, X, Home, Calendar, UserCircle, LogOut, LogIn } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const Header = () => {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -26,90 +28,27 @@ const Header = () => {
     authLinks.push({ to: '/admin', label: 'Admin' });
   }
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
 
   return (
-    <header className="bg-white shadow-sm sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 group">
-            <img 
-              src="/itw_logo.jpg" 
-              alt="Into the Wild" 
-              className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
-            />
-            <span className="text-xl font-bold text-gray-800 hidden lg:inline">
-              Into the Wild
-            </span>
-          </Link>
-          
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {navLinks.map((link) => (
-              <Link key={link.to} to={link.to} className="text-gray-600 hover:text-gray-900">
-                {link.label}
-              </Link>
-            ))}
-            
-            {!loading && (
-              user ? (
-                <>
-                  {authLinks.map((link) => (
-                    <Link key={link.to} to={link.to} className="text-gray-600 hover:text-gray-900">
-                      {link.label}
-                    </Link>
-                  ))}
-                  <Button
-                    variant="ghost"
-                    onClick={() => signOut()}
-                    className="text-gray-600 hover:text-gray-900"
-                  >
-                    Sign Out
-                  </Button>
-                </>
-              ) : (
-                <Link 
-                  to="/login" 
-                  className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded"
-                >
-                  Sign In
-                </Link>
-              )
-            )}
-          </nav>
-          
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <button
-              onClick={toggleMobileMenu}
-              className="text-gray-600 hover:text-gray-900 focus:outline-none"
-            >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
-        </div>
-        
-        {/* Mobile Navigation */}
-        {mobileMenuOpen && (
-          <nav className="mt-4 pb-2 md:hidden">
-            {/* Mobile Logo */}
-            <div className="mb-4 flex justify-center">
+    <TooltipProvider>
+      <header className="bg-white shadow-sm sticky top-0 z-50">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <Link to="/" className="flex items-center gap-3 group">
               <img 
                 src="/itw_logo.jpg" 
                 alt="Into the Wild" 
-                className="h-10 w-auto"
+                className="h-10 sm:h-12 w-auto transition-transform duration-300 group-hover:scale-105"
               />
-            </div>
-            <div className="flex flex-col space-y-3">
+              <span className="text-lg sm:text-xl font-bold text-gray-800 hidden sm:inline">
+                Into the Wild
+              </span>
+            </Link>
+            
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center space-x-6">
               {navLinks.map((link) => (
-                <Link 
-                  key={link.to} 
-                  to={link.to} 
-                  className="text-gray-600 hover:text-gray-900 py-2"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link key={link.to} to={link.to} className="text-gray-600 hover:text-gray-900 transition-colors">
                   {link.label}
                 </Link>
               ))}
@@ -118,40 +57,130 @@ const Header = () => {
                 user ? (
                   <>
                     {authLinks.map((link) => (
-                      <Link 
-                        key={link.to} 
-                        to={link.to} 
-                        className="text-gray-600 hover:text-gray-900 py-2"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
+                      <Link key={link.to} to={link.to} className="text-gray-600 hover:text-gray-900 transition-colors">
                         {link.label}
                       </Link>
                     ))}
-                    <button
-                      onClick={() => {
-                        signOut();
-                        setMobileMenuOpen(false);
-                      }}
-                      className="text-gray-600 hover:text-gray-900 text-left py-2"
-                    >
-                      Sign Out
-                    </button>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          onClick={() => signOut()}
+                          className="text-gray-600 hover:text-gray-900"
+                        >
+                          <LogOut className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Sign Out</p>
+                      </TooltipContent>
+                    </Tooltip>
                   </>
                 ) : (
                   <Link 
                     to="/login" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded inline-block"
-                    onClick={() => setMobileMenuOpen(false)}
+                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
                   >
                     Sign In
                   </Link>
                 )
               )}
+            </nav>
+            
+            {/* Mobile menu button */}
+            <div className="md:hidden">
+              <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900">
+                    <Menu className="h-6 w-6" />
+                    <span className="sr-only">Open menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80 sm:w-96">
+                  <SheetHeader>
+                    <SheetTitle className="flex items-center gap-3">
+                      <img 
+                        src="/itw_logo.jpg" 
+                        alt="Into the Wild" 
+                        className="h-8 w-auto"
+                      />
+                      Into the Wild
+                    </SheetTitle>
+                  </SheetHeader>
+                  
+                  <nav className="mt-6 space-y-4">
+                    {/* Main Navigation Links */}
+                    <div className="space-y-2">
+                      <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Navigation</h3>
+                      {navLinks.map((link) => {
+                        const icon = link.to === '/' ? Home : Calendar;
+                        const IconComponent = icon;
+                        return (
+                          <Link 
+                            key={link.to} 
+                            to={link.to} 
+                            className="flex items-center gap-3 text-gray-600 hover:text-gray-900 py-2 px-3 rounded-md hover:bg-gray-50 transition-colors"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <IconComponent className="h-5 w-5" />
+                            {link.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                    
+                    {/* User Section */}
+                    {!loading && (
+                      <div className="space-y-2 border-t pt-4">
+                        <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Account</h3>
+                        {user ? (
+                          <>
+                            {authLinks.map((link) => {
+                              const icon = link.to === '/dashboard' ? UserCircle : User;
+                              const IconComponent = icon;
+                              return (
+                                <Link 
+                                  key={link.to} 
+                                  to={link.to} 
+                                  className="flex items-center gap-3 text-gray-600 hover:text-gray-900 py-2 px-3 rounded-md hover:bg-gray-50 transition-colors"
+                                  onClick={() => setMobileMenuOpen(false)}
+                                >
+                                  <IconComponent className="h-5 w-5" />
+                                  {link.label}
+                                </Link>
+                              );
+                            })}
+                            <button
+                              onClick={() => {
+                                signOut();
+                                setMobileMenuOpen(false);
+                              }}
+                              className="flex items-center gap-3 text-gray-600 hover:text-gray-900 py-2 px-3 rounded-md hover:bg-gray-50 transition-colors w-full text-left"
+                            >
+                              <LogOut className="h-5 w-5" />
+                              Sign Out
+                            </button>
+                          </>
+                        ) : (
+                          <Link 
+                            to="/login" 
+                            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md transition-colors"
+                            onClick={() => setMobileMenuOpen(false)}
+                          >
+                            <LogIn className="h-5 w-5" />
+                            Sign In
+                          </Link>
+                        )}
+                      </div>
+                    )}
+                  </nav>
+                </SheetContent>
+              </Sheet>
             </div>
-          </nav>
-        )}
-      </div>
-    </header>
+          </div>
+        </div>
+      </header>
+    </TooltipProvider>
   );
 };
 

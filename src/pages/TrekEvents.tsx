@@ -228,19 +228,17 @@ const TrekEvents = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold">Upcoming Events</h1>
+    <div className="py-6 sm:py-8">
+      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold">Upcoming Events</h1>
         {userProfile?.user_type === 'admin' && (
-          <div className="flex justify-end mb-4">
-            <Button
-              variant="default"
-              onClick={() => navigate('/trek-events/create')}
-              className="shadow"
-            >
-              + Create Event
-            </Button>
-          </div>
+          <Button
+            variant="default"
+            onClick={() => navigate('/trek-events/create')}
+            className="shadow w-full sm:w-auto"
+          >
+            + Create Event
+          </Button>
         )}
       </div>
       <TrekFilters

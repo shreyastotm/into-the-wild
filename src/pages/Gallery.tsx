@@ -90,44 +90,46 @@ export default function Gallery() {
   };
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6">Our Past Adventures</h1>
+    <div className="py-6 sm:py-8">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Our Past Adventures</h1>
       {loading ? (
-        <div>Loading...</div>
+        <div className="flex justify-center items-center py-12">
+          <div className="text-muted-foreground">Loading...</div>
+        </div>
       ) : items.length === 0 ? (
-        <div className="text-muted-foreground">No past treks yet.</div>
+        <div className="text-center py-12 text-muted-foreground">No past treks yet.</div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
           {items.map(trek => (
-            <div key={trek.trek_id} className="border rounded-lg overflow-hidden shadow-sm bg-white">
+            <div key={trek.trek_id} className="border rounded-lg overflow-hidden shadow-sm bg-white hover:shadow-md transition-shadow">
               {trek.images[0] ? (
-                <img src={trek.images[0]} alt={trek.name} className="w-full h-48 object-cover" />
+                <img src={trek.images[0]} alt={trek.name} className="w-full h-40 sm:h-48 object-cover" />
               ) : null}
-              <div className="p-4">
-                <h2 className="text-xl font-semibold">{trek.name}</h2>
-                <div className="text-sm text-muted-foreground">
+              <div className="p-3 sm:p-4">
+                <h2 className="text-lg sm:text-xl font-semibold line-clamp-2">{trek.name}</h2>
+                <div className="text-xs sm:text-sm text-muted-foreground mt-1">
                   {trek.location ? `${trek.location} • ` : ''}
                   {new Date(trek.start_datetime).toLocaleDateString('en-IN')}
                 </div>
                 {trek.description ? (
-                  <p className="mt-2 line-clamp-3 text-sm">{trek.description}</p>
+                  <p className="mt-2 line-clamp-3 text-xs sm:text-sm text-muted-foreground">{trek.description}</p>
                 ) : null}
                 {trek.images.length > 1 ? (
-                  <div className="mt-3 flex gap-2">
+                  <div className="mt-3 flex gap-1 sm:gap-2 overflow-x-auto">
                     {trek.images.slice(1).map((url, idx) => (
-                      <img key={idx} src={url} alt="" className="w-14 h-14 object-cover rounded" />
+                      <img key={idx} src={url} alt="" className="w-12 h-12 sm:w-14 sm:h-14 object-cover rounded flex-shrink-0" />
                     ))}
                   </div>
                 ) : null}
                 {isAdmin && trek.images[0] ? (
-                  <div className="mt-4 flex items-center gap-2">
+                  <div className="mt-3 sm:mt-4 flex items-center gap-2">
                     <Checkbox
                       id={`bg-${trek.trek_id}`}
                       checked={currentBg === trek.images[0]}
                       onCheckedChange={(val) => onToggleBackground(trek.images[0], Boolean(val))}
                       disabled={saving}
                     />
-                    <label htmlFor={`bg-${trek.trek_id}`} className="text-sm select-none">
+                    <label htmlFor={`bg-${trek.trek_id}`} className="text-xs sm:text-sm select-none cursor-pointer">
                       Set as page background
                     </label>
                   </div>

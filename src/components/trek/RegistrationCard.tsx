@@ -95,14 +95,14 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
   const indemnityText = `I, the participant, acknowledge that ${trek.name || 'this trek'} involves inherent risks, including but not limited to accidents, illness, and loss of property. I voluntarily assume all such risks and release Into The Wild, its organizers, and affiliates from any liability for any injury, loss, or damage I may suffer. I confirm I am physically fit for this activity and have consulted a doctor if necessary. I agree to follow all safety instructions.`;
 
   return (
-    <Card className="sticky top-6">
-      <CardHeader className="bg-gray-50 rounded-t-lg">
-        <CardTitle className="text-xl flex items-center justify-between">
+    <Card className="sticky top-4 sm:top-6">
+      <CardHeader className="bg-gray-50 rounded-t-lg p-4 sm:p-6">
+        <CardTitle className="text-lg sm:text-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <span>Registration</span>
-          <span className="text-2xl">{formatCurrency(trek.cost)}</span>
+          <span className="text-xl sm:text-2xl font-bold">{formatCurrency(trek.cost)}</span>
         </CardTitle>
       </CardHeader>
-      <CardContent className="pt-6 space-y-6">
+      <CardContent className="pt-4 sm:pt-6 space-y-4 sm:space-y-6 p-4 sm:p-6">
         <div className="space-y-4">
           <div className="flex justify-between items-center">
             <div className="flex items-center">
@@ -149,7 +149,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                         value={registrantName}
                         onChange={(e) => setRegistrantName(e.target.value)}
                         placeholder="Name of person making payment"
-                        className="text-sm mt-1"
+                        className="text-sm mt-1 w-full"
                         disabled={isUploadingProof || !!userRegistration.payment_proof_url}
                       />
                       <p className="text-xs text-gray-500 mt-1">This may be you or someone paying on your behalf</p>
@@ -162,7 +162,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                         value={registrantPhone}
                         onChange={(e) => setRegistrantPhone(e.target.value)}
                         placeholder="Phone number used for payment"
-                        className="text-sm mt-1"
+                        className="text-sm mt-1 w-full"
                         disabled={isUploadingProof || !!userRegistration.payment_proof_url}
                       />
                       <p className="text-xs text-gray-500 mt-1">Phone number from which payment was made</p>
@@ -173,7 +173,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                         id="payment-proof" 
                         type="file" 
                         onChange={handleFileChange} 
-                        className="text-sm mt-1"
+                        className="text-sm mt-1 w-full"
                         accept="image/*,.pdf"
                         disabled={isUploadingProof || !!userRegistration.payment_proof_url}
                       />
@@ -225,7 +225,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
           )
         ) : (
           <>
-            <div className="w-full space-y-3 items-start rounded-md border p-4 bg-gray-50">
+            <div className="w-full space-y-3 items-start rounded-md border p-3 sm:p-4 bg-gray-50">
                 <div className="space-y-3 mb-4">
                   <div>
                     <Label htmlFor="reg-name" className="text-sm font-medium">Your Name *</Label>
@@ -234,7 +234,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                       value={registrantName}
                       onChange={(e) => setRegistrantName(e.target.value)}
                       placeholder="Full name"
-                      className="mt-1"
+                      className="mt-1 w-full"
                       disabled={isLoading || isFull}
                     />
                   </div>
@@ -246,7 +246,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                       value={registrantPhone}
                       onChange={(e) => setRegistrantPhone(e.target.value)}
                       placeholder="Contact number"
-                      className="mt-1"
+                      className="mt-1 w-full"
                       disabled={isLoading || isFull}
                     />
                   </div>
