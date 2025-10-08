@@ -170,9 +170,20 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
               alt={trek.trek_name}
               className="h-full w-full object-cover"
               onError={(e) => {
-                // Fallback to default image if the provided image fails to load
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                // Hide the failed image and show fallback
+                const img = e.currentTarget;
+                img.style.display = 'none';
+                const fallback = img.nextElementSibling as HTMLElement;
+                if (fallback) {
+                  fallback.classList.remove('hidden');
+                }
+              }}
+              onLoad={(e) => {
+                // Hide fallback when image loads successfully
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                if (fallback) {
+                  fallback.classList.add('hidden');
+                }
               }}
             />
           ) : null}
@@ -201,7 +212,17 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
             {/* Status Tags */}
             {showStatus && trek.status && (
               <div className="flex items-center gap-2 mb-2">
-                <StatusBadge status={trek.status} size="sm" />
+                {(() => {
+                  const badgeProps = getTrekStatusBadgeProps(trek.status);
+                  return (
+                    <Badge 
+                      variant={badgeProps.variant} 
+                      className={`text-xs font-medium ${badgeProps.className}`}
+                    >
+                      {trek.status.replace(/_/g, ' ').toLowerCase().replace(/\b\w/g, l => l.toUpperCase())}
+                    </Badge>
+                  );
+                })()}
               </div>
             )}
             
