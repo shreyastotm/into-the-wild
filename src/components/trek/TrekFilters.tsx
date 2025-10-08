@@ -56,7 +56,7 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Categories</SelectItem>
-              {categories.map(cat => (
+              {categories.filter(cat => cat && cat.trim() !== '').map(cat => (
                 <SelectItem key={cat} value={cat}>{cat}</SelectItem>
               ))}
             </SelectContent>

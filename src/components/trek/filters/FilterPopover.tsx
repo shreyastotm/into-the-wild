@@ -63,13 +63,13 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
             <label className="text-sm text-muted-foreground mb-1 block">Category</label>
             <Select 
               value={options.category} 
-              onValueChange={(value) => onFilterChange('category', value)}
+              onValueChange={(value) => onFilterChange('category', value === 'any' ? '' : value)}
             >
               <SelectTrigger>
                 <SelectValue placeholder="Any Category" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Any Category</SelectItem>
+                <SelectItem value="any">Any Category</SelectItem>
                 {categories.filter(c => typeof c === 'string' && !!c && c.trim() !== '').map((category) => (
                   <SelectItem key={category} value={category}>{category}</SelectItem>
                 ))}

@@ -308,8 +308,8 @@ const TrekEventsAdmin = () => {
       (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
       (event.location && event.location.toLowerCase().includes(searchTerm.toLowerCase()));
     
-    const matchesStatus = !statusFilter || event.status === statusFilter;
-    const matchesType = !typeFilter || event.event_type === typeFilter;
+    const matchesStatus = !statusFilter || statusFilter === 'all' || event.status === statusFilter;
+    const matchesType = !typeFilter || typeFilter === 'all' || event.event_type === typeFilter;
     
     return matchesSearch && matchesStatus && matchesType;
   });
@@ -508,7 +508,7 @@ const TrekEventsAdmin = () => {
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Statuses</SelectItem>
+              <SelectItem value="all">All Statuses</SelectItem>
               {Object.values(TrekEventStatus).map(status => (
                 <SelectItem key={status} value={status}>{status}</SelectItem>
               ))}
@@ -519,7 +519,7 @@ const TrekEventsAdmin = () => {
               <SelectValue placeholder="Filter by type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="">All Types</SelectItem>
+              <SelectItem value="all">All Types</SelectItem>
               <SelectItem value="trek">Trek</SelectItem>
               <SelectItem value="camping">Camping</SelectItem>
             </SelectContent>
