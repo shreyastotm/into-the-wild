@@ -146,39 +146,39 @@ export default function TrekEventDetails() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
         <div className="md:col-span-2">
           <Tabs defaultValue="details" className="w-full">
-            <TabsList className="mb-4 grid w-full grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7">
-              <TabsTrigger value="details">
-                <Info className="h-4 w-4 mr-2" />
-                Details
+            <TabsList className="mb-4 flex flex-wrap gap-1 w-full">
+              <TabsTrigger value="details" className="flex-1 min-w-0 text-xs sm:text-sm">
+                <Info className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Details</span>
               </TabsTrigger>
-              <TabsTrigger value="participants-discussion">
-                <Users className="h-4 w-4 mr-2" />
-                Participants
+              <TabsTrigger value="participants-discussion" className="flex-1 min-w-0 text-xs sm:text-sm">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Participants</span>
               </TabsTrigger>
-              <TabsTrigger value="packing-list">
-                <ClipboardList className="h-4 w-4 mr-2" />
-                Packing List
+              <TabsTrigger value="packing-list" className="flex-1 min-w-0 text-xs sm:text-sm">
+                <ClipboardList className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Packing</span>
               </TabsTrigger>
-              <TabsTrigger value="travel">
-                <Map className="h-4 w-4 mr-2" />
-                Travel
+              <TabsTrigger value="travel" className="flex-1 min-w-0 text-xs sm:text-sm">
+                <Map className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Travel</span>
               </TabsTrigger>
               {trekEvent.event_type === EventType.CAMPING && (
-                <TabsTrigger value="tent-rental">
-                  <Tent className="h-4 w-4 mr-2" />
-                  Tent Rental
+                <TabsTrigger value="tent-rental" className="flex-1 min-w-0 text-xs sm:text-sm">
+                  <Tent className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="hidden sm:inline">Tent</span>
                 </TabsTrigger>
               )}
               {isRegistered && (
-                <TabsTrigger value="expenses">
-                  <Receipt className="h-4 w-4 mr-2" />
-                  Expenses
+                <TabsTrigger value="expenses" className="flex-1 min-w-0 text-xs sm:text-sm">
+                  <Receipt className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="hidden sm:inline">Expenses</span>
                 </TabsTrigger>
               )}
               {trekEvent.status === 'completed' && (
-                <TabsTrigger value="ratings">
-                  <Award className="h-4 w-4 mr-2" />
-                  Ratings
+                <TabsTrigger value="ratings" className="flex-1 min-w-0 text-xs sm:text-sm">
+                  <Award className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="hidden sm:inline">Ratings</span>
                 </TabsTrigger>
               )}
             </TabsList>

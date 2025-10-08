@@ -145,11 +145,22 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({ trekId: prop
                 </div>
 
                 <Tabs defaultValue="all" className="w-full">
-                    <TabsList className="grid w-full grid-cols-4">
-                        <TabsTrigger value="all">All ({expenses.length})</TabsTrigger>
-                        <TabsTrigger value="my-expenses">My Expenses ({myExpenses.length})</TabsTrigger>
-                        <TabsTrigger value="shared-with-me">Shared ({expensesSharedWithMe.length})</TabsTrigger>
-                        <TabsTrigger value="fixed-costs">Fixed Costs ({fixedCosts.length})</TabsTrigger>
+                    <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 gap-1">
+                        <TabsTrigger value="all" className="text-xs sm:text-sm">
+                            All ({expenses.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="my-expenses" className="text-xs sm:text-sm">
+                            <span className="hidden sm:inline">My Expenses</span>
+                            <span className="sm:hidden">Mine</span> ({myExpenses.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="shared-with-me" className="text-xs sm:text-sm">
+                            <span className="hidden sm:inline">Shared</span>
+                            <span className="sm:hidden">Shared</span> ({expensesSharedWithMe.length})
+                        </TabsTrigger>
+                        <TabsTrigger value="fixed-costs" className="text-xs sm:text-sm">
+                            <span className="hidden sm:inline">Fixed Costs</span>
+                            <span className="sm:hidden">Fixed</span> ({fixedCosts.length})
+                        </TabsTrigger>
                     </TabsList>
                     <TabsContent value="all" className="mt-4"><ExpenseList expenses={expenses} currentUserId={user!.id} onPayExpense={handlePay} onRejectExpense={handleReject} onDeleteExpense={handleDelete} /></TabsContent>
                     <TabsContent value="my-expenses" className="mt-4"><ExpenseList expenses={myExpenses} currentUserId={user!.id} onPayExpense={handlePay} onRejectExpense={handleReject} onDeleteExpense={handleDelete} /></TabsContent>

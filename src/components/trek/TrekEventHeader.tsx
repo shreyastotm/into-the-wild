@@ -51,9 +51,11 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
         </div>
       )}
       
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
-        <CardTitle className="text-3xl font-bold tracking-tight">{trekName}</CardTitle>
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 mb-3">
+        <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight">{trekName}</CardTitle>
+        
+        {/* Status and Category badges - Stack on mobile */}
+        <div className="flex flex-col sm:flex-row gap-2">
           {status && (
             (() => {
               const badgeProps = getTrekStatusBadgeProps(status);
@@ -66,7 +68,7 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
             })()
           )}
           {category && (
-            <Badge variant="outline" className="border-primary/50 text-primary bg-primary/10 text-sm capitalize whitespace-nowrap">
+            <Badge variant="outline" className="border-primary/50 text-primary bg-primary/10 text-sm capitalize">
               {category}
             </Badge>
           )}
