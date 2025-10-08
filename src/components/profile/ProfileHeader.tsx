@@ -13,9 +13,12 @@ export default function ProfileHeader() {
   };
 
   return (
-    <div className="flex justify-between items-center mb-6">
-      <h1 className="text-3xl font-bold">Your Profile</h1>
-      <Button variant="outline" onClick={handleSignOut}>
+    <div className="flex justify-between items-center p-4 bg-white rounded-lg shadow-sm border">
+      <div>
+        <h1 className="text-xl font-bold">Your Profile</h1>
+        <p className="text-sm text-gray-600">Manage your account settings</p>
+      </div>
+      <Button variant="outline" size="sm" onClick={handleSignOut}>
         Sign Out
       </Button>
     </div>

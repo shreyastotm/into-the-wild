@@ -63,6 +63,24 @@ export const authValidationSchema = {
       return null;
     }
   },
+  phone_number: {
+    required: true,
+    custom: (value: string) => {
+      if (!validatePhone(value)) {
+        return 'Please enter a valid 10-digit Indian phone number';
+      }
+      return null;
+    }
+  },
+  registrantPhone: {
+    required: true,
+    custom: (value: string) => {
+      if (!validatePhone(value)) {
+        return 'Please enter a valid 10-digit Indian phone number';
+      }
+      return null;
+    }
+  },
   partnerId: {
     required: false,
     minLength: 3,

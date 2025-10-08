@@ -13,20 +13,19 @@ export default function ProfileSummaryCard() {
   ];
 
   return (
-    <Card className="mb-6 p-6 flex flex-col md:flex-row items-center gap-6">
-      <div className="flex-shrink-0 w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center text-3xl font-bold text-gray-700">
-        {userProfile?.full_name?.[0] || user?.email?.[0] || '?'}
-      </div>
-      <div className="flex-1">
-        <div className="text-xl font-bold mb-1">{userProfile?.full_name || user?.email}</div>
-        <div className="text-gray-600 mb-2">{user?.email}</div>
-        <div className="flex flex-wrap gap-2 mb-2">
-          {badges.map(badge => (
-            <Badge key={badge.label} className={badge.color}>{badge.label}</Badge>
-          ))}
+    <Card className="p-4 bg-white rounded-lg shadow-sm border">
+      <div className="flex items-center gap-4">
+        <div className="flex-shrink-0 w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center text-lg font-bold text-gray-700">
+          {userProfile?.full_name?.[0] || user?.email?.[0] || '?'}
         </div>
-        <div className="text-sm text-gray-500">
-          <span className="mr-4">Member since: <b>{userProfile?.created_at ? new Date(userProfile.created_at).getFullYear() : 'N/A'}</b></span>
+        <div className="flex-1 min-w-0">
+          <div className="text-lg font-semibold truncate">{userProfile?.full_name || user?.email}</div>
+          <div className="text-sm text-gray-600 truncate">{user?.email}</div>
+          <div className="flex flex-wrap gap-1 mt-1">
+            {badges.map(badge => (
+              <Badge key={badge.label} className={`${badge.color} text-xs`}>{badge.label}</Badge>
+            ))}
+          </div>
         </div>
       </div>
     </Card>

@@ -6,6 +6,7 @@ import { Loader2, CheckCircle, XCircle, MapPin, Car, PawPrint, User, Mail, Phone
 import FormField from '@/components/forms/FormField';
 import FormSection from '@/components/forms/FormSection';
 import FormActions from '@/components/forms/FormActions';
+import { validateField } from '@/lib/validation';
 import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
 import 'leaflet/dist/leaflet.css';
 import L from 'leaflet';
@@ -111,9 +112,25 @@ export const ProfileForm: React.FC = () => {
 
     const handleFieldChange = (field: keyof ProfileFormData, value: any) => {
         setFormData(prev => ({ ...prev, [field]: value }));
-        // Clear error when user starts typing
-        if (errors[field]) {
-            setErrors(prev => ({ ...prev, [field]: undefined }));
+        
+        // Validate phone number in real-time
+        if (field === 'phone_number') {
+            const phoneError = validateField(value, {
+                required: true,
+                custom: (val: string) => {
+                    const { validatePhone } = require('@/lib/security');
+                    if (!validatePhone(val)) {
+                        return 'Please enter a valid 10-digit Indian phone number';
+                    }
+                    return null;
+                }
+            });
+            setErrors(prev => ({ ...prev, [field]: phoneError || undefined }));
+        } else {
+            // Clear error when user starts typing
+            if (errors[field]) {
+                setErrors(prev => ({ ...prev, [field]: undefined }));
+            }
         }
     };
 
@@ -254,7 +271,7 @@ export const ProfileForm: React.FC = () => {
     };
 
     return (
-        <div className="space-y-6">
+        <div className="space-y-4">
             {/* Personal Information Section */}
             <FormSection
                 title="Personal Information"
@@ -290,9 +307,11 @@ export const ProfileForm: React.FC = () => {
                         type="tel"
                         value={formData.phone_number}
                         onChange={(value) => handleFieldChange('phone_number', value)}
-                        placeholder="+91 98765 43210"
+                        placeholder="9876543210"
+                        required
                         error={errors.phone_number}
                         icon={<Phone className="h-4 w-4" />}
+                        helpText="Enter 10-digit Indian phone number"
                     />
                     
                     <FormField

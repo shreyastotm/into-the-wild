@@ -11,6 +11,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import FormField from '@/components/forms/FormField';
 import FormSection from '@/components/forms/FormSection';
 import FormActions from '@/components/forms/FormActions';
+import { validateField } from '@/lib/validation';
 
 interface DbRegistration {
   registration_id: number;
@@ -72,6 +73,25 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
       setRegistrantPhone(userProfile.phone_number || '');
     }
   }, [userProfile, userRegistration]);
+
+  // Validate phone number in real-time
+  const handlePhoneChange = (value: string) => {
+    setRegistrantPhone(value);
+    
+    // Validate phone number
+    const phoneError = validateField(value, {
+      required: true,
+      custom: (val: string) => {
+        const { validatePhone } = require('@/lib/security');
+        if (!validatePhone(val)) {
+          return 'Please enter a valid 10-digit Indian phone number';
+        }
+        return null;
+      }
+    });
+    
+    setErrors(prev => ({ ...prev, registrantPhone: phoneError || undefined }));
+  };
 
   // participantCount should be the count of unique user_ids for this trek
   const participantCount = trek.participant_count ?? 0;
@@ -255,12 +275,13 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                     name="reg-phone"
                     type="tel"
                     value={registrantPhone}
-                    onChange={setRegistrantPhone}
+                    onChange={handlePhoneChange}
                     placeholder="Contact number"
                     required
                     disabled={isLoading || isFull}
                     error={errors.registrantPhone}
                     icon={<Phone className="h-4 w-4" />}
+                    helpText="Enter 10-digit Indian phone number"
                   />
                 </div>
                 
