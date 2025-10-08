@@ -72,12 +72,12 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
     }
   };
   return (
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6" noValidate>
       {/* User Type Selection */}
       <div className="space-y-2">
-        <Label htmlFor="userType">Account Type</Label>
+        <Label htmlFor="userType" className="text-sm sm:text-base">Account Type</Label>
         <Select value={userType} onValueChange={handleUserTypeChange} disabled={loading}>
-          <SelectTrigger id="userType">
+          <SelectTrigger id="userType" className="w-full">
             <SelectValue placeholder="Select account type" />
           </SelectTrigger>
           <SelectContent>
@@ -112,7 +112,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       {/* Partner ID for micro communities */}
       {userType === 'micro_community' && (
         <div className="space-y-2">
-          <Label htmlFor="partnerId">Community/Partner ID</Label>
+          <Label htmlFor="partnerId" className="text-sm sm:text-base">Community/Partner ID</Label>
           <Input
             id="partnerId"
             type="text"
@@ -121,7 +121,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
             onFocus={() => onFieldFocus('partnerId')}
             required
             placeholder="Enter your community ID"
-            className={errors.partnerId ? 'border-red-500 focus:border-red-500' : ''}
+            className={`w-full ${errors.partnerId ? 'border-red-500 focus:border-red-500' : ''}`}
             disabled={loading}
           />
           {errors.partnerId && (
@@ -134,7 +134,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Full Name */}
       <div className="space-y-2">
-        <Label htmlFor="fullName">Full Name</Label>
+        <Label htmlFor="fullName" className="text-sm sm:text-base">Full Name</Label>
         <Input
           id="fullName"
           type="text"
@@ -144,7 +144,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           required
           autoComplete="name"
           placeholder="Enter your full name"
-          className={errors.fullName ? 'border-red-500 focus:border-red-500' : ''}
+          className={`w-full ${errors.fullName ? 'border-red-500 focus:border-red-500' : ''}`}
           disabled={loading}
         />
         {errors.fullName && (
@@ -156,7 +156,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Phone Number */}
       <div className="space-y-2">
-        <Label htmlFor="phone">Phone Number</Label>
+        <Label htmlFor="phone" className="text-sm sm:text-base">Phone Number</Label>
         <Input
           id="phone"
           type="tel"
@@ -166,7 +166,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           required
           autoComplete="tel"
           placeholder="Enter 10-digit phone number"
-          className={errors.phone ? 'border-red-500 focus:border-red-500' : ''}
+          className={`w-full ${errors.phone ? 'border-red-500 focus:border-red-500' : ''}`}
           disabled={loading}
           maxLength={10}
         />
@@ -182,7 +182,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Email */}
       <div className="space-y-2">
-        <Label htmlFor="email">Email Address</Label>
+        <Label htmlFor="email" className="text-sm sm:text-base">Email Address</Label>
         <Input
           id="email"
           type="email"
@@ -192,7 +192,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           required
           autoComplete="email"
           placeholder="Enter your email"
-          className={errors.email ? 'border-red-500 focus:border-red-500' : ''}
+          className={`w-full ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
           disabled={loading}
         />
         {errors.email && (
@@ -204,7 +204,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Password */}
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-sm sm:text-base">Password</Label>
         <Input
           id="password"
           type="password"
@@ -214,7 +214,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
           required
           autoComplete="new-password"
           placeholder="Create a strong password"
-          className={errors.password ? 'border-red-500 focus:border-red-500' : ''}
+          className={`w-full ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
           disabled={loading}
         />
         {errors.password && (
@@ -229,13 +229,13 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       {/* Subscription Type */}
       <div className="space-y-2">
-        <Label htmlFor="subscriptionType">Subscription Plan</Label>
+        <Label htmlFor="subscriptionType" className="text-sm sm:text-base">Subscription Plan</Label>
         <Select 
           value={subscriptionType} 
           onValueChange={onSubscriptionTypeChange} 
           disabled={loading || userType === 'micro_community'}
         >
-          <SelectTrigger id="subscriptionType">
+          <SelectTrigger id="subscriptionType" className="w-full">
             <SelectValue placeholder="Select a subscription plan" />
           </SelectTrigger>
           <SelectContent>
@@ -280,14 +280,14 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         <div className="grid gap-1.5 leading-none">
           <Label 
             htmlFor="indemnityAccepted"
-            className="text-sm font-normal leading-normal cursor-pointer"
+            className="text-xs sm:text-sm font-normal leading-normal cursor-pointer"
           >
             I accept the{' '}
-            <Button variant="link" size="sm" className="h-auto p-0 text-primary underline">
+            <Button variant="link" size="sm" className="h-auto p-0 text-primary underline text-xs sm:text-sm">
               Terms of Service
             </Button>
             {' '}and{' '}
-            <Button variant="link" size="sm" className="h-auto p-0 text-primary underline">
+            <Button variant="link" size="sm" className="h-auto p-0 text-primary underline text-xs sm:text-sm">
               Privacy Policy
             </Button>
             , including the indemnity clause for adventure activities.
@@ -308,7 +308,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
 
       <Button 
         type="submit" 
-        className="w-full" 
+        className="w-full text-sm sm:text-base" 
         disabled={loading || !email || !password || !fullName || !phone || !indemnityAccepted}
         size="lg"
       >

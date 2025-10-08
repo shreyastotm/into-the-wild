@@ -83,19 +83,19 @@ export default function AuthForm() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
       <Card className="w-full max-w-md">
-        <CardHeader>
-          <CardTitle className="text-2xl font-bold text-center">
+        <CardHeader className="px-4 sm:px-6">
+          <CardTitle className="text-xl sm:text-2xl font-bold text-center">
             {showReset ? 'Reset Password' : 
              mode === 'signin' ? 'Welcome Back' : 'Join Into The Wild'}
           </CardTitle>
-          <CardDescription className="text-center">
+          <CardDescription className="text-center text-sm sm:text-base">
             {showReset ? 'Enter your email to reset your password' :
              mode === 'signin' ? 'Sign in to your account to continue' : 
              'Create an account to start your adventure'}
           </CardDescription>
         </CardHeader>
         
-        <CardContent>
+        <CardContent className="px-4 sm:px-6">
           {showReset ? (
             <PasswordResetForm
               email={resetEmail}
@@ -145,11 +145,11 @@ export default function AuthForm() {
         </CardContent>
 
         {!showReset && (
-          <CardFooter className="flex-col space-y-4">
+          <CardFooter className="flex-col space-y-4 px-4 sm:px-6">
             <Button 
               onClick={() => setMode(mode === 'signin' ? 'signup' : 'signin')} 
               variant="link"
-              className="w-full"
+              className="w-full text-sm sm:text-base"
               disabled={loading}
             >
               {mode === 'signin' ? "Don't have an account? Sign up" : 'Already have an account? Sign in'}
@@ -168,7 +168,7 @@ export default function AuthForm() {
 
             <Button 
               variant="outline" 
-              className="w-full" 
+              className="w-full text-sm sm:text-base" 
               onClick={handleGoogleSignIn}
               disabled={loading}
             >

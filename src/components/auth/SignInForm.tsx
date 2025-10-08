@@ -28,9 +28,9 @@ export const SignInForm: React.FC<SignInFormProps> = ({
   onFieldFocus
 }) => {
   return (
-    <form onSubmit={onSubmit} className="space-y-4" noValidate>
+    <form onSubmit={onSubmit} className="space-y-4 sm:space-y-6" noValidate>
       <div className="space-y-2">
-        <Label htmlFor="email">Email Address</Label>
+        <Label htmlFor="email" className="text-sm sm:text-base">Email Address</Label>
         <Input
           id="email"
           type="email"
@@ -40,7 +40,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
           required
           autoComplete="email"
           placeholder="Enter your email"
-          className={errors.email ? 'border-red-500 focus:border-red-500' : ''}
+          className={`w-full ${errors.email ? 'border-red-500 focus:border-red-500' : ''}`}
           disabled={loading}
         />
         {errors.email && (
@@ -51,7 +51,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Password</Label>
+        <Label htmlFor="password" className="text-sm sm:text-base">Password</Label>
         <Input
           id="password"
           type="password"
@@ -61,7 +61,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
           required
           autoComplete="current-password"
           placeholder="Enter your password"
-          className={errors.password ? 'border-red-500 focus:border-red-500' : ''}
+          className={`w-full ${errors.password ? 'border-red-500 focus:border-red-500' : ''}`}
           disabled={loading}
         />
         {errors.password && (
@@ -78,7 +78,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
           size="sm" 
           onClick={onForgotPassword}
           disabled={loading}
-          className="h-auto p-0 text-primary hover:underline"
+          className="h-auto p-0 text-primary hover:underline text-sm sm:text-base"
         >
           Forgot password?
         </Button>
@@ -92,7 +92,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
 
       <Button 
         type="submit" 
-        className="w-full" 
+        className="w-full text-sm sm:text-base" 
         disabled={loading || !email || !password}
         size="lg"
       >
