@@ -67,7 +67,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     }
   }, [trek_id, user, checkUserRegistration]);
 
-  async function registerForTrek(indemnityAccepted: boolean, options?: { isDriver?: boolean; offeredSeats?: number | null }) {
+  async function registerForTrek(indemnityAccepted: boolean, options?: { isDriver?: boolean; offeredSeats?: number | null; registrantName?: string; registrantPhone?: string }) {
     if (!user) {
       toast({
         title: "Authentication required",
@@ -81,6 +81,15 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       toast({
         title: "Indemnity Agreement Required",
         description: "You must accept the indemnity agreement to register for this trek.",
+        variant: "destructive",
+      });
+      return false;
+    }
+
+    if (!options?.registrantName || !options?.registrantPhone) {
+      toast({
+        title: "Missing Details",
+        description: "Please provide your name and phone number.",
         variant: "destructive",
       });
       return false;
@@ -144,6 +153,8 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
           indemnity_agreed_at: new Date().toISOString(),
           is_driver: options?.isDriver ?? false,
           offered_seats: options?.isDriver ? (options?.offeredSeats ?? null) : null,
+          registrant_name: options.registrantName,
+          registrant_phone: options.registrantPhone,
       };
 
       const { error: registrationError } = await supabase
@@ -174,13 +185,17 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     }
   }
   
-  async function uploadPaymentProof(file: File) {
+  async function uploadPaymentProof(file: File, registrantName: string, registrantPhone: string) {
     if (!user || !userRegistration || !trekEvent) {
         toast({ title: "Error", description: "Cannot upload proof at this time.", variant: "destructive" });
         return false;
     }
     if (!file) {
         toast({ title: "No file selected", description: "Please select a file to upload.", variant: "destructive"});
+        return false;
+    }
+    if (!registrantName.trim() || !registrantPhone.trim()) {
+        toast({ title: "Missing Details", description: "Please provide payer's name and phone number.", variant: "destructive"});
         return false;
     }
 
@@ -204,12 +219,21 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
 
         const { error: updateError } = await supabase
             .from('trek_registrations')
-            .update({ payment_proof_url: proofUrl, payment_status: 'Pending' })
+            .update({ 
+                payment_proof_url: proofUrl, 
+                payment_status: 'ProofUploaded',
+                registrant_name: registrantName.trim(),
+                registrant_phone: registrantPhone.trim()
+            })
             .eq('registration_id', userRegistration.registration_id);
 
         if (updateError) throw updateError;
 
-        setUserRegistration(prev => prev ? { ...prev, payment_proof_url: proofUrl, payment_status: 'Pending' } : null);
+        setUserRegistration(prev => prev ? { 
+            ...prev, 
+            payment_proof_url: proofUrl, 
+            payment_status: 'ProofUploaded' 
+        } : null);
 
         toast({ title: "Payment proof uploaded", description: "Admin will verify your payment shortly.", variant: "default" });
         return true;

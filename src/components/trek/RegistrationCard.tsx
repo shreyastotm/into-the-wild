@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
@@ -10,6 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { TrekEventStatus } from '@/types/trek';
+import { useAuth } from '@/components/auth/AuthProvider';
 
 interface DbRegistration {
   registration_id: number;
@@ -37,9 +38,9 @@ interface RegistrationCardProps {
     status?: TrekEventStatus | string | null;
   };
   userRegistration: WithStringId<DbRegistration> | null;
-  onRegister: (indemnityAccepted: boolean, options?: { isDriver?: boolean; offeredSeats?: number | null }) => Promise<{success: boolean, registrationId?: number | null}>;
+  onRegister: (indemnityAccepted: boolean, options?: { isDriver?: boolean; offeredSeats?: number | null; registrantName?: string; registrantPhone?: string }) => Promise<{success: boolean, registrationId?: number | null}>;
   onCancel: () => Promise<boolean>;
-  onUploadProof: (registrationId: number, file: File) => Promise<boolean>;
+  onUploadProof: (registrationId: number, file: File, registrantName: string, registrantPhone: string) => Promise<boolean>;
   isLoading: boolean;
   isUploadingProof: boolean;
   canVolunteerDriver?: boolean;
@@ -55,10 +56,21 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
   isUploadingProof,
   canVolunteerDriver = false,
 }) => {
+  const { userProfile } = useAuth();
   const [indemnityAccepted, setIndemnityAccepted] = useState(false);
   const [paymentProofFile, setPaymentProofFile] = useState<File | null>(null);
   const [volunteerAsDriver, setVolunteerAsDriver] = useState(false);
   const [offeredSeats, setOfferedSeats] = useState<string>('');
+  const [registrantName, setRegistrantName] = useState('');
+  const [registrantPhone, setRegistrantPhone] = useState('');
+
+  // Pre-fill registrant details from user profile
+  useEffect(() => {
+    if (userProfile && !userRegistration) {
+      setRegistrantName(userProfile.full_name || '');
+      setRegistrantPhone(userProfile.phone_number || '');
+    }
+  }, [userProfile, userRegistration]);
 
   // participantCount should be the count of unique user_ids for this trek
   const participantCount = trek.participant_count ?? 0;
@@ -75,7 +87,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
 
   const handleUploadProof = async () => {
     if (paymentProofFile && userRegistration) {
-      await onUploadProof(userRegistration.registration_id, paymentProofFile);
+      await onUploadProof(userRegistration.registration_id, paymentProofFile, registrantName, registrantPhone);
       setPaymentProofFile(null); // Clear file input after attempting upload
     }
   };
@@ -125,22 +137,51 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
               {userRegistration.payment_status === 'Pending' && (
                 <div className="mt-4 p-4 border border-amber-300 rounded-md bg-amber-50">
                   <h5 className="font-medium text-amber-800">Action Required: Upload Payment Proof</h5>
-                  <p className="text-sm text-amber-700 mb-2">
-                    Please upload a screenshot or document of your payment to confirm your spot.
+                  <p className="text-sm text-amber-700 mb-3">
+                    Please provide the payer's details and upload payment proof.
                   </p>
-                  <div className="space-y-2">
-                    <Label htmlFor="payment-proof" className="text-sm font-medium text-gray-700">Payment Proof File</Label>
-                    <Input 
-                      id="payment-proof" 
-                      type="file" 
-                      onChange={handleFileChange} 
-                      className="text-sm"
-                      disabled={isUploadingProof || !!userRegistration.payment_proof_url}
-                    />
+                  <div className="space-y-3">
+                    <div>
+                      <Label htmlFor="registrant-name" className="text-sm font-medium text-gray-700">Payer's Name *</Label>
+                      <Input 
+                        id="registrant-name" 
+                        type="text" 
+                        value={registrantName}
+                        onChange={(e) => setRegistrantName(e.target.value)}
+                        placeholder="Name of person making payment"
+                        className="text-sm mt-1"
+                        disabled={isUploadingProof || !!userRegistration.payment_proof_url}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">This may be you or someone paying on your behalf</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="registrant-phone" className="text-sm font-medium text-gray-700">Payer's Phone Number *</Label>
+                      <Input 
+                        id="registrant-phone" 
+                        type="tel" 
+                        value={registrantPhone}
+                        onChange={(e) => setRegistrantPhone(e.target.value)}
+                        placeholder="Phone number used for payment"
+                        className="text-sm mt-1"
+                        disabled={isUploadingProof || !!userRegistration.payment_proof_url}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">Phone number from which payment was made</p>
+                    </div>
+                    <div>
+                      <Label htmlFor="payment-proof" className="text-sm font-medium text-gray-700">Payment Proof (Screenshot/Receipt) *</Label>
+                      <Input 
+                        id="payment-proof" 
+                        type="file" 
+                        onChange={handleFileChange} 
+                        className="text-sm mt-1"
+                        accept="image/*,.pdf"
+                        disabled={isUploadingProof || !!userRegistration.payment_proof_url}
+                      />
+                    </div>
                     {paymentProofFile && !userRegistration.payment_proof_url && (
                       <Button 
                         onClick={handleUploadProof} 
-                        disabled={isUploadingProof || !paymentProofFile} 
+                        disabled={isUploadingProof || !paymentProofFile || !registrantName.trim() || !registrantPhone.trim()} 
                         className="w-full text-sm"
                         size="sm"
                       >
@@ -149,7 +190,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                       </Button>
                     )}
                     {userRegistration.payment_proof_url && (
-                       <p className="text-xs text-green-600">Proof uploaded. Awaiting verification.</p>
+                       <p className="text-xs text-green-600">✓ Proof uploaded. Awaiting admin verification.</p>
                     )}
                   </div>
                 </div>
@@ -185,6 +226,31 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
         ) : (
           <>
             <div className="w-full space-y-3 items-start rounded-md border p-4 bg-gray-50">
+                <div className="space-y-3 mb-4">
+                  <div>
+                    <Label htmlFor="reg-name" className="text-sm font-medium">Your Name *</Label>
+                    <Input 
+                      id="reg-name"
+                      value={registrantName}
+                      onChange={(e) => setRegistrantName(e.target.value)}
+                      placeholder="Full name"
+                      className="mt-1"
+                      disabled={isLoading || isFull}
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="reg-phone" className="text-sm font-medium">Phone Number *</Label>
+                    <Input 
+                      id="reg-phone"
+                      type="tel"
+                      value={registrantPhone}
+                      onChange={(e) => setRegistrantPhone(e.target.value)}
+                      placeholder="Contact number"
+                      className="mt-1"
+                      disabled={isLoading || isFull}
+                    />
+                  </div>
+                </div>
                 <div className="flex items-start space-x-2">
                     <Checkbox 
                         id="indemnity" 
@@ -225,8 +291,13 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
             </div>
             <Button 
               className="w-full" 
-              onClick={() => onRegister(indemnityAccepted, { isDriver: volunteerAsDriver, offeredSeats: volunteerAsDriver ? (parseInt(offeredSeats || '0', 10) || 0) : null })} 
-              disabled={isLoading || !canRegister || !indemnityAccepted}
+              onClick={() => onRegister(indemnityAccepted, { 
+                isDriver: volunteerAsDriver, 
+                offeredSeats: volunteerAsDriver ? (parseInt(offeredSeats || '0', 10) || 0) : null,
+                registrantName: registrantName.trim(),
+                registrantPhone: registrantPhone.trim()
+              })} 
+              disabled={isLoading || !canRegister || !indemnityAccepted || !registrantName.trim() || !registrantPhone.trim()}
             >
               {isLoading ? 'Processing...' : !canRegister ? (trek.status === TrekEventStatus.REGISTRATION_CLOSED ? 'Registration Closed' : trek.status === TrekEventStatus.COMPLETED ? 'Trek Completed' : trek.status === TrekEventStatus.CANCELLED ? 'Trek Cancelled' : trek.status === TrekEventStatus.ONGOING ? 'Trek Ongoing' : isFull ? 'Trek is Full' : 'Registration Not Open') : 'Register Now'}
             </Button>

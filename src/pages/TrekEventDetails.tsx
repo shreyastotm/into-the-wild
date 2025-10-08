@@ -105,11 +105,11 @@ export default function TrekEventDetails() {
     return { success: success, registrationId: null }; 
   };
 
-  const handleUploadProof = async (registrationId: number, file: File): Promise<boolean> => {
+  const handleUploadProof = async (registrationId: number, file: File, registrantName: string, registrantPhone: string): Promise<boolean> => {
     if (!trekEvent || !userRegistration) return false;
     setIsUploadingProof(true);
     try {
-      const uploadSuccess = await uploadPaymentProof(file);
+      const uploadSuccess = await uploadPaymentProof(file, registrantName, registrantPhone);
       if (uploadSuccess) {
         // Payment proof uploaded successfully
       } else {

@@ -5,8 +5,12 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from '@/components/ui/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { Eye, CheckCircle, XCircle } from 'lucide-react';
 
-type RegistrationRow = {
+type RegistrationWithUser = {
   registration_id: number;
   trek_id: number;
   user_id: string;
@@ -16,30 +20,53 @@ type RegistrationRow = {
   verified_by?: string | null;
   verified_at?: string | null;
   rejection_reason?: string | null;
+  registrant_name?: string | null;
+  registrant_phone?: string | null;
+  users?: {
+    full_name: string | null;
+    email: string | null;
+    phone_number: string | null;
+  } | null;
 };
 
 export default function EventRegistrations() {
-  const [statusFilter, setStatusFilter] = useState<string>('Pending');
+  const [statusFilter, setStatusFilter] = useState<string>('ProofUploaded');
   const [trekIdFilter, setTrekIdFilter] = useState<string>('');
-  const [rows, setRows] = useState<RegistrationRow[]>([]);
+  const [rows, setRows] = useState<RegistrationWithUser[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
+  
+  // Modal state
+  const [selectedRegistration, setSelectedRegistration] = useState<RegistrationWithUser | null>(null);
+  const [showModal, setShowModal] = useState(false);
+  const [rejectReason, setRejectReason] = useState('');
 
   const statuses = useMemo(() => ['ProofUploaded', 'Pending', 'Approved', 'Rejected'], []);
 
   async function fetchRegistrations() {
     setLoading(true);
     try {
-      let query = supabase.from('trek_registrations').select('*');
+      let query = supabase
+        .from('trek_registrations')
+        .select(`
+          *,
+          users:user_id (
+            full_name,
+            email,
+            phone_number
+          )
+        `);
+      
       if (statusFilter) {
         query = query.in('payment_status', [statusFilter]);
       }
       if (trekIdFilter) {
         query = query.eq('trek_id', Number(trekIdFilter));
       }
+      
       const { data, error } = await query.order('booking_datetime', { ascending: false });
       if (error) throw error;
-      setRows((data as RegistrationRow[]) || []);
+      setRows((data as RegistrationWithUser[]) || []);
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Failed to load registrations';
       toast({ title: 'Error', description: msg, variant: 'destructive' });
@@ -53,12 +80,25 @@ export default function EventRegistrations() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [statusFilter, trekIdFilter]);
 
+  function openModal(registration: RegistrationWithUser) {
+    setSelectedRegistration(registration);
+    setRejectReason('');
+    setShowModal(true);
+  }
+
+  function closeModal() {
+    setShowModal(false);
+    setSelectedRegistration(null);
+    setRejectReason('');
+  }
+
   async function approve(registration_id: number) {
     setActionLoadingId(registration_id);
     try {
       const { error } = await supabase.rpc('approve_registration', { registration_id_param: registration_id });
       if (error) throw error;
       toast({ title: 'Approved', description: `Registration #${registration_id} approved.` });
+      closeModal();
       await fetchRegistrations();
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Approve failed';
@@ -68,14 +108,20 @@ export default function EventRegistrations() {
     }
   }
 
-  async function reject(registration_id: number) {
-    const reason = window.prompt('Enter rejection reason');
-    if (!reason) return;
+  async function reject(registration_id: number, reason: string) {
+    if (!reason.trim()) {
+      toast({ title: 'Error', description: 'Please provide a rejection reason', variant: 'destructive' });
+      return;
+    }
     setActionLoadingId(registration_id);
     try {
-      const { error } = await supabase.rpc('reject_registration', { registration_id_param: registration_id, reason_param: reason });
+      const { error } = await supabase.rpc('reject_registration', { 
+        registration_id_param: registration_id, 
+        reason_param: reason 
+      });
       if (error) throw error;
       toast({ title: 'Rejected', description: `Registration #${registration_id} rejected.` });
+      closeModal();
       await fetchRegistrations();
     } catch (error: unknown) {
       const msg = error instanceof Error ? error.message : 'Reject failed';
@@ -85,72 +131,246 @@ export default function EventRegistrations() {
     }
   }
 
-  return (
-    <Card className="m-4">
-      <CardHeader>
-        <CardTitle>Event Registrations</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="flex gap-2 mb-4">
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-48">
-              <SelectValue placeholder="Status" />
-            </SelectTrigger>
-            <SelectContent>
-              {statuses.map(s => (
-                <SelectItem key={s} value={s}>{s}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-          <Input placeholder="Trek ID" value={trekIdFilter} onChange={e => setTrekIdFilter(e.target.value)} className="w-40" />
-          <Button variant="outline" onClick={fetchRegistrations} disabled={loading}>Refresh</Button>
-        </div>
+  function getStatusBadge(status: string | null) {
+    switch (status) {
+      case 'Approved':
+        return <Badge className="bg-green-100 text-green-800">Approved</Badge>;
+      case 'Rejected':
+        return <Badge className="bg-red-100 text-red-800">Rejected</Badge>;
+      case 'ProofUploaded':
+        return <Badge className="bg-blue-100 text-blue-800">Proof Uploaded</Badge>;
+      case 'Pending':
+        return <Badge className="bg-amber-100 text-amber-800">Pending</Badge>;
+      default:
+        return <Badge variant="outline">{status || 'Unknown'}</Badge>;
+    }
+  }
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left border-b">
-                <th className="py-2 px-2">ID</th>
-                <th className="py-2 px-2">Trek</th>
-                <th className="py-2 px-2">User</th>
-                <th className="py-2 px-2">Status</th>
-                <th className="py-2 px-2">Proof</th>
-                <th className="py-2 px-2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(r => (
-                <tr key={r.registration_id} className="border-b">
-                  <td className="py-2 px-2">{r.registration_id}</td>
-                  <td className="py-2 px-2">{r.trek_id}</td>
-                  <td className="py-2 px-2">{r.user_id}</td>
-                  <td className="py-2 px-2">{r.payment_status}</td>
-                  <td className="py-2 px-2">
-                    {r.payment_proof_url ? (
-                      <a className="text-primary underline" href={r.payment_proof_url} target="_blank" rel="noreferrer">View</a>
-                    ) : (
-                      <span className="text-muted-foreground">None</span>
-                    )}
-                  </td>
-                  <td className="py-2 px-2">
-                    <div className="flex gap-2">
-                      <Button size="sm" disabled={actionLoadingId === r.registration_id} onClick={() => approve(r.registration_id)}>Approve</Button>
-                      <Button size="sm" variant="destructive" disabled={actionLoadingId === r.registration_id} onClick={() => reject(r.registration_id)}>Reject</Button>
-                    </div>
-                  </td>
-                </tr>
-              ))}
-              {rows.length === 0 && (
-                <tr>
-                  <td className="py-6 text-center text-muted-foreground" colSpan={6}>No registrations</td>
-                </tr>
+  return (
+    <>
+      <Card className="m-4">
+        <CardHeader>
+          <CardTitle>Event Registrations - Payment Verification</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex gap-2 mb-4">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statuses.map(s => (
+                  <SelectItem key={s} value={s}>{s}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Input 
+              placeholder="Trek ID" 
+              value={trekIdFilter} 
+              onChange={e => setTrekIdFilter(e.target.value)} 
+              className="w-40" 
+            />
+            <Button variant="outline" onClick={fetchRegistrations} disabled={loading}>
+              Refresh
+            </Button>
+          </div>
+
+          <div className="overflow-x-auto border rounded-lg">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Reg ID</TableHead>
+                  <TableHead>Trek ID</TableHead>
+                  <TableHead>User Name</TableHead>
+                  <TableHead>User Email</TableHead>
+                  <TableHead>Registrant Name</TableHead>
+                  <TableHead>Registrant Phone</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Proof</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {loading ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      Loading registrations...
+                    </TableCell>
+                  </TableRow>
+                ) : rows.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                      No registrations found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  rows.map(r => (
+                    <TableRow key={r.registration_id}>
+                      <TableCell className="font-medium">#{r.registration_id}</TableCell>
+                      <TableCell>{r.trek_id}</TableCell>
+                      <TableCell>{r.users?.full_name || 'N/A'}</TableCell>
+                      <TableCell className="text-sm">{r.users?.email || 'N/A'}</TableCell>
+                      <TableCell className="font-medium">{r.registrant_name || 'Not provided'}</TableCell>
+                      <TableCell>{r.registrant_phone || 'Not provided'}</TableCell>
+                      <TableCell>{getStatusBadge(r.payment_status)}</TableCell>
+                      <TableCell>
+                        {r.payment_proof_url ? (
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => openModal(r)}
+                            className="flex items-center gap-1"
+                          >
+                            <Eye className="h-3 w-3" />
+                            View
+                          </Button>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">No proof</span>
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {r.payment_proof_url && r.payment_status === 'ProofUploaded' && (
+                          <div className="flex gap-2">
+                            <Button 
+                              size="sm" 
+                              onClick={() => openModal(r)}
+                              disabled={actionLoadingId === r.registration_id}
+                            >
+                              Review
+                            </Button>
+                          </div>
+                        )}
+                        {r.payment_status === 'Approved' && (
+                          <span className="text-green-600 text-sm">✓ Verified</span>
+                        )}
+                        {r.payment_status === 'Rejected' && (
+                          <span className="text-red-600 text-sm">✗ Rejected</span>
+                        )}
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Payment Proof Review Modal */}
+      <Dialog open={showModal} onOpenChange={setShowModal}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Review Payment Proof - Registration #{selectedRegistration?.registration_id}</DialogTitle>
+            <DialogDescription>
+              Verify the payment details before approving the registration
+            </DialogDescription>
+          </DialogHeader>
+
+          {selectedRegistration && (
+            <div className="space-y-6">
+              {/* User Details */}
+              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Account Details</h4>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Name:</span> {selectedRegistration.users?.full_name || 'N/A'}</p>
+                    <p><span className="font-medium">Email:</span> {selectedRegistration.users?.email || 'N/A'}</p>
+                    <p><span className="font-medium">Phone:</span> {selectedRegistration.users?.phone_number || 'N/A'}</p>
+                  </div>
+                </div>
+                <div>
+                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Payment Details</h4>
+                  <div className="space-y-1 text-sm">
+                    <p><span className="font-medium">Payer Name:</span> {selectedRegistration.registrant_name || 'Not provided'}</p>
+                    <p><span className="font-medium">Payer Phone:</span> {selectedRegistration.registrant_phone || 'Not provided'}</p>
+                    <p><span className="font-medium">Trek ID:</span> {selectedRegistration.trek_id}</p>
+                    <p><span className="font-medium">Booking Date:</span> {selectedRegistration.booking_datetime ? new Date(selectedRegistration.booking_datetime).toLocaleDateString('en-IN') : 'N/A'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payment Proof Image */}
+              {selectedRegistration.payment_proof_url ? (
+                <div className="space-y-2">
+                  <h4 className="text-sm font-semibold text-gray-700">Payment Proof</h4>
+                  <div className="border rounded-lg overflow-hidden bg-gray-100">
+                    <img 
+                      src={selectedRegistration.payment_proof_url} 
+                      alt="Payment Proof" 
+                      className="w-full h-auto max-h-[500px] object-contain"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/placeholder.svg';
+                      }}
+                    />
+                  </div>
+                  <a 
+                    href={selectedRegistration.payment_proof_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    Open in new tab →
+                  </a>
+                </div>
+              ) : (
+                <div className="text-center py-8 text-muted-foreground">
+                  No payment proof uploaded
+                </div>
               )}
-            </tbody>
-          </table>
-        </div>
-      </CardContent>
-    </Card>
+
+              {/* Rejection Reason Input */}
+              {selectedRegistration.payment_status === 'ProofUploaded' && (
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700">
+                    Rejection Reason (if rejecting)
+                  </label>
+                  <Input
+                    placeholder="Enter reason if you want to reject this registration"
+                    value={rejectReason}
+                    onChange={(e) => setRejectReason(e.target.value)}
+                  />
+                </div>
+              )}
+
+              {/* Previous Rejection Reason (if rejected) */}
+              {selectedRegistration.payment_status === 'Rejected' && selectedRegistration.rejection_reason && (
+                <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-sm font-semibold text-red-800 mb-1">Rejection Reason:</p>
+                  <p className="text-sm text-red-700">{selectedRegistration.rejection_reason}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          <DialogFooter className="flex gap-2">
+            <Button variant="outline" onClick={closeModal}>
+              Close
+            </Button>
+            {selectedRegistration?.payment_status === 'ProofUploaded' && selectedRegistration.payment_proof_url && (
+              <>
+                <Button 
+                  variant="destructive"
+                  onClick={() => selectedRegistration && reject(selectedRegistration.registration_id, rejectReason)}
+                  disabled={actionLoadingId === selectedRegistration.registration_id || !rejectReason.trim()}
+                  className="flex items-center gap-2"
+                >
+                  <XCircle className="h-4 w-4" />
+                  Reject
+                </Button>
+                <Button 
+                  onClick={() => selectedRegistration && approve(selectedRegistration.registration_id)}
+                  disabled={actionLoadingId === selectedRegistration.registration_id}
+                  className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                >
+                  <CheckCircle className="h-4 w-4" />
+                  Approve Payment
+                </Button>
+              </>
+            )}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
-
-
