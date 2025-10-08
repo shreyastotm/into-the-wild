@@ -3,14 +3,14 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Calendar, Users, AlertCircle, UploadCloud } from 'lucide-react';
+import { CheckCircle, Calendar, Users, AlertCircle, UploadCloud, User, Phone, FileText } from 'lucide-react';
 import { WithStringId } from "@/integrations/supabase/client";
 import { formatCurrency } from '@/lib/utils';
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { TrekEventStatus } from '@/types/trek';
 import { useAuth } from '@/components/auth/AuthProvider';
+import FormField from '@/components/forms/FormField';
+import FormSection from '@/components/forms/FormSection';
+import FormActions from '@/components/forms/FormActions';
 
 interface DbRegistration {
   registration_id: number;
@@ -63,6 +63,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
   const [offeredSeats, setOfferedSeats] = useState<string>('');
   const [registrantName, setRegistrantName] = useState('');
   const [registrantPhone, setRegistrantPhone] = useState('');
+  const [errors, setErrors] = useState<{[key: string]: string}>({});
 
   // Pre-fill registrant details from user profile
   useEffect(() => {
@@ -135,49 +136,50 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                 Registered on {new Date(userRegistration.booking_datetime).toLocaleDateString()}
               </p>
               {userRegistration.payment_status === 'Pending' && (
-                <div className="mt-4 p-4 border border-amber-300 rounded-md bg-amber-50">
-                  <h5 className="font-medium text-amber-800">Action Required: Upload Payment Proof</h5>
-                  <p className="text-sm text-amber-700 mb-3">
-                    Please provide the payer's details and upload payment proof.
-                  </p>
-                  <div className="space-y-3">
-                    <div>
-                      <Label htmlFor="registrant-name" className="text-sm font-medium text-gray-700">Payer's Name *</Label>
-                      <Input 
-                        id="registrant-name" 
-                        type="text" 
-                        value={registrantName}
-                        onChange={(e) => setRegistrantName(e.target.value)}
-                        placeholder="Name of person making payment"
-                        className="text-sm mt-1 w-full"
-                        disabled={isUploadingProof || !!userRegistration.payment_proof_url}
-                      />
-                      <p className="text-xs text-gray-500 mt-1">This may be you or someone paying on your behalf</p>
-                    </div>
-                    <div>
-                      <Label htmlFor="registrant-phone" className="text-sm font-medium text-gray-700">Payer's Phone Number *</Label>
-                      <Input 
-                        id="registrant-phone" 
-                        type="tel" 
-                        value={registrantPhone}
-                        onChange={(e) => setRegistrantPhone(e.target.value)}
-                        placeholder="Phone number used for payment"
-                        className="text-sm mt-1 w-full"
-                        disabled={isUploadingProof || !!userRegistration.payment_proof_url}
-                      />
-                      <p className="text-xs text-gray-500 mt-1">Phone number from which payment was made</p>
-                    </div>
-                    <div>
-                      <Label htmlFor="payment-proof" className="text-sm font-medium text-gray-700">Payment Proof (Screenshot/Receipt) *</Label>
-                      <Input 
-                        id="payment-proof" 
-                        type="file" 
-                        onChange={handleFileChange} 
-                        className="text-sm mt-1 w-full"
-                        accept="image/*,.pdf"
-                        disabled={isUploadingProof || !!userRegistration.payment_proof_url}
-                      />
-                    </div>
+                <FormSection
+                  title="Upload Payment Proof"
+                  description="Please provide the payer's details and upload payment proof"
+                  variant="bordered"
+                  className="mt-4"
+                >
+                  <div className="space-y-4">
+                    <FormField
+                      label="Payer's Name"
+                      name="registrant-name"
+                      type="text"
+                      value={registrantName}
+                      onChange={setRegistrantName}
+                      placeholder="Name of person making payment"
+                      required
+                      disabled={isUploadingProof || !!userRegistration.payment_proof_url}
+                      icon={<User className="h-4 w-4" />}
+                      helpText="This may be you or someone paying on your behalf"
+                    />
+                    
+                    <FormField
+                      label="Payer's Phone Number"
+                      name="registrant-phone"
+                      type="tel"
+                      value={registrantPhone}
+                      onChange={setRegistrantPhone}
+                      placeholder="Phone number used for payment"
+                      required
+                      disabled={isUploadingProof || !!userRegistration.payment_proof_url}
+                      icon={<Phone className="h-4 w-4" />}
+                      helpText="Phone number from which payment was made"
+                    />
+                    
+                    <FormField
+                      label="Payment Proof (Screenshot/Receipt)"
+                      name="payment-proof"
+                      type="file"
+                      onChange={(value) => setPaymentProofFile(value)}
+                      required
+                      disabled={isUploadingProof || !!userRegistration.payment_proof_url}
+                      icon={<FileText className="h-4 w-4" />}
+                      helpText="Upload image or PDF of payment receipt"
+                    />
+                    
                     {paymentProofFile && !userRegistration.payment_proof_url && (
                       <Button 
                         onClick={handleUploadProof} 
@@ -189,11 +191,12 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                         <UploadCloud className="ml-2 h-4 w-4" />
                       </Button>
                     )}
+                    
                     {userRegistration.payment_proof_url && (
                        <p className="text-xs text-green-600">✓ Proof uploaded. Awaiting admin verification.</p>
                     )}
                   </div>
-                </div>
+                </FormSection>
               )}
               {userRegistration.payment_status === 'ProofUploaded' && (
                 <p className="text-sm text-blue-700 mt-2">Payment proof uploaded. Awaiting verification.</p>
@@ -225,70 +228,85 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
           )
         ) : (
           <>
-            <div className="w-full space-y-3 items-start rounded-md border p-3 sm:p-4 bg-gray-50">
-                <div className="space-y-3 mb-4">
-                  <div>
-                    <Label htmlFor="reg-name" className="text-sm font-medium">Your Name *</Label>
-                    <Input 
-                      id="reg-name"
-                      value={registrantName}
-                      onChange={(e) => setRegistrantName(e.target.value)}
-                      placeholder="Full name"
-                      className="mt-1 w-full"
-                      disabled={isLoading || isFull}
-                    />
-                  </div>
-                  <div>
-                    <Label htmlFor="reg-phone" className="text-sm font-medium">Phone Number *</Label>
-                    <Input 
-                      id="reg-phone"
-                      type="tel"
-                      value={registrantPhone}
-                      onChange={(e) => setRegistrantPhone(e.target.value)}
-                      placeholder="Contact number"
-                      className="mt-1 w-full"
-                      disabled={isLoading || isFull}
-                    />
-                  </div>
+            {/* Registration Form */}
+            <FormSection
+              title="Registration Details"
+              description="Please provide your details to register for this trek"
+              variant="bordered"
+              className="w-full"
+            >
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <FormField
+                    label="Your Name"
+                    name="reg-name"
+                    type="text"
+                    value={registrantName}
+                    onChange={setRegistrantName}
+                    placeholder="Full name"
+                    required
+                    disabled={isLoading || isFull}
+                    error={errors.registrantName}
+                    icon={<User className="h-4 w-4" />}
+                  />
+                  
+                  <FormField
+                    label="Phone Number"
+                    name="reg-phone"
+                    type="tel"
+                    value={registrantPhone}
+                    onChange={setRegistrantPhone}
+                    placeholder="Contact number"
+                    required
+                    disabled={isLoading || isFull}
+                    error={errors.registrantPhone}
+                    icon={<Phone className="h-4 w-4" />}
+                  />
                 </div>
-                <div className="flex items-start space-x-2">
-                    <Checkbox 
-                        id="indemnity" 
-                        checked={indemnityAccepted} 
-                        onCheckedChange={(checked) => setIndemnityAccepted(checked as boolean)} 
-                        disabled={isLoading || isFull}
-                    />
-                    <Label htmlFor="indemnity" className="text-xs leading-relaxed text-gray-600 cursor-pointer">
-                        {indemnityText}
-                    </Label>
-                </div>
+                
+                {/* Indemnity Agreement */}
+                <FormField
+                  label={indemnityText}
+                  name="indemnity"
+                  type="checkbox"
+                  value={indemnityAccepted}
+                  onChange={setIndemnityAccepted}
+                  disabled={isLoading || isFull}
+                  required
+                />
+                
+                {/* Driver Volunteer Option */}
                 {canVolunteerDriver && (
-                  <div className="mt-3 space-y-2">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox 
-                        id="volunteer_driver" 
-                        checked={volunteerAsDriver} 
-                        onCheckedChange={(checked) => setVolunteerAsDriver(!!checked)}
-                        disabled={isLoading || isFull}
-                      />
-                      <Label htmlFor="volunteer_driver" className="text-sm">Volunteer as driver for this event</Label>
-                    </div>
+                  <div className="space-y-3">
+                    <FormField
+                      label="Volunteer as driver for this event"
+                      name="volunteer_driver"
+                      type="checkbox"
+                      value={volunteerAsDriver}
+                      onChange={setVolunteerAsDriver}
+                      disabled={isLoading || isFull}
+                    />
+                    
                     {volunteerAsDriver && (
-                      <div className="pl-6">
-                        <Label htmlFor="offered_seats" className="text-xs">Seats you can offer (excluding you)</Label>
-                        <Input 
-                          id="offered_seats" 
-                          type="number" 
-                          min={0}
-                          value={offeredSeats}
-                          onChange={(e) => setOfferedSeats(e.target.value)}
-                          className="mt-1 h-8 text-sm w-28"
-                        />
-                      </div>
+                      <FormField
+                        label="Seats you can offer (excluding you)"
+                        name="offered_seats"
+                        type="number"
+                        value={offeredSeats}
+                        onChange={setOfferedSeats}
+                        placeholder="0"
+                        min={0}
+                        disabled={isLoading || isFull}
+                        error={errors.offeredSeats}
+                        helpText="Number of additional passengers you can accommodate"
+                      />
                     )}
                   </div>
                 )}
-            </div>
+              </div>
+            </FormSection>
+            
+            {/* Registration Button */}
             <Button 
               className="w-full" 
               onClick={() => onRegister(indemnityAccepted, { 
@@ -299,7 +317,13 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
               })} 
               disabled={isLoading || !canRegister || !indemnityAccepted || !registrantName.trim() || !registrantPhone.trim()}
             >
-              {isLoading ? 'Processing...' : !canRegister ? (trek.status === TrekEventStatus.REGISTRATION_CLOSED ? 'Registration Closed' : trek.status === TrekEventStatus.COMPLETED ? 'Trek Completed' : trek.status === TrekEventStatus.CANCELLED ? 'Trek Cancelled' : trek.status === TrekEventStatus.ONGOING ? 'Trek Ongoing' : isFull ? 'Trek is Full' : 'Registration Not Open') : 'Register Now'}
+              {isLoading ? 'Processing...' : !canRegister ? 
+                (trek.status === TrekEventStatus.REGISTRATION_CLOSED ? 'Registration Closed' : 
+                 trek.status === TrekEventStatus.COMPLETED ? 'Trek Completed' : 
+                 trek.status === TrekEventStatus.CANCELLED ? 'Trek Cancelled' : 
+                 trek.status === TrekEventStatus.ONGOING ? 'Trek Ongoing' : 
+                 isFull ? 'Trek is Full' : 'Registration Not Open') : 
+                'Register Now'}
             </Button>
           </>
         )}

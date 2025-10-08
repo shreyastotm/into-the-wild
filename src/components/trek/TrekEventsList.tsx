@@ -1,11 +1,7 @@
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
-import { Calendar, MapPin, Users, Clock, Wifi } from 'lucide-react';
-import { formatDistanceToNow, isPast, isToday, isTomorrow, format } from 'date-fns';
 import { TrekEventStatus } from '@/types/trek';
-import { getTrekStatusBadgeProps, formatCurrency } from '@/lib/utils'; // Import formatCurrency
+import TrekCardBase from './TrekCardBase'; // Import formatCurrency
 
 // Define type for Trek Events
 export interface TrekEvent {
