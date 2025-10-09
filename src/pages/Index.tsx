@@ -18,6 +18,7 @@ const Index = () => {
 
   const handleSignup = () => navigate('/auth?mode=signup');
   const handleSignin = () => navigate('/auth?mode=signin');
+  const handleExploreClick = () => navigate('/events');
 
   useEffect(() => {
     let mounted = true;
