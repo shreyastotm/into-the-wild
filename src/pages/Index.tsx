@@ -5,6 +5,7 @@ import { useAuth } from '@/components/auth/AuthProvider';
 import { ArrowRight, MapPin, Users, Calendar } from 'lucide-react';
 import { UpcomingTreks } from '@/components/trek/UpcomingTreks';
 import { getHomeBackground } from '@/lib/siteSettings';
+import FAQ from '@/components/FAQ';
 
 const Index = () => {
   const { user, loading } = useAuth();
@@ -69,7 +70,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Featured Treks Section */}
+      {/* Upcoming Adventures & Community Section */}
       <section className="py-16 md:py-24 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="text-center mb-12">
@@ -77,23 +78,22 @@ const Index = () => {
             <p className="text-gray-600 mt-2">Plan your next journey with our curated list of treks.</p>
           </div>
           <UpcomingTreks />
-        </div>
-      </section>
-
-      {/* Community Section */}
-      <section className="py-16 md:py-24">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <h2 className="text-3xl font-bold">Join Our Community</h2>
-            <p className="text-gray-600 mt-2 max-w-2xl mx-auto">
+          
+          {/* Join Our Community */}
+          <div className="text-center mt-16">
+            <h3 className="text-2xl font-bold mb-4">Join Our Community</h3>
+            <p className="text-gray-600 mb-6 max-w-2xl mx-auto">
               Join our community today and discover amazing trekking experiences with fellow adventurers.
             </p>
-            <Button size="lg" onClick={handleExploreClick} className="mt-6">
-               Explore Treks
+            <Button size="lg" onClick={handleExploreClick}>
+              Explore Treks
             </Button>
           </div>
         </div>
       </section>
+
+      {/* FAQ Section */}
+      <FAQ />
     </div>
   );
 };

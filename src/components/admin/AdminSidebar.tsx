@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, CalendarClock, ShieldCheck, Ticket, ImagePlus } from 'lucide-react';
+import { LayoutDashboard, CalendarClock, ShieldCheck, Ticket, ImagePlus, MessageSquare } from 'lucide-react';
 import { useAuth } from '../auth/AuthProvider';
 
 export default function AdminSidebar() {
@@ -19,6 +19,7 @@ export default function AdminSidebar() {
     { name: 'Create Past Event', path: '/admin/past-events/create', icon: <ImagePlus className="mr-2 h-4 w-4" /> },
     { name: 'Identification', path: '/admin/id', icon: <ShieldCheck className="mr-2 h-4 w-4" /> },
     { name: 'Event Registrations', path: '/admin/event-registrations', icon: <Ticket className="mr-2 h-4 w-4" /> },
+    { name: 'Forum', path: '/admin/forum', icon: <MessageSquare className="mr-2 h-4 w-4" /> },
   ];
 
   return (

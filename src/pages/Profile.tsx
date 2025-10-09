@@ -7,7 +7,7 @@ import ProfileSummaryCard from '@/components/profile/ProfileSummaryCard';
 import IdVerification from '@/components/profile/IdVerification';
 
 export default function Profile() {
-  const { user, loading } = useAuth();
+  const { user, userProfile, loading } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -28,7 +28,9 @@ export default function Profile() {
     <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
       <ProfileHeader />
       <ProfileSummaryCard />
-      <IdVerification />
+      {!userProfile?.verification_status || userProfile.verification_status !== 'VERIFIED' ? (
+        <IdVerification />
+      ) : null}
       <div className="bg-white rounded-lg shadow p-6">
         <ProfileForm />
       </div>

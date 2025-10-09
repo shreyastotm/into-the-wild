@@ -1,0 +1,13 @@
+<svg width="80" height="80" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Tiger silhouette -->
+  <path d="M20 35 C20 25, 25 20, 35 20 C45 20, 50 25, 50 35 C50 45, 45 50, 35 50 C25 50, 20 45, 20 35 Z" fill="#F2705D"/>
+  <!-- Stripes -->
+  <path d="M25 30 L45 30 M28 35 L42 35 M25 40 L45 40" stroke="#2D3748" stroke-width="2" stroke-linecap="round"/>
+  <!-- Ears -->
+  <path d="M30 15 C28 12, 32 10, 35 12 C38 10, 42 12, 40 15" fill="#F2705D"/>
+  <!-- Eyes -->
+  <circle cx="32" cy="28" r="2" fill="#2D3748"/>
+  <circle cx="38" cy="28" r="2" fill="#2D3748"/>
+  <!-- Nose -->
+  <path d="M35 32 L35 35 L33 36 L37 36" fill="#2D3748"/>
+</svg>

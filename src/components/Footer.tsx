@@ -41,7 +41,10 @@ const Footer = () => {
                 <Link to="/events" className="text-gray-600 hover:text-blue-600">Events</Link>
               </li>
               <li>
-                <Link to="/auth" className="text-gray-600 hover:text-blue-600">Sign In</Link>
+                <Link to="/gallery" className="text-gray-600 hover:text-blue-600">Past Adventures</Link>
+              </li>
+              <li>
+                <Link to="/login" className="text-gray-600 hover:text-blue-600">Sign In</Link>
               </li>
             </ul>
           </div>
@@ -50,16 +53,16 @@ const Footer = () => {
             <h3 className="font-semibold text-gray-800 mb-4">Resources</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Trekking Guide</a>
+                <Link to="/trekking-guide" className="text-gray-600 hover:text-blue-600">Trekking Guide</Link>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Safety Tips</a>
+                <Link to="/safety-tips" className="text-gray-600 hover:text-blue-600">Safety Tips</Link>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">FAQ</a>
+                <a href="#faq" className="text-gray-600 hover:text-blue-600">FAQ</a>
               </li>
               <li>
-                <a href="#" className="text-gray-600 hover:text-blue-600">Packing List</a>
+                <Link to="/packing-list" className="text-gray-600 hover:text-blue-600">Packing List</Link>
               </li>
             </ul>
           </div>

@@ -6,6 +6,7 @@ import TrekEventsAdmin from './TrekEventsAdmin';
 import CreatePastEvent from './CreatePastEvent';
 import UserVerificationPanel from '@/components/admin/UserVerificationPanel';
 import EventRegistrations from './EventRegistrations';
+import ForumAdmin from './ForumAdmin';
 
 export default function AdminHome() {
   return (
@@ -16,6 +17,7 @@ export default function AdminHome() {
         <Route path="/past-events/create" element={<CreatePastEvent />} />
         <Route path="/id" element={<UserVerificationPanel />} />
         <Route path="/event-registrations" element={<EventRegistrations />} />
+        <Route path="/forum" element={<ForumAdmin />} />
       </Routes>
     </AdminLayout>
   );

@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { useAuth } from './auth/AuthProvider';
-import { User, MapPin, Menu, X, Home, Calendar, UserCircle, LogOut, LogIn } from 'lucide-react';
+import { User, MapPin, Menu, X, Home, Calendar, UserCircle, LogOut, LogIn, MessageSquare } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
@@ -17,6 +17,8 @@ const Header = () => {
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/events', label: 'Events' },
+    { to: '/forum', label: 'Forum' },
+    { to: '/gallery', label: 'Past Adventures' },
   ];
 
   const authLinks = user ? [
@@ -113,7 +115,9 @@ const Header = () => {
                     <div className="space-y-2">
                       <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Navigation</h3>
                       {navLinks.map((link) => {
-                        const icon = link.to === '/' ? Home : Calendar;
+                        const icon = link.to === '/' ? Home : 
+                                     link.to === '/forum' ? MessageSquare :
+                                     Calendar;
                         const IconComponent = icon;
                         return (
                           <Link 

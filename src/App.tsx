@@ -14,6 +14,12 @@ import TrekEventDetails from './pages/TrekEventDetails';
 import CreateTrekEvent from './pages/CreateTrekEvent';
 import TrekArchives from './pages/TrekArchives';
 import Gallery from './pages/Gallery';
+import TrekkingGuide from './pages/TrekkingGuide';
+import SafetyTips from './pages/SafetyTips';
+import PackingList from './pages/PackingList';
+import ForumHome from './pages/forum';
+import ForumCategory from './pages/forum/Category';
+import ForumThread from './pages/forum/Thread';
 import { Toaster } from './components/ui/toaster';
 import AdminHome from './pages/admin';
 import ResetPassword from './pages/ResetPassword';
@@ -65,8 +71,16 @@ function App() {
             
             <Route path="/trek-archives" element={<TrekArchives />} />
             <Route path="/gallery" element={<Gallery />} />
+            <Route path="/trekking-guide" element={<TrekkingGuide />} />
+            <Route path="/safety-tips" element={<SafetyTips />} />
+            <Route path="/packing-list" element={<PackingList />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            
+
+            {/* Forum routes */}
+            <Route path="/forum" element={<ForumHome />} />
+            <Route path="/forum/c/:slug" element={<ForumCategory />} />
+            <Route path="/forum/t/:id" element={<ForumThread />} />
+
             <Route path="*" element={<NotFound />} />
           </Route>
         </Routes>
