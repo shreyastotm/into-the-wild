@@ -1,26 +1,32 @@
 
 import AuthForm from '@/components/auth/AuthForm';
+import { useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 
 export default function Auth() {
+  const location = useLocation();
+  const params = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const initialMode = params.get('mode') === 'signup' ? 'signup' : params.get('mode') === 'signin' ? 'signin' : undefined;
+
   return (
-    <div className="min-h-screen grid md:grid-cols-2">
+    <div className="min-h-screen grid md:grid-cols-2 overflow-x-hidden">
       {/* Left Side - Branding */}
       <div className="hidden md:flex relative bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-600 overflow-hidden">
         {/* Logo Pattern Background */}
         <div className="absolute inset-0">
-          <img 
-            src="/itw_logo.jpg" 
-            alt="" 
+          <img
+            src="/itw_logo.jpg"
+            alt=""
             className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay scale-110 blur-sm"
           />
           <div className="absolute inset-0 bg-gradient-to-b from-teal-600/60 via-transparent to-teal-900/60"></div>
         </div>
-        
+
         {/* Content */}
         <div className="relative z-10 flex flex-col items-center justify-center w-full h-full p-8 lg:p-12 text-white">
-          <img 
-            src="/itw_logo.jpg" 
-            alt="Into the Wild" 
+          <img
+            src="/itw_logo.jpg"
+            alt="Into the Wild"
             className="h-32 lg:h-40 w-auto mb-6 lg:mb-8 drop-shadow-2xl"
           />
           <h1 className="text-4xl lg:text-5xl font-bold mb-3 lg:mb-4 text-center">Into the Wild</h1>
@@ -43,17 +49,17 @@ export default function Auth() {
           </div>
         </div>
       </div>
-      
+
       {/* Right Side - Form */}
-      <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white">
+      <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white min-h-screen">
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
-          <img 
-            src="/itw_logo.jpg" 
-            alt="Into the Wild" 
+          <img
+            src="/itw_logo.jpg"
+            alt="Into the Wild"
             className="h-16 sm:h-20 w-auto mx-auto mb-6 sm:mb-8 md:hidden"
           />
-          <AuthForm />
+          <AuthForm initialMode={initialMode} />
         </div>
       </div>
     </div>

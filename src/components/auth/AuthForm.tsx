@@ -17,7 +17,11 @@ import {
   SubscriptionType 
 } from '@/types/auth';
 
-export default function AuthForm() {
+interface AuthFormProps {
+  initialMode?: 'signin' | 'signup'
+}
+
+export default function AuthForm({ initialMode }: AuthFormProps) {
   // Form state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -43,6 +47,14 @@ export default function AuthForm() {
     handleGoogleSignIn,
     clearError,
   } = useAuthForm();
+
+  // Initialize mode from props on mount
+  useEffect(() => {
+    if (initialMode) {
+      setMode(initialMode);
+    }
+    // only on mount / changes to initialMode
+  }, [initialMode, setMode]);
 
   // Auto-select Community plan for Micro-community account type
   useEffect(() => {

@@ -225,6 +225,30 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         <p className="text-xs text-muted-foreground">
           Must contain at least 8 characters with uppercase, lowercase, and numbers
         </p>
+        {/* Password strength indicator (lightweight) */}
+        {password && (
+          <div className="flex items-center gap-2">
+            {(() => {
+              const hasLen = password.length >= 8;
+              const hasUpper = /[A-Z]/.test(password);
+              const hasLower = /[a-z]/.test(password);
+              const hasNum = /\d/.test(password);
+              const score = [hasLen, hasUpper, hasLower, hasNum].filter(Boolean).length;
+              const labels = ['Very weak', 'Weak', 'Okay', 'Strong'];
+              const colors = ['bg-red-500', 'bg-amber-500', 'bg-blue-500', 'bg-green-600'];
+              return (
+                <>
+                  <div className="flex gap-1" aria-hidden>
+                    {[0,1,2,3].map((i) => (
+                      <span key={i} className={`h-1.5 w-8 rounded ${i < score ? colors[score-1] : 'bg-gray-200'}`}></span>
+                    ))}
+                  </div>
+                  <span className="text-xs text-gray-600">{labels[Math.max(0, score-1)]}</span>
+                </>
+              );
+            })()}
+          </div>
+        )}
       </div>
 
       {/* Subscription Type */}

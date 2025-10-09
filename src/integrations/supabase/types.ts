@@ -96,26 +96,78 @@ export interface Database {
       }
       trek_registrations: {
         Row: {
+          registration_id: number
           user_id: string
           trek_id: number
-          registration_date: string | null
+          booking_datetime: string | null
+          cancellation_datetime: string | null
+          penalty_applied: number | null
+          created_at: string | null
+          pickup_location_id: number | null
+          is_driver: boolean | null
           payment_status: string | null
+          indemnity_agreed: boolean | null
+          verified_by: string | null
+          verified_at: string | null
+          rejection_reason: string | null
+          registrant_name: string | null
+          registrant_phone: string | null
           payment_proof_url: string | null
         }
         Insert: {
+          registration_id?: number
           user_id: string
           trek_id: number
-          registration_date?: string | null
+          booking_datetime?: string | null
+          cancellation_datetime?: string | null
+          penalty_applied?: number | null
+          created_at?: string | null
+          pickup_location_id?: number | null
+          is_driver?: boolean | null
           payment_status?: string | null
+          indemnity_agreed?: boolean | null
+          verified_by?: string | null
+          verified_at?: string | null
+          rejection_reason?: string | null
+          registrant_name?: string | null
+          registrant_phone?: string | null
           payment_proof_url?: string | null
         }
         Update: {
+          registration_id?: number
           user_id?: string
           trek_id?: number
-          registration_date?: string | null
+          booking_datetime?: string | null
+          cancellation_datetime?: string | null
+          penalty_applied?: number | null
+          created_at?: string | null
+          pickup_location_id?: number | null
+          is_driver?: boolean | null
           payment_status?: string | null
+          indemnity_agreed?: boolean | null
+          verified_by?: string | null
+          verified_at?: string | null
+          rejection_reason?: string | null
+          registrant_name?: string | null
+          registrant_phone?: string | null
           payment_proof_url?: string | null
         }
+        Relationships: [
+          {
+            foreignKeyName: "trek_registrations_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "trek_registrations_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          }
+        ]
       }
     }
     Views: {

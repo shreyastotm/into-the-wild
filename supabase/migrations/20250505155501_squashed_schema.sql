@@ -228,7 +228,7 @@ COMMENT ON TABLE public.trek_pickup_locations IS 'Defines pickup points for a tr
 -- Trek Registrations Table (Depends on trek_pickup_locations)
 CREATE TABLE IF NOT EXISTS public.trek_registrations (
     registration_id SERIAL PRIMARY KEY,
-    user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    user_id UUID NOT NULL REFERENCES public.users(user_id) ON DELETE CASCADE,
     trek_id INTEGER NOT NULL REFERENCES public.trek_events(trek_id) ON DELETE CASCADE,
     booking_datetime TIMESTAMPTZ DEFAULT NOW(),
     cancellation_datetime TIMESTAMPTZ,

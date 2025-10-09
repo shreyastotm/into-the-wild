@@ -1,26 +1,39 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
+import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/Carousel';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { ArrowRight, MapPin, Users, Calendar } from 'lucide-react';
 import { UpcomingTreks } from '@/components/trek/UpcomingTreks';
-import { getHomeBackground } from '@/lib/siteSettings';
+import { getHomeBackground, getHomeHeroImages } from '@/lib/siteSettings';
 import FAQ from '@/components/FAQ';
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [bgUrl, setBgUrl] = useState<string | null>(null);
+  const [heroImages, setHeroImages] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const handleExploreClick = () => {
-    navigate('/trek-events');
+    navigate('/events');
   };
+  const handleSignup = () => navigate('/auth?mode=signup');
+  const handleSignin = () => navigate('/auth?mode=signin');
 
   useEffect(() => {
     let mounted = true;
     (async () => {
-      const url = await getHomeBackground();
-      if (mounted) setBgUrl(url);
+      const [backgroundUrl, heroImagesList] = await Promise.all([
+        getHomeBackground(),
+        getHomeHeroImages()
+      ]);
+
+      if (mounted) {
+        setBgUrl(backgroundUrl);
+        // Use hero images if available, otherwise fallback to single background or logo
+        setHeroImages(heroImagesList.length > 0 ? heroImagesList :
+                     backgroundUrl ? [backgroundUrl] : ['/itw_logo.jpg']);
+      }
     })();
     return () => {
       mounted = false;
@@ -29,42 +42,36 @@ const Index = () => {
 
   return (
     <div>
-      {/* Hero Section */}
-      <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
-        {/* Background Layer (admin-selected or fallback watermark) */}
-        {bgUrl ? (
-          <div className="absolute inset-0">
-            <img
-              src={bgUrl}
-              alt="Homepage background"
-              aria-hidden="true"
-              className="absolute inset-0 w-full h-full object-cover opacity-30"
-            />
-            <div className="absolute inset-0 bg-white/30" aria-hidden="true" />
+      {/* Hero Section with Full-Screen Carousel (Mobile) and CTAs */}
+      <section className="relative w-full h-screen md:h-auto md:py-16 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
+        <div className="container mx-auto px-4 h-full flex flex-col justify-center md:justify-start">
+          <div className="mb-4 md:mb-8">
+            <Carousel className="w-full h-full md:h-auto">
+              <CarouselContent>
+                {heroImages.map((src, i) => (
+                  <CarouselItem key={i}>
+                    <div className="relative aspect-[16/9] w-full h-full md:h-auto overflow-hidden rounded-xl md:rounded-lg">
+                      <img src={src} alt={`Adventure ${i + 1}`} className="w-full h-full object-cover" loading="eager" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="hidden sm:inline-flex" />
+              <CarouselNext className="hidden sm:inline-flex" />
+            </Carousel>
           </div>
-        ) : (
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <img
-              src="/itw_logo.jpg"
-              alt=""
-              aria-hidden="true"
-              className="w-[600px] md:w-[800px] h-auto object-contain opacity-[0.03] blur-[0.5px]"
-            />
-          </div>
-        )}
-        
-        {/* Content Layer */}
-        <div className="relative z-10 container mx-auto px-4">
-          <div className="flex flex-col items-center justify-center py-16 md:py-24">
-            <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-center mb-6">
-              Into the Wild
-            </h1>
-            <p className="text-lg md:text-xl text-center text-gray-600 max-w-2xl mb-8">
+
+          <div className="flex flex-col items-center text-center gap-3 md:gap-4">
+            <h1 className="text-3xl md:text-5xl font-bold">Into the Wild</h1>
+            <p className="text-gray-600 max-w-2xl">
               Discover breathtaking treks and connect with a community of adventurers.
             </p>
-            <Button variant="accent" size="lg" onClick={handleExploreClick}>
-              Explore Treks
-              <ArrowRight className="ml-2 h-5 w-5" />
+            <Button variant="accent" size="lg" className="w-full max-w-sm" onClick={handleSignup}>
+              Start my Journey
+            </Button>
+            <Button variant="outline" size="lg" className="w-full max-w-sm" onClick={handleSignin}>
+              Sign in
             </Button>
           </div>
         </div>

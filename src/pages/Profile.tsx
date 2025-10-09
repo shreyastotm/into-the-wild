@@ -25,15 +25,13 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
+    <div className="max-w-4xl mx-auto px-0 sm:px-4 py-8 space-y-6">
       <ProfileHeader />
       <ProfileSummaryCard />
       {!userProfile?.verification_status || userProfile.verification_status !== 'VERIFIED' ? (
         <IdVerification />
       ) : null}
-      <div className="bg-white rounded-lg shadow p-6">
-        <ProfileForm />
-      </div>
+      <ProfileForm />
     </div>
   );
 }

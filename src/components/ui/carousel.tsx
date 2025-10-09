@@ -1,3 +1,5 @@
+// NOTE: Consolidated to Embla-based carousel below. Previous generic implementation removed to avoid duplicate names/exports.
+
 import * as React from "react"
 import useEmblaCarousel, {
   type UseEmblaCarouselType,

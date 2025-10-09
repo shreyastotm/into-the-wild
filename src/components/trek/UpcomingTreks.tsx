@@ -295,9 +295,9 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
                  <div className="text-2xl font-bold text-primary">
                    {formatCurrency(trek.base_price)}
                  </div>
-                 <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors">
-                   View Details
-                 </button>
+                <Button variant="primary" size="sm" className="w-full">
+                  View Details
+                </Button>
                </div>
              </div>
            </div>

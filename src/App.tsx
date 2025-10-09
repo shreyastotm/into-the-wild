@@ -24,6 +24,7 @@ import { Toaster } from './components/ui/toaster';
 import AdminHome from './pages/admin';
 import ResetPassword from './pages/ResetPassword';
 import { ProtectedRoute } from './components/ProtectedRoute';
+import { TooltipProvider } from '@/components/ui/tooltip';
 
 const AppLayout = () => (
   <Layout>
@@ -40,9 +41,10 @@ const TrekEventRedirect = () => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
-        <Routes>
-          <Route element={<AppLayout />}>
+      <TooltipProvider>
+        <Router>
+          <Routes>
+            <Route element={<AppLayout />}>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/auth" element={<Auth />} />
@@ -82,10 +84,11 @@ function App() {
             <Route path="/forum/t/:id" element={<ForumThread />} />
 
             <Route path="*" element={<NotFound />} />
-          </Route>
-        </Routes>
-        <Toaster />
-      </Router>
+            </Route>
+          </Routes>
+          <Toaster />
+        </Router>
+      </TooltipProvider>
     </AuthProvider>
   );
 }

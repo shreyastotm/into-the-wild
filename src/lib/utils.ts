@@ -78,7 +78,7 @@ export const getTrekStatusBadgeProps = (status: TrekEventStatus | string | null)
     case TrekEventStatus.ONGOING:
       return { variant: 'default' as const, className: 'bg-sky-500 hover:bg-sky-600 text-white' };
     case TrekEventStatus.COMPLETED:
-      return { variant: 'default' as const, className: 'bg-blue-600 hover:bg-blue-700 text-white' };
+      return { variant: 'default' as const, className: 'bg-primary hover:bg-primary/90 text-white' };
     case TrekEventStatus.CANCELLED:
       return { variant: 'destructive' as const, className: 'text-white' }; // Destructive variant usually has its own colors
     case TrekEventStatus.UPCOMING:

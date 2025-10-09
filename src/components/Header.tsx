@@ -79,9 +79,9 @@ const Header = () => {
                     </Tooltip>
                   </>
                 ) : (
-                  <Link 
-                    to="/login" 
-                    className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition-colors"
+                  <Link
+                    to="/auth"
+                    className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded transition-colors"
                   >
                     Sign In
                   </Link>
@@ -166,9 +166,9 @@ const Header = () => {
                             </button>
                           </>
                         ) : (
-                          <Link 
-                            to="/login" 
-                            className="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md transition-colors"
+                          <Link
+                            to="/auth"
+                            className="flex items-center gap-3 bg-primary hover:bg-primary/90 text-white px-3 py-2 rounded-md transition-colors"
                             onClick={() => setMobileMenuOpen(false)}
                           >
                             <LogIn className="h-5 w-5" />
