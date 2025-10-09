@@ -7,6 +7,7 @@ import CreatePastEvent from './CreatePastEvent';
 import UserVerificationPanel from '@/components/admin/UserVerificationPanel';
 import EventRegistrations from './EventRegistrations';
 import ForumAdmin from './ForumAdmin';
+import CarouselImagesAdmin from './CarouselImagesAdmin';
 
 export default function AdminHome() {
   return (
@@ -18,6 +19,7 @@ export default function AdminHome() {
         <Route path="/id" element={<UserVerificationPanel />} />
         <Route path="/event-registrations" element={<EventRegistrations />} />
         <Route path="/forum" element={<ForumAdmin />} />
+        <Route path="/carousel-images" element={<CarouselImagesAdmin />} />
       </Routes>
     </AdminLayout>
   );

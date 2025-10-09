@@ -44,15 +44,24 @@ const Index = () => {
     <div>
       {/* Hero Section with Full-Screen Carousel (Mobile) and CTAs */}
       <section className="relative w-full h-screen md:h-auto md:py-16 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
+        {/* Mobile Floating Logo */}
+        <div className="absolute top-4 left-4 z-50 md:hidden">
+          <img
+            src="/itw_logo.jpg"
+            alt="Into the Wild"
+            className="h-12 w-auto opacity-90"
+          />
+        </div>
+
         <div className="container mx-auto px-4 h-full flex flex-col justify-center md:justify-start">
           <div className="mb-4 md:mb-8">
-            <Carousel className="w-full h-full md:h-auto">
-              <CarouselContent>
+            <Carousel className="w-full h-full md:h-auto" orientation="vertical">
+              <CarouselContent className="h-full">
                 {heroImages.map((src, i) => (
-                  <CarouselItem key={i}>
-                    <div className="relative aspect-[16/9] w-full h-full md:h-auto overflow-hidden rounded-xl md:rounded-lg">
+                  <CarouselItem key={i} className="h-full">
+                    <div className="relative h-full overflow-hidden">
                       <img src={src} alt={`Adventure ${i + 1}`} className="w-full h-full object-cover" loading="eager" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
                     </div>
                   </CarouselItem>
                 ))}

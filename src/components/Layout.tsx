@@ -20,7 +20,7 @@ const Layout = ({ children }: LayoutProps) => {
       {/* Mobile Hamburger */}
       <MobileHamburger />
 
-      <main className="flex-grow px-0 sm:px-6 lg:px-8 pb-[calc(env(safe-area-inset-bottom)+64px)]">
+      <main className="flex-grow px-4 sm:px-6 lg:px-8 pb-[calc(env(safe-area-inset-bottom)+64px)]">
         <div className="max-w-7xl mx-auto w-full">
           {children}
         </div>
