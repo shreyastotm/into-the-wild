@@ -74,7 +74,7 @@ export const useAuthForm = () => {
         description: 'You have been signed in successfully.',
       });
 
-      navigate('/');
+      navigate('/dashboard');
       return { success: true, message: 'Signed in successfully' };
 
     } catch (error) {

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { User, MapPin, Home, Calendar, UserCircle, LogOut, LogIn, MessageSquare, Menu } from 'lucide-react';
+import { User, MapPin, Home, Calendar, UserCircle, LogOut, LogIn, MessageSquare, Menu, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 export function MobileHamburger() {
@@ -14,6 +14,7 @@ export function MobileHamburger() {
     { to: '/events', label: 'Events' },
     { to: '/forum', label: 'Forum' },
     { to: '/gallery', label: 'Past Adventures' },
+    { to: '/faq', label: 'FAQ' },
   ];
 
   const authLinks = user ? [
@@ -53,6 +54,7 @@ export function MobileHamburger() {
               {navLinks.map((link) => {
                 const icon = link.to === '/' ? Home :
                              link.to === '/forum' ? MessageSquare :
+                             link.to === '/faq' ? HelpCircle :
                              Calendar;
                 const IconComponent = icon;
                 return (

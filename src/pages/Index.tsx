@@ -1,22 +1,21 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel';
 import { useAuth } from '@/components/auth/AuthProvider';
-import { ArrowRight, MapPin, Users, Calendar } from 'lucide-react';
 import { UpcomingTreks } from '@/components/trek/UpcomingTreks';
 import { getHomeBackground, getHomeHeroImages } from '@/lib/siteSettings';
-import FAQ from '@/components/FAQ';
+import { useState } from 'react';
+import { Menu } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const Index = () => {
   const { user, loading } = useAuth();
   const [bgUrl, setBgUrl] = useState<string | null>(null);
   const [heroImages, setHeroImages] = useState<string[]>([]);
+  const [faqOpen, setFaqOpen] = useState(false);
   const navigate = useNavigate();
 
-  const handleExploreClick = () => {
-    navigate('/events');
-  };
   const handleSignup = () => navigate('/auth?mode=signup');
   const handleSignin = () => navigate('/auth?mode=signin');
 
@@ -42,36 +41,56 @@ const Index = () => {
 
   return (
     <div>
-      {/* Hero Section with Full-Screen Carousel (Mobile) and CTAs */}
-      <section className="relative w-full h-screen md:h-auto md:py-16 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
-        {/* Mobile Floating Logo */}
+      {/* Hero Section with Mobile Carousel and CTAs */}
+      <section className="relative w-full min-h-screen md:h-auto md:py-16 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
+        {/* Mobile Floating Logo and Hamburger */}
         <div className="absolute top-4 left-4 z-50 md:hidden">
           <img
             src="/itw_logo.jpg"
             alt="Into the Wild"
-            className="h-12 w-auto opacity-90"
+            className="h-10 w-auto opacity-90"
           />
         </div>
 
-        <div className="container mx-auto px-4 h-full flex flex-col justify-center md:justify-start">
-          <div className="mb-4 md:mb-8">
-            <Carousel className="w-full h-full md:h-auto" orientation="vertical">
-              <CarouselContent className="h-full">
-                {heroImages.map((src, i) => (
-                  <CarouselItem key={i} className="h-full">
-                    <div className="relative h-full overflow-hidden">
-                      <img src={src} alt={`Adventure ${i + 1}`} className="w-full h-full object-cover" loading="eager" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="hidden sm:inline-flex" />
-              <CarouselNext className="hidden sm:inline-flex" />
-            </Carousel>
+        <div className="absolute top-4 right-4 z-50 md:hidden">
+          <Sheet open={faqOpen} onOpenChange={setFaqOpen}>
+            <SheetTrigger asChild>
+              <Button variant="ghost" size="sm" className="bg-white/90 backdrop-blur border rounded-full w-10 h-10 p-0">
+                <Menu className="h-5 w-5" />
+                <span className="sr-only">FAQ</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="bottom" className="h-[80vh]">
+              <div className="mt-6">
+                <FAQ />
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        <div className="container mx-auto px-4 h-full flex flex-col">
+          {/* Carousel Section - Reduced height to avoid overlap */}
+          <div className="flex-shrink-0 mb-8 md:mb-12">
+            <div className="relative h-96 md:h-[500px] rounded-xl overflow-hidden">
+              <Carousel className="w-full h-full" orientation="horizontal">
+                <CarouselContent>
+                  {heroImages.map((src, i) => (
+                    <CarouselItem key={i}>
+                      <div className="relative h-full overflow-hidden rounded-xl">
+                        <img src={src} alt={`Adventure ${i + 1}`} className="w-full h-full object-cover" loading="eager" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />
+                      </div>
+                    </CarouselItem>
+                  ))}
+                </CarouselContent>
+                <CarouselPrevious className="hidden sm:inline-flex" />
+                <CarouselNext className="hidden sm:inline-flex" />
+              </Carousel>
+            </div>
           </div>
 
-          <div className="flex flex-col items-center text-center gap-3 md:gap-4">
+          {/* CTAs Section */}
+          <div className="flex-shrink-0 flex flex-col items-center text-center gap-4 md:gap-6 mb-8">
             <h1 className="text-3xl md:text-5xl font-bold">Into the Wild</h1>
             <p className="text-gray-600 max-w-2xl">
               Discover breathtaking treks and connect with a community of adventurers.
@@ -108,8 +127,6 @@ const Index = () => {
         </div>
       </section>
 
-      {/* FAQ Section */}
-      <FAQ />
     </div>
   );
 };

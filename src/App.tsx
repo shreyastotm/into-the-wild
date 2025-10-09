@@ -17,6 +17,7 @@ import Gallery from './pages/Gallery';
 import TrekkingGuide from './pages/TrekkingGuide';
 import SafetyTips from './pages/SafetyTips';
 import PackingList from './pages/PackingList';
+import FAQPage from './pages/FAQ';
 import ForumHome from './pages/forum';
 import ForumCategory from './pages/forum/Category';
 import ForumThread from './pages/forum/Thread';
@@ -76,6 +77,7 @@ function App() {
             <Route path="/trekking-guide" element={<TrekkingGuide />} />
             <Route path="/safety-tips" element={<SafetyTips />} />
             <Route path="/packing-list" element={<PackingList />} />
+            <Route path="/faq" element={<FAQPage />} />
             <Route path="/reset-password" element={<ResetPassword />} />
 
             {/* Forum routes */}
