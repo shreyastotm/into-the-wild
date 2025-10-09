@@ -1,10 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Car, MapPin, LocateFixed, Clock, Info, User, Users, AlertCircle } from 'lucide-react';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
@@ -39,10 +43,18 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     assignDriverToParticipant,
     updatePickupStatus,
     setParticipantPickupLocation,
-    refreshData
+    refreshData,
+    // Admin helpers
+    createPickupLocation,
+    updatePickupLocation,
+    deletePickupLocation,
+    upsertDriver,
+    removeDriver
   } = useTransportCoordination(trekId);
 
   const [selectedLocation, setSelectedLocation] = useState<string>('');
+  const [newLocation, setNewLocation] = useState({ name: '', address: '', latitude: '', longitude: '' });
+  const [newDriver, setNewDriver] = useState({ user_id: '', vehicle_type: '', vehicle_name: '', registration_number: '', seats_available: '' });
 
   useEffect(() => {
     if (userPickupLocation) {
@@ -341,6 +353,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                 <TabsTrigger value="drivers">Drivers ({drivers.length})</TabsTrigger>
                 <TabsTrigger value="participants">Participants ({participants.length})</TabsTrigger>
                 <TabsTrigger value="locations">Pickup Locations ({pickupLocations.length})</TabsTrigger>
+                <TabsTrigger value="add">Add / Edit</TabsTrigger>
               </TabsList>
               
               <TabsContent value="drivers" className="pt-4">
@@ -472,11 +485,84 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                             <span>Lat: {location.coordinates.latitude}, </span>
                             <span>Long: {location.coordinates.longitude}</span>
                           </div>
+                          <div className="h-40 w-full rounded-md overflow-hidden mt-3">
+                            <MapContainer center={[location.coordinates.latitude, location.coordinates.longitude]} zoom={13} style={{ height: '100%', width: '100%' }}>
+                              <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                              />
+                              <Marker position={[location.coordinates.latitude, location.coordinates.longitude]} />
+                            </MapContainer>
+                          </div>
+                          <div className="flex gap-2 mt-3">
+                            <Button size="sm" variant="outline" onClick={() => deletePickupLocation(location.id)}>Delete</Button>
+                          </div>
                         </CardContent>
                       </Card>
                     ))}
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="add" className="pt-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Add Pickup Location</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Input placeholder="Name" value={newLocation.name} onChange={(e) => setNewLocation({ ...newLocation, name: e.target.value })} />
+                      <Textarea placeholder="Address" value={newLocation.address} onChange={(e) => setNewLocation({ ...newLocation, address: e.target.value })} />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input placeholder="Latitude" value={newLocation.latitude} onChange={(e) => setNewLocation({ ...newLocation, latitude: e.target.value })} />
+                        <Input placeholder="Longitude" value={newLocation.longitude} onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })} />
+                      </div>
+                      <Button onClick={async () => {
+                        await createPickupLocation({
+                          name: newLocation.name.trim(),
+                          address: newLocation.address.trim(),
+                          latitude: newLocation.latitude ? parseFloat(newLocation.latitude) : undefined,
+                          longitude: newLocation.longitude ? parseFloat(newLocation.longitude) : undefined,
+                        });
+                        setNewLocation({ name: '', address: '', latitude: '', longitude: '' });
+                      }}>Add Location</Button>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-2">
+                      <CardTitle className="text-base">Add / Update Driver</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3">
+                      <Input placeholder="Driver User ID (UUID)" value={newDriver.user_id} onChange={(e) => setNewDriver({ ...newDriver, user_id: e.target.value })} />
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input placeholder="Vehicle Type" value={newDriver.vehicle_type} onChange={(e) => setNewDriver({ ...newDriver, vehicle_type: e.target.value })} />
+                        <Input placeholder="Vehicle Name" value={newDriver.vehicle_name} onChange={(e) => setNewDriver({ ...newDriver, vehicle_name: e.target.value })} />
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input placeholder="Reg Number" value={newDriver.registration_number} onChange={(e) => setNewDriver({ ...newDriver, registration_number: e.target.value })} />
+                        <Input placeholder="Seats Available" value={newDriver.seats_available} onChange={(e) => setNewDriver({ ...newDriver, seats_available: e.target.value })} />
+                      </div>
+                      <div className="flex gap-2">
+                        <Button onClick={async () => {
+                          await upsertDriver({
+                            user_id: newDriver.user_id.trim(),
+                            vehicle_type: newDriver.vehicle_type.trim() || undefined,
+                            vehicle_name: newDriver.vehicle_name.trim() || undefined,
+                            registration_number: newDriver.registration_number.trim() || undefined,
+                            seats_available: newDriver.seats_available ? parseInt(newDriver.seats_available, 10) : undefined,
+                          });
+                        }}>Save Driver</Button>
+                        <Button variant="outline" onClick={async () => {
+                          if (newDriver.user_id.trim()) {
+                            await removeDriver(newDriver.user_id.trim());
+                            setNewDriver({ user_id: '', vehicle_type: '', vehicle_name: '', registration_number: '', seats_available: '' });
+                          }
+                        }}>Remove Driver</Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
               </TabsContent>
             </Tabs>
           </CardContent>

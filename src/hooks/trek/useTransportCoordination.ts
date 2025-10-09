@@ -334,6 +334,118 @@ export function useTransportCoordination(trekId: string | undefined) {
     }
   };
 
+  // --- Admin: CRUD for Pickup Locations ---
+  const createPickupLocation = async (location: { name: string; address: string; latitude?: number; longitude?: number; }) => {
+    if (!trekId) return false;
+    try {
+      const numericTrekId = parseInt(trekId, 10);
+      const { error } = await supabase
+        .from('trek_pickup_locations')
+        .insert({
+          trek_id: numericTrekId,
+          name: location.name,
+          address: location.address,
+          latitude: location.latitude ?? null,
+          longitude: location.longitude ?? null,
+        } as Record<string, unknown>);
+      if (error) throw error;
+      await fetchTransportData();
+      toast({ title: 'Pickup location added', variant: 'default' });
+      return true;
+    } catch (error) {
+      console.error('Error creating pickup location:', error);
+      toast({ title: 'Failed to add location', variant: 'destructive' });
+      return false;
+    }
+  };
+
+  const updatePickupLocation = async (id: string, update: { name?: string; address?: string; latitude?: number; longitude?: number; }) => {
+    try {
+      const numericId = parseInt(id, 10);
+      const { error } = await supabase
+        .from('trek_pickup_locations')
+        .update({
+          name: update.name,
+          address: update.address,
+          latitude: update.latitude,
+          longitude: update.longitude,
+        } as Record<string, unknown>)
+        .eq('id', numericId);
+      if (error) throw error;
+      await fetchTransportData();
+      toast({ title: 'Pickup location updated', variant: 'default' });
+      return true;
+    } catch (error) {
+      console.error('Error updating pickup location:', error);
+      toast({ title: 'Failed to update location', variant: 'destructive' });
+      return false;
+    }
+  };
+
+  const deletePickupLocation = async (id: string) => {
+    try {
+      const numericId = parseInt(id, 10);
+      const { error } = await supabase
+        .from('trek_pickup_locations')
+        .delete()
+        .eq('id', numericId);
+      if (error) throw error;
+      await fetchTransportData();
+      toast({ title: 'Pickup location removed', variant: 'default' });
+      return true;
+    } catch (error) {
+      console.error('Error deleting pickup location:', error);
+      toast({ title: 'Failed to delete location', variant: 'destructive' });
+      return false;
+    }
+  };
+
+  // --- Admin: Manage Drivers ---
+  const upsertDriver = async (driver: { user_id: string; vehicle_type?: string; vehicle_name?: string; registration_number?: string; seats_available?: number; }) => {
+    if (!trekId) return false;
+    try {
+      const numericTrekId = parseInt(trekId, 10);
+      const { error } = await supabase
+        .from('trek_drivers')
+        .upsert({
+          trek_id: numericTrekId,
+          user_id: driver.user_id,
+          vehicle_type: driver.vehicle_type ?? null,
+          vehicle_name: driver.vehicle_name ?? null,
+          registration_number: driver.registration_number ?? null,
+          seats_available: driver.seats_available ?? 0,
+        } as Record<string, unknown>);
+      if (error) throw error;
+      await fetchTransportData();
+      toast({ title: 'Driver saved', variant: 'default' });
+      return true;
+    } catch (error) {
+      console.error('Error upserting driver:', error);
+      toast({ title: 'Failed to save driver', variant: 'destructive' });
+      return false;
+    }
+  };
+
+  const removeDriver = async (driverUserId: string) => {
+    if (!trekId) return false;
+    try {
+      const numericTrekId = parseInt(trekId, 10);
+      const { error } = await supabase
+        .from('trek_drivers')
+        .delete()
+        .eq('trek_id', numericTrekId)
+        .eq('user_id', driverUserId);
+      if (error) throw error;
+      await fetchTransportData();
+      toast({ title: 'Driver removed', variant: 'default' });
+      return true;
+    } catch (error) {
+      console.error('Error removing driver:', error);
+      toast({ title: 'Failed to remove driver', variant: 'destructive' });
+      return false;
+    }
+  };
+
   return {
     drivers,
     participants,
@@ -346,6 +458,12 @@ export function useTransportCoordination(trekId: string | undefined) {
     assignDriverToParticipant,
     updatePickupStatus,
     setParticipantPickupLocation,
-    refreshData: fetchTransportData
+    refreshData: fetchTransportData,
+    // Admin helpers
+    createPickupLocation,
+    updatePickupLocation,
+    deletePickupLocation,
+    upsertDriver,
+    removeDriver
   };
 } 

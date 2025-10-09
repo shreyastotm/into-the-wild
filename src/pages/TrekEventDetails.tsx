@@ -227,6 +227,7 @@ export default function TrekEventDetails() {
                 transportMode={trekEvent.transport_mode}
                 pickupTimeWindow={trekEvent.pickup_time_window}
                 vendorContacts={trekEvent.vendor_contacts}
+                isAdmin={isAdmin}
               />
             </TabsContent>
             

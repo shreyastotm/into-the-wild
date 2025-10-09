@@ -62,7 +62,44 @@ const Index = () => {
             </SheetTrigger>
             <SheetContent side="bottom" className="h-[80vh]">
               <div className="mt-6">
-                <FAQ />
+                <div className="max-w-4xl mx-auto">
+                  <div className="text-center mb-8">
+                    <h2 className="text-2xl font-bold mb-2">Frequently Asked Questions</h2>
+                    <p className="text-gray-600">
+                      Find answers to common questions about our treks and adventures.
+                    </p>
+                  </div>
+
+                  <div className="space-y-4">
+                    {[
+                      {
+                        question: "How do I book a trek?",
+                        answer: "You can book a trek by browsing our upcoming adventures on the home page or events page. Click on any trek that interests you, review the details, and click 'Register' to complete your booking. You'll need to create an account if you haven't already."
+                      },
+                      {
+                        question: "What is the cancellation policy?",
+                        answer: "We offer flexible cancellation policies. You can cancel your booking up to 48 hours before the trek start time for a full refund. Cancellations within 48 hours may be subject to a 50% cancellation fee. Please check the specific trek details for exact terms."
+                      },
+                      {
+                        question: "What should I bring for a trek?",
+                        answer: "Essential items include comfortable trekking shoes, weather-appropriate clothing, water bottle, snacks, sunscreen, and a small backpack. We'll provide a detailed packing list for each trek based on difficulty level and weather conditions."
+                      },
+                      {
+                        question: "Are treks suitable for beginners?",
+                        answer: "Yes! We offer treks for all skill levels. Our treks are categorized as Beginner, Intermediate, and Advanced. Beginner treks are perfect for first-time trekkers with gentle terrain and shorter distances. Check the difficulty level before booking."
+                      },
+                      {
+                        question: "What if the weather is bad?",
+                        answer: "Safety is our top priority. If weather conditions are unsafe, we may postpone or cancel the trek. In case of cancellation, you'll receive a full refund or the option to reschedule for a later date."
+                      }
+                    ].map((faq, index) => (
+                      <div key={index} className="bg-white rounded-lg border p-4">
+                        <h3 className="font-semibold text-gray-900 mb-2">{faq.question}</h3>
+                        <p className="text-gray-600 text-sm leading-relaxed">{faq.answer}</p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </SheetContent>
           </Sheet>
