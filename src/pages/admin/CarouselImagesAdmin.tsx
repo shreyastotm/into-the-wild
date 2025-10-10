@@ -53,11 +53,16 @@ export default function CarouselImagesAdmin() {
         .not('image_url', 'is', null)
         .order('name', { ascending: true });
 
-      if (imagesError) throw imagesError;
+      if (imagesError) {
+        console.error('Error fetching images:', imagesError);
+        throw imagesError;
+      }
+
+      console.log('Images data:', imagesData);
 
       const formattedImages: UploadedImage[] = (imagesData || []).map(img => ({
         id: img.trek_id,
-        image_url: img.image_url,
+        image_url: img.image_url || '',
         trek_id: img.trek_id,
         trek_name: img.name || 'Unknown Trek'
       }));
@@ -306,34 +311,50 @@ export default function CarouselImagesAdmin() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            {uploadedImages.slice(0, 12).map((image) => (
-              <div key={image.id} className="relative group cursor-pointer" onClick={() => {
-                setSelectedImageUrl(image.image_url);
-                setSelectedImagePosition(carouselImages.length + 1);
-                setShowAddDialog(true);
-              }}>
-                <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
-                  <img
-                    src={image.image_url}
-                    alt={image.trek_name}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                  />
-                </div>
-
-                <div className="mt-2">
-                  <p className="text-sm font-medium truncate">{image.trek_name}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {uploadedImages.length > 12 && (
-            <div className="text-center mt-4">
+          {uploadedImages.length === 0 ? (
+            <div className="text-center py-8">
+              <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
+              <p className="text-gray-600 mb-2">No images available</p>
               <p className="text-sm text-gray-500">
-                Showing 12 of {uploadedImages.length} available images
+                Upload images to your events first to make them available for the carousel.
               </p>
             </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                {uploadedImages.slice(0, 12).map((image) => (
+                  <div key={image.id} className="relative group cursor-pointer" onClick={() => {
+                    setSelectedImageUrl(image.image_url);
+                    setSelectedImagePosition(carouselImages.length + 1);
+                    setShowAddDialog(true);
+                  }}>
+                    <div className="aspect-video rounded-lg overflow-hidden bg-gray-100">
+                      <img
+                        src={image.image_url}
+                        alt={image.trek_name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform"
+                        onError={(e) => {
+                          console.error('Image failed to load:', image.image_url);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </div>
+
+                    <div className="mt-2">
+                      <p className="text-sm font-medium truncate">{image.trek_name}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {uploadedImages.length > 12 && (
+                <div className="text-center mt-4">
+                  <p className="text-sm text-gray-500">
+                    Showing 12 of {uploadedImages.length} available images
+                  </p>
+                </div>
+              )}
+            </>
           )}
         </CardContent>
       </Card>
