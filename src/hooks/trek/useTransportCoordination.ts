@@ -236,8 +236,8 @@ export function useTransportCoordination(trekId: string | undefined) {
         setUserAssignedDriver(assignedDriver);
         setUserPickupLocation(userLocation);
       }
-
-    } catch (error) {
+    }
+  } catch (error) {
       console.error('Error fetching transport data (full process):', error);
       toast({
         title: "Couldn't load transport data",
