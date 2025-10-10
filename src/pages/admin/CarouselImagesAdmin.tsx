@@ -52,40 +52,80 @@ export default function CarouselImagesAdmin() {
 
       console.log('All events sample (including past events):', allEvents);
 
-      // Fetch images from trek events - includes current, past events, and gallery images
-      // Note: Gallery images are stored in the same trek_events table as event images
-      const { data: imagesData, error: imagesError } = await supabase
+      // Fetch all trek events that have either direct images or associated images
+      const { data: trekEvents, error: trekEventsError } = await supabase
         .from('trek_events')
-        .select(`
-          trek_id,
-          image_url,
-          image,
-          name,
-          status,
-          start_datetime
-        `)
-        .or('image_url.not.is.null,image.not.is.null')
+        .select('trek_id, name, image_url, image, status, start_datetime')
         .order('name', { ascending: true });
 
-      if (imagesError) {
-        console.error('Error fetching images:', imagesError);
-        throw imagesError;
+      if (trekEventsError) {
+        console.error('Error fetching trek events:', trekEventsError);
+        throw trekEventsError;
       }
 
-      console.log('Images data:', imagesData);
-      console.log('Images data length:', imagesData?.length || 0);
-      console.log('First few images:', imagesData?.slice(0, 3));
+      // Fetch all images from trek_event_images table
+      const { data: eventImages, error: eventImagesError } = await supabase
+        .from('trek_event_images')
+        .select('trek_id, image_url, position')
+        .order('position', { ascending: true });
 
-      const formattedImages: UploadedImage[] = (imagesData || []).map(img => ({
-        id: img.trek_id,
-        image_url: img.image_url || img.image || '',
-        trek_id: img.trek_id,
-        trek_name: img.name || 'Unknown Trek',
-        status: img.status,
-        start_datetime: img.start_datetime
-      }));
+      if (eventImagesError) {
+        console.error('Error fetching event images:', eventImagesError);
+        throw eventImagesError;
+      }
+
+      console.log('Trek events:', trekEvents);
+      console.log('Event images:', eventImages);
+
+      // Group images by trek_id
+      const imagesByTrekId: Record<number, string[]> = {};
+      (eventImages || []).forEach(img => {
+        if (!imagesByTrekId[img.trek_id]) {
+          imagesByTrekId[img.trek_id] = [];
+        }
+        imagesByTrekId[img.trek_id].push(img.image_url);
+      });
+
+      // Combine trek data with images from both sources, avoiding duplicates
+      const formattedImages: UploadedImage[] = [];
+      const processedTreks = new Set<number>();
+
+      (trekEvents || []).forEach(trek => {
+        // Add images directly from trek_events table if they exist
+        if (trek.image_url || trek.image) {
+          formattedImages.push({
+            id: trek.trek_id,
+            image_url: trek.image_url || trek.image || '',
+            trek_id: trek.trek_id,
+            trek_name: trek.name || 'Unknown Trek',
+            status: trek.status,
+            start_datetime: trek.start_datetime
+          });
+          processedTreks.add(trek.trek_id);
+        }
+      });
+
+      // Add images from trek_event_images table for treks that don't have direct images
+      (trekEvents || []).forEach(trek => {
+        if (!processedTreks.has(trek.trek_id)) {
+          const trekImages = imagesByTrekId[trek.trek_id];
+          if (trekImages && trekImages.length > 0) {
+            trekImages.forEach(imageUrl => {
+              formattedImages.push({
+                id: trek.trek_id,
+                image_url: imageUrl,
+                trek_id: trek.trek_id,
+                trek_name: trek.name || 'Unknown Trek',
+                status: trek.status,
+                start_datetime: trek.start_datetime
+              });
+            });
+          }
+        }
+      });
 
       console.log('Formatted images:', formattedImages);
+      console.log('Total images found:', formattedImages.length);
 
       setUploadedImages(formattedImages);
 
@@ -327,7 +367,7 @@ export default function CarouselImagesAdmin() {
         <CardHeader>
           <CardTitle>Available Event Images</CardTitle>
           <CardDescription>
-            Images from current events, past events, and gallery that can be used in the carousel.
+            Images from current events, past events (including those created via Create Past Event workflow), and gallery that can be used in the carousel.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -336,7 +376,7 @@ export default function CarouselImagesAdmin() {
               <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
               <p className="text-gray-600 mb-2">No images available</p>
               <p className="text-sm text-gray-500 mb-2">
-                Create events with images first to make them available for the carousel.
+                Create events with images (including via Create Past Event workflow) to make them available for the carousel.
               </p>
               <p className="text-xs text-gray-400">
                 Check browser console for debugging information.
