@@ -95,11 +95,33 @@ BEGIN
   END IF;
 END $$;
 
+-- Update existing records with proper defaults
+-- Handle type conversion for time column (might be VARCHAR instead of TIMESTAMPTZ)
 UPDATE public.trek_pickup_locations
 SET
-  time = COALESCE(time, NOW()),
   latitude = COALESCE(latitude, 0),
   longitude = COALESCE(longitude, 0)
-WHERE time IS NULL OR latitude IS NULL;
+WHERE latitude IS NULL OR longitude IS NULL;
+
+-- Handle time column separately based on its actual type
+DO $$
+BEGIN
+  -- If time column exists as TIMESTAMPTZ, update normally
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name='trek_pickup_locations'
+    AND column_name='time'
+    AND data_type='timestamp with time zone'
+  ) THEN
+    UPDATE public.trek_pickup_locations
+    SET time = COALESCE(time, NOW())
+    WHERE time IS NULL;
+  ELSE
+    -- If time column exists as VARCHAR, set a default string value
+    UPDATE public.trek_pickup_locations
+    SET time = COALESCE(time, NOW()::text)
+    WHERE time IS NULL;
+  END IF;
+END $$;
 
 COMMIT;

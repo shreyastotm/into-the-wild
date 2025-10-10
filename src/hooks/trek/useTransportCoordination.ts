@@ -422,16 +422,22 @@ export function useTransportCoordination(trekId: string | undefined) {
     if (!trekId) return false;
     try {
       const numericTrekId = parseInt(trekId, 10);
+      // Prepare location data - handle time column type differences
+      const locationData = {
+        trek_id: numericTrekId,
+        name: location.name,
+        address: location.address,
+        latitude: location.latitude ?? null,
+        longitude: location.longitude ?? null,
+      };
+
+      // Handle time column - could be TIMESTAMPTZ or VARCHAR
+      // Send as ISO string for TIMESTAMPTZ, or as text for VARCHAR
+      locationData.time = new Date().toISOString();
+
       const { error } = await supabase
         .from('trek_pickup_locations')
-        .insert({
-          trek_id: numericTrekId,
-          name: location.name,
-          address: location.address,
-          latitude: location.latitude ?? null,
-          longitude: location.longitude ?? null,
-          time: new Date().toISOString(), // Include the time column that exists in DB
-        } as Record<string, unknown>);
+        .insert(locationData as Record<string, unknown>);
       if (error) {
         console.error('Database error details:', error);
         throw new Error(`Failed to create pickup location: ${error.message}. Please check if the database schema is properly updated.`);
@@ -449,15 +455,20 @@ export function useTransportCoordination(trekId: string | undefined) {
   const updatePickupLocation = async (id: string, update: { name?: string; address?: string; latitude?: number; longitude?: number; }) => {
     try {
       const numericId = parseInt(id, 10);
+      // Prepare update data - handle time column type differences
+      const updateData = {
+        name: update.name,
+        address: update.address,
+        latitude: update.latitude,
+        longitude: update.longitude,
+      };
+
+      // Handle time column - could be TIMESTAMPTZ or VARCHAR
+      updateData.time = new Date().toISOString();
+
       const { error } = await supabase
         .from('trek_pickup_locations')
-        .update({
-          name: update.name,
-          address: update.address,
-          latitude: update.latitude,
-          longitude: update.longitude,
-          time: new Date().toISOString(), // Update the time column that exists in DB
-        } as Record<string, unknown>)
+        .update(updateData as Record<string, unknown>)
         .eq('id', numericId);
       if (error) throw error;
       await fetchTransportData();
