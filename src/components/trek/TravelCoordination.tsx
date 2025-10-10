@@ -9,10 +9,23 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Separator } from '@/components/ui/separator';
+import { MapContainer, TileLayer, Marker, useMapEvents } from 'react-leaflet';
+import 'leaflet/dist/leaflet.css';
+import L from 'leaflet';
+
+// Fix default Leaflet icon issue with bundlers
+// @ts-expect-error - This is a known workaround for a Leaflet-bundler issue
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useTransportCoordination, PickupStatus } from '@/hooks/trek/useTransportCoordination';
 
@@ -40,6 +53,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     userIsParticipant,
     userAssignedDriver,
     userPickupLocation,
+    availableDrivers,
     assignDriverToParticipant,
     updatePickupStatus,
     setParticipantPickupLocation,
@@ -55,6 +69,8 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [newLocation, setNewLocation] = useState({ name: '', address: '', latitude: '', longitude: '' });
   const [newDriver, setNewDriver] = useState({ user_id: '', vehicle_type: '', vehicle_name: '', registration_number: '', seats_available: '' });
+  const [showMap, setShowMap] = useState(false);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([12.9716, 77.5946]); // Bangalore coordinates
 
   useEffect(() => {
     if (userPickupLocation) {
@@ -71,6 +87,29 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     if (!user) return;
     await updatePickupStatus(user.id, participantId, status);
   };
+
+  // Component to handle map interaction for pickup location creation
+  function LocationMarker({ position, onPositionChange }: { position: L.LatLngTuple, onPositionChange: (pos: L.LatLngTuple) => void }) {
+    const [markerPosition, setMarkerPosition] = useState<L.LatLngTuple>(position);
+
+    const map = useMapEvents({
+      click(e) {
+        const newPos: L.LatLngTuple = [e.latlng.lat, e.latlng.lng];
+        setMarkerPosition(newPos);
+        onPositionChange(newPos);
+        map.flyTo(e.latlng, map.getZoom());
+      },
+    });
+
+    // Update marker if external position changes
+    useEffect(() => {
+      setMarkerPosition(position);
+    }, [position]);
+
+    return markerPosition ? (
+      <Marker position={markerPosition}></Marker>
+    ) : null;
+  }
 
   const getStatusBadge = (status: PickupStatus) => {
     const statusStyles = {
@@ -517,32 +556,120 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                         <Input placeholder="Latitude" value={newLocation.latitude} onChange={(e) => setNewLocation({ ...newLocation, latitude: e.target.value })} />
                         <Input placeholder="Longitude" value={newLocation.longitude} onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })} />
                       </div>
-                      <Button onClick={async () => {
-                        await createPickupLocation({
-                          name: newLocation.name.trim(),
-                          address: newLocation.address.trim(),
-                          latitude: newLocation.latitude ? parseFloat(newLocation.latitude) : undefined,
-                          longitude: newLocation.longitude ? parseFloat(newLocation.longitude) : undefined,
-                        });
-                        setNewLocation({ name: '', address: '', latitude: '', longitude: '' });
-                      }}>Add Location</Button>
+
+                      {/* Map Picker */}
+                      {showMap && (
+                        <div className="border rounded-md p-2">
+                          <div className="text-sm font-medium mb-2">Click on the map to set coordinates</div>
+                          <div className="h-48 w-full">
+                            <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }}>
+                              <TileLayer
+                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                              />
+                              <LocationMarker
+                                position={newLocation.latitude && newLocation.longitude ? [parseFloat(newLocation.latitude), parseFloat(newLocation.longitude)] : mapCenter}
+                                onPositionChange={(latlng) => {
+                                  setNewLocation(prev => ({
+                                    ...prev,
+                                    latitude: latlng[0].toString(),
+                                    longitude: latlng[1].toString()
+                                  }));
+                                }}
+                              />
+                            </MapContainer>
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Selected: {newLocation.latitude || 'N/A'}, {newLocation.longitude || 'N/A'}
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="flex gap-2">
+                        <Button variant="outline" onClick={() => setShowMap(!showMap)}>
+                          {showMap ? 'Hide Map' : 'Pick on Map'}
+                        </Button>
+                        <Button onClick={async () => {
+                          await createPickupLocation({
+                            name: newLocation.name.trim(),
+                            address: newLocation.address.trim(),
+                            latitude: newLocation.latitude ? parseFloat(newLocation.latitude) : undefined,
+                            longitude: newLocation.longitude ? parseFloat(newLocation.longitude) : undefined,
+                          });
+                          setNewLocation({ name: '', address: '', latitude: '', longitude: '' });
+                          setShowMap(false);
+                        }}>Add Location</Button>
+                      </div>
                     </CardContent>
                   </Card>
 
                   <Card>
                     <CardHeader className="pb-2">
                       <CardTitle className="text-base">Add / Update Driver</CardTitle>
+                      <CardDescription>
+                        Drivers can be selected from registrants who have vehicle info and opted-in, or add external drivers
+                      </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-3">
-                      <Input placeholder="Driver User ID (UUID)" value={newDriver.user_id} onChange={(e) => setNewDriver({ ...newDriver, user_id: e.target.value })} />
-                      <div className="grid grid-cols-2 gap-2">
-                        <Input placeholder="Vehicle Type" value={newDriver.vehicle_type} onChange={(e) => setNewDriver({ ...newDriver, vehicle_type: e.target.value })} />
-                        <Input placeholder="Vehicle Name" value={newDriver.vehicle_name} onChange={(e) => setNewDriver({ ...newDriver, vehicle_name: e.target.value })} />
+                      {/* Driver Selection Dropdown */}
+                      <div className="space-y-2">
+                        <Label>Select from Registered Drivers</Label>
+                        <Select
+                          value={newDriver.user_id}
+                          onValueChange={(value) => {
+                            const selectedRegistrant = availableDrivers.find(d => d.user_id === value);
+                            if (selectedRegistrant) {
+                              setNewDriver({
+                                user_id: selectedRegistrant.user_id,
+                                vehicle_type: selectedRegistrant.vehicle_type || '',
+                                vehicle_name: selectedRegistrant.vehicle_name || '',
+                                registration_number: selectedRegistrant.registration_number || '',
+                                seats_available: selectedRegistrant.seats_available?.toString() || ''
+                              });
+                            }
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose from available drivers" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {availableDrivers.map(driver => (
+                              <SelectItem key={driver.user_id} value={driver.user_id}>
+                                {driver.full_name} - {driver.vehicle_name} ({driver.vehicle_type})
+                              </SelectItem>
+                            ))}
+                            <SelectItem value="external">Add External Driver</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
+
+                      {/* Vehicle Details (populated if registrant selected, editable if external) */}
                       <div className="grid grid-cols-2 gap-2">
-                        <Input placeholder="Reg Number" value={newDriver.registration_number} onChange={(e) => setNewDriver({ ...newDriver, registration_number: e.target.value })} />
+                        <div className="space-y-2">
+                          <Label>Vehicle Type</Label>
+                          <Select
+                            value={newDriver.vehicle_type}
+                            onValueChange={(value) => setNewDriver({ ...newDriver, vehicle_type: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select vehicle type" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Car (5 Seater)">Car (5 Seater)</SelectItem>
+                              <SelectItem value="SUV/MUV (6-8 seater)">SUV/MUV (6-8 seater)</SelectItem>
+                              <SelectItem value="Mini-van (Tempo, Force ..)">Mini-van (Tempo, Force ..)</SelectItem>
+                              <SelectItem value="MiniBus">MiniBus</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <Input placeholder="Vehicle Name/Model" value={newDriver.vehicle_name} onChange={(e) => setNewDriver({ ...newDriver, vehicle_name: e.target.value })} />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <Input placeholder="Registration Number" value={newDriver.registration_number} onChange={(e) => setNewDriver({ ...newDriver, registration_number: e.target.value })} />
                         <Input placeholder="Seats Available" value={newDriver.seats_available} onChange={(e) => setNewDriver({ ...newDriver, seats_available: e.target.value })} />
                       </div>
+
                       <div className="flex gap-2">
                         <Button onClick={async () => {
                           await upsertDriver({

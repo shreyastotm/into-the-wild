@@ -50,6 +50,14 @@ export function useTransportCoordination(trekId: string | undefined) {
   const [userIsParticipant, setUserIsParticipant] = useState(false);
   const [userAssignedDriver, setUserAssignedDriver] = useState<Driver | null>(null);
   const [userPickupLocation, setUserPickupLocation] = useState<PickupLocation | null>(null);
+  const [availableDrivers, setAvailableDrivers] = useState<Array<{
+    user_id: string;
+    full_name: string;
+    vehicle_type?: string;
+    vehicle_name?: string;
+    registration_number?: string;
+    seats_available?: number;
+  }>>([]);
 
   const fetchTransportData = useCallback(async () => {
     if (!trekId) return;
@@ -212,11 +220,57 @@ export function useTransportCoordination(trekId: string | undefined) {
     }
   }, [trekId, user]);
 
+  const fetchAvailableDrivers = useCallback(async () => {
+    if (!trekId) return;
+
+    try {
+      const numericTrekId = parseInt(trekId, 10);
+
+      // Get all registrations for this trek
+      const { data: registrations, error: regError } = await supabase
+        .from('trek_registrations')
+        .select('user_id')
+        .eq('trek_id', numericTrekId)
+        .not('payment_status', 'eq', 'Cancelled');
+
+      if (regError) throw regError;
+
+      if (registrations && registrations.length > 0) {
+        const userIds = registrations.map(r => r.user_id);
+
+        // Get user profiles with vehicle info
+        const { data: users, error: userError } = await supabase
+          .from('users')
+          .select('user_id, name, has_car, car_seating_capacity, vehicle_number, transport_volunteer_opt_in')
+          .in('user_id', userIds)
+          .eq('has_car', true)
+          .eq('transport_volunteer_opt_in', true);
+
+        if (userError) throw userError;
+
+        const drivers = (users || []).map(user => ({
+          user_id: user.user_id,
+          full_name: user.name || 'Unknown',
+          vehicle_type: user.car_seating_capacity <= 5 ? 'Car (5 Seater)' :
+                       user.car_seating_capacity <= 8 ? 'SUV/MUV (6-8 seater)' : 'Mini-van (Tempo, Force ..)',
+          vehicle_name: user.vehicle_number || 'Personal Vehicle',
+          registration_number: user.vehicle_number || '',
+          seats_available: user.car_seating_capacity || 0
+        }));
+
+        setAvailableDrivers(drivers);
+      }
+    } catch (error) {
+      console.error('Error fetching available drivers:', error);
+    }
+  }, [trekId]);
+
   useEffect(() => {
     if (trekId) {
       fetchTransportData();
+      fetchAvailableDrivers();
     }
-  }, [trekId, fetchTransportData]);
+  }, [trekId, fetchTransportData, fetchAvailableDrivers]);
 
   const processLocationsData = (locationsData: Array<Record<string, unknown>>): PickupLocation[] => {
     return locationsData.map(location => ({
@@ -455,6 +509,7 @@ export function useTransportCoordination(trekId: string | undefined) {
     userIsParticipant,
     userAssignedDriver,
     userPickupLocation,
+    availableDrivers,
     assignDriverToParticipant,
     updatePickupStatus,
     setParticipantPickupLocation,

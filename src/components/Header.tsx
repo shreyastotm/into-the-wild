@@ -5,11 +5,18 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { NotificationBell } from '@/components/ui/NotificationBell';
 
 const Header = () => {
   const { user, userProfile, loading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
+  const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  // TODO: Implement actual notification fetching logic
+  const handleNotificationClick = () => {
+    // TODO: Open notifications panel or navigate to notifications page
+    console.log('Notifications clicked');
+  };
   useEffect(() => {
     // Auth state monitoring
   }, [loading, user]);
@@ -63,6 +70,13 @@ const Header = () => {
                         {link.label}
                       </Link>
                     ))}
+
+                    {/* Notification Bell */}
+                    <NotificationBell
+                      unreadCount={unreadNotifications}
+                      onClick={handleNotificationClick}
+                    />
+
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
