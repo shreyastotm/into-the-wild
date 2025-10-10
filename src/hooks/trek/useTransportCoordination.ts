@@ -303,9 +303,9 @@ export function useTransportCoordination(trekId: string | undefined) {
 
   const processLocationsData = (locationsData: Array<Record<string, unknown>>): PickupLocation[] => {
     return locationsData.map(location => ({
-      id: location.id.toString(),
-      name: location.name,
-      address: location.address,
+      id: (location.id || '').toString(),
+      name: location.name || '',
+      address: location.address || '',
       coordinates: {
         latitude: location.latitude || 0,
         longitude: location.longitude || 0
@@ -502,6 +502,17 @@ export function useTransportCoordination(trekId: string | undefined) {
   // --- Admin: Manage Drivers ---
   const upsertDriver = async (driver: { user_id: string; vehicle_type?: string; vehicle_name?: string; registration_number?: string; seats_available?: number; }) => {
     if (!trekId) return false;
+
+    // Validate user_id is not empty
+    if (!driver.user_id || driver.user_id.trim() === '') {
+      toast({
+        title: "User ID Required",
+        description: "Please enter a valid user ID for the driver.",
+        variant: "destructive"
+      });
+      return false;
+    }
+
     try {
       const numericTrekId = parseInt(trekId, 10);
 

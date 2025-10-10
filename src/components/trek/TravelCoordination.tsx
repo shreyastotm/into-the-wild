@@ -689,15 +689,29 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                         <Select
                           value={newDriver.user_id}
                           onValueChange={(value) => {
-                            const selectedRegistrant = availableDrivers.find(d => d.user_id === value);
-                            if (selectedRegistrant) {
-                              setNewDriver({
-                                user_id: selectedRegistrant.user_id,
-                                vehicle_type: selectedRegistrant.vehicle_type || '',
-                                vehicle_name: selectedRegistrant.vehicle_name || '',
-                                registration_number: selectedRegistrant.registration_number || '',
-                                seats_available: selectedRegistrant.seats_available?.toString() || ''
-                              });
+                            if (value === "external") {
+                              // Handle external driver - prompt for user ID
+                              const userId = prompt("Enter the driver's user ID (UUID):");
+                              if (userId && userId.trim()) {
+                                setNewDriver({
+                                  user_id: userId.trim(),
+                                  vehicle_type: '',
+                                  vehicle_name: '',
+                                  registration_number: '',
+                                  seats_available: ''
+                                });
+                              }
+                            } else {
+                              const selectedRegistrant = availableDrivers.find(d => d.user_id === value);
+                              if (selectedRegistrant) {
+                                setNewDriver({
+                                  user_id: selectedRegistrant.user_id,
+                                  vehicle_type: selectedRegistrant.vehicle_type || '',
+                                  vehicle_name: selectedRegistrant.vehicle_name || '',
+                                  registration_number: selectedRegistrant.registration_number || '',
+                                  seats_available: selectedRegistrant.seats_available?.toString() || ''
+                                });
+                              }
                             }
                           }}
                         >
@@ -744,6 +758,15 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
 
                       <div className="flex gap-2">
                         <Button onClick={async () => {
+                          if (!newDriver.user_id.trim()) {
+                            toast({
+                              title: "User ID Required",
+                              description: "Please select a driver or enter a user ID for external drivers.",
+                              variant: "destructive"
+                            });
+                            return;
+                          }
+
                           await upsertDriver({
                             user_id: newDriver.user_id.trim(),
                             vehicle_type: newDriver.vehicle_type.trim() || undefined,
