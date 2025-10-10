@@ -71,14 +71,29 @@ COMMENT ON COLUMN public.trek_pickup_locations.latitude IS 'Latitude coordinate 
 COMMENT ON COLUMN public.trek_pickup_locations.longitude IS 'Longitude coordinate for pickup location';
 
 -- Update existing records to have default values for new columns
+-- Note: vehicle_info may exist as TEXT type, so handle carefully
 UPDATE public.trek_drivers
 SET
-  vehicle_info = COALESCE(vehicle_info, '{}'::jsonb),
   vehicle_type = COALESCE(vehicle_type, ''),
   vehicle_name = COALESCE(vehicle_name, ''),
   registration_number = COALESCE(registration_number, ''),
   seats_available = COALESCE(seats_available, 0)
-WHERE vehicle_info IS NULL OR vehicle_type IS NULL;
+WHERE vehicle_type IS NULL OR vehicle_name IS NULL OR registration_number IS NULL OR seats_available IS NULL;
+
+-- For vehicle_info, only update if it's JSONB type (to avoid type mismatch errors)
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_name='trek_drivers'
+    AND column_name='vehicle_info'
+    AND data_type='jsonb'
+  ) THEN
+    UPDATE public.trek_drivers
+    SET vehicle_info = COALESCE(vehicle_info, '{}'::jsonb)
+    WHERE vehicle_info IS NULL;
+  END IF;
+END $$;
 
 UPDATE public.trek_pickup_locations
 SET

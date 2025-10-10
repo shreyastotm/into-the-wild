@@ -96,15 +96,29 @@ export function useTransportCoordination(trekId: string | undefined) {
             seats_available: driver.seats_available || 0
           };
 
-          // If vehicle_info JSON exists, use it to fill in missing data
-          if (driver.vehicle_info && typeof driver.vehicle_info === 'object') {
-            const vehicleInfo = driver.vehicle_info as Record<string, unknown>;
-            vehicleDetails = {
-              vehicle_type: vehicleInfo.vehicle_type || driver.vehicle_type || '',
-              vehicle_name: vehicleInfo.vehicle_name || driver.vehicle_name || '',
-              registration_number: vehicleInfo.registration_number || driver.registration_number || '',
-              seats_available: vehicleInfo.seats_available || driver.seats_available || 0
-            };
+          // If vehicle_info exists (could be JSONB or TEXT), try to parse it
+          if (driver.vehicle_info) {
+            try {
+              let vehicleInfo;
+              if (typeof driver.vehicle_info === 'object') {
+                vehicleInfo = driver.vehicle_info as Record<string, unknown>;
+              } else if (typeof driver.vehicle_info === 'string') {
+                // Handle case where vehicle_info is stored as TEXT
+                vehicleInfo = JSON.parse(driver.vehicle_info);
+              }
+
+              if (vehicleInfo && typeof vehicleInfo === 'object') {
+                vehicleDetails = {
+                  vehicle_type: vehicleInfo.vehicle_type || vehicleInfo.vehicle_type || driver.vehicle_type || '',
+                  vehicle_name: vehicleInfo.vehicle_name || vehicleInfo.vehicle_name || driver.vehicle_name || '',
+                  registration_number: vehicleInfo.registration_number || vehicleInfo.registration_number || driver.registration_number || '',
+                  seats_available: vehicleInfo.seats_available || vehicleInfo.seats_available || driver.seats_available || 0
+                };
+              }
+            } catch (error) {
+              // If parsing fails, use individual columns
+              console.warn('Failed to parse vehicle_info, using individual columns:', error);
+            }
           }
 
           return {
@@ -480,25 +494,37 @@ export function useTransportCoordination(trekId: string | undefined) {
     try {
       const numericTrekId = parseInt(trekId, 10);
 
-      // Prepare vehicle info JSON for the vehicle_info column that exists in DB
-      const vehicleInfo = {
+      // Prepare vehicle info - handle both JSONB and TEXT storage
+      const vehicleInfoObj = {
         vehicle_type: driver.vehicle_type || '',
         vehicle_name: driver.vehicle_name || '',
         registration_number: driver.registration_number || '',
         seats_available: driver.seats_available || 0
       };
 
+      // Try to send as JSON, but fallback to individual columns if needed
+      const insertData = {
+        trek_id: numericTrekId,
+        user_id: driver.user_id,
+        vehicle_type: driver.vehicle_type ?? null,
+        vehicle_name: driver.vehicle_name ?? null,
+        registration_number: driver.registration_number ?? null,
+        seats_available: driver.seats_available ?? 0,
+      };
+
+      // Only add vehicle_info if we can determine it's JSONB type
+      // For now, let the database handle the conversion
+      try {
+        // Try sending as JSON string first (for TEXT columns)
+        insertData.vehicle_info = JSON.stringify(vehicleInfoObj);
+      } catch (error) {
+        console.warn('Failed to stringify vehicle_info, sending as object');
+        insertData.vehicle_info = vehicleInfoObj;
+      }
+
       const { error } = await supabase
         .from('trek_drivers')
-        .upsert({
-          trek_id: numericTrekId,
-          user_id: driver.user_id,
-          vehicle_type: driver.vehicle_type ?? null,
-          vehicle_name: driver.vehicle_name ?? null,
-          registration_number: driver.registration_number ?? null,
-          seats_available: driver.seats_available ?? 0,
-          vehicle_info: vehicleInfo, // Include the vehicle_info JSON column
-        } as Record<string, unknown>);
+        .upsert(insertData as Record<string, unknown>);
       if (error) {
         console.error('Database error details:', error);
         throw new Error(`Failed to save driver: ${error.message}. Please check if the database schema is properly updated.`);
