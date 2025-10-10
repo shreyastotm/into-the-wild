@@ -418,7 +418,10 @@ export function useTransportCoordination(trekId: string | undefined) {
           longitude: location.longitude ?? null,
           time: new Date().toISOString(), // Include the time column that exists in DB
         } as Record<string, unknown>);
-      if (error) throw error;
+      if (error) {
+        console.error('Database error details:', error);
+        throw new Error(`Failed to create pickup location: ${error.message}. Please check if the database schema is properly updated.`);
+      }
       await fetchTransportData();
       toast({ title: 'Pickup location added', variant: 'default' });
       return true;
@@ -496,7 +499,10 @@ export function useTransportCoordination(trekId: string | undefined) {
           seats_available: driver.seats_available ?? 0,
           vehicle_info: vehicleInfo, // Include the vehicle_info JSON column
         } as Record<string, unknown>);
-      if (error) throw error;
+      if (error) {
+        console.error('Database error details:', error);
+        throw new Error(`Failed to save driver: ${error.message}. Please check if the database schema is properly updated.`);
+      }
       await fetchTransportData();
       toast({ title: 'Driver saved', variant: 'default' });
       return true;

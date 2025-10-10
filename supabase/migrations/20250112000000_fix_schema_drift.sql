@@ -5,9 +5,25 @@ BEGIN;
 
 -- Fix trek_drivers table - ensure all expected columns exist
 -- The database apparently has a 'vehicle_info' column that's NOT NULL
--- Add it if missing and make it nullable with a default
-ALTER TABLE public.trek_drivers
-  ADD COLUMN IF NOT EXISTS vehicle_info JSONB DEFAULT '{}'::jsonb;
+-- First, add it if missing, then modify constraint if needed
+DO $$
+BEGIN
+    -- Add the column if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='trek_drivers' AND column_name='vehicle_info') THEN
+        ALTER TABLE public.trek_drivers ADD COLUMN vehicle_info JSONB DEFAULT '{}'::jsonb;
+    END IF;
+
+    -- If the column exists but has NOT NULL constraint, modify it to allow NULL with default
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name='trek_drivers'
+        AND column_name='vehicle_info'
+        AND is_nullable='NO'
+    ) THEN
+        ALTER TABLE public.trek_drivers ALTER COLUMN vehicle_info DROP NOT NULL;
+        ALTER TABLE public.trek_drivers ALTER COLUMN vehicle_info SET DEFAULT '{}'::jsonb;
+    END IF;
+END $$;
 
 -- Ensure all other expected columns exist
 ALTER TABLE public.trek_drivers
@@ -18,9 +34,25 @@ ALTER TABLE public.trek_drivers
 
 -- Fix trek_pickup_locations table - ensure all expected columns exist
 -- The database apparently has a 'time' column that's NOT NULL
--- Add it if missing and make it nullable with a default
-ALTER TABLE public.trek_pickup_locations
-  ADD COLUMN IF NOT EXISTS time TIMESTAMPTZ DEFAULT NOW();
+-- First, add it if missing, then modify constraint if needed
+DO $$
+BEGIN
+    -- Add the column if it doesn't exist
+    IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='trek_pickup_locations' AND column_name='time') THEN
+        ALTER TABLE public.trek_pickup_locations ADD COLUMN time TIMESTAMPTZ DEFAULT NOW();
+    END IF;
+
+    -- If the column exists but has NOT NULL constraint, modify it to allow NULL with default
+    IF EXISTS (
+        SELECT 1 FROM information_schema.columns
+        WHERE table_name='trek_pickup_locations'
+        AND column_name='time'
+        AND is_nullable='NO'
+    ) THEN
+        ALTER TABLE public.trek_pickup_locations ALTER COLUMN time DROP NOT NULL;
+        ALTER TABLE public.trek_pickup_locations ALTER COLUMN time SET DEFAULT NOW();
+    END IF;
+END $$;
 
 -- Ensure all other expected columns exist
 ALTER TABLE public.trek_pickup_locations
