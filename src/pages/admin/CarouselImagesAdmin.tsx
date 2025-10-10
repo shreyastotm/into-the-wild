@@ -16,7 +16,6 @@ interface UploadedImage {
   image_url: string;
   trek_id: number;
   trek_name: string;
-  uploaded_at: string;
 }
 
 interface CarouselImage {
@@ -45,26 +44,22 @@ export default function CarouselImagesAdmin() {
 
       // Fetch uploaded images from trek events
       const { data: imagesData, error: imagesError } = await supabase
-        .from('trek_event_images')
+        .from('trek_events')
         .select(`
-          id,
-          image_url,
           trek_id,
-          uploaded_at,
-          trek_events (
-            name
-          )
+          image_url,
+          name
         `)
-        .order('uploaded_at', { ascending: false });
+        .not('image_url', 'is', null)
+        .order('name', { ascending: true });
 
       if (imagesError) throw imagesError;
 
       const formattedImages: UploadedImage[] = (imagesData || []).map(img => ({
-        id: img.id,
+        id: img.trek_id,
         image_url: img.image_url,
         trek_id: img.trek_id,
-        trek_name: img.trek_events?.name || 'Unknown Trek',
-        uploaded_at: img.uploaded_at
+        trek_name: img.name || 'Unknown Trek'
       }));
 
       setUploadedImages(formattedImages);
@@ -328,9 +323,6 @@ export default function CarouselImagesAdmin() {
 
                 <div className="mt-2">
                   <p className="text-sm font-medium truncate">{image.trek_name}</p>
-                  <p className="text-xs text-gray-500">
-                    {new Date(image.uploaded_at).toLocaleDateString()}
-                  </p>
                 </div>
               </div>
             ))}
