@@ -21,7 +21,7 @@ import { formatCurrency } from '@/lib/utils';
 import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
 import TrekCostsManager from '@/components/trek/TrekCostsManager';
 import { TentRequestsAdmin } from '@/components/admin/TentRequestsAdmin';
-// import { AdminTransportCoordination } from '@/components/admin/AdminTransportCoordination'; // Keep commented out or remove
+import { TravelCoordination } from '@/components/trek/TravelCoordination';
 
 // Define a more flexible interface to handle field name variations
 interface TrekEvent {
@@ -442,19 +442,12 @@ export default function AdminTrekDetails() {
             </TabsContent>
 
             <TabsContent value="transport">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Transport Management</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-8 text-muted-foreground">
-                    Transport management is now handled within the main Trek Details page 
-                    using the 'Travel Coordination' section when viewed as an admin.
-                    (Or display the TravelCoordination component here if preferred:
-                     e.g., &lt;TravelCoordination trekId={trekId} isAdmin={true} /&gt; )
-                  </div>
-                </CardContent>
-              </Card>
+              <TravelCoordination
+                transportMode={trek.transport_mode}
+                pickupTimeWindow={trek.pickup_time_window}
+                vendorContacts={trek.vendor_contacts}
+                isAdmin={true}
+              />
             </TabsContent>
 
             <TabsContent value="expenses">

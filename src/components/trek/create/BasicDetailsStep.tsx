@@ -242,52 +242,6 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
           </div>
         )}
 
-        {/* Transport & Coordination (optional) */}
-        <div className="space-y-2">
-          <Label>Transport Mode</Label>
-          <Select 
-            value={(formData.transport_mode as string) || ''}
-            onValueChange={(value) => setFormData(f => ({ ...f, transport_mode: value as any }))}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select planned transport" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="cars">Cars (carpool)</SelectItem>
-              <SelectItem value="mini_van">Mini Van</SelectItem>
-              <SelectItem value="bus">Bus</SelectItem>
-              <SelectItem value="self_drive">Self Drive</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="pickup_time_window">Pickup Time Window</Label>
-            <Input 
-              id="pickup_time_window"
-              name="pickup_time_window"
-              value={formData.pickup_time_window || ''}
-              onChange={e => setFormData(f => ({ ...f, pickup_time_window: e.target.value }))}
-              placeholder="e.g., 05:30–06:00 IST"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="vendor_contacts_raw">Vendor Contacts (JSON)</Label>
-            <Textarea
-              id="vendor_contacts_raw"
-              name="vendor_contacts_raw"
-              rows={3}
-              value={formData.vendor_contacts_raw || ''}
-              onChange={e => setFormData(f => ({ ...f, vendor_contacts_raw: e.target.value }))}
-              placeholder='{"Transport Vendor": {"phone": "+91-98xxxxxx", "email": "ops@example.in"}}'
-            />
-            <div className="text-gray-500 text-xs">
-              Optional. Provide JSON for any vendor/service contacts. Keep India formats (ISD code, IST).
-            </div>
-          </div>
-        </div>
 
         {/* Status - Removed from form, managed only from admin table */}
       </div>

@@ -104,7 +104,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     );
   }
 
-  if (!transportMode) {
+  if (!transportMode && !isAdmin) {
     return (
       <Alert variant="default" className="bg-amber-50 border-amber-200">
         <AlertCircle className="h-4 w-4 text-amber-600" />

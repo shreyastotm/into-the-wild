@@ -51,9 +51,14 @@ const Index = () => {
           {/* Carousel Section - More compact for mobile */}
           <div className="flex-shrink-0 mb-6 md:mb-8">
             <div className="relative h-64 md:h-96 rounded-lg overflow-hidden">
-              <Carousel className="w-full h-full" orientation="horizontal">
+              <Carousel
+                className="w-full h-full"
+                orientation="horizontal"
+                autoPlay={true}
+                autoPlayInterval={4000}
+              >
                 <CarouselContent>
-                  {heroImages.map((src, i) => (
+                  {heroImages.slice(0, 5).map((src, i) => (
                     <CarouselItem key={i}>
                       <div className="relative h-full overflow-hidden rounded-lg">
                         <img src={src} alt={`Adventure ${i + 1}`} className="w-full h-full object-cover" loading="eager" />

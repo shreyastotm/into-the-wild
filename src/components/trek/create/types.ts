@@ -15,12 +15,6 @@ export interface AdminTrekEvent {
   image?: string;
   gpx_file?: string;
   status?: string;
-  // Transport & coordination metadata captured at creation time (optional)
-  transport_mode?: 'cars' | 'mini_van' | 'bus' | 'self_drive' | null;
-  pickup_time_window?: string | null;
-  vendor_contacts?: Record<string, unknown> | null;
-  // UI-only raw text field to capture vendor contacts JSON, converted on submit
-  vendor_contacts_raw?: string;
   itinerary?: {
     days?: Array<{
       title: string;

@@ -55,17 +55,6 @@ export default function CreateTrekEvent() {
         status: 'Draft' as const,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        // Parse vendor contacts JSON if provided in raw field
-        vendor_contacts: (() => {
-          try {
-            if (trekData.vendor_contacts_raw && trekData.vendor_contacts_raw.trim().length > 0) {
-              return JSON.parse(trekData.vendor_contacts_raw);
-            }
-          } catch (e) {
-            console.warn('Invalid vendor_contacts JSON, ignoring.');
-          }
-          return trekData.vendor_contacts ?? null;
-        })(),
       };
 
       // Step 1: Create the main trek event
