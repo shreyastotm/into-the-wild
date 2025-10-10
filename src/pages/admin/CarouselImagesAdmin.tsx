@@ -327,7 +327,7 @@ export default function CarouselImagesAdmin() {
         <CardHeader>
           <CardTitle>Available Event Images</CardTitle>
           <CardDescription>
-            Images uploaded to events that can be used in the carousel.
+            Images from current events, past events, and gallery that can be used in the carousel.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -336,7 +336,7 @@ export default function CarouselImagesAdmin() {
               <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
               <p className="text-gray-600 mb-2">No images available</p>
               <p className="text-sm text-gray-500 mb-2">
-                Upload images to your events first to make them available for the carousel.
+                Create events with images first to make them available for the carousel.
               </p>
               <p className="text-xs text-gray-400">
                 Check browser console for debugging information.
@@ -363,9 +363,17 @@ export default function CarouselImagesAdmin() {
                       />
                     </div>
 
-                    <div className="mt-2">
-                      <p className="text-sm font-medium truncate">{image.trek_name}</p>
-                    </div>
+                <div className="mt-2">
+                  <p className="text-sm font-medium truncate">{image.trek_name}</p>
+                  {image.status && (
+                    <p className="text-xs text-gray-500 capitalize">{image.status.replace('_', ' ')}</p>
+                  )}
+                  {image.start_datetime && (
+                    <p className="text-xs text-gray-500">
+                      {new Date(image.start_datetime).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
                   </div>
                 ))}
               </div>

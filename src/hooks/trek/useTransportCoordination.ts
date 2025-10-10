@@ -69,7 +69,7 @@ export function useTransportCoordination(trekId: string | undefined) {
       // --- Fetch Drivers (Two-Step Approach) ---
       const { data: rawDriversData, error: rawDriversError } = await supabase
         .from('trek_drivers')
-        .select('*') // Select all driver fields
+        .select('*') // Select all driver fields including vehicle_info
         .eq('trek_id', numericTrekId);
       if (rawDriversError) throw rawDriversError;
 
@@ -87,16 +87,31 @@ export function useTransportCoordination(trekId: string | undefined) {
         }
         driversWithNames = rawDriversData.map((driver: Record<string, unknown>) => {
           const userDetail = driverUserDetails.find(u => u.user_id === driver.user_id);
+
+          // Handle vehicle details - prefer individual columns, fallback to vehicle_info JSON
+          let vehicleDetails = {
+            vehicle_type: driver.vehicle_type || '',
+            vehicle_name: driver.vehicle_name || '',
+            registration_number: driver.registration_number || '',
+            seats_available: driver.seats_available || 0
+          };
+
+          // If vehicle_info JSON exists, use it to fill in missing data
+          if (driver.vehicle_info && typeof driver.vehicle_info === 'object') {
+            const vehicleInfo = driver.vehicle_info as Record<string, unknown>;
+            vehicleDetails = {
+              vehicle_type: vehicleInfo.vehicle_type || driver.vehicle_type || '',
+              vehicle_name: vehicleInfo.vehicle_name || driver.vehicle_name || '',
+              registration_number: vehicleInfo.registration_number || driver.registration_number || '',
+              seats_available: vehicleInfo.seats_available || driver.seats_available || 0
+            };
+          }
+
           return {
             user_id: driver.user_id,
             full_name: userDetail?.name || null,
             avatar_url: userDetail?.avatar_url || null,
-            vehicle_details: { // Reconstruct vehicle details
-                vehicle_type: driver.vehicle_type,
-                vehicle_name: driver.vehicle_name,
-                registration_number: driver.registration_number,
-                seats_available: driver.seats_available
-            },
+            vehicle_details: vehicleDetails,
             assigned_participants: [], // Will be populated later
             pickup_status: {} // Will be populated later
           };
@@ -278,8 +293,8 @@ export function useTransportCoordination(trekId: string | undefined) {
       name: location.name,
       address: location.address,
       coordinates: {
-        latitude: location.latitude,
-        longitude: location.longitude
+        latitude: location.latitude || 0,
+        longitude: location.longitude || 0
       }
     }));
   };
@@ -401,6 +416,7 @@ export function useTransportCoordination(trekId: string | undefined) {
           address: location.address,
           latitude: location.latitude ?? null,
           longitude: location.longitude ?? null,
+          time: new Date().toISOString(), // Include the time column that exists in DB
         } as Record<string, unknown>);
       if (error) throw error;
       await fetchTransportData();
@@ -423,6 +439,7 @@ export function useTransportCoordination(trekId: string | undefined) {
           address: update.address,
           latitude: update.latitude,
           longitude: update.longitude,
+          time: new Date().toISOString(), // Update the time column that exists in DB
         } as Record<string, unknown>)
         .eq('id', numericId);
       if (error) throw error;
@@ -459,6 +476,15 @@ export function useTransportCoordination(trekId: string | undefined) {
     if (!trekId) return false;
     try {
       const numericTrekId = parseInt(trekId, 10);
+
+      // Prepare vehicle info JSON for the vehicle_info column that exists in DB
+      const vehicleInfo = {
+        vehicle_type: driver.vehicle_type || '',
+        vehicle_name: driver.vehicle_name || '',
+        registration_number: driver.registration_number || '',
+        seats_available: driver.seats_available || 0
+      };
+
       const { error } = await supabase
         .from('trek_drivers')
         .upsert({
@@ -468,6 +494,7 @@ export function useTransportCoordination(trekId: string | undefined) {
           vehicle_name: driver.vehicle_name ?? null,
           registration_number: driver.registration_number ?? null,
           seats_available: driver.seats_available ?? 0,
+          vehicle_info: vehicleInfo, // Include the vehicle_info JSON column
         } as Record<string, unknown>);
       if (error) throw error;
       await fetchTransportData();
