@@ -75,17 +75,23 @@ export function useTransportCoordination(trekId: string | undefined) {
 
       let driversWithNames: Driver[] = [];
       if (rawDriversData && rawDriversData.length > 0) {
-        const driverUserIds = [...new Set(rawDriversData.map(d => d.user_id).filter(Boolean))];
-        let driverUserDetails: { user_id: string; name: string | null; avatar_url: string | null; }[] = [];
-        if (driverUserIds.length > 0) {
-          const { data: driverUsersData, error: driverUsersError } = await supabase
-            .from('users') // Query public.users
-            .select('user_id, name, avatar_url') // Include avatar
-            .in('user_id', driverUserIds);
-          if (driverUsersError) console.error('Error fetching driver user details:', driverUsersError);
-          else driverUserDetails = driverUsersData || [];
-        }
-        driversWithNames = rawDriversData.map((driver: Record<string, unknown>) => {
+        // Filter out drivers with empty or invalid user_ids
+        const validDrivers = rawDriversData.filter((d: Record<string, unknown>) => d.user_id && d.user_id.toString().trim() !== '');
+
+        if (validDrivers.length === 0) {
+          driversWithNames = [];
+        } else {
+          const driverUserIds = [...new Set(validDrivers.map(d => d.user_id).filter(Boolean))];
+          let driverUserDetails: { user_id: string; name: string | null; avatar_url: string | null; }[] = [];
+          if (driverUserIds.length > 0) {
+            const { data: driverUsersData, error: driverUsersError } = await supabase
+              .from('users') // Query public.users
+              .select('user_id, name, avatar_url') // Include avatar
+              .in('user_id', driverUserIds);
+            if (driverUsersError) console.error('Error fetching driver user details:', driverUsersError);
+            else driverUserDetails = driverUsersData || [];
+          }
+          driversWithNames = validDrivers.map((driver: Record<string, unknown>) => {
           const userDetail = driverUserDetails.find(u => u.user_id === driver.user_id);
 
           // Handle vehicle details - prefer individual columns, fallback to vehicle_info JSON
@@ -143,7 +149,9 @@ export function useTransportCoordination(trekId: string | undefined) {
       let participantsWithDetails: Participant[] = [];
       const participantIdMap: Record<string, unknown> = {}; // Temp map to hold raw participant data
       if (rawParticipantsData && rawParticipantsData.length > 0) {
-          const participantUserIds = [...new Set(rawParticipantsData.map(p => p.user_id).filter(Boolean))];
+          // Filter out participants with empty or invalid user_ids
+          const validParticipants = rawParticipantsData.filter((p: Record<string, unknown>) => p.user_id && p.user_id.toString().trim() !== '');
+          const participantUserIds = [...new Set(validParticipants.map(p => p.user_id).filter(Boolean))];
           let participantUserDetails: { user_id: string; name: string | null; avatar_url: string | null; }[] = [];
           if (participantUserIds.length > 0) {
               // Fetch user details
@@ -155,7 +163,7 @@ export function useTransportCoordination(trekId: string | undefined) {
               else participantUserDetails = participantUsersData || [];
           }
           // Map raw data and user details, keep location_id for now
-          participantsWithDetails = rawParticipantsData.map((p: Record<string, unknown>) => {
+          participantsWithDetails = validParticipants.map((p: Record<string, unknown>) => {
               const userDetail = participantUserDetails.find(u => u.user_id === p.user_id);
               participantIdMap[p.user_id] = p.pickup_location_id; // Store pickup_location_id temporarily
               return {
@@ -206,7 +214,7 @@ export function useTransportCoordination(trekId: string | undefined) {
                           driver.assigned_participants.push(participant);
                           // Populate using the correct column name 'status'
                           // Use 'as any' temporarily to bypass TS type error
-                          driver.pickup_status[participant.user_id] = ((assignment as Record<string, unknown>).status as PickupStatus) || 'pending'; 
+                          driver.pickup_status[participant.user_id] = ((assignment as Record<string, unknown>).status as PickupStatus) || 'pending';
                       }
                   }
               });
@@ -277,15 +285,17 @@ export function useTransportCoordination(trekId: string | undefined) {
 
         if (userError) throw userError;
 
-        const drivers = (users || []).map(user => ({
-          user_id: user.user_id,
-          full_name: user.name || 'Unknown',
-          vehicle_type: user.car_seating_capacity <= 5 ? 'Car (5 Seater)' :
-                       user.car_seating_capacity <= 8 ? 'SUV/MUV (6-8 seater)' : 'Mini-van (Tempo, Force ..)',
-          vehicle_name: user.vehicle_number || 'Personal Vehicle',
-          registration_number: user.vehicle_number || '',
-          seats_available: user.car_seating_capacity || 0
-        }));
+        const drivers = (users || [])
+          .filter(user => user.user_id && user.user_id.trim() !== '') // Filter out empty user_ids
+          .map(user => ({
+            user_id: user.user_id,
+            full_name: user.name || 'Unknown',
+            vehicle_type: user.car_seating_capacity <= 5 ? 'Car (5 Seater)' :
+                         user.car_seating_capacity <= 8 ? 'SUV/MUV (6-8 seater)' : 'Mini-van (Tempo, Force ..)',
+            vehicle_name: user.vehicle_number || 'Personal Vehicle',
+            registration_number: user.vehicle_number || '',
+            seats_available: user.car_seating_capacity || 0
+          }));
 
         setAvailableDrivers(drivers);
       }

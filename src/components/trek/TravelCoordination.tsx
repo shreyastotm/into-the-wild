@@ -261,7 +261,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                     <SelectValue placeholder="Select pickup location" />
                   </SelectTrigger>
                   <SelectContent>
-                    {pickupLocations.map(location => (
+                    {pickupLocations.filter(location => location.id && location.id.trim() !== '').map(location => (
                       <SelectItem key={location.id} value={location.id}>
                         {location.name}
                       </SelectItem>
@@ -523,7 +523,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                                   <SelectValue placeholder="Assign Driver" />
                                 </SelectTrigger>
                                 <SelectContent>
-                                  {drivers.map(driver => (
+                                  {drivers.filter(driver => driver.user_id && driver.user_id.trim() !== '').map(driver => (
                                     <SelectItem key={driver.user_id} value={driver.user_id} disabled={
                                       driver.assigned_participants.length >= (driver.vehicle_details?.seats_available || 0)
                                     }>
@@ -719,7 +719,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                             <SelectValue placeholder="Choose from available drivers" />
                           </SelectTrigger>
                           <SelectContent>
-                            {availableDrivers.map(driver => (
+                            {availableDrivers.filter(driver => driver.user_id && driver.user_id.trim() !== '').map(driver => (
                               <SelectItem key={driver.user_id} value={driver.user_id}>
                                 {driver.full_name} - {driver.vehicle_name} ({driver.vehicle_type})
                               </SelectItem>
