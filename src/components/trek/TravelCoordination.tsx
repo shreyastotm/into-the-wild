@@ -71,6 +71,9 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
   const [newDriver, setNewDriver] = useState({ user_id: '', vehicle_type: '', vehicle_name: '', registration_number: '', seats_available: '' });
   const [showMap, setShowMap] = useState(false);
   const [mapCenter, setMapCenter] = useState<[number, number]>([12.9716, 77.5946]); // Bangalore coordinates
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+  const [searching, setSearching] = useState(false);
 
   useEffect(() => {
     if (userPickupLocation) {
@@ -110,6 +113,40 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
       <Marker position={markerPosition}></Marker>
     ) : null;
   }
+
+  // Search for locations using Nominatim (OpenStreetMap)
+  const handleSearchLocation = async () => {
+    if (!searchQuery.trim()) return;
+    
+    setSearching(true);
+    try {
+      const response = await fetch(
+        `https://nominatim.openstreetmap.org/search?` +
+        `q=${encodeURIComponent(searchQuery + ', India')}&` +
+        `format=json&limit=5&addressdetails=1`
+      );
+      const data = await response.json();
+      setSearchResults(data);
+    } catch (error) {
+      console.error('Error searching location:', error);
+      toast({ title: 'Search failed', description: 'Could not search for location', variant: 'destructive' });
+    } finally {
+      setSearching(false);
+    }
+  };
+
+  const handleSelectSearchResult = (result: { display_name: string; lat: string; lon: string }) => {
+    setNewLocation(prev => ({
+      ...prev,
+      name: result.display_name.split(',')[0],
+      address: result.display_name,
+      latitude: result.lat,
+      longitude: result.lon
+    }));
+    setMapCenter([parseFloat(result.lat), parseFloat(result.lon)]);
+    setSearchResults([]);
+    setSearchQuery('');
+  };
 
   const getStatusBadge = (status: PickupStatus) => {
     const statusStyles = {
@@ -557,12 +594,47 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                         <Input placeholder="Longitude" value={newLocation.longitude} onChange={(e) => setNewLocation({ ...newLocation, longitude: e.target.value })} />
                       </div>
 
-                      {/* Map Picker */}
+                      {/* Map Picker with Search */}
                       {showMap && (
                         <div className="border rounded-md p-2">
+                          {/* Search Bar */}
+                          <div className="mb-2 space-y-2">
+                            <Label>Search Location</Label>
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Search for a place in India..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onKeyPress={(e) => e.key === 'Enter' && handleSearchLocation()}
+                              />
+                              <Button
+                                variant="outline"
+                                onClick={handleSearchLocation}
+                                disabled={searching || !searchQuery.trim()}
+                              >
+                                {searching ? 'Searching...' : 'Search'}
+                              </Button>
+                            </div>
+                            
+                            {/* Search Results */}
+                            {searchResults.length > 0 && (
+                              <div className="border rounded-md max-h-32 overflow-y-auto">
+                                {searchResults.map((result, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                    onClick={() => handleSelectSearchResult(result)}
+                                  >
+                                    {result.display_name}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+
                           <div className="text-sm font-medium mb-2">Click on the map to set coordinates</div>
                           <div className="h-48 w-full">
-                            <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }}>
+                            <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }} key={JSON.stringify(mapCenter)}>
                               <TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

@@ -52,15 +52,13 @@ export default function Auth() {
 
       {/* Right Side - Form */}
       <div className="flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-white min-h-screen">
-        <div className="w-full max-w-md">
-          {/* Mobile Logo */}
-          <img
-            src="/itw_logo.jpg"
-            alt="Into the Wild"
-            className="h-16 sm:h-20 w-auto mx-auto mb-6 sm:mb-8 md:hidden"
-          />
-          <AuthForm initialMode={initialMode} />
-        </div>
+        {/* Mobile Logo */}
+        <img
+          src="/itw_logo.jpg"
+          alt="Into the Wild"
+          className="h-16 sm:h-20 w-auto mx-auto mb-6 sm:mb-8 md:hidden"
+        />
+        <AuthForm initialMode={initialMode} />
       </div>
     </div>
   );

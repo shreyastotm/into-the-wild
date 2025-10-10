@@ -82,7 +82,10 @@ export const ProfileForm: React.FC = () => {
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
     // Default map center to Bangalore, India
-    const [mapCenter, setMapCenter] = useState<L.LatLngTuple>([12.9716, 77.5946]); 
+    const [mapCenter, setMapCenter] = useState<L.LatLngTuple>([12.9716, 77.5946]);
+    const [searchQuery, setSearchQuery] = useState('');
+    const [searchResults, setSearchResults] = useState<Array<{ display_name: string; lat: string; lon: string }>>([]);
+    const [searching, setSearching] = useState(false); 
 
     useEffect(() => {
         if (userProfile) {
@@ -230,6 +233,39 @@ export const ProfileForm: React.FC = () => {
     if (authLoading) {
          return <div className="flex justify-center items-center p-10"><Loader2 className="h-8 w-8 animate-spin" /></div>;
     }
+
+    // Search for locations using Nominatim (OpenStreetMap)
+    const handleSearchLocation = async () => {
+        if (!searchQuery.trim()) return;
+        
+        setSearching(true);
+        try {
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/search?` +
+                `q=${encodeURIComponent(searchQuery + ', India')}&` +
+                `format=json&limit=5&addressdetails=1`
+            );
+            const data = await response.json();
+            setSearchResults(data);
+        } catch (error) {
+            console.error('Error searching location:', error);
+            toast({ title: 'Search failed', description: 'Could not search for location', variant: 'destructive' });
+        } finally {
+            setSearching(false);
+        }
+    };
+
+    const handleSelectSearchResult = (result: { display_name: string; lat: string; lon: string }) => {
+        setFormData(prev => ({
+            ...prev,
+            address: result.display_name,
+            latitude: parseFloat(result.lat),
+            longitude: parseFloat(result.lon)
+        }));
+        setMapCenter([parseFloat(result.lat), parseFloat(result.lon)]);
+        setSearchResults([]);
+        setSearchQuery('');
+    };
 
     const handleCancel = () => {
         // Reset form to original values
@@ -418,10 +454,45 @@ export const ProfileForm: React.FC = () => {
             {/* Location Section */}
             <FormSection
                 title="Home Location for Pickup"
-                description="Click on the map to set your approximate home location. This helps organizers plan carpooling routes if needed."
+                description="Search for your location or click on the map to set your approximate home location. This helps organizers plan carpooling routes if needed."
                 icon={MapPin}
                 variant="card"
             >
+                {/* Search Bar */}
+                <div className="mb-4 space-y-2">
+                    <div className="flex gap-2">
+                        <Input
+                            placeholder="Search for your location in India..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onKeyPress={(e) => e.key === 'Enter' && handleSearchLocation()}
+                        />
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={handleSearchLocation}
+                            disabled={searching || !searchQuery.trim()}
+                        >
+                            {searching ? 'Searching...' : 'Search'}
+                        </Button>
+                    </div>
+                    
+                    {/* Search Results */}
+                    {searchResults.length > 0 && (
+                        <div className="border rounded-md max-h-32 overflow-y-auto">
+                            {searchResults.map((result, idx) => (
+                                <div
+                                    key={idx}
+                                    className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                    onClick={() => handleSelectSearchResult(result)}
+                                >
+                                    {result.display_name}
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+
                 <div className="h-48 sm:h-64 w-full rounded-md overflow-hidden z-0">
                     <MapContainer center={mapCenter} zoom={12} style={{ height: '100%', width: '100%' }} key={JSON.stringify(mapCenter)} >
                         <TileLayer

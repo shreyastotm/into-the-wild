@@ -16,6 +16,8 @@ interface UploadedImage {
   image_url: string;
   trek_id: number;
   trek_name: string;
+  status?: string;
+  start_datetime?: string;
 }
 
 interface CarouselImage {
@@ -42,22 +44,25 @@ export default function CarouselImagesAdmin() {
     try {
       setLoading(true);
 
-      // First, let's see what events exist
+      // First, let's see what events exist (including past events and gallery images)
       const { data: allEvents, error: allEventsError } = await supabase
         .from('trek_events')
-        .select('trek_id, name, image_url')
+        .select('trek_id, name, image_url, status, start_datetime')
         .limit(10);
 
-      console.log('All events sample:', allEvents);
+      console.log('All events sample (including past events):', allEvents);
 
-      // Fetch uploaded images from trek events - check both image and image_url columns
+      // Fetch images from trek events - includes current, past events, and gallery images
+      // Note: Gallery images are stored in the same trek_events table as event images
       const { data: imagesData, error: imagesError } = await supabase
         .from('trek_events')
         .select(`
           trek_id,
           image_url,
           image,
-          name
+          name,
+          status,
+          start_datetime
         `)
         .or('image_url.not.is.null,image.not.is.null')
         .order('name', { ascending: true });
@@ -75,7 +80,9 @@ export default function CarouselImagesAdmin() {
         id: img.trek_id,
         image_url: img.image_url || img.image || '',
         trek_id: img.trek_id,
-        trek_name: img.name || 'Unknown Trek'
+        trek_name: img.name || 'Unknown Trek',
+        status: img.status,
+        start_datetime: img.start_datetime
       }));
 
       console.log('Formatted images:', formattedImages);
