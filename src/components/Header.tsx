@@ -44,9 +44,9 @@ const Header = () => {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <Link to="/" className="flex items-center gap-3 group">
-              <img 
-                src="/itw_logo.jpg" 
-                alt="Into the Wild" 
+              <img
+                src="/itw_logo.png"
+                alt="Into the Wild"
                 className="h-10 sm:h-12 w-auto transition-transform duration-300 group-hover:scale-105"
               />
               <span className="text-lg sm:text-xl font-bold text-gray-800 hidden sm:inline">
@@ -115,9 +115,9 @@ const Header = () => {
                 <SheetContent side="right" className="w-80 sm:w-96">
                   <SheetHeader>
                     <SheetTitle className="flex items-center gap-3">
-                      <img 
-                        src="/itw_logo.jpg" 
-                        alt="Into the Wild" 
+                      <img
+                        src="/itw_logo.png"
+                        alt="Into the Wild"
                         className="h-8 w-auto"
                       />
                       Into the Wild

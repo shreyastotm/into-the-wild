@@ -39,7 +39,7 @@ export function MobileHamburger() {
           <SheetHeader>
             <SheetTitle className="flex items-center gap-3">
               <img
-                src="/itw_logo.jpg"
+                src="/itw_logo.png"
                 alt="Into the Wild"
                 className="h-8 w-auto"
               />

@@ -18,7 +18,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
     <div className={`text-center py-16 px-4 ${className}`}>
       <div className="inline-block relative mb-6">
         <img 
-          src="/itw_logo.jpg" 
+          src="/itw_logo.png" 
           alt="" 
           className="h-32 w-auto opacity-15 grayscale"
         />

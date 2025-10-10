@@ -71,7 +71,7 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className }) => {
         {/* Logo Watermark (appears on hover) */}
         <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
           <img 
-            src="/itw_logo.jpg" 
+            src="/itw_logo.png" 
             alt="" 
             className="h-32 w-auto translate-x-4 translate-y-4 rotate-12"
           />

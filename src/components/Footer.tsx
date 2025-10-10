@@ -12,7 +12,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
           <div>
             <Link to="/" className="text-xl font-bold text-gray-800 flex items-center mb-4">
-              <img src="/itw_logo.jpg" alt="Into the Wild" className="h-8 w-auto mr-2" />
+              <img src="/itw_logo.png" alt="Into the Wild" className="h-8 w-auto mr-2" />
               Into the Wild
             </Link>
             <p className="text-gray-600 mb-4">

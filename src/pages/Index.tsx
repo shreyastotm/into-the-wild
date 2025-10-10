@@ -26,7 +26,7 @@ const Index = () => {
         setBgUrl(backgroundUrl);
         // Use hero images if available, otherwise fallback to single background or logo
         setHeroImages(heroImagesList.length > 0 ? heroImagesList :
-                     backgroundUrl ? [backgroundUrl] : ['/itw_logo.jpg']);
+                     backgroundUrl ? [backgroundUrl] : ['/itw_logo.png']);
       }
     })();
     return () => {
@@ -41,7 +41,7 @@ const Index = () => {
         {/* Mobile Floating Logo */}
         <div className="absolute top-4 left-4 z-50 md:hidden">
           <img
-            src="/itw_logo.jpg"
+            src="/itw_logo.png"
             alt="Into the Wild"
             className="h-10 w-auto opacity-90"
           />

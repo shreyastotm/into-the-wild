@@ -29,7 +29,7 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   const siteTitle = "Into The Wild - Trekking Community";
   const siteDescription = "Join India's premier trekking community. Discover amazing treks, connect with fellow adventurers, and share your wilderness experiences.";
   const siteUrl = "https://into-the-wild.com"; // Update with actual domain
-  const defaultImage = "/itw_logo.jpg"; // Update with actual logo
+  const defaultImage = "/itw_logo.png"; // Update with actual logo
 
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
   const metaDescription = description || siteDescription;

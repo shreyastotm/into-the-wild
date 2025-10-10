@@ -93,8 +93,7 @@ export default function AuthForm({ initialMode }: AuthFormProps) {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 dark:bg-gray-900 px-4">
-      <Card className="w-full md:max-w-md">
+    <Card className="w-full md:max-w-md">
         <CardHeader className="px-4 sm:px-6">
           <CardTitle className="text-xl sm:text-2xl font-bold text-center">
             {showReset ? 'Reset Password' : 
@@ -196,6 +195,5 @@ export default function AuthForm({ initialMode }: AuthFormProps) {
           </CardFooter>
         )}
       </Card>
-    </div>
   );
 }

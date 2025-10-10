@@ -64,7 +64,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           <Icon className={`${iconSizes[size]} text-muted-foreground mx-auto`} />
         ) : (
           <img 
-            src="/itw_logo.jpg" 
+            src="/itw_logo.png" 
             alt="Into the Wild" 
             className={`${iconSizes[size]} w-auto opacity-15 grayscale`}
           />
@@ -127,7 +127,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           ) : (
             <div className="bg-gradient-to-br from-primary/10 to-secondary/10 rounded-full p-8 inline-block">
               <img 
-                src="/itw_logo.jpg" 
+                src="/itw_logo.png" 
                 alt="Into the Wild" 
                 className={`${iconSizes[size]} w-auto`}
               />
