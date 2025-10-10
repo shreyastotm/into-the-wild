@@ -42,15 +42,24 @@ export default function CarouselImagesAdmin() {
     try {
       setLoading(true);
 
-      // Fetch uploaded images from trek events
+      // First, let's see what events exist
+      const { data: allEvents, error: allEventsError } = await supabase
+        .from('trek_events')
+        .select('trek_id, name, image_url')
+        .limit(10);
+
+      console.log('All events sample:', allEvents);
+
+      // Fetch uploaded images from trek events - check both image and image_url columns
       const { data: imagesData, error: imagesError } = await supabase
         .from('trek_events')
         .select(`
           trek_id,
           image_url,
+          image,
           name
         `)
-        .not('image_url', 'is', null)
+        .or('image_url.not.is.null,image.not.is.null')
         .order('name', { ascending: true });
 
       if (imagesError) {
@@ -59,13 +68,17 @@ export default function CarouselImagesAdmin() {
       }
 
       console.log('Images data:', imagesData);
+      console.log('Images data length:', imagesData?.length || 0);
+      console.log('First few images:', imagesData?.slice(0, 3));
 
       const formattedImages: UploadedImage[] = (imagesData || []).map(img => ({
         id: img.trek_id,
-        image_url: img.image_url || '',
+        image_url: img.image_url || img.image || '',
         trek_id: img.trek_id,
         trek_name: img.name || 'Unknown Trek'
       }));
+
+      console.log('Formatted images:', formattedImages);
 
       setUploadedImages(formattedImages);
 
@@ -315,8 +328,11 @@ export default function CarouselImagesAdmin() {
             <div className="text-center py-8">
               <ImageIcon className="h-12 w-12 mx-auto mb-4 text-gray-400" />
               <p className="text-gray-600 mb-2">No images available</p>
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 mb-2">
                 Upload images to your events first to make them available for the carousel.
+              </p>
+              <p className="text-xs text-gray-400">
+                Check browser console for debugging information.
               </p>
             </div>
           ) : (
