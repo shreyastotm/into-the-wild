@@ -47,7 +47,7 @@ const Index = () => {
           />
         </div>
 
-        <div className="container mx-auto px-4 h-full flex flex-col">
+        <div className="container mx-auto px-4 h-full flex flex-col pt-16 md:pt-0">
           {/* Carousel Section - More compact for mobile */}
           <div className="flex-shrink-0 mb-6 md:mb-8">
             <div className="relative h-64 md:h-80 rounded-lg overflow-hidden">
