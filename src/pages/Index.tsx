@@ -86,17 +86,9 @@ const Index = () => {
                     variant="accent"
                     size="lg"
                     className="w-full"
-                    onClick={() => navigate('/events')}
+                    onClick={() => navigate('/gallery')}
                   >
                     Upcoming Adventures
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="lg"
-                    className="w-full"
-                    onClick={() => navigate('/trek-archives')}
-                  >
-                    Past Adventures
                   </Button>
                 </>
               ) : (

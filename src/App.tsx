@@ -12,7 +12,6 @@ import { AuthProvider } from './components/auth/AuthProvider';
 import TrekEvents from './pages/TrekEvents';
 import TrekEventDetails from './pages/TrekEventDetails';
 import CreateTrekEvent from './pages/CreateTrekEvent';
-import TrekArchives from './pages/TrekArchives';
 import Gallery from './pages/Gallery';
 import TrekkingGuide from './pages/TrekkingGuide';
 import SafetyTips from './pages/SafetyTips';
@@ -72,7 +71,6 @@ function App() {
             <Route path="/trek-events" element={<Navigate to="/events" replace />} />
             <Route path="/trek-events/:id" element={<TrekEventRedirect />} />
             
-            <Route path="/trek-archives" element={<TrekArchives />} />
             <Route path="/gallery" element={<Gallery />} />
             <Route path="/trekking-guide" element={<TrekkingGuide />} />
             <Route path="/safety-tips" element={<SafetyTips />} />
