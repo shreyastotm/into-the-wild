@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useToast } from "@/components/ui/use-toast";
+import { Input } from "@/components/ui/input";
 import { Loader2, CheckCircle, XCircle, MapPin, Car, PawPrint, User, Mail, Phone, Calendar, Home, Settings } from 'lucide-react';
 import FormField from '@/components/forms/FormField';
 import FormSection from '@/components/forms/FormSection';
