@@ -80,12 +80,35 @@ const Index = () => {
               Discover breathtaking treks and connect with a community of adventurers.
             </p>
             <div className="w-full max-w-sm space-y-3">
-              <Button variant="accent" size="lg" className="w-full" onClick={handleSignup}>
-                Start my Journey
-              </Button>
-              <Button variant="outline" size="lg" className="w-full" onClick={handleSignin}>
-                Sign in
-              </Button>
+              {user ? (
+                <>
+                  <Button
+                    variant="accent"
+                    size="lg"
+                    className="w-full"
+                    onClick={() => navigate('/events')}
+                  >
+                    Upcoming Adventures
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="lg"
+                    className="w-full"
+                    onClick={() => navigate('/trek-archives')}
+                  >
+                    Past Adventures
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button variant="accent" size="lg" className="w-full" onClick={handleSignup}>
+                    Start my Journey
+                  </Button>
+                  <Button variant="outline" size="lg" className="w-full" onClick={handleSignin}>
+                    Sign in
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 

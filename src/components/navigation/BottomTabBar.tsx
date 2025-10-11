@@ -1,11 +1,9 @@
 import { NavLink } from 'react-router-dom';
-import { Mountain, Calendar, MessageSquare } from 'lucide-react';
+import { Mountain } from 'lucide-react';
 
 export function BottomTabBar() {
   const tabs = [
     { to: '/events', label: 'Treks', Icon: Mountain },
-    { to: '/gallery', label: 'Past', Icon: Calendar },
-    { to: '/forum', label: 'Forum', Icon: MessageSquare },
   ];
 
   return (
@@ -13,9 +11,9 @@ export function BottomTabBar() {
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white/95 backdrop-blur border-t border-gray-200"
       style={{ paddingBottom: 'calc(env(safe-area-inset-bottom))' }}
     >
-      <ul className="flex items-center justify-around h-16">
+      <ul className="flex items-center justify-center h-16">
         {tabs.map(({ to, label, Icon }) => (
-          <li key={to}>
+          <li key={to} className="flex-1">
             <NavLink
               to={to}
               className={({ isActive }) =>
