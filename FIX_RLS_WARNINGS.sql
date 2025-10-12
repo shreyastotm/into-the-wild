@@ -4,6 +4,12 @@
 -- Enable RLS on tables that need it
 ALTER TABLE public.spatial_ref_sys ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.user_actions ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.avatar_catalog ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.forum_categories ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.forum_threads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.forum_posts ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.forum_tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.forum_thread_tags ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.community_posts ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.subscriptions_billing ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.votes ENABLE ROW LEVEL SECURITY;
@@ -48,6 +54,67 @@ CREATE POLICY "Allow read own subscriptions_billing"
 ON public.subscriptions_billing FOR SELECT
 TO authenticated
 USING (auth.uid()::text = user_id);
+
+-- avatar_catalog - read-only for all authenticated users (public catalog)
+CREATE POLICY "Allow read access to avatar_catalog"
+ON public.avatar_catalog FOR SELECT
+TO authenticated
+USING (true);
+
+-- forum_categories - read-only for all authenticated users (public categories)
+CREATE POLICY "Allow read access to forum_categories"
+ON public.forum_categories FOR SELECT
+TO authenticated
+USING (true);
+
+-- forum_threads - users can read all, insert their own, update their own
+CREATE POLICY "Allow read access to forum_threads"
+ON public.forum_threads FOR SELECT
+TO authenticated
+USING (true);
+
+CREATE POLICY "Allow insert to forum_threads"
+ON public.forum_threads FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid()::text = author_id);
+
+CREATE POLICY "Allow update to own forum_threads"
+ON public.forum_threads FOR UPDATE
+TO authenticated
+USING (auth.uid()::text = author_id);
+
+-- forum_posts - users can read all, insert their own, update their own
+CREATE POLICY "Allow read access to forum_posts"
+ON public.forum_posts FOR SELECT
+TO authenticated
+USING (true);
+
+CREATE POLICY "Allow insert to forum_posts"
+ON public.forum_posts FOR INSERT
+TO authenticated
+WITH CHECK (auth.uid()::text = author_id);
+
+CREATE POLICY "Allow update to own forum_posts"
+ON public.forum_posts FOR UPDATE
+TO authenticated
+USING (auth.uid()::text = author_id);
+
+-- forum_tags - read-only for all authenticated users (public tags)
+CREATE POLICY "Allow read access to forum_tags"
+ON public.forum_tags FOR SELECT
+TO authenticated
+USING (true);
+
+-- forum_thread_tags - users can read all (public tag associations)
+CREATE POLICY "Allow read access to forum_thread_tags"
+ON public.forum_thread_tags FOR SELECT
+TO authenticated
+USING (true);
+
+CREATE POLICY "Allow insert to forum_thread_tags"
+ON public.forum_thread_tags FOR INSERT
+TO authenticated
+WITH CHECK (true);
 
 -- votes - users can read all, insert/update their own
 CREATE POLICY "Allow read access to votes"
