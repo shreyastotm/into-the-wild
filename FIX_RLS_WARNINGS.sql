@@ -1,8 +1,7 @@
 -- Fix RLS security warnings
 -- Run this in Supabase SQL Editor
 
--- Enable RLS on tables that need it
-ALTER TABLE public.spatial_ref_sys ENABLE ROW LEVEL SECURITY;
+-- Note: spatial_ref_sys is a PostgreSQL system table - do NOT enable RLS on it
 ALTER TABLE public.user_actions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.avatar_catalog ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.forum_categories ENABLE ROW LEVEL SECURITY;
@@ -16,11 +15,7 @@ ALTER TABLE public.votes ENABLE ROW LEVEL SECURITY;
 
 -- Create basic RLS policies for these tables
 
--- spatial_ref_sys - read-only for all authenticated users (system table)
-CREATE POLICY "Allow read access to spatial_ref_sys"
-ON public.spatial_ref_sys FOR SELECT
-TO authenticated
-USING (true);
+-- Note: spatial_ref_sys is a PostgreSQL system table - no RLS policies needed
 
 -- user_actions - users can read/insert their own actions (rate limiting)
 CREATE POLICY "Allow read own user_actions"
