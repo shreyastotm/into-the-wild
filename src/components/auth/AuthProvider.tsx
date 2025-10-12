@@ -36,9 +36,11 @@ export const AuthProvider: React.FC<PropsWithChildren<Record<string, never>>> = 
       if (error && error.code !== 'PGRST116') {
         console.error("[AUTH] Error fetching profile:", error);
         toast({ title: "Error", description: "Could not fetch user profile.", variant: "destructive" });
+        setLoading(false); // Set loading to false on error
       } else {
         console.log('[AUTH] Profile fetched successfully:', profile ? { id: profile.user_id, type: profile.user_type } : null);
         setUserProfile(profile);
+        setLoading(false); // Set loading to false on success
       }
     } else {
       console.log('[AUTH] fetchUserProfile - no session found');
@@ -86,6 +88,7 @@ export const AuthProvider: React.FC<PropsWithChildren<Record<string, never>>> = 
         } else {
             console.log('[AUTH] Auth state change - no user session');
             setUserProfile(null);
+            setLoading(false); // Set loading to false when no user session
         }
       }
     );
