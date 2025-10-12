@@ -67,6 +67,16 @@ export default function ForumHome() {
   }, []);
 
   const fetchForumData = async () => {
+    const timeoutId = setTimeout(() => {
+      console.error('Forum query timed out');
+      setLoading(false);
+      toast({
+        title: "Loading timed out",
+        description: "Please check your connection and refresh the page",
+        variant: "destructive",
+      });
+    }, 10000); // 10 second timeout
+
     try {
       setLoading(true);
 
@@ -149,10 +159,12 @@ export default function ForumHome() {
         })
       );
 
+      clearTimeout(timeoutId);
       setCategories(categoriesData || []);
       setTags(tagsData || []);
       setThreads(threadsWithTags);
     } catch (error) {
+      clearTimeout(timeoutId);
       console.error('Error fetching forum data:', error);
       toast({
         title: "Error",
@@ -257,8 +269,17 @@ export default function ForumHome() {
   if (loading) {
     return (
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-8">
-        <div className="text-center py-12">
-          <div className="text-lg">Loading forum...</div>
+        <div className="mb-8">
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2 animate-pulse"></div>
+          <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+        </div>
+        <div className="space-y-4">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div key={n} className="bg-white rounded-lg shadow-sm p-4 animate-pulse">
+              <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          ))}
         </div>
       </div>
     );

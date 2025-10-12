@@ -73,6 +73,16 @@ const TrekEvents = () => {
   };
 
   const fetchEvents = useCallback(async () => {
+    const timeoutId = setTimeout(() => {
+      console.error('Trek events query timed out');
+      setLoading(false);
+      toast({
+        title: "Loading timed out",
+        description: "Please check your connection and try again",
+        variant: "destructive",
+      });
+    }, 10000); // 10 second timeout
+
     try {
       setLoading(true);
       
@@ -194,9 +204,11 @@ const TrekEvents = () => {
         };
       });
       
+      clearTimeout(timeoutId);
       setEvents(displayEvents);
 
     } catch (error: unknown) {
+      clearTimeout(timeoutId);
       const errorMessage = error instanceof Error ? error.message : "Failed to load events";
       toast({
         title: "Error fetching events",
@@ -204,6 +216,7 @@ const TrekEvents = () => {
         variant: "destructive",
       });
       console.error("Error fetching treks:", error);
+      setEvents([]); // Set empty array on error
     } finally {
       setLoading(false);
     }
@@ -250,11 +263,21 @@ const TrekEvents = () => {
         categories={categories}
       />
       
-      {!loading && events.length > 0 ? (
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          {[1, 2, 3, 4, 5, 6].map((n) => (
+            <div key={n} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
+              <div className="h-48 bg-gray-200 rounded-md mb-4"></div>
+              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
+              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+            </div>
+          ))}
+        </div>
+      ) : events.length > 0 ? (
         <TrekEventsList treks={events} />
-      ) : !loading && events.length === 0 ? (
+      ) : (
         <NoTreksFound />
-      ) : null}
+      )}
     </div>
   );
 };

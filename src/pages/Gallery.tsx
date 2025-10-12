@@ -25,6 +25,12 @@ export default function Gallery() {
 
   useEffect(() => {
     (async () => {
+      const timeoutId = setTimeout(() => {
+        console.error('Gallery query timed out');
+        setLoading(false);
+        setItems([]);
+      }, 10000); // 10 second timeout
+
       setLoading(true);
       try {
         // Past treks from trek_events
@@ -59,8 +65,10 @@ export default function Gallery() {
           start_datetime: t.start_datetime,
           images: imagesByTrek[t.trek_id] ?? [],
         }));
+        clearTimeout(timeoutId);
         setItems(merged);
       } catch (e) {
+        clearTimeout(timeoutId);
         console.error(e);
         setItems([]);
       } finally {
@@ -93,8 +101,16 @@ export default function Gallery() {
     <div className="py-6 sm:py-8">
       <h1 className="text-2xl sm:text-3xl font-bold mb-4 sm:mb-6">Our Past Adventures</h1>
       {loading ? (
-        <div className="flex justify-center items-center py-12">
-          <div className="text-muted-foreground">Loading...</div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+            <div key={n} className="border rounded-lg overflow-hidden shadow-sm bg-white animate-pulse">
+              <div className="w-full h-40 sm:h-48 bg-gray-200"></div>
+              <div className="p-3 sm:p-4">
+                <div className="h-5 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+            </div>
+          ))}
         </div>
       ) : items.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">No past treks yet.</div>
