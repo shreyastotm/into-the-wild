@@ -44,11 +44,13 @@ function App() {
       <TooltipProvider>
         <Router>
           <Routes>
-            <Route element={<AppLayout />}>
-            <Route path="/" element={<Index />} />
+            {/* Auth routes without Layout (no header) */}
             <Route path="/login" element={<Auth />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/auth/callback" element={<AuthCallback />} />
+            
+            <Route element={<AppLayout />}>
+            <Route path="/" element={<Index />} />
             <Route path="/test-route" element={<TestRoute />} />
 
             <Route element={<ProtectedRoute />}>
