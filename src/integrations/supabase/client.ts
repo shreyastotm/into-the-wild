@@ -22,15 +22,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   auth: {
     autoRefreshToken: true,
     persistSession: true,
-    detectSessionInUrl: true,
-    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    storageKey: 'itw-auth-token',
-    flowType: 'pkce' // Better for mobile security
-  },
-  global: {
-    headers: {
-      'X-Client-Info': 'into-the-wild-mobile'
-    }
+    detectSessionInUrl: true
   }
 });
 
