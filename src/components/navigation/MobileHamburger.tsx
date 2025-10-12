@@ -9,6 +9,17 @@ export function MobileHamburger() {
   const { user, userProfile, loading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Debug logging for mobile hamburger
+  React.useEffect(() => {
+    console.log('[MOBILE_HAMBURGER]', {
+      user: user ? { id: user.id, email: user.email } : null,
+      userProfile: userProfile ? { type: userProfile.user_type } : null,
+      loading,
+      authLinksLength: user ? (userProfile?.user_type === 'admin' ? 3 : 2) : 0,
+      timestamp: new Date().toISOString()
+    });
+  }, [user, userProfile, loading]);
+
   const navLinks = [
     { to: '/', label: 'Home' },
     { to: '/events', label: 'Events' },
