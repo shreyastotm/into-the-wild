@@ -221,6 +221,30 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
           </div>
         </div>
 
+        {/* Government ID Requirement */}
+        <div className="space-y-2">
+          <div className="flex items-start space-x-2">
+            <input
+              type="checkbox"
+              id="government_id_required"
+              checked={formData.government_id_required || false}
+              onChange={(e) => setFormData(prev => ({
+                ...prev,
+                government_id_required: e.target.checked
+              }))}
+              className="mt-1 rounded border-gray-300 text-primary focus:ring-primary"
+            />
+            <div className="flex-1">
+              <Label htmlFor="government_id_required" className="text-sm font-medium cursor-pointer">
+                Requires Government ID Verification
+              </Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                Check this if participants need to verify their government ID (Aadhaar/Passport) for ticket booking, permits, or official documentation. This is common for treks requiring forest permits or train tickets.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* GPX File (for Trek events) */}
         {formData.event_type === EventType.TREK && (
           <div className="space-y-2">

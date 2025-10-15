@@ -70,6 +70,7 @@ export interface BaseEvent {
   collect_full_fee?: boolean;
   image_url?: string | null;
   transport_mode?: string | null;
+  government_id_required?: boolean;
   transport_plan?: {
     allowed_modes?: Array<'self_drive' | 'mini_van' | 'bus' | 'hybrid'>;
     default_mode?: 'self_drive' | 'mini_van' | 'bus' | 'hybrid';
@@ -125,14 +126,15 @@ export interface TrekEventListItem extends BaseEvent {
 }
 
 export interface TrekCost {
-  cost_id: number;
+  id: number;
   trek_id: number;
-  name: string;
-  description?: string | null;
+  description: string | null;
   amount: number;
-  type: 'per_person' | 'total';
+  cost_type: string;
+  url?: string | null;
+  file_url?: string | null;
   created_at?: string;
-  pay_by_date?: string | null;
+  updated_at?: string;
 }
 
 // Tent rental types

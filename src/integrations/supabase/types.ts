@@ -58,6 +58,7 @@ export interface Database {
           event_creator_type: string | null
           transport_mode: string | null
           event_type: string | null
+          government_id_required: boolean | null
         }
         Insert: {
           trek_id?: number
@@ -75,6 +76,7 @@ export interface Database {
           event_creator_type?: string | null
           transport_mode?: string | null
           event_type?: string | null
+          government_id_required?: boolean | null
         }
         Update: {
           trek_id?: number
@@ -92,6 +94,7 @@ export interface Database {
           event_creator_type?: string | null
           transport_mode?: string | null
           event_type?: string | null
+          government_id_required?: boolean | null
         }
       }
       trek_registrations: {
@@ -113,6 +116,8 @@ export interface Database {
           registrant_name: string | null
           registrant_phone: string | null
           payment_proof_url: string | null
+          id_verification_status: string | null
+          id_verification_notes: string | null
         }
         Insert: {
           registration_id?: number
@@ -132,6 +137,8 @@ export interface Database {
           registrant_name?: string | null
           registrant_phone?: string | null
           payment_proof_url?: string | null
+          id_verification_status?: string | null
+          id_verification_notes?: string | null
         }
         Update: {
           registration_id?: number
@@ -151,6 +158,8 @@ export interface Database {
           registrant_name?: string | null
           registrant_phone?: string | null
           payment_proof_url?: string | null
+          id_verification_status?: string | null
+          id_verification_notes?: string | null
         }
         Relationships: [
           {
@@ -166,6 +175,170 @@ export interface Database {
             isOneToOne: false
             referencedRelation: "trek_events"
             referencedColumns: ["trek_id"]
+          }
+        ]
+      }
+      trek_costs: {
+        Row: {
+          id: number
+          trek_id: number
+          cost_type: string
+          description: string | null
+          amount: number
+          url: string | null
+          file_url: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: number
+          trek_id: number
+          cost_type: string
+          description?: string | null
+          amount: number
+          url?: string | null
+          file_url?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: number
+          trek_id?: number
+          cost_type?: string
+          description?: string | null
+          amount?: number
+          url?: string | null
+          file_url?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_costs_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          }
+        ]
+      }
+      id_types: {
+        Row: {
+          id_type_id: number
+          name: string
+          display_name: string
+          description: string | null
+          is_active: boolean
+          created_at: string | null
+        }
+        Insert: {
+          id_type_id?: number
+          name: string
+          display_name: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string | null
+        }
+        Update: {
+          id_type_id?: number
+          name?: string
+          display_name?: string
+          description?: string | null
+          is_active?: boolean
+          created_at?: string | null
+        }
+        Relationships: []
+      }
+      trek_id_requirements: {
+        Row: {
+          requirement_id: number
+          trek_id: number
+          id_type_id: number
+          is_mandatory: boolean
+          created_at: string | null
+        }
+        Insert: {
+          requirement_id?: number
+          trek_id: number
+          id_type_id: number
+          is_mandatory?: boolean
+          created_at?: string | null
+        }
+        Update: {
+          requirement_id?: number
+          trek_id?: number
+          id_type_id?: number
+          is_mandatory?: boolean
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_id_requirements_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          },
+          {
+            foreignKeyName: "trek_id_requirements_id_type_id_fkey"
+            columns: ["id_type_id"]
+            isOneToOne: false
+            referencedRelation: "id_types"
+            referencedColumns: ["id_type_id"]
+          }
+        ]
+      }
+      registration_id_proofs: {
+        Row: {
+          proof_id: number
+          registration_id: number
+          id_type_id: number
+          proof_url: string
+          uploaded_by: string
+          uploaded_at: string | null
+          verified_by: string | null
+          verified_at: string | null
+          verification_status: string
+          admin_notes: string | null
+        }
+        Insert: {
+          proof_id?: number
+          registration_id: number
+          id_type_id: number
+          proof_url: string
+          uploaded_by: string
+          uploaded_at?: string | null
+          verified_by?: string | null
+          verified_at?: string | null
+          verification_status?: string
+          admin_notes?: string | null
+        }
+        Update: {
+          proof_id?: number
+          registration_id?: number
+          id_type_id?: number
+          proof_url?: string
+          uploaded_by?: string
+          uploaded_at?: string | null
+          verified_by?: string | null
+          verified_at?: string | null
+          verification_status?: string
+          admin_notes?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "registration_id_proofs_registration_id_fkey"
+            columns: ["registration_id"]
+            isOneToOne: false
+            referencedRelation: "trek_registrations"
+            referencedColumns: ["registration_id"]
+          },
+          {
+            foreignKeyName: "registration_id_proofs_id_type_id_fkey"
+            columns: ["id_type_id"]
+            isOneToOne: false
+            referencedRelation: "id_types"
+            referencedColumns: ["id_type_id"]
           }
         ]
       }

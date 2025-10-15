@@ -43,7 +43,7 @@ BEGIN
   END IF;
 
   -- For all other users (or new users), perform the upsert.
-  INSERT INTO public.users (user_id, email, name, avatar_url, is_verified)
+  INSERT INTO public.users (user_id, email, name, avatar_url, is_verified, verification_status)
   VALUES (
     NEW.id,
     NEW.email,
@@ -58,15 +58,17 @@ BEGIN
       (NEW.raw_app_meta_data->'claims'->>'avatar_url'),
       (NEW.raw_app_meta_data->'claims'->>'picture')
     ),
-    true
+    true,
+    'VERIFIED'::public.user_verification_status
   )
-  ON CONFLICT (email) DO UPDATE 
+  ON CONFLICT (email) DO UPDATE
   SET
     user_id = NEW.id,
     name = EXCLUDED.name,
     avatar_url = EXCLUDED.avatar_url,
     updated_at = NOW(),
-    is_verified = true;
+    is_verified = true,
+    verification_status = 'VERIFIED'::public.user_verification_status;
 
   RETURN NEW;
 END;

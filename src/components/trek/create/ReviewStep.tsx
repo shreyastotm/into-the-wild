@@ -152,15 +152,22 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
         <CardContent>
           <div className="space-y-3">
             <div className="flex justify-between items-center">
-              <span className="font-medium">Registration Fee per Person</span>
+              <div>
+                <span className="font-medium">Registration Fee per Person</span>
+                <span className="text-xs text-muted-foreground ml-2">(refundable)</span>
+              </div>
               <span className="text-lg font-semibold text-green-600">₹{formData.base_price?.toFixed(2)}</span>
             </div>
+
+            <p className="text-xs text-muted-foreground">
+              This is an advance payment to secure your place. As per our FAQ, cancellations 48 hours prior to the event are 100% refundable.
+            </p>
             
             {totalCosts > 0 && (
               <>
                 <hr className="my-4" />
                 <div className="space-y-2">
-                  <p className="font-medium text-sm">Additional Fixed Costs:</p>
+                  <p className="font-medium text-sm">Fixed Costs:</p>
                   {costs.map((cost, index) => (
                     <div key={index} className="flex justify-between text-sm">
                       <span className="text-muted-foreground">{cost.description}</span>
@@ -168,7 +175,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                     </div>
                   ))}
                   <div className="flex justify-between font-semibold pt-2 border-t">
-                    <span>Total Additional Costs</span>
+                    <span>Total Fixed Costs</span>
                     <span className="text-orange-600">₹{totalCosts.toFixed(2)}</span>
                   </div>
                 </div>

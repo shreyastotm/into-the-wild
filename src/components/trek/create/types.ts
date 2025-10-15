@@ -15,6 +15,7 @@ export interface AdminTrekEvent {
   image?: string;
   gpx_file?: string;
   status?: string;
+  government_id_required?: boolean;
   itinerary?: {
     days?: Array<{
       title: string;
@@ -45,7 +46,7 @@ export interface StepProps {
 export interface FormSubmissionData {
   trekData: AdminTrekEvent;
   packingList: Array<{ master_item_id: number; mandatory: boolean }>;
-  costs: Array<{ description: string; amount: number }>;
+  costs: Array<{ description: string; amount: number; cost_type: string }>;
   tentInventory?: TentInventory[];
 }
 

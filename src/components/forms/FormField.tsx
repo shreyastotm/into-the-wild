@@ -16,7 +16,7 @@ import { cn } from '@/lib/utils';
 export interface FormFieldProps {
   label: string;
   name: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'switch' | 'date' | 'time' | 'datetime-local';
+  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'switch' | 'date' | 'time' | 'datetime-local' | 'file';
   value?: any;
   onChange?: (value: any) => void;
   onBlur?: (e: React.FocusEvent) => void;
@@ -48,6 +48,7 @@ export interface FormFieldProps {
   icon?: React.ReactNode;
   suffix?: React.ReactNode;
   prefix?: React.ReactNode;
+  accept?: string;
 }
 
 const FormField: React.FC<FormFieldProps> = ({
@@ -85,6 +86,7 @@ const FormField: React.FC<FormFieldProps> = ({
   icon,
   suffix,
   prefix,
+  accept,
 }) => {
   const sizeClasses = {
     sm: 'h-8 text-sm',
@@ -105,6 +107,11 @@ const FormField: React.FC<FormFieldProps> = ({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const newValue = type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
     handleChange(newValue);
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0] || null;
+    handleChange(file);
   };
 
   const handleSelectChange = (newValue: string) => {
@@ -260,6 +267,33 @@ const FormField: React.FC<FormFieldProps> = ({
               />
             </PopoverContent>
           </Popover>
+        );
+
+      case 'file':
+        return (
+          <div className="relative">
+            {prefix && (
+              <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                {prefix}
+              </div>
+            )}
+            <Input
+              {...baseInputProps}
+              type="file"
+              onChange={handleFileChange}
+              className={cn(
+                baseInputProps.className,
+                prefix && 'pl-10',
+                suffix && 'pr-10'
+              )}
+              accept={accept}
+            />
+            {suffix && (
+              <div className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
+                {suffix}
+              </div>
+            )}
+          </div>
         );
 
       default:

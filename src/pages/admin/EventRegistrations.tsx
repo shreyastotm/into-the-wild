@@ -8,7 +8,9 @@ import { toast } from '@/components/ui/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Eye, CheckCircle, XCircle } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Eye, CheckCircle, XCircle, Shield, CreditCard } from 'lucide-react';
+import { IdProofVerification } from '@/components/admin/IdProofVerification';
 
 type RegistrationWithUser = {
   registration_id: number;
@@ -32,6 +34,7 @@ type RegistrationWithUser = {
 export default function EventRegistrations() {
   const [statusFilter, setStatusFilter] = useState<string>('ProofUploaded');
   const [trekIdFilter, setTrekIdFilter] = useState<string>('');
+  const [activeTab, setActiveTab] = useState('payments');
   const [rows, setRows] = useState<RegistrationWithUser[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [actionLoadingId, setActionLoadingId] = useState<number | null>(null);
@@ -212,43 +215,56 @@ export default function EventRegistrations() {
     <>
       <Card className="py-6 sm:py-8">
         <CardHeader>
-          <CardTitle className="text-xl sm:text-2xl">Event Registrations - Payment Verification</CardTitle>
+          <CardTitle className="text-xl sm:text-2xl">Event Registrations Management</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
-            <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-full sm:w-48">
-                <SelectValue placeholder="Status" />
-              </SelectTrigger>
-              <SelectContent>
-                {statuses.map(s => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Input 
-              placeholder="Trek ID" 
-              value={trekIdFilter} 
-              onChange={e => setTrekIdFilter(e.target.value)} 
-              className="w-full sm:w-40" 
-            />
-            <Button variant="outline" onClick={fetchRegistrations} disabled={loading} className="w-full sm:w-auto">
-              Refresh
-            </Button>
-          </div>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="payments" className="flex items-center gap-2">
+                <CreditCard className="h-4 w-4" />
+                Payment Verification
+              </TabsTrigger>
+              <TabsTrigger value="id-management" className="flex items-center gap-2">
+                <Shield className="h-4 w-4" />
+                ID Management
+              </TabsTrigger>
+            </TabsList>
 
-          {/* Mobile Card Layout */}
-          <div className="block md:hidden space-y-4">
-            {loading ? (
-              <div className="text-center py-8 text-muted-foreground">
-                Loading registrations...
+            <TabsContent value="payments">
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-4 mb-4">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-full sm:w-48">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {statuses.map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Input
+                  placeholder="Trek ID"
+                  value={trekIdFilter}
+                  onChange={e => setTrekIdFilter(e.target.value)}
+                  className="w-full sm:w-40"
+                />
+                <Button variant="outline" onClick={fetchRegistrations} disabled={loading} className="w-full sm:w-auto">
+                  Refresh
+                </Button>
               </div>
-            ) : rows.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No registrations found
-              </div>
-            ) : (
-              rows.map(r => (
+
+              {/* Mobile Card Layout */}
+              <div className="block md:hidden space-y-4">
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    Loading registrations...
+                  </div>
+                ) : rows.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No registrations found
+                  </div>
+                ) : (
+                  rows.map(r => (
                 <div key={r.registration_id} className="border rounded-lg p-4 bg-white shadow-sm">
                   <div className="flex justify-between items-start mb-3">
                     <div>
@@ -320,85 +336,96 @@ export default function EventRegistrations() {
             )}
           </div>
 
-          {/* Desktop Table Layout */}
-          <div className="hidden md:block overflow-x-auto border rounded-lg">
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Reg ID</TableHead>
-                  <TableHead>Trek ID</TableHead>
-                  <TableHead>User Name</TableHead>
-                  <TableHead>User Email</TableHead>
-                  <TableHead>Registrant Name</TableHead>
-                  <TableHead>Registrant Phone</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Proof</TableHead>
-                  <TableHead>Actions</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {loading ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                      Loading registrations...
-                    </TableCell>
-                  </TableRow>
-                ) : rows.length === 0 ? (
-                  <TableRow>
-                    <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
-                      No registrations found
-                    </TableCell>
-                  </TableRow>
-                ) : (
-                  rows.map(r => (
-                    <TableRow key={r.registration_id}>
-                      <TableCell className="font-medium">#{r.registration_id}</TableCell>
-                      <TableCell>{r.trek_id}</TableCell>
-                      <TableCell>{r.users?.full_name || 'N/A'}</TableCell>
-                      <TableCell className="text-sm">{r.users?.email || 'N/A'}</TableCell>
-                      <TableCell className="font-medium">{r.registrant_name || 'Not provided'}</TableCell>
-                      <TableCell>{r.registrant_phone || 'Not provided'}</TableCell>
-                      <TableCell>{getStatusBadge(r.payment_status)}</TableCell>
-                      <TableCell>
-                        {r.payment_proof_url ? (
-                          <Button 
-                            size="sm" 
-                            variant="outline"
-                            onClick={() => openModal(r)}
-                            className="flex items-center gap-1"
-                          >
-                            <Eye className="h-3 w-3" />
-                            View
-                          </Button>
-                        ) : (
-                          <span className="text-muted-foreground text-sm">No proof</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {r.payment_proof_url && r.payment_status === 'ProofUploaded' && (
-                          <div className="flex gap-2">
-                            <Button 
-                              size="sm" 
-                              onClick={() => openModal(r)}
-                              disabled={actionLoadingId === r.registration_id}
-                            >
-                              Review
-                            </Button>
-                          </div>
-                        )}
-                        {r.payment_status === 'Approved' && (
-                          <span className="text-green-600 text-sm">✓ Verified</span>
-                        )}
-                        {r.payment_status === 'Rejected' && (
-                          <span className="text-red-600 text-sm">✗ Rejected</span>
-                        )}
-                      </TableCell>
+              {/* Desktop Table Layout */}
+              <div className="hidden md:block overflow-x-auto border rounded-lg">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Reg ID</TableHead>
+                      <TableHead>Trek ID</TableHead>
+                      <TableHead>User Name</TableHead>
+                      <TableHead>User Email</TableHead>
+                      <TableHead>Registrant Name</TableHead>
+                      <TableHead>Registrant Phone</TableHead>
+                      <TableHead>Status</TableHead>
+                      <TableHead>Proof</TableHead>
+                      <TableHead>Actions</TableHead>
                     </TableRow>
-                  ))
-                )}
-              </TableBody>
-            </Table>
-          </div>
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                          Loading registrations...
+                        </TableCell>
+                      </TableRow>
+                    ) : rows.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={9} className="text-center py-8 text-muted-foreground">
+                          No registrations found
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      rows.map(r => (
+                        <TableRow key={r.registration_id}>
+                          <TableCell className="font-medium">#{r.registration_id}</TableCell>
+                          <TableCell>{r.trek_id}</TableCell>
+                          <TableCell>{r.users?.full_name || 'N/A'}</TableCell>
+                          <TableCell className="text-sm">{r.users?.email || 'N/A'}</TableCell>
+                          <TableCell className="font-medium">{r.registrant_name || 'Not provided'}</TableCell>
+                          <TableCell>{r.registrant_phone || 'Not provided'}</TableCell>
+                          <TableCell>{getStatusBadge(r.payment_status)}</TableCell>
+                          <TableCell>
+                            {r.payment_proof_url ? (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => openModal(r)}
+                                className="flex items-center gap-1"
+                              >
+                                <Eye className="h-3 w-3" />
+                                View
+                              </Button>
+                            ) : (
+                              <span className="text-muted-foreground text-sm">No proof</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {r.payment_proof_url && r.payment_status === 'ProofUploaded' && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => openModal(r)}
+                                  disabled={actionLoadingId === r.registration_id}
+                                >
+                                  Review
+                                </Button>
+                              </div>
+                            )}
+                            {r.payment_status === 'Approved' && (
+                              <span className="text-green-600 text-sm">✓ Verified</span>
+                            )}
+                            {r.payment_status === 'Rejected' && (
+                              <span className="text-red-600 text-sm">✗ Rejected</span>
+                            )}
+                          </TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </TabsContent>
+
+                <TabsContent value="id-management">
+                  <IdProofVerification
+                    onVerificationComplete={() => {
+                      // Refresh data if needed
+                      fetchRegistrations();
+                    }}
+                  />
+                </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 

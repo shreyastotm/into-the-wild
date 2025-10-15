@@ -3,19 +3,78 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Table, TableHeader, TableBody, TableRow, TableCell, TableFooter, TableHead, TableCaption } from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
 import { toast } from '@/components/ui/use-toast';
 import { UserProfile } from '@/components/auth/AuthProvider';
 import { UserVerificationStatus } from '@/integrations/supabase/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { CheckCircle, Upload, Shield, Clock } from 'lucide-react';
+
+// Helper function to determine user's verification level
+const getUserVerificationLevel = (user: UserProfile): 'auto' | 'quick' | 'full' => {
+  if (user.verification_status !== 'VERIFIED') return 'auto';
+
+  const docs = user.verification_docs;
+  if (docs?.aadhaar?.front_url && docs?.secondary_id?.front_url) {
+    return 'full';
+  } else if (docs?.aadhaar?.front_url) {
+    return 'quick';
+  }
+  return 'auto';
+};
+
+const getVerificationLevelInfo = (level: 'auto' | 'quick' | 'full') => {
+  switch (level) {
+    case 'auto':
+      return {
+        name: 'Auto-Verified',
+        description: 'Basic verification for community access',
+        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        color: 'green',
+        bgClass: 'bg-green-50 border-green-200',
+        badgeClass: 'bg-green-600 text-white'
+      };
+    case 'quick':
+      return {
+        name: 'Quick Verification',
+        description: 'Aadhaar verified for most treks',
+        icon: <Upload className="h-4 w-4 text-blue-600" />,
+        color: 'blue',
+        bgClass: 'bg-blue-50 border-blue-200',
+        badgeClass: 'bg-blue-600 text-white'
+      };
+    case 'full':
+      return {
+        name: 'Full Verification',
+        description: 'Complete verification for all treks',
+        icon: <Shield className="h-4 w-4 text-purple-600" />,
+        color: 'purple',
+        bgClass: 'bg-purple-50 border-purple-200',
+        badgeClass: 'bg-purple-600 text-white'
+      };
+    default:
+      return {
+        name: 'Not Verified',
+        description: 'Verification required',
+        icon: <Clock className="h-4 w-4 text-gray-600" />,
+        color: 'gray',
+        bgClass: 'bg-gray-50 border-gray-200',
+        badgeClass: 'bg-gray-600 text-white'
+      };
+  }
+};
 
 export default function UserVerificationPanel() {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [loading, setLoading] = useState(false);
   const [userTypeFilter, setUserTypeFilter] = useState<string>('all');
+  const [verificationStatusFilter, setVerificationStatusFilter] = useState<string>('all');
 
   useEffect(() => {
     async function fetchUsers() {
       setLoading(true);
       let query = supabase.from('users').select('*');
+
       if (userTypeFilter !== 'all') {
         const validTypes = ['admin', 'micro_community', 'trekker'];
         if (validTypes.includes(userTypeFilter)) {
@@ -26,6 +85,11 @@ export default function UserVerificationPanel() {
           return;
         }
       }
+
+      if (verificationStatusFilter !== 'all') {
+        query = query.eq('verification_status', verificationStatusFilter);
+      }
+
       const { data, error } = await query;
       const validTypes = ['admin', 'micro_community', 'trekker'];
       const filtered = (data || []).filter(u => u.user_type && validTypes.includes(u.user_type));
@@ -37,18 +101,23 @@ export default function UserVerificationPanel() {
       setLoading(false);
     }
     fetchUsers();
-  }, [userTypeFilter]);
+  }, [userTypeFilter, verificationStatusFilter]);
 
   async function handleVerify(userId: string) {
     const { error } = await supabase
       .from('users')
       .update({ verification_status: 'VERIFIED' as UserVerificationStatus })
       .eq('user_id', userId);
+
     if (error) {
       toast({ title: 'Error verifying user', description: error.message, variant: 'destructive' });
     } else {
       toast({ title: 'User verified' });
-      setUsers(users => users.map(u => u.user_id === userId ? { ...u, verification_status: 'VERIFIED' as UserVerificationStatus } : u));
+      setUsers(users => users.map(u =>
+        u.user_id === userId
+          ? { ...u, verification_status: 'VERIFIED' as UserVerificationStatus }
+          : u
+      ));
     }
   }
 
@@ -79,21 +148,41 @@ export default function UserVerificationPanel() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-6">User Verification</h2>
-      <div className="mb-4 flex gap-4 items-center">
-        <label htmlFor="userTypeFilter" className="font-medium">User Type:</label>
-        <select
-          id="userTypeFilter"
-          value={userTypeFilter}
-          onChange={e => setUserTypeFilter(e.target.value)}
-          className="border rounded px-2 py-1"
-        >
-          <option value="micro_community">Micro-Community</option>
-          <option value="admin">Admin</option>
-          <option value="trekker">Trekker</option>
-          <option value="all">All</option>
-        </select>
+    <div className="max-w-6xl mx-auto p-4">
+      <h2 className="text-2xl font-bold mb-6">User Verification Management</h2>
+
+      {/* Filters */}
+      <div className="mb-6 flex gap-4 items-center flex-wrap">
+        <div className="flex items-center gap-2">
+          <label htmlFor="userTypeFilter" className="font-medium">User Type:</label>
+          <select
+            id="userTypeFilter"
+            value={userTypeFilter}
+            onChange={e => setUserTypeFilter(e.target.value)}
+            className="border rounded px-3 py-1"
+          >
+            <option value="micro_community">Micro-Community</option>
+            <option value="admin">Admin</option>
+            <option value="trekker">Trekker</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <label htmlFor="verificationStatusFilter" className="font-medium">Verification Status:</label>
+          <Select value={verificationStatusFilter} onValueChange={setVerificationStatusFilter}>
+            <SelectTrigger className="w-48">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Statuses</SelectItem>
+              <SelectItem value="VERIFIED">Verified</SelectItem>
+              <SelectItem value="PENDING_REVIEW">Pending Review</SelectItem>
+              <SelectItem value="REJECTED">Rejected</SelectItem>
+              <SelectItem value="NOT_SUBMITTED">Not Submitted</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       
       <Table>
@@ -102,8 +191,8 @@ export default function UserVerificationPanel() {
             <TableHead>Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>User Type</TableHead>
-            <TableHead>Verification Status</TableHead>
-            <TableHead>Docs</TableHead>
+            <TableHead>Verification Tier</TableHead>
+            <TableHead>Documents</TableHead>
             <TableHead>Actions</TableHead>
           </TableRow>
         </TableHeader>
@@ -113,41 +202,63 @@ export default function UserVerificationPanel() {
           ) : users.length === 0 ? (
             <TableRow><TableCell colSpan={6} className="text-center">No users found.</TableCell></TableRow>
           ) : (
-            users.map((user) => (
-              <TableRow key={user.user_id}>
-                <TableCell>{user.full_name}</TableCell>
-                <TableCell>{user.email}</TableCell>
-                <TableCell>{user.user_type}</TableCell>
-                <TableCell>{user.verification_status}</TableCell>
-                <TableCell>
-                  {user.verification_docs?.aadhaar?.front_url && (
-                    <div className="space-x-2">
-                      <a href={user.verification_docs.aadhaar.front_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Aadhaar Front</a>
-                      {user.verification_docs.aadhaar.back_url && (
-                        <a href={user.verification_docs.aadhaar.back_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Back</a>
-                      )}
+            users.map((user) => {
+              const userLevel = getUserVerificationLevel(user);
+              const levelInfo = getVerificationLevelInfo(userLevel);
+
+              return (
+                <TableRow key={user.user_id}>
+                  <TableCell>{user.full_name}</TableCell>
+                  <TableCell>{user.email}</TableCell>
+                  <TableCell>{user.user_type}</TableCell>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      {levelInfo.icon}
+                      <div>
+                        <Badge className={levelInfo.badgeClass}>
+                          {levelInfo.name}
+                        </Badge>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {levelInfo.description}
+                        </p>
+                      </div>
                     </div>
-                  )}
-                  {user.verification_docs?.secondary_id?.front_url && (
-                    <div className="space-x-2 mt-1">
-                      <span className="text-sm text-gray-600">{user.verification_docs.secondary_id.type}:</span>
-                      <a href={user.verification_docs.secondary_id.front_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Front</a>
-                      {user.verification_docs.secondary_id.back_url && (
-                        <a href={user.verification_docs.secondary_id.back_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Back</a>
-                      )}
-                    </div>
-                  )}
-                </TableCell>
-                <TableCell>
-                  {user.verification_status === 'PENDING_REVIEW' && (
+                  </TableCell>
+                  <TableCell>
+                    {user.verification_docs?.aadhaar?.front_url && (
+                      <div className="space-x-2">
+                        <a href={user.verification_docs.aadhaar.front_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Aadhaar Front</a>
+                        {user.verification_docs.aadhaar.back_url && (
+                          <a href={user.verification_docs.aadhaar.back_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Back</a>
+                        )}
+                      </div>
+                    )}
+                    {user.verification_docs?.secondary_id?.front_url && (
+                      <div className="space-x-2 mt-1">
+                        <span className="text-sm text-gray-600">{user.verification_docs.secondary_id.type}:</span>
+                        <a href={user.verification_docs.secondary_id.front_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Front</a>
+                        {user.verification_docs.secondary_id.back_url && (
+                          <a href={user.verification_docs.secondary_id.back_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Back</a>
+                        )}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell>
                     <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => handleVerify(user.user_id)}>Verify</Button>
-                      <Button variant="destructive" size="sm" onClick={() => handleReject(user.user_id)}>Reject</Button>
+                      {user.verification_status === 'PENDING_REVIEW' && (
+                        <>
+                          <Button variant="outline" size="sm" onClick={() => handleVerify(user.user_id)}>Verify</Button>
+                          <Button variant="destructive" size="sm" onClick={() => handleReject(user.user_id)}>Reject</Button>
+                        </>
+                      )}
+                      {user.verification_status === 'REJECTED' && (
+                        <Button variant="outline" size="sm" onClick={() => handleVerify(user.user_id)}>Re-verify</Button>
+                      )}
                     </div>
-                  )}
-                </TableCell>
-              </TableRow>
-            ))
+                  </TableCell>
+                </TableRow>
+              );
+            })
           )}
         </TableBody>
       </Table>

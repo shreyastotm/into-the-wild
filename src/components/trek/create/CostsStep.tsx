@@ -94,7 +94,7 @@ export const CostsStep: React.FC<CostsStepProps> = ({
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Fixed Costs</h3>
         <p className="text-sm text-muted-foreground">
-          Add any fixed costs for this {formData.event_type?.toLowerCase()} (transportation, accommodation, etc.)
+          Add any additional fixed costs for this {formData.event_type?.toLowerCase()} (transportation, accommodation, permits, etc.)
         </p>
       </div>
 
@@ -220,7 +220,7 @@ export const CostsStep: React.FC<CostsStepProps> = ({
 
             <div className="mt-4 pt-4 border-t">
               <div className="flex justify-between items-center text-lg font-semibold">
-                <span>Total Fixed Costs:</span>
+                <span>Total Additional Fixed Costs:</span>
                 <span className="text-green-600">₹{totalAmount.toFixed(2)}</span>
               </div>
             </div>

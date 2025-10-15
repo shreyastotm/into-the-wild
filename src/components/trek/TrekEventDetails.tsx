@@ -75,14 +75,11 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
             <CardContent className="pt-4">
               <ul className="space-y-3">
                 {fixedCosts.map((cost, index) => (
-                  <li key={`${cost.cost_id}-${index}`} className="p-3 bg-muted/50 rounded-md">
+                  <li key={`${cost.id}-${index}`} className="p-3 bg-muted/50 rounded-md">
                     <div className="flex justify-between items-center font-semibold">
-                      <span>{cost.name}</span>
+                      <span>{cost.description || 'Unnamed Cost'}</span>
                       <span>{formatCurrency(cost.amount)}</span>
                     </div>
-                    {cost.description && (
-                      <p className="text-sm text-muted-foreground mt-1">{cost.description}</p>
-                    )}
                     {cost.pay_by_date && (
                       <p className="text-xs text-amber-600 mt-1">
                         Due by: {new Date(cost.pay_by_date).toLocaleDateString()}

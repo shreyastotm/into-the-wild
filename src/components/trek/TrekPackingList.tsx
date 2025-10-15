@@ -40,20 +40,26 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
         
         // Fetch items associated with this trek_id from trek_packing_list_assignments
         // Join with master_packing_items to get item details (name, category)
+        console.log('Fetching packing list for trek:', trekIdNumber);
         const { data, error: fetchError } = await supabase
           .from('trek_packing_list_assignments')
           .select(`
+            id,
             mandatory,
             master_item_id,
+            item_order,
             master_packing_items (
+              id,
               name,
               category
             )
           `)
-          .eq('trek_id', trekIdNumber)
-          // .order('item_order', { ascending: true }); // Add later if using item_order
+          .eq('trek_id', trekIdNumber);
+
+        console.log('Packing list query result:', { data, error: fetchError });
 
         if (fetchError) {
+          console.error('Packing list fetch error:', fetchError);
           throw fetchError;
         }
 
@@ -68,13 +74,19 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
         };
 
         // Transform data to match PackingListItem interface
-        const formattedList = (data as FetchedItem[] | null)?.map(item => ({
-            item_id: item.master_item_id, 
+        const formattedList = (data as FetchedItem[] | null)?.map(item => {
+          console.log('Processing item:', item);
+          return {
+            item_id: item.master_item_id,
             name: item.master_packing_items?.name || 'Unknown Item',
             category: item.master_packing_items?.category || null,
             mandatory: item.mandatory,
-        })) || [];
+          };
+        }) || [];
 
+        console.log('Formatted packing list:', formattedList);
+
+        console.log('TrekPackingList: Loaded packing list for trek', trekIdNumber, ':', formattedList);
         setPackingList(formattedList);
 
       } catch (err: unknown) {

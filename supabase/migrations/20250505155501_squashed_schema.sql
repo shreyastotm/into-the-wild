@@ -809,10 +809,7 @@ ALTER TABLE public.trek_packing_list_assignments ENABLE ROW LEVEL SECURITY;
 DROP POLICY IF EXISTS "Allow read access to master packing items for authenticated users" ON public.master_packing_items;
 CREATE POLICY "Allow read access to master packing items for authenticated users" ON public.master_packing_items FOR SELECT TO authenticated USING (true);
 DROP POLICY IF EXISTS "Allow read access to trek packing assignments for authenticated users" ON public.trek_packing_list_assignments;
-CREATE POLICY "Allow read access to trek packing assignments for authenticated users" ON public.trek_packing_list_assignments FOR SELECT TO authenticated USING (
-    EXISTS ( SELECT 1 FROM public.trek_registrations r WHERE r.trek_id = trek_packing_list_assignments.trek_id AND r.user_id = auth.uid() ) OR
-    EXISTS ( SELECT 1 FROM public.users u WHERE u.user_id = auth.uid() AND u.user_type = 'admin' )
-);
+CREATE POLICY "Allow read access to trek packing assignments for authenticated users" ON public.trek_packing_list_assignments FOR SELECT TO authenticated USING (true);
 DROP POLICY IF EXISTS "Allow admin full access to master packing items" ON public.master_packing_items;
 CREATE POLICY "Allow admin full access to master packing items" ON public.master_packing_items FOR ALL USING (EXISTS (SELECT 1 FROM public.users WHERE users.user_id = auth.uid() AND users.user_type = 'admin'));
 DROP POLICY IF EXISTS "Allow admin full access to trek packing assignments" ON public.trek_packing_list_assignments;

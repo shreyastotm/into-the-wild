@@ -22,12 +22,28 @@ interface DbRegistration {
 
 type Registration = WithStringId<DbRegistration>;
 
+// Helper function to determine user's verification level
+const getUserVerificationLevel = (userProfile: any): 'auto' | 'quick' | 'full' => {
+  if (!userProfile) return 'auto';
+
+  if (userProfile.verification_status !== 'VERIFIED') return 'auto';
+
+  const docs = userProfile.verification_docs;
+  if (docs?.aadhaar?.front_url && docs?.secondary_id?.front_url) {
+    return 'full';
+  } else if (docs?.aadhaar?.front_url) {
+    return 'quick';
+  }
+  return 'auto';
+};
+
 export function useTrekRegistration(trek_id: string | number | undefined) {
-  const { user } = useAuth();
+  const { user, userProfile } = useAuth();
   const { trekEvent, loading: trekLoading } = useTrekEventDetails(trek_id);
   const [registering, setRegistering] = useState(false);
   const [userRegistration, setUserRegistration] = useState<Registration | null>(null);
   const [uploadingProof, setUploadingProof] = useState(false);
+  const [uploadingIdProof, setUploadingIdProof] = useState<number | null>(null);
 
   const checkUserRegistration = useCallback(async (currentTrekId: number) => {
     if (!user) return;
@@ -67,6 +83,74 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     }
   }, [trek_id, user, checkUserRegistration]);
 
+  async function uploadIdProof(idTypeId: number, file: File): Promise<boolean> {
+    if (!user || !userRegistration || !trekEvent) {
+      toast({ title: "Error", description: "Cannot upload ID proof at this time.", variant: "destructive" });
+      return false;
+    }
+
+    if (!file) {
+      toast({ title: "No file selected", description: "Please select a file to upload.", variant: "destructive"});
+      return false;
+    }
+
+    setUploadingIdProof(idTypeId);
+    try {
+      // Upload file to storage
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
+      const filePath = `id-proofs/${user.id}/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('id-proofs')
+        .upload(filePath, file);
+
+      if (uploadError) {
+        throw uploadError;
+      }
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('id-proofs')
+        .getPublicUrl(filePath);
+
+      // Save to database
+      const { error: dbError } = await supabase
+        .from('registration_id_proofs')
+        .insert({
+          registration_id: userRegistration.registration_id,
+          id_type_id: idTypeId,
+          proof_url: publicUrl,
+          uploaded_by: user.id
+        });
+
+      if (dbError) {
+        // Clean up uploaded file if DB insert fails
+        await supabase.storage.from('id-proofs').remove([filePath]);
+        throw dbError;
+      }
+
+      await checkUserRegistration(typeof trek_id === 'number' ? trek_id : parseInt(trek_id || '0', 10));
+      toast({
+        title: "ID Proof Uploaded",
+        description: "Your ID proof has been uploaded successfully and is pending verification.",
+      });
+      return true;
+
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to upload ID proof";
+      toast({
+        title: "Upload Failed",
+        description: errorMessage,
+        variant: "destructive",
+      });
+      console.error("ID proof upload error:", error);
+      return false;
+    } finally {
+      setUploadingIdProof(null);
+    }
+  }
+
   async function registerForTrek(indemnityAccepted: boolean, options?: { isDriver?: boolean; offeredSeats?: number | null; registrantName?: string; registrantPhone?: string }) {
     if (!user) {
       toast({
@@ -99,6 +183,55 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
         toast({ title: "Trek details not loaded", description: "Cannot register at this moment.", variant: "destructive" });
         return false;
     }
+
+    // Check if user has uploaded and approved trek-specific documents
+    if (trekEvent.government_id_required) {
+      // Check if user has approved proofs for all required ID types for this trek
+      const { data: requiredIdTypes, error: requirementsError } = await supabase
+        .rpc('get_trek_required_id_types', { trek_id_param: typeof trekEvent.trek_id === 'number' ? trekEvent.trek_id : parseInt(trekEvent.trek_id, 10) });
+
+      if (requirementsError) {
+        console.error('Error checking ID requirements:', requirementsError);
+        toast({
+          title: "Error Checking Requirements",
+          description: "Unable to verify ID requirements. Please try again.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      if (requiredIdTypes && requiredIdTypes.length > 0) {
+        // Check if user has approved proofs for all required ID types
+        const { data: approvedProofs, error: proofsError } = await supabase
+          .from('registration_id_proofs')
+          .select('id_type_id, verification_status')
+          .eq('uploaded_by', user.id)
+          .eq('verification_status', 'approved');
+
+        if (proofsError) {
+          console.error('Error checking user proofs:', proofsError);
+          toast({
+            title: "Error Checking Documents",
+            description: "Unable to verify your uploaded documents. Please try again.",
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        const approvedTypeIds = (approvedProofs || []).map(p => p.id_type_id);
+        const missingTypes = requiredIdTypes.filter(type => !approvedTypeIds.includes(type.id_type_id));
+
+        if (missingTypes.length > 0) {
+          toast({
+            title: "Government ID Documents Required",
+            description: `Please upload and get approval for: ${missingTypes.map(t => t.display_name).join(', ')}`,
+            variant: "destructive",
+          });
+          return false;
+        }
+      }
+    }
+
 
     try {
       setRegistering(true);
@@ -294,6 +427,8 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     userRegistration,
     registerForTrek,
     cancelRegistration,
-    uploadPaymentProof
+    uploadPaymentProof,
+    uploadIdProof,
+    uploadingIdProof
   };
 }

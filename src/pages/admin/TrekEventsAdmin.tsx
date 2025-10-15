@@ -86,7 +86,7 @@ const TrekEventsAdmin = () => {
     try {
       const { data, error: fetchError } = await supabase
         .from('trek_events')
-        .select('trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, image, gpx_file_url, route_data, event_type')
+        .select('trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, image, gpx_file_url, route_data, event_type, government_id_required')
         .order('start_datetime', { ascending: false }); 
       
       if (fetchError) throw fetchError;
@@ -413,24 +413,36 @@ const TrekEventsAdmin = () => {
         }
 
         // Step 2: Clear and re-insert packing list assignments
+        console.log('Admin Form: Deleting existing packing list for trek', trekIdToUpdate);
         await supabase.from('trek_packing_list_assignments').delete().eq('trek_id', trekIdToUpdate);
+
         if (packingList && packingList.length > 0) {
-            const assignments = packingList.map(item => ({ trek_id: trekIdToUpdate, master_item_id: item.master_item_id, mandatory: item.is_mandatory }));
+            console.log('Admin Form: Inserting new packing list:', packingList);
+            const assignments = packingList.map(item => ({ trek_id: trekIdToUpdate, master_item_id: item.master_item_id, mandatory: item.mandatory }));
             const { error: assignmentError } = await supabase.from('trek_packing_list_assignments').insert(assignments);
-            if (assignmentError) throw new Error(`Failed to assign packing list: ${assignmentError.message}`);
+            if (assignmentError) {
+                console.error('Admin Form: Packing list assignment error:', assignmentError);
+                throw new Error(`Failed to assign packing list: ${assignmentError.message}`);
+            } else {
+                console.log('Admin Form: Packing list saved successfully');
+            }
+        } else {
+            console.log('Admin Form: No packing list data to save');
         }
 
         // Step 3: Clear and re-insert fixed costs
         await supabase.from('trek_costs').delete().eq('trek_id', trekIdToUpdate);
         if (costs && costs.length > 0) {
-          const costsToInsert = costs.map(cost => ({
-            trek_id: trekIdToUpdate,
-            cost_type: cost.cost_type,
-            amount: cost.amount,
-            description: cost.description,
-            url: cost.url,
-            file_url: cost.file_url,
-          }));
+          const costsToInsert = costs
+            .filter(cost => cost && cost.amount && cost.amount > 0) // Filter out invalid costs
+            .map(cost => ({
+              trek_id: trekIdToUpdate,
+              cost_type: cost.cost_type || 'OTHER', // Ensure cost_type is never null
+              amount: cost.amount,
+              description: cost.description || '',
+              url: cost.url,
+              file_url: cost.file_url,
+            }));
           const { error: costError } = await supabase.from('trek_costs').insert(costsToInsert);
           if (costError) throw new Error(`Failed to save costs: ${costError.message}`);
         }

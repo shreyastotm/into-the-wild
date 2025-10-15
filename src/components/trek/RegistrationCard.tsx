@@ -3,11 +3,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { CheckCircle, Calendar, Users, AlertCircle, UploadCloud, User, Phone, FileText } from 'lucide-react';
+import { CheckCircle, Calendar, Users, AlertCircle, UploadCloud, User, Phone, FileText, AlertTriangle } from 'lucide-react';
 import { WithStringId } from "@/integrations/supabase/client";
 import { formatCurrency } from '@/lib/utils';
 import { TrekEventStatus } from '@/types/trek';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import FormField from '@/components/forms/FormField';
 import FormSection from '@/components/forms/FormSection';
 import FormActions from '@/components/forms/FormActions';
@@ -188,6 +189,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                       disabled={isUploadingProof || !!userRegistration.payment_proof_url}
                       icon={<FileText className="h-4 w-4" />}
                       helpText="Upload image or PDF of payment receipt"
+                      accept="image/*,.pdf"
                     />
                     
                     {paymentProofFile && !userRegistration.payment_proof_url && (

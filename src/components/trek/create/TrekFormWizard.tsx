@@ -46,7 +46,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
   // Additional state for form steps
   const [selectedPackingItems, setSelectedPackingItems] = useState<Set<number>>(new Set());
   const [mandatoryPackingItems, setMandatoryPackingItems] = useState<Set<number>>(new Set());
-  const [costs, setCosts] = useState<Array<{ description: string; amount: number }>>([]);
+  const [costs, setCosts] = useState<Array<{ description: string; amount: number; cost_type: string }>>([]);
   const [packingItems, setPackingItems] = useState<Array<{ id: number; name: string; category: string | null }>>([]);
   const [isLoadingExistingData, setIsLoadingExistingData] = useState(false);
 
@@ -58,8 +58,12 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
   }, [trekToEdit?.trek_id]);
 
   const loadExistingData = async () => {
-    if (!trekToEdit?.trek_id) return;
-    
+    if (!trekToEdit?.trek_id) {
+      console.log('TrekFormWizard: No trekToEdit or trek_id provided');
+      return;
+    }
+
+    console.log('TrekFormWizard: Loading existing data for trek:', trekToEdit.trek_id);
     setIsLoadingExistingData(true);
     try {
       // Load existing packing list items
@@ -69,10 +73,13 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
         .eq('trek_id', trekToEdit.trek_id);
 
       if (packingError) {
-        console.error('Error loading packing list:', packingError);
+        console.error('TrekFormWizard: Error loading packing list:', packingError);
       } else {
+        console.log('TrekFormWizard: Loading packing list data:', packingData);
         const selected = new Set((packingData || []).map(item => item.master_item_id));
         const mandatory = new Set((packingData || []).filter(item => item.mandatory).map(item => item.master_item_id));
+        console.log('TrekFormWizard: Selected items:', Array.from(selected));
+        console.log('TrekFormWizard: Mandatory items:', Array.from(mandatory));
         setSelectedPackingItems(selected);
         setMandatoryPackingItems(mandatory);
       }
@@ -88,7 +95,8 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
       } else {
         const formattedCosts = (costsData || []).map(cost => ({
           description: cost.description || '',
-          amount: cost.amount || 0
+          amount: cost.amount || 0,
+          cost_type: cost.cost_type || 'OTHER'
         }));
         setCosts(formattedCosts);
       }
@@ -191,6 +199,11 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
         mandatory: mandatoryPackingItems.has(itemId)
       }));
 
+      console.log('TrekFormWizard: Preparing submission data');
+      console.log('TrekFormWizard: Selected items:', Array.from(selectedPackingItems));
+      console.log('TrekFormWizard: Mandatory items:', Array.from(mandatoryPackingItems));
+      console.log('TrekFormWizard: Packing list to submit:', packingList);
+
       const submissionData: FormSubmissionData = {
         trekData: formData,
         packingList,
@@ -198,10 +211,11 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
         tentInventory: formData.event_type === EventType.CAMPING ? tentInventory : undefined
       };
 
+      console.log('TrekFormWizard: Calling onFormSubmit with data:', submissionData);
       await onFormSubmit(submissionData);
       resetForm();
     } catch (error) {
-      console.error('Form submission error:', error);
+      console.error('TrekFormWizard: Form submission error:', error);
     } finally {
       setSubmitting(false);
     }

@@ -27,6 +27,7 @@ interface TrekEvent {
   is_finalized?: boolean | null;
   created_at?: string | null;
   updated_at?: string | null;
+  government_id_required?: boolean | null;
   // New fields for event types
   event_type: EventType;
   itinerary?: CampingItinerary | null;
@@ -87,6 +88,7 @@ export function useTrekEventDetails(trek_id: string | undefined) {
           is_finalized: data.is_finalized,
           created_at: data.created_at,
           updated_at: data.updated_at,
+          government_id_required: data.government_id_required,
           // New event type fields
           event_type: (data.event_type as EventType) || EventType.TREK,
           itinerary: data.itinerary as CampingItinerary | null,

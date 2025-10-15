@@ -10,20 +10,22 @@ import { ExpenseSplitting } from '@/components/expenses/ExpenseSplitting';
 import { TrekRatings } from '@/components/trek/TrekRatings';
 import { TrekPackingList } from '@/components/trek/TrekPackingList';
 import { TentRental } from '@/components/trek/TentRental';
+import { TrekRequirements } from '@/components/trek/TrekRequirements';
 import { useTrekRegistration } from '../hooks/trek/useTrekRegistration';
 import { useTrekCommunity } from '@/hooks/useTrekCommunity';
 import { useTrekCosts } from '@/hooks/trek/useTrekCosts';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  ChevronLeft, 
-  Map, 
-  MessageSquare, 
+import {
+  ChevronLeft,
+  Map,
+  MessageSquare,
   Users,
   Receipt,
   Award,
   ClipboardList,
   Info,
-  Tent
+  Tent,
+  Shield
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
@@ -34,19 +36,29 @@ export default function TrekEventDetails() {
   const { user, userProfile } = useAuth();
   const [isUploadingProof, setIsUploadingProof] = useState(false);
 
-  const { 
-    trekEvent, 
-    loading: trekLoading, 
-    registering, 
+  const {
+    trekEvent,
+    loading: trekLoading,
+    registering,
     userRegistration,
-    registerForTrek, 
+    registerForTrek,
     cancelRegistration,
-    uploadPaymentProof
+    uploadPaymentProof,
+    uploadIdProof,
+    uploadingIdProof
   } = useTrekRegistration(id);
   
   const { costs, loading: costsLoading } = useTrekCosts(id);
 
   const trekIdNum = id ? parseInt(id, 10) : 0;
+
+  // Debug logging (remove this after fixing the issue)
+  console.log('TrekEventDetails Debug:', {
+    trekId: trekIdNum,
+    governmentIdRequired: trekEvent?.government_id_required,
+    userRegistration: !!userRegistration,
+    userRegistrationStatus: userRegistration?.id_verification_status
+  });
 
   const {
     participants,
@@ -151,6 +163,10 @@ export default function TrekEventDetails() {
                 <Info className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 <span className="hidden sm:inline">Details</span>
               </TabsTrigger>
+              <TabsTrigger value="requirements" className="flex-1 min-w-0 text-xs sm:text-sm">
+                <Shield className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                <span className="hidden sm:inline">Requirements</span>
+              </TabsTrigger>
               <TabsTrigger value="participants-discussion" className="flex-1 min-w-0 text-xs sm:text-sm">
                 <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 <span className="hidden sm:inline">Participants</span>
@@ -195,7 +211,16 @@ export default function TrekEventDetails() {
                 fixedCosts={costs}
               />
             </TabsContent>
-            
+
+            <TabsContent value="requirements">
+              <TrekRequirements
+                trekId={trekIdNum}
+                governmentIdRequired={trekEvent.government_id_required || false}
+                userRegistration={userRegistration}
+                onUploadProof={uploadIdProof}
+              />
+            </TabsContent>
+
             <TabsContent value="participants-discussion" className="space-y-6">
               <div>
                 <h3 className="text-xl font-semibold mb-4">Participants ({participantCount})</h3>

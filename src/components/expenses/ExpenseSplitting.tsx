@@ -168,9 +168,9 @@ export const ExpenseSplitting: React.FC<ExpenseSplittingProps> = ({ trekId: prop
                     <TabsContent value="fixed-costs" className="mt-4">
                         {fixedCosts.length > 0 ? (
                             <ul className="space-y-2">{fixedCosts.map((cost, index) => (
-                                <li key={`${cost.cost_id}-${index}`} className="flex justify-between p-3 bg-muted/50 rounded-md">
-                                    <div><p className="font-medium">{cost.name}</p>{cost.description && <p className="text-sm text-muted-foreground">{cost.description}</p>}</div>
-                                    <div className="text-right"><p className="font-semibold">{formatCurrency(cost.amount)}</p>{cost.type && <p className="text-xs capitalize text-muted-foreground">{cost.type.replace('_', ' ')}</p>}</div>
+                                <li key={`${cost.id}-${index}`} className="flex justify-between p-3 bg-muted/50 rounded-md">
+                                    <div><p className="font-medium">{cost.description || 'Unnamed Cost'}</p></div>
+                                    <div className="text-right"><p className="font-semibold">{formatCurrency(cost.amount)}</p></div>
                                 </li>))}
                             </ul>
                         ) : <div className="text-center py-8 text-muted-foreground"><p>No fixed costs for this trek.</p></div>}
