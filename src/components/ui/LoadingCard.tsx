@@ -1,175 +1,128 @@
-import React from 'react';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Skeleton } from '@/components/ui/skeleton';
-import { Loader2 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
-export interface LoadingCardProps {
-  title?: string;
-  description?: string;
-  showHeader?: boolean;
-  showContent?: boolean;
-  showFooter?: boolean;
-  rows?: number;
-  className?: string;
-  variant?: 'skeleton' | 'spinner' | 'pulse' | 'dots';
-  size?: 'sm' | 'md' | 'lg';
-  message?: string;
-}
-
-const LoadingCard: React.FC<LoadingCardProps> = ({
-  title,
-  description,
-  showHeader = true,
-  showContent = true,
-  showFooter = false,
-  rows = 3,
-  className = '',
-  variant = 'skeleton',
-  size = 'md',
-  message = 'Loading...'
-}) => {
-  const sizeClasses = {
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8'
-  };
-
-  const renderSkeletonContent = () => (
-    <div className="space-y-4">
-      {[...Array(rows)].map((_, index) => (
-        <div key={index} className="space-y-2">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-3 w-1/2" />
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderSpinnerContent = () => (
-    <div className="flex flex-col items-center justify-center py-8">
-      <Loader2 className="h-8 w-8 animate-spin text-primary mb-4" />
-      <p className="text-sm text-muted-foreground">{message}</p>
-    </div>
-  );
-
-  const renderPulseContent = () => (
-    <div className="space-y-4">
-      {[...Array(rows)].map((_, index) => (
-        <div key={index} className="animate-pulse">
-          <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
-          <div className="h-3 bg-muted rounded w-1/2"></div>
-        </div>
-      ))}
-    </div>
-  );
-
-  const renderDotsContent = () => (
-    <div className="flex flex-col items-center justify-center py-8">
-      <div className="flex space-x-1 mb-4">
-        <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-        <div className="w-2 h-2 bg-secondary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-        <div className="w-2 h-2 bg-accent rounded-full animate-bounce"></div>
+/**
+ * Golden Hour themed skeleton loading card
+ * Beautiful animated placeholder for trek cards
+ */
+export const LoadingCard = ({ className }: { className?: string }) => (
+  <div className={cn("overflow-hidden border-0 shadow-lg rounded-xl", className)}>
+    {/* Image skeleton */}
+    <div className="relative aspect-[16/9] overflow-hidden">
+      <div className="w-full h-full bg-gradient-to-r from-golden-100 via-golden-200 to-golden-100 dark:from-gray-800 dark:via-gray-700 dark:to-gray-800 skeleton-golden" />
+      
+      {/* Badges skeleton */}
+      <div className="absolute top-3 left-3 right-3 flex items-start justify-between">
+        <div className="h-7 w-20 rounded-full bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm" />
+        <div className="h-7 w-24 rounded-full bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm" />
       </div>
-      <p className="text-sm text-muted-foreground">{message}</p>
+      
+      {/* Bottom info skeleton */}
+      <div className="absolute bottom-3 left-3 right-3">
+        <div className="space-y-2">
+          <div className="h-6 w-3/4 rounded bg-white/40 dark:bg-gray-900/40 backdrop-blur-sm" />
+          <div className="h-4 w-1/2 rounded bg-white/30 dark:bg-gray-900/30 backdrop-blur-sm" />
+        </div>
+      </div>
     </div>
-  );
+    
+    {/* Meta info skeleton */}
+    <div className="p-4 bg-card dark:bg-card">
+      <div className="grid grid-cols-3 gap-2">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex flex-col items-center gap-2 py-2">
+            <div className="h-4 w-4 rounded-full bg-muted skeleton-golden" />
+            <div className="h-4 w-12 rounded bg-muted skeleton-golden" />
+            <div className="h-3 w-16 rounded bg-muted/50 skeleton-golden" />
+          </div>
+        ))}
+      </div>
+    </div>
+  </div>
+);
 
-  const renderContent = () => {
-    switch (variant) {
-      case 'spinner':
-        return renderSpinnerContent();
-      case 'pulse':
-        return renderPulseContent();
-      case 'dots':
-        return renderDotsContent();
-      default:
-        return renderSkeletonContent();
-    }
+/**
+ * Compact loading skeleton for list items
+ */
+export const LoadingListItem = ({ className }: { className?: string }) => (
+  <div className={cn("flex items-center gap-4 p-4 rounded-lg bg-card", className)}>
+    <div className="h-16 w-16 rounded-lg bg-muted skeleton-golden flex-shrink-0" />
+    <div className="flex-1 space-y-2">
+      <div className="h-4 w-3/4 rounded bg-muted skeleton-golden" />
+      <div className="h-3 w-1/2 rounded bg-muted/50 skeleton-golden" />
+    </div>
+  </div>
+);
+
+/**
+ * Text loading skeleton
+ */
+export const LoadingText = ({ 
+  lines = 3, 
+  className 
+}: { 
+  lines?: number; 
+  className?: string;
+}) => (
+  <div className={cn("space-y-2", className)}>
+    {Array.from({ length: lines }, (_, i) => (
+      <div
+        key={i}
+        className={cn(
+          "h-4 rounded bg-muted skeleton-golden",
+          i === lines - 1 ? "w-3/4" : "w-full"
+        )}
+      />
+    ))}
+  </div>
+);
+
+/**
+ * Loading screen with golden hour branding
+ */
+export const LoadingScreen = () => (
+  <div className="fixed inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-golden-50 via-white to-teal-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 z-50">
+    <div className="flex flex-col items-center space-y-6 animate-pulse-subtle">
+      {/* Logo */}
+      <img
+        src="/itw_logo.png"
+        alt="Into the Wild"
+        className="h-24 w-auto drop-shadow-2xl"
+      />
+      
+      {/* Loading indicator */}
+      <div className="flex items-center space-x-2">
+        <div className="h-3 w-3 rounded-full bg-golden-500 animate-bounce" style={{ animationDelay: '0ms' }} />
+        <div className="h-3 w-3 rounded-full bg-teal-500 animate-bounce" style={{ animationDelay: '150ms' }} />
+        <div className="h-3 w-3 rounded-full bg-coral-500 animate-bounce" style={{ animationDelay: '300ms' }} />
+      </div>
+      
+      {/* Loading text */}
+      <p className="text-muted-foreground text-sm">Loading your adventure...</p>
+    </div>
+  </div>
+);
+
+/**
+ * Inline spinner with golden hour colors
+ */
+export const LoadingSpinner = ({ size = 'md', className }: { size?: 'sm' | 'md' | 'lg'; className?: string }) => {
+  const sizeClasses = {
+    sm: 'h-4 w-4 border-2',
+    md: 'h-8 w-8 border-3',
+    lg: 'h-12 w-12 border-4',
   };
 
   return (
-    <Card className={className}>
-      {showHeader && (
-        <CardHeader className={sizeClasses[size]}>
-          {title && <Skeleton className="h-6 w-1/3" />}
-          {description && <Skeleton className="h-4 w-1/2 mt-2" />}
-        </CardHeader>
+    <div
+      className={cn(
+        "animate-spin rounded-full border-golden-500 border-t-transparent",
+        sizeClasses[size],
+        className
       )}
-      
-      {showContent && (
-        <CardContent className={sizeClasses[size]}>
-          {renderContent()}
-        </CardContent>
-      )}
-      
-      {showFooter && (
-        <div className={`px-6 py-4 border-t ${sizeClasses[size]}`}>
-          <div className="flex justify-end space-x-2">
-            <Skeleton className="h-8 w-20" />
-            <Skeleton className="h-8 w-20" />
-          </div>
-        </div>
-      )}
-    </Card>
+      role="status"
+      aria-label="Loading"
+    >
+      <span className="sr-only">Loading...</span>
+    </div>
   );
 };
-
-// Specialized loading components for common use cases
-export const LoadingTable: React.FC<{ rows?: number; columns?: number }> = ({ 
-  rows = 5, 
-  columns = 4 
-}) => (
-  <div className="space-y-4">
-    {[...Array(rows)].map((_, rowIndex) => (
-      <div key={rowIndex} className="flex items-center space-x-4">
-        {[...Array(columns)].map((_, colIndex) => (
-          <Skeleton key={colIndex} className="h-4 flex-1" />
-        ))}
-      </div>
-    ))}
-  </div>
-);
-
-export const LoadingList: React.FC<{ items?: number }> = ({ items = 5 }) => (
-  <div className="space-y-3">
-    {[...Array(items)].map((_, index) => (
-      <div key={index} className="flex items-center space-x-3">
-        <Skeleton className="h-10 w-10 rounded-full" />
-        <div className="space-y-2 flex-1">
-          <Skeleton className="h-4 w-3/4" />
-          <Skeleton className="h-3 w-1/2" />
-        </div>
-      </div>
-    ))}
-  </div>
-);
-
-export const LoadingGrid: React.FC<{ 
-  items?: number; 
-  columns?: number; 
-  showImage?: boolean;
-}> = ({ 
-  items = 6, 
-  columns = 3,
-  showImage = true 
-}) => (
-  <div className={`grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-${columns}`}>
-    {[...Array(items)].map((_, index) => (
-      <Card key={index}>
-        <CardContent className="p-4">
-          <div className="space-y-3">
-            {showImage && <Skeleton className="h-32 w-full rounded" />}
-            <Skeleton className="h-4 w-3/4" />
-            <Skeleton className="h-3 w-1/2" />
-            <div className="flex justify-between items-center">
-              <Skeleton className="h-4 w-1/3" />
-              <Skeleton className="h-6 w-16" />
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-    ))}
-  </div>
-);
-
-export default LoadingCard;

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { NotificationBell } from '@/components/ui/NotificationBell';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const Header = () => {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -77,12 +78,14 @@ const Header = () => {
                       onClick={handleNotificationClick}
                     />
 
+                    <ThemeToggle />
+
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Button
                           variant="ghost"
                           onClick={() => signOut()}
-                          className="text-gray-600 hover:text-gray-900"
+                          className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-gray-100"
                         >
                           <LogOut className="h-4 w-4" />
                         </Button>
@@ -93,12 +96,15 @@ const Header = () => {
                     </Tooltip>
                   </>
                 ) : (
-                  <Link
-                    to="/auth"
-                    className="bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded transition-colors"
-                  >
-                    Sign In
-                  </Link>
+                  <>
+                    <ThemeToggle />
+                    <Link
+                      to="/auth"
+                      className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg"
+                    >
+                      Sign In
+                    </Link>
+                  </>
                 )
               )}
             </nav>

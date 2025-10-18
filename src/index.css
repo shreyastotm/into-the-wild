@@ -1,47 +1,49 @@
+/* Mobile Native App Styles */
+@import './styles/mobile-native.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    /* Bold Adventure Color Palette */
-    /* Primary - Deep Teal/Turquoise (from logo's natural elements) */
-    --primary: 174 64% 40%;                    /* #26A69A - Teal */
-    --primary-hover: 174 64% 32%;              /* Darker on hover */
-    --primary-light: 174 64% 92%;              /* Light backgrounds */
-    --primary-foreground: 0 0% 100%;           /* White text */
+    /* Golden Hour Color Palette - Light Mode */
+    /* Primary - Golden Sunlight */
+    --primary: 35 85% 65%;                     /* #F4A460 - Warm Golden */
+    --primary-hover: 35 85% 55%;               /* Deeper on hover */
+    --primary-light: 35 85% 95%;               /* Light golden backgrounds */
+    --primary-foreground: 220 20% 20%;         /* Dark text */
     
-    /* Secondary - Warm Amber/Yellow (from logo's sun & signs) */
-    --secondary: 45 95% 58%;                   /* #FFC107 - Amber */
-    --secondary-hover: 45 95% 48%;             
-    --secondary-light: 45 95% 95%;
-    --secondary-foreground: 220 20% 20%;       /* Dark text */
+    /* Secondary - Deep Teal (Nature/Mountains) */
+    --secondary: 180 100% 27%;                 /* #008B8B - Deep Teal */
+    --secondary-hover: 180 100% 20%;           /* Darker teal */
+    --secondary-light: 180 100% 95%;           /* Light teal */
+    --secondary-foreground: 0 0% 100%;         /* White text */
     
-    /* Accent - Warm Terracotta (from logo's earth tones) */
-    --accent: 14 91% 58%;                      /* #F2705D - Terracotta */
-    --accent-hover: 14 91% 48%;
-    --accent-light: 14 91% 95%;
-    --accent-foreground: 0 0% 100%;
+    /* Accent - Sunset Coral/Terracotta */
+    --accent: 14 82% 62%;                      /* #E97451 - Sunset Coral */
+    --accent-hover: 14 82% 52%;                /* Deeper coral */
+    --accent-light: 14 82% 95%;                /* Light coral */
+    --accent-foreground: 0 0% 100%;            /* White text */
     
-    /* Supporting - Sky Blue (from logo's sky/water) */
+    /* Supporting Colors */
     --info: 204 94% 63%;                       /* #42A5F5 - Sky Blue */
     --info-light: 204 94% 95%;
     
-    /* Success - Fresh Green (from logo's nature) */
-    --success: 142 71% 45%;                    /* #4CAF50 - Green */
+    --success: 142 71% 45%;                    /* #4CAF50 - Forest Green */
     --success-light: 142 71% 95%;
     
-    /* Neutral - Balanced grays */
-    --background: 0 0% 100%;                   /* White */
-    --background-subtle: 174 20% 97%;          /* Light teal tint */
+    /* Neutral - Warm grays with golden tint */
+    --background: 0 0% 100%;                   /* Pure white */
+    --background-subtle: 35 20% 98%;           /* Very light golden tint */
     --foreground: 220 20% 20%;                 /* Near black */
     
-    --muted: 220 14% 96%;                      /* Light gray */
-    --muted-foreground: 220 8% 46%;            /* Medium gray */
+    --muted: 35 15% 96%;                       /* Light warm gray */
+    --muted-foreground: 220 10% 46%;           /* Medium gray */
     
-    --border: 220 13% 91%;                     /* Border gray */
-    --input: 220 13% 91%;                      /* Input borders */
-    --ring: 174 64% 40%;                       /* Focus rings (teal) */
+    --border: 35 13% 91%;                      /* Warm border */
+    --input: 35 13% 91%;                       /* Input borders */
+    --ring: 35 85% 65%;                        /* Focus rings (golden) */
 
     --card: 0 0% 100%;
     --card-foreground: 220 20% 20%;
@@ -55,50 +57,59 @@
     --radius: 0.5rem;
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
+    /* Golden Hour - Dark Mode (Twilight/Night Sky) */
+    --primary: 35 75% 45%;                     /* Dimmed golden */
+    --primary-hover: 35 75% 38%;
+    --primary-light: 35 30% 20%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 180 60% 35%;                  /* Night teal */
+    --secondary-hover: 180 60% 28%;
+    --secondary-light: 180 30% 20%;
+    --secondary-foreground: 0 0% 100%;
+
+    --accent: 14 70% 48%;                      /* Muted coral */
+    --accent-hover: 14 70% 40%;
+    --accent-light: 14 30% 20%;
+    --accent-foreground: 0 0% 100%;
+
+    --info: 204 80% 50%;
+    --info-light: 204 40% 20%;
+
+    --success: 142 60% 38%;
+    --success-light: 142 30% 20%;
+
+    /* Dark backgrounds with slight warm tint */
+    --background: 220 20% 12%;                 /* Deep navy */
+    --background-subtle: 220 18% 14%;
     --foreground: 210 40% 98%;
 
-    --card: 222.2 84% 4.9%;
+    --card: 220 18% 16%;                       /* Slightly lighter cards */
     --card-foreground: 210 40% 98%;
 
-    --popover: 222.2 84% 4.9%;
+    --popover: 220 18% 16%;
     --popover-foreground: 210 40% 98%;
 
-    --primary: 210 40% 98%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
+    --muted: 220 16% 18%;
+    --muted-foreground: 215 20% 65%;
 
     --destructive: 0 62.8% 30.6%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 212.7 26.8% 83.9%;
+    --border: 220 16% 25%;
+    --input: 220 16% 25%;
+    --ring: 35 75% 45%;
+
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 224.3 76.3% 48%;
@@ -249,5 +260,216 @@
   .btn-ripple:active::after {
     width: 300px;
     height: 300px;
+  }
+
+  /* Golden Hour Animations */
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.95);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .fade-in-scale {
+    animation: fadeInScale 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .slide-in-right {
+    animation: slideInRight 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes slideInLeft {
+    from {
+      opacity: 0;
+      transform: translateX(-100%);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  .slide-in-left {
+    animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  @keyframes goldenShimmer {
+    0% {
+      background-position: -200% center;
+    }
+    100% {
+      background-position: 200% center;
+    }
+  }
+
+  .golden-shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(244, 164, 96, 0.3) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: goldenShimmer 3s infinite;
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(0);
+      opacity: 1;
+    }
+    100% {
+      transform: scale(4);
+      opacity: 0;
+    }
+  }
+
+  .touch-ripple {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .touch-ripple::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle, rgba(244, 164, 96, 0.5) 0%, transparent 70%);
+    transform: scale(0);
+    pointer-events: none;
+  }
+
+  .touch-ripple:active::after {
+    animation: ripple 0.6s ease-out;
+  }
+
+  @keyframes pullRefresh {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(5px) rotate(180deg);
+    }
+  }
+
+  .pull-refresh {
+    animation: pullRefresh 1.5s ease-in-out infinite;
+  }
+
+  /* Card Interaction States */
+  .card-interactive {
+    @apply transition-all duration-300 active:scale-[0.98] hover:shadow-xl;
+  }
+
+  /* Height Transitions */
+  .height-transition {
+    transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Skeleton Loading - Golden Theme */
+  .skeleton-golden {
+    @apply bg-gradient-to-r from-golden-100 via-golden-200 to-golden-100;
+    @apply bg-[length:200%_100%];
+    animation: goldenShimmer 2s infinite;
+  }
+
+  /* Fade in with delay utilities */
+  .animation-delay-200 {
+    animation-delay: 200ms;
+  }
+
+  .animation-delay-400 {
+    animation-delay: 400ms;
+  }
+
+  .animation-delay-600 {
+    animation-delay: 600ms;
+  }
+
+  /* Fade in down animation */
+  @keyframes fadeInDown {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-fade-in-down {
+    animation: fadeInDown 0.5s ease-out;
+  }
+
+  /* Floating particle animation (for home page) */
+  @keyframes float-particle {
+    0%, 100% {
+      transform: translate(0, 0);
+      opacity: 0.3;
+    }
+    25% {
+      transform: translate(10px, -30px);
+      opacity: 0.6;
+    }
+    50% {
+      transform: translate(-5px, -60px);
+      opacity: 0.4;
+    }
+    75% {
+      transform: translate(15px, -90px);
+      opacity: 0.2;
+    }
+  }
+
+  /* Float animation (gentle up and down) */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  /* Gentle bounce animation (for scroll indicator) */
+  @keyframes bounce-gentle {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-15px);
+    }
+  }
+
+  .animate-bounce-gentle {
+    animation: bounce-gentle 3s ease-in-out infinite;
+  }
+
+  /* Glass morphism utility */
+  .glass {
+    @apply bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl;
+  }
+
+  .glass-card {
+    @apply glass border border-white/20 dark:border-slate-700/50 shadow-xl;
   }
 }

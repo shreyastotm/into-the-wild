@@ -259,7 +259,7 @@ export default function AdminTrekDetails() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
+    <div className="max-w-5xl mx-auto p-4 sm:p-6">
       <div className="flex items-center justify-between mb-6">
         <Link to="/admin">
           <Button variant="ghost" className="gap-1">

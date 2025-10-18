@@ -147,12 +147,16 @@ export const FilterBar: React.FC<FilterBarProps> = ({
       {/* Quick Sort - Show in bar if enabled */}
       {showSortInBar && (
         <Select value={sortValue} onValueChange={onSortChange}>
-          <SelectTrigger className="w-40">
+          <SelectTrigger className="w-40 bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600 text-gray-900 dark:text-white">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
             {sortOptions.map(option => (
-              <SelectItem key={option.value} value={option.value}>
+              <SelectItem 
+                key={option.value} 
+                value={option.value}
+                className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
+              >
                 {option.label}
               </SelectItem>
             ))}

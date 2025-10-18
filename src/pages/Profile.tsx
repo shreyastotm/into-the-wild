@@ -5,6 +5,7 @@ import { ProfileForm } from '@/components/profile/ProfileForm';
 import ProfileHeader from '@/components/profile/ProfileHeader';
 import ProfileSummaryCard from '@/components/profile/ProfileSummaryCard';
 import IdVerification from '@/components/profile/IdVerification';
+import { MobilePage, MobileSection } from '@/components/mobile/MobilePage';
 
 export default function Profile() {
   const { user, userProfile, loading } = useAuth();
@@ -18,20 +19,24 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-10">
-        <div className="text-lg">Loading...</div>
-      </div>
+      <MobilePage>
+        <div className="flex justify-center items-center py-10">
+          <div className="mobile-body">Loading...</div>
+        </div>
+      </MobilePage>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-8 space-y-6">
-      <ProfileHeader />
-      <ProfileSummaryCard />
-      {!userProfile?.verification_status || userProfile.verification_status !== 'VERIFIED' ? (
-        <IdVerification />
-      ) : null}
-      <ProfileForm />
-    </div>
+    <MobilePage>
+      <MobileSection>
+        <ProfileHeader />
+        <ProfileSummaryCard />
+        {!userProfile?.verification_status || userProfile.verification_status !== 'VERIFIED' ? (
+          <IdVerification />
+        ) : null}
+        <ProfileForm />
+      </MobileSection>
+    </MobilePage>
   );
 }

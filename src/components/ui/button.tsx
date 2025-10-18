@@ -9,23 +9,29 @@ const buttonVariants = cva(
   {
     variants: {
       variant: {
-        // Primary - Teal (main actions)
-        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus:ring-primary",
+        // Primary - Golden (main actions)
+        default: "bg-primary text-primary-foreground hover:bg-primary-hover shadow-md hover:shadow-golden hover:scale-[1.02] active:scale-[0.98] focus:ring-primary touch-ripple",
         
-        // Secondary - Amber (secondary actions)
-        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary-hover shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus:ring-secondary",
+        // Secondary - Teal (secondary actions)
+        secondary: "bg-secondary text-secondary-foreground hover:bg-secondary-hover shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus:ring-secondary touch-ripple",
         
-        // Accent - Terracotta gradient (CTAs, register)
-        accent: "bg-gradient-to-r from-accent to-orange-500 text-white font-bold shadow-lg hover:shadow-accent hover:scale-105 active:scale-[0.97] focus:ring-accent relative overflow-hidden",
+        // Accent - Coral gradient (CTAs, register)
+        accent: "bg-gradient-to-r from-coral-500 to-coral-600 text-white font-bold shadow-lg hover:shadow-coral hover:scale-105 active:scale-[0.97] focus:ring-coral relative overflow-hidden touch-ripple",
+        
+        // Golden - Golden hour gradient (featured CTAs)
+        golden: "bg-gradient-to-r from-golden-400 via-golden-500 to-golden-600 text-white font-bold shadow-lg hover:shadow-golden hover:scale-105 active:scale-[0.97] focus:ring-golden relative overflow-hidden touch-ripple",
+        
+        // Teal - Teal gradient (nature actions)
+        teal: "bg-gradient-to-r from-teal-500 to-teal-600 text-white font-semibold shadow-lg hover:shadow-primary hover:scale-105 active:scale-[0.97] focus:ring-teal-500 relative overflow-hidden touch-ripple",
         
         // Outline - Border with transparent bg
-        outline: "border-2 border-primary text-primary bg-white hover:bg-primary-light hover:border-primary-hover hover:text-primary-hover hover:scale-[1.02] active:scale-[0.98] focus:ring-primary",
+        outline: "border-2 border-primary text-primary bg-white dark:bg-transparent hover:bg-primary-light dark:hover:bg-primary/10 hover:border-primary-hover hover:scale-[1.02] active:scale-[0.98] focus:ring-primary",
         
         // Ghost - No background
-        ghost: "text-gray-700 hover:bg-gray-100 hover:text-gray-900 active:bg-gray-200 transition-all duration-200",
+        ghost: "text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100 active:bg-gray-200 dark:active:bg-gray-700 transition-all duration-200",
         
         // Destructive - Red for dangerous actions
-        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus:ring-destructive",
+        destructive: "bg-destructive text-destructive-foreground hover:bg-destructive/90 shadow-md hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] focus:ring-destructive touch-ripple",
         
         // Link - Text only
         link: "text-primary underline-offset-4 hover:underline hover:text-primary-hover",

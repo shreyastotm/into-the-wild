@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { LoadingScreen } from '@/components/ui/LoadingCard';
 import { Mountain, Camera, MapPin, Tent, Compass, Award, TrendingUp } from 'lucide-react';
 import { useHaptic } from '@/hooks/use-haptic';
-import { usePageStyle } from '@/hooks/usePageStyle';
 import { cn } from '@/lib/utils';
 
 const Dashboard = () => {
@@ -16,12 +15,6 @@ const Dashboard = () => {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [scrollY, setScrollY] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
-
-  // Apply page-specific styles (allow scroll on dashboard with auto height)
-  usePageStyle({
-    overflow: 'auto',
-    minHeight: '100vh',
-  });
 
   useEffect(() => {
     setIsVisible(true);
@@ -153,22 +146,22 @@ const Dashboard = () => {
             transition: 'transform 0.3s ease-out',
           }}
         >
-          <img
-            src="/itw_new_BG.jpg"
-            alt="Mountain landscape"
+          <img 
+            src="/itw_new_BG.jpg" 
+            alt="Mountain landscape" 
             className="w-full h-full object-cover object-center"
             style={{ objectPosition: '50% 35%' }}
           />
         </div>
-
+        
         {/* Lighter overlay for readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/70 dark:from-black/70 dark:via-black/50 dark:to-black/70" />
       </div>
 
       {/* Hide default header on mobile - handled in Layout component */}
       
-      {/* Content - Mobile optimized with scroll */}
-      <div className="relative py-6 px-4 pb-24 md:pb-12 overflow-y-auto">
+      {/* Content - Mobile optimized */}
+      <div className="relative py-6 px-4 pb-24 md:pb-12">
         {/* Welcome Section - Tent */}
         <section className={cn(
           "text-center mb-8 transition-all duration-1000",
@@ -288,10 +281,10 @@ const Dashboard = () => {
             </div>
           </div>
         </section>
-        </div>
       </div>
-    );
-  };
+    </div>
+  );
+};
 
 // Stat Station Component (like campsite stations)
 const StatStation = ({ 

@@ -4,6 +4,7 @@ import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/co
 import { useAuth } from '@/components/auth/AuthProvider';
 import { User, MapPin, Home, Calendar, UserCircle, LogOut, LogIn, MessageSquare, Menu, HelpCircle } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { ThemeToggleCompact } from '@/components/ThemeToggle';
 
 export function MobileHamburger() {
   const { user, userProfile, loading, signOut } = useAuth();
@@ -30,20 +31,23 @@ export function MobileHamburger() {
     <div className="md:hidden">
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="sm" className="text-gray-600 hover:text-gray-900 fixed top-4 right-4 z-50 bg-white/90 backdrop-blur border rounded-full w-12 h-12 p-0">
+          <Button variant="ghost" size="sm" className="text-gray-900 dark:text-primary-foreground hover:text-gray-900 dark:hover:text-primary-foreground fixed top-4 right-4 z-50 bg-white/95 dark:bg-primary/95 backdrop-blur border-2 border-gray-300 dark:border-primary rounded-full w-12 h-12 p-0 shadow-lg">
             <Menu className="h-6 w-6" />
             <span className="sr-only">Open menu</span>
           </Button>
         </SheetTrigger>
         <SheetContent side="right" className="w-80 sm:w-96">
           <SheetHeader>
-            <SheetTitle className="flex items-center gap-3">
-              <img
-                src="/itw_logo.png"
-                alt="Into the Wild"
-                className="h-8 w-auto"
-              />
-              Into the Wild
+            <SheetTitle className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <img
+                  src="/itw_logo.png"
+                  alt="Into the Wild"
+                  className="h-8 w-auto"
+                />
+                <span>Into the Wild</span>
+              </div>
+              <ThemeToggleCompact />
             </SheetTitle>
           </SheetHeader>
 

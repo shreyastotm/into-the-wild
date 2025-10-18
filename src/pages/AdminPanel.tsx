@@ -55,8 +55,8 @@ export default function AdminPanel() {
   }, []);
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+    <div className="p-4 sm:p-6 space-y-6">
+      <h1 className="text-2xl sm:text-3xl font-bold">Admin Dashboard</h1>
       <p className="text-muted-foreground">
         Welcome, {userProfile?.full_name || 'Admin'}. From here you can manage all aspects of the platform.
       </p>

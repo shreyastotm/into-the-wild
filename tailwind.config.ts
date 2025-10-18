@@ -78,7 +78,44 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for Bold Adventure theme
+				// Golden Hour Theme Colors
+				golden: {
+					50: '#FFF8E1',
+					100: '#FFECB3',
+					200: '#FFE082',
+					300: '#FFD54F',
+					400: '#FFCA28',
+					500: '#F4A460',
+					600: '#FFB300',
+					700: '#FFA000',
+					800: '#FF8F00',
+					900: '#FF6F00',
+				},
+				teal: {
+					50: '#E0F2F1',
+					100: '#B2DFDB',
+					200: '#80CBC4',
+					300: '#4DB6AC',
+					400: '#26A69A',
+					500: '#008B8B',
+					600: '#00897B',
+					700: '#00796B',
+					800: '#00695C',
+					900: '#004D40',
+				},
+				coral: {
+					50: '#FFF3E0',
+					100: '#FFE0B2',
+					200: '#FFCC80',
+					300: '#FFB74D',
+					400: '#FFA726',
+					500: '#E97451',
+					600: '#F57C00',
+					700: '#E65100',
+					800: '#D84315',
+					900: '#BF360C',
+				},
+				// Legacy terracotta (kept for backwards compatibility)
 				terracotta: {
 					50: '#fef5f3',
 					100: '#fdeae6',
@@ -105,6 +142,14 @@ export default {
 				'2xl': '0 25px 50px -12px rgb(0 0 0 / 0.25)',
 				'primary': '0 10px 25px -5px rgb(38 166 154 / 0.3)',   /* Teal glow */
 				'accent': '0 10px 25px -5px rgb(242 112 93 / 0.3)',    /* Terracotta glow */
+				'golden': '0 10px 25px -5px rgb(244 164 96 / 0.3)',    /* Golden glow */
+				'coral': '0 10px 25px -5px rgb(233 116 81 / 0.3)',     /* Coral glow */
+			},
+			spacing: {
+				'safe-top': 'env(safe-area-inset-top)',
+				'safe-bottom': 'env(safe-area-inset-bottom)',
+				'safe-left': 'env(safe-area-inset-left)',
+				'safe-right': 'env(safe-area-inset-right)',
 			},
 			keyframes: {
 				'accordion-down': {

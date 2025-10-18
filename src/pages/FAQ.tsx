@@ -1,17 +1,14 @@
 import React from 'react';
+import { MobilePage, MobileSection, MobileCard } from '@/components/mobile/MobilePage';
 
 export default function FAQPage() {
   return (
-    <div className="container mx-auto px-4 py-8">
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-12">
-          <h1 className="text-3xl font-bold mb-4">Frequently Asked Questions</h1>
-          <p className="text-gray-600">
-            Find answers to common questions about Into the Wild and our trekking adventures.
-          </p>
-        </div>
-
-        <div className="space-y-6">
+    <MobilePage>
+      <MobileSection 
+        title="Frequently Asked Questions"
+        subtitle="Find answers to common questions about Into the Wild and our trekking adventures."
+      >
+        <div className="mobile-list">
           {[
             {
               question: "How do I book a trek?",
@@ -54,13 +51,13 @@ export default function FAQPage() {
               answer: "Start with some light cardio exercises a few weeks before your trek. Break in your trekking shoes, stay hydrated, and get adequate rest. We'll send you a detailed preparation guide once you book your trek."
             }
           ].map((faq, index) => (
-            <div key={index} className="bg-white rounded-lg border p-6 shadow-sm">
-              <h3 className="font-semibold text-gray-900 mb-3 text-lg">{faq.question}</h3>
-              <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-            </div>
+            <MobileCard key={index}>
+              <h3 className="mobile-heading-3 mb-3">{faq.question}</h3>
+              <p className="mobile-body">{faq.answer}</p>
+            </MobileCard>
           ))}
         </div>
-      </div>
-    </div>
+      </MobileSection>
+    </MobilePage>
   );
 }

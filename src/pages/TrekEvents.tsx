@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { getUniqueParticipantCount } from '@/lib/utils';
 import { TrekEventStatus, EventType } from '@/types/trek';
+import { MobilePage, MobileSection, MobileGrid } from '@/components/mobile/MobilePage';
 
 // This interface should match the shape of data AFTER aliasing in the select query
 export interface FetchedTrekData {
@@ -243,42 +244,42 @@ const TrekEvents = () => {
   };
 
   return (
-    <div className="py-6 sm:py-8">
-      <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
-        <h1 className="text-2xl sm:text-3xl font-bold">Upcoming Events</h1>
-        {userProfile?.user_type === 'admin' && (
-          <Button
-            variant="default"
-            onClick={() => navigate('/trek-events/create')}
-            className="shadow w-full sm:w-auto"
-          >
-            + Create Event
-          </Button>
-        )}
-      </div>
-      <TrekFilters
-        options={filterOptions}
-        onFilterChange={handleFilterChange}
-        onReset={resetFilters}
-        categories={categories}
-      />
-      
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-          {[1, 2, 3, 4, 5, 6].map((n) => (
-            <div key={n} className="bg-white rounded-lg shadow-md p-4 animate-pulse">
-              <div className="h-48 bg-gray-200 rounded-md mb-4"></div>
-              <div className="h-4 bg-gray-200 rounded w-3/4 mb-2"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-            </div>
-          ))}
+    <MobilePage>
+      <MobileSection
+        title="Upcoming Events"
+      >
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mobile-gap mb-6">
+          {userProfile?.user_type === 'admin' && (
+            <Button
+              variant="default"
+              onClick={() => navigate('/trek-events/create')}
+              className="mobile-btn-primary w-full sm:w-auto"
+            >
+              + Create Event
+            </Button>
+          )}
         </div>
-      ) : events.length > 0 ? (
-        <TrekEventsList treks={events} />
-      ) : (
-        <NoTreksFound />
-      )}
-    </div>
+
+        <TrekFilters
+          options={filterOptions}
+          onFilterChange={handleFilterChange}
+          onReset={resetFilters}
+          categories={categories}
+        />
+
+        {loading ? (
+          <MobileGrid>
+            {[1, 2, 3, 4, 5, 6].map((n) => (
+              <div key={n} className="mobile-skeleton h-64 rounded-2xl" />
+            ))}
+          </MobileGrid>
+        ) : events.length > 0 ? (
+          <TrekEventsList treks={events} />
+        ) : (
+          <NoTreksFound />
+        )}
+      </MobileSection>
+    </MobilePage>
   );
 };
 
