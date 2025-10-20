@@ -8,14 +8,25 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
       <input
         type={type}
         className={cn(
-          // Mobile-first input styling per design system
+          // Mobile-first input styling with dark mode support
           "flex h-11 w-full rounded-lg",
-          "border-2 border-gray-300 bg-white px-4 py-3 text-base",
-          "placeholder:text-gray-400",
+          // Light mode
+          "border-2 border-input bg-background px-4 py-3 text-base text-foreground",
+          // Dark mode - higher contrast
+          "dark:border-border dark:bg-card dark:text-foreground",
+          "placeholder:text-muted-foreground",
           "transition-all duration-200",
-          "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10",
-          "hover:border-gray-400",
-          "ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          // Focus states
+          "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20",
+          "dark:focus:ring-primary/30",
+          // Hover states
+          "hover:border-primary/50",
+          "dark:hover:border-primary/60",
+          // Additional states
+          "ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground",
+          "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+          // Error state support (can be added via className)
+          "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20",
           className
         )}
         ref={ref}

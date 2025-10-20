@@ -1,12 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
-import { LayoutDashboard, CalendarClock, ShieldCheck, Ticket, ImagePlus, MessageSquare, Image } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { LayoutDashboard, CalendarClock, ShieldCheck, Ticket, ImagePlus, MessageSquare, Image, Menu, X } from 'lucide-react';
 import { useAuth } from '../auth/AuthProvider';
 
 export default function AdminSidebar() {
   const navigate = useNavigate();
   const { signOut } = useAuth();
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut();
@@ -23,17 +25,20 @@ export default function AdminSidebar() {
     { name: 'Forum', path: '/admin/forum', icon: <MessageSquare className="mr-2 h-4 w-4" /> },
   ];
 
-  return (
-    <aside className="w-64 min-h-screen bg-white/80 dark:bg-background/80 backdrop-blur-xl border-r border-white/20 dark:border-background/20 p-4 flex flex-col justify-between shadow-xl">
+  const SidebarContent = () => (
+    <>
       <div>
-        <h2 className="text-lg font-bold mb-6 px-2 text-gray-900 dark:text-foreground">Admin Menu</h2>
+        <h2 className="text-lg font-bold mb-6 px-2 text-foreground dark:text-foreground">Admin Menu</h2>
         <nav className="flex flex-col gap-2">
             {navItems.map(item => (
                 <Button
                     key={item.name}
                     variant="ghost"
-                    className="w-full justify-start text-gray-700 dark:text-secondary-foreground hover:bg-white/50 dark:hover:bg-secondary/50 hover:text-gray-900 dark:hover:text-secondary transition-all duration-200"
-                    onClick={() => navigate(item.path)}
+                    className="w-full justify-start text-muted-foreground dark:text-muted-foreground hover:bg-muted/50 dark:hover:bg-muted/30 hover:text-foreground dark:hover:text-foreground transition-all duration-200"
+                    onClick={() => {
+                      navigate(item.path);
+                      setIsMobileOpen(false);
+                    }}
                 >
                     {item.icon}
                     {item.name}
@@ -44,10 +49,50 @@ export default function AdminSidebar() {
       <Button
         variant="outline"
         onClick={handleSignOut}
-        className="bg-white/50 dark:bg-secondary/50 border-white/30 dark:border-secondary/30 text-gray-700 dark:text-secondary-foreground hover:bg-white/70 dark:hover:bg-secondary-hover/70 hover:text-gray-900 dark:hover:text-secondary transition-all duration-200"
+        className="bg-muted/50 dark:bg-muted/30 border-muted-foreground/30 dark:border-muted-foreground/30 text-muted-foreground dark:text-muted-foreground hover:bg-muted/70 dark:hover:bg-muted/50 hover:text-foreground dark:hover:text-foreground transition-all duration-200"
       >
         Sign Out
       </Button>
-    </aside>
+    </>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <aside className="hidden md:flex w-64 min-h-screen bg-card/80 dark:bg-card/60 backdrop-blur-xl border-r border-border/20 dark:border-border/20 p-4 flex-col justify-between shadow-xl">
+        <SidebarContent />
+      </aside>
+
+      {/* Mobile Sidebar Trigger */}
+      <div className="md:hidden">
+        <Sheet open={isMobileOpen} onOpenChange={setIsMobileOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="fixed top-4 left-4 z-50 bg-card/95 dark:bg-card/80 backdrop-blur border-2 border-border/30 dark:border-border/30 rounded-full w-12 h-12 p-0 shadow-lg"
+            >
+              <Menu className="h-6 w-6" />
+              <span className="sr-only">Open admin menu</span>
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-80 sm:w-96">
+            <SheetHeader>
+              <SheetTitle className="flex items-center gap-3">
+                <img
+                  src="/itw_logo.png"
+                  alt="Into the Wild"
+                  className="h-8 w-auto"
+                />
+                <span>Admin Panel</span>
+              </SheetTitle>
+            </SheetHeader>
+            <div className="mt-6">
+              <SidebarContent />
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
+    </>
   );
 }

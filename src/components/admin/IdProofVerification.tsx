@@ -184,8 +184,8 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div className="h-32 bg-gray-200 rounded"></div>
+        <div className="h-4 bg-muted rounded w-3/4"></div>
+        <div className="h-32 bg-muted rounded"></div>
       </div>
     );
   }
@@ -285,7 +285,7 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
                     onClick={() => handleVerification(proof.proof_id, 'approved',
                       selectedProof?.proof_id === proof.proof_id ? adminNotes : undefined)}
                     disabled={verifying === proof.proof_id}
-                    className="bg-green-600 hover:bg-green-700"
+                    className="bg-success hover:bg-success/90"
                   >
                     <CheckCircle className="h-4 w-4 mr-1" />
                     Approve
@@ -305,9 +305,9 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
             )}
 
             {proof.verification_status === 'rejected' && proof.admin_notes && (
-              <Alert className="border-red-200 bg-red-50">
-                <AlertTriangle className="h-4 w-4 text-red-600" />
-                <AlertDescription className="text-red-700">
+              <Alert className="border-destructive/50 bg-destructive/5">
+                <AlertTriangle className="h-4 w-4 text-destructive" />
+                <AlertDescription className="text-destructive-foreground">
                   <strong>Rejection Reason:</strong> {proof.admin_notes}
                 </AlertDescription>
               </Alert>

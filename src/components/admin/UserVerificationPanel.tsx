@@ -29,37 +29,37 @@ const getVerificationLevelInfo = (level: 'auto' | 'quick' | 'full') => {
       return {
         name: 'Auto-Verified',
         description: 'Basic verification for community access',
-        icon: <CheckCircle className="h-4 w-4 text-green-600" />,
+        icon: <CheckCircle className="h-4 w-4 text-success" />,
         color: 'green',
-        bgClass: 'bg-green-50 border-green-200',
-        badgeClass: 'bg-green-600 text-white'
+        bgClass: 'bg-success/10 border-success/20',
+        badgeClass: 'bg-success text-white'
       };
     case 'quick':
       return {
         name: 'Quick Verification',
         description: 'Aadhaar verified for most treks',
-        icon: <Upload className="h-4 w-4 text-blue-600" />,
+        icon: <Upload className="h-4 w-4 text-info" />,
         color: 'blue',
-        bgClass: 'bg-blue-50 border-blue-200',
-        badgeClass: 'bg-blue-600 text-white'
+        bgClass: 'bg-info/10 border-info/20',
+        badgeClass: 'bg-info text-white'
       };
     case 'full':
       return {
         name: 'Full Verification',
         description: 'Complete verification for all treks',
-        icon: <Shield className="h-4 w-4 text-purple-600" />,
+        icon: <Shield className="h-4 w-4 text-accent" />,
         color: 'purple',
-        bgClass: 'bg-purple-50 border-purple-200',
-        badgeClass: 'bg-purple-600 text-white'
+        bgClass: 'bg-accent/10 border-accent/20',
+        badgeClass: 'bg-accent text-white'
       };
     default:
       return {
         name: 'Not Verified',
         description: 'Verification required',
-        icon: <Clock className="h-4 w-4 text-gray-600" />,
+        icon: <Clock className="h-4 w-4 text-muted-foreground" />,
         color: 'gray',
-        bgClass: 'bg-gray-50 border-gray-200',
-        badgeClass: 'bg-gray-600 text-white'
+        bgClass: 'bg-muted/30 border-muted-foreground/20',
+        badgeClass: 'bg-muted text-muted-foreground'
       };
   }
 };
@@ -159,7 +159,7 @@ export default function UserVerificationPanel() {
             id="userTypeFilter"
             value={userTypeFilter}
             onChange={e => setUserTypeFilter(e.target.value)}
-            className="border rounded px-3 py-1"
+            className="border-2 border-input bg-background text-foreground rounded-lg px-3 py-2 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 dark:focus:ring-primary/30"
           >
             <option value="micro_community">Micro-Community</option>
             <option value="admin">Admin</option>
@@ -185,7 +185,8 @@ export default function UserVerificationPanel() {
         </div>
       </div>
       
-      <Table>
+      <div className="overflow-x-auto border rounded-lg bg-card/80 dark:bg-card/60">
+        <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
@@ -235,7 +236,7 @@ export default function UserVerificationPanel() {
                     )}
                     {user.verification_docs?.secondary_id?.front_url && (
                       <div className="space-x-2 mt-1">
-                        <span className="text-sm text-gray-600">{user.verification_docs.secondary_id.type}:</span>
+                        <span className="text-sm text-muted-foreground">{user.verification_docs.secondary_id.type}:</span>
                         <a href={user.verification_docs.secondary_id.front_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Front</a>
                         {user.verification_docs.secondary_id.back_url && (
                           <a href={user.verification_docs.secondary_id.back_url} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">Back</a>
@@ -262,6 +263,7 @@ export default function UserVerificationPanel() {
           )}
         </TableBody>
       </Table>
+      </div>
     </div>
   );
 }

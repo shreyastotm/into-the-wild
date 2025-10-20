@@ -446,7 +446,7 @@ export default function ForumAdmin() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Forum Administration</h1>
-          <p className="text-gray-600">Manage forum categories and moderate threads</p>
+          <p className="text-muted-foreground">Manage forum categories and moderate threads</p>
         </div>
       </div>
 
@@ -620,7 +620,7 @@ export default function ForumAdmin() {
         <TabsContent value="threads" className="space-y-6">
           <div>
             <h2 className="text-xl font-semibold mb-4">Recent Threads</h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-muted-foreground mb-6">
               Moderate threads by pinning important discussions or locking inappropriate content.
             </p>
           </div>
@@ -662,7 +662,7 @@ export default function ForumAdmin() {
                           )}
                         </div>
                       </TableCell>
-                      <TableCell className="text-sm text-gray-500">
+                      <TableCell className="text-sm text-muted-foreground">
                         {formatDate(thread.created_at)}
                       </TableCell>
                       <TableCell>

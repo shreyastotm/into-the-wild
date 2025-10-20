@@ -13,17 +13,24 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
   ({ className, ...props }, ref) => {
     return (
       <textarea
-        className={cn(
-          // Mobile-first textarea styling per design system
-          "flex min-h-24 w-full rounded-lg",
-          "border-2 border-gray-300 bg-white px-4 py-3 text-sm",
-          "placeholder:text-gray-400",
-          "transition-all duration-200",
-          "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/10",
-          "hover:border-gray-400",
-          "ring-offset-background disabled:cursor-not-allowed disabled:opacity-50",
-          className
-        )}
+      className={cn(
+        "flex min-h-[80px] w-full rounded-lg",
+        // Light mode
+        "border-2 border-input bg-background px-4 py-3 text-base text-foreground",
+        // Dark mode
+        "dark:border-border dark:bg-card dark:text-foreground",
+        "placeholder:text-muted-foreground",
+        "transition-all duration-200",
+        // Focus states
+        "focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20",
+        "dark:focus:ring-primary/30",
+        // Hover states
+        "hover:border-primary/50",
+        "dark:hover:border-primary/60",
+        "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
+        "resize-vertical",
+        className
+      )}
         ref={ref}
         {...props}
       />

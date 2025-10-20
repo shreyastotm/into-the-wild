@@ -95,20 +95,20 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
   const isFull = availableSpots <= 0;
 
 
-  const getCategoryColor = (category: string | null) => {
-    if (!category) return "bg-gray-100 text-gray-800";
+  const getCategoryVariant = (category: string | null): 'default' | 'beginner' | 'intermediate' | 'advanced' | 'family' | 'weekend' | 'overnight' | 'daytrek' => {
+    if (!category) return 'default';
 
-    const categoryMap: Record<string, string> = {
-      'Beginner': 'bg-green-100 text-green-800',
-      'Intermediate': 'bg-blue-100 text-blue-800',
-      'Advanced': 'bg-red-100 text-red-800',
-      'Family': 'bg-purple-100 text-purple-800',
-      'Weekend': 'bg-amber-100 text-amber-800',
-      'Overnight': 'bg-indigo-100 text-indigo-800',
-      'Day Trek': 'bg-sky-100 text-sky-800',
+    const categoryMap: Record<string, 'beginner' | 'intermediate' | 'advanced' | 'family' | 'weekend' | 'overnight' | 'daytrek'> = {
+      'Beginner': 'beginner',
+      'Intermediate': 'intermediate',
+      'Advanced': 'advanced',
+      'Family': 'family',
+      'Weekend': 'weekend',
+      'Overnight': 'overnight',
+      'Day Trek': 'daytrek',
     };
 
-    return categoryMap[category] || "bg-gray-100 text-gray-800";
+    return categoryMap[category] || 'default';
   };
 
   const getTimeStatus = (dateStr: string) => {
@@ -117,11 +117,11 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
       if (isNaN(date.getTime())) throw new Error('Invalid date');
 
       if (isPast(date)) return null;
-      if (isToday(date)) return { label: 'Today', class: 'bg-green-500 text-white' };
-      if (isTomorrow(date)) return { label: 'Tomorrow', class: 'bg-blue-500 text-white' };
+      if (isToday(date)) return { label: 'Today', variant: 'today' as const };
+      if (isTomorrow(date)) return { label: 'Tomorrow', variant: 'tomorrow' as const };
 
       const daysUntil = Math.ceil((date.getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24));
-      if (daysUntil <= 3) return { label: `In ${daysUntil} days`, class: 'bg-amber-500 text-white' };
+      if (daysUntil <= 3) return { label: `In ${daysUntil} days`, variant: 'upcoming' as const };
 
     } catch (e) {
       console.error("Error parsing date in getTimeStatus:", dateStr, e);
@@ -139,13 +139,13 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
     return `${remaining} spots available`;
   };
 
-  const getSpacesLeftColor = (participantCount: number | null, max: number) => {
+  const getSpacesLeftVariant = (participantCount: number | null, max: number): 'default' | 'available' | 'limited' | 'booked' => {
     const filled = participantCount ?? 0;
-    if (max <= 0) return "text-gray-500";
+    if (max <= 0) return 'default';
     const remaining = max - filled;
-    if (remaining <= 0) return "text-red-500";
-    if (remaining <= 3) return "text-amber-500";
-    return "text-green-500";
+    if (remaining <= 0) return 'booked';
+    if (remaining <= 3) return 'limited';
+    return 'available';
   };
 
   const getTransportIcon = (mode: string | null) => {
@@ -183,9 +183,9 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
             </div>
           </div>
           {showTimeStatus && timeStatus && (
-            <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${timeStatus.class}`}>
+            <Badge variant={timeStatus.variant} className="absolute top-2 right-2">
               {timeStatus.label}
-            </div>
+            </Badge>
           )}
         </div>
       )}
@@ -217,7 +217,7 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
             {/* Category and Creator */}
             <div className="flex items-center gap-2 mb-2">
               {showCategory && trek.category && (
-                <Badge className={getCategoryColor(trek.category)}>
+                <Badge variant={getCategoryVariant(trek.category)}>
                   {trek.category}
                 </Badge>
               )}
@@ -305,9 +305,9 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
                 <Users className="h-4 w-4 text-muted-foreground" />
                 <span>{participantCount} registered</span>
               </div>
-              <span className={getSpacesLeftColor(participantCount, trek.max_participants)}>
+              <Badge variant={getSpacesLeftVariant(participantCount, trek.max_participants)} className="text-xs">
                 {getSpacesLeftText(participantCount, trek.max_participants)}
-              </span>
+              </Badge>
             </div>
             <Progress value={spotsFillPercent} className="h-2" />
           </div>

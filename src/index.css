@@ -67,56 +67,56 @@
   }
 
   .dark {
-    /* Golden Hour - Dark Mode (Twilight/Night Sky) */
-    --primary: 35 75% 45%;                     /* Dimmed golden */
-    --primary-hover: 35 75% 38%;
-    --primary-light: 35 30% 20%;
+    /* Golden Hour - Dark Mode (Twilight/Night Sky) - ENHANCED FOR WCAG AA */
+    --primary: 35 80% 55%;                     /* Brighter golden for better contrast */
+    --primary-hover: 35 80% 48%;
+    --primary-light: 35 40% 25%;               /* More visible light variant */
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 180 60% 35%;                  /* Night teal */
-    --secondary-hover: 180 60% 28%;
-    --secondary-light: 180 30% 20%;
+    --secondary: 180 70% 45%;                  /* Brighter night teal */
+    --secondary-hover: 180 70% 38%;
+    --secondary-light: 180 40% 25%;
     --secondary-foreground: 0 0% 100%;
 
-    --accent: 14 70% 48%;                      /* Muted coral */
-    --accent-hover: 14 70% 40%;
-    --accent-light: 14 30% 20%;
+    --accent: 14 75% 55%;                      /* Brighter muted coral */
+    --accent-hover: 14 75% 48%;
+    --accent-light: 14 40% 25%;
     --accent-foreground: 0 0% 100%;
 
-    --info: 204 80% 50%;
-    --info-light: 204 40% 20%;
+    --info: 204 85% 58%;
+    --info-light: 204 50% 25%;
 
-    --success: 142 60% 38%;
-    --success-light: 142 30% 20%;
+    --success: 142 65% 45%;
+    --success-light: 142 40% 25%;
 
-    /* Dark backgrounds with slight warm tint */
-    --background: 220 20% 12%;                 /* Deep navy */
-    --background-subtle: 220 18% 14%;
-    --foreground: 210 40% 98%;
+    /* Dark backgrounds with improved contrast */
+    --background: 220 20% 10%;                 /* Darker base */
+    --background-subtle: 220 18% 12%;
+    --foreground: 210 40% 98%;                 /* High contrast white */
 
-    --card: 220 18% 16%;                       /* Slightly lighter cards */
+    --card: 220 18% 14%;                       /* Visible card separation */
     --card-foreground: 210 40% 98%;
 
-    --popover: 220 18% 16%;
+    --popover: 220 18% 14%;
     --popover-foreground: 210 40% 98%;
 
-    --muted: 220 16% 18%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 220 16% 20%;                      /* More visible muted */
+    --muted-foreground: 215 20% 70%;           /* Higher contrast */
 
-    --destructive: 0 62.8% 30.6%;
+    --destructive: 0 70% 45%;                  /* Brighter destructive */
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 16% 25%;
-    --input: 220 16% 25%;
-    --ring: 35 75% 45%;
+    --border: 220 16% 28%;                     /* More visible borders */
+    --input: 220 16% 28%;                      /* More visible inputs */
+    --ring: 35 80% 55%;
 
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-background: 240 6% 8%;
+    --sidebar-foreground: 240 5% 96%;
+    --sidebar-primary: 224.3 76.3% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-accent: 240 4% 18%;
+    --sidebar-accent-foreground: 240 5% 96%;
+    --sidebar-border: 240 4% 18%;
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 }

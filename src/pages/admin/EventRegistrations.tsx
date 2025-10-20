@@ -442,9 +442,9 @@ export default function EventRegistrations() {
           {selectedRegistration && (
             <div className="space-y-6">
               {/* User Details */}
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 p-4 bg-muted/30 dark:bg-muted/20 rounded-lg">
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Account Details</h4>
+                  <h4 className="text-sm font-semibold text-muted-foreground mb-2">Account Details</h4>
                   <div className="space-y-1 text-sm">
                     <p><span className="font-medium">Name:</span> {selectedRegistration.users?.full_name || 'N/A'}</p>
                     <p><span className="font-medium">Email:</span> {selectedRegistration.users?.email || 'N/A'}</p>
@@ -452,7 +452,7 @@ export default function EventRegistrations() {
                   </div>
                 </div>
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-600 mb-2">Payment Details</h4>
+                  <h4 className="text-sm font-semibold text-muted-foreground mb-2">Payment Details</h4>
                   <div className="space-y-1 text-sm">
                     <p><span className="font-medium">Payer Name:</span> {selectedRegistration.registrant_name || 'Not provided'}</p>
                     <p><span className="font-medium">Payer Phone:</span> {selectedRegistration.registrant_phone || 'Not provided'}</p>
@@ -465,8 +465,8 @@ export default function EventRegistrations() {
               {/* Payment Proof Image */}
               {selectedRegistration.payment_proof_url ? (
                 <div className="space-y-2">
-                  <h4 className="text-sm font-semibold text-gray-700">Payment Proof</h4>
-                  <div className="border rounded-lg overflow-hidden bg-gray-100">
+                  <h4 className="text-sm font-semibold text-foreground">Payment Proof</h4>
+                  <div className="border border-border rounded-lg overflow-hidden bg-muted/50 dark:bg-muted/30">
                     <img 
                       src={selectedRegistration.payment_proof_url} 
                       alt="Payment Proof" 
@@ -495,7 +495,7 @@ export default function EventRegistrations() {
               {/* Rejection Reason Input */}
               {selectedRegistration.payment_status === 'ProofUploaded' && (
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-700">
+                  <label className="text-sm font-medium text-foreground">
                     Rejection Reason (if rejecting)
                   </label>
                   <Input

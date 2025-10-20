@@ -205,7 +205,7 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
     if (!user) return;
 
     try {
-      setSaving(avatarKey);
+      setSaving(avatarKey as string);
       const { data, error } = await supabase.rpc('set_user_avatar', {
         p_avatar_key: avatarKey
       });
@@ -297,7 +297,7 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
 
             <TabsContent value={selectedCategory} className="mt-4">
               {filteredAvatars.length === 0 ? (
-                <div className="text-center py-8 text-gray-500 text-sm">
+                <div className="text-center py-8 text-muted-foreground text-sm">
                   No avatars found.
                 </div>
               ) : (
@@ -321,8 +321,8 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
                           </AvatarFallback>
                         </Avatar>
 
-                        {userProfile?.avatar_key === avatar.key && (
-                          <div className="absolute -top-1 -right-1 bg-green-500 rounded-full p-0.5">
+                        {userProfile?.avatar_url === avatar.image_url && (
+                          <div className="absolute -top-1 -right-1 bg-success rounded-full p-0.5">
                             <Check className="h-2.5 w-2.5 text-white" />
                           </div>
                         )}
@@ -336,14 +336,14 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
 
                       <Button
                         size="sm"
-                        variant={userProfile?.avatar_key === avatar.key ? "default" : "outline"}
+                        variant={userProfile?.avatar_url === avatar.image_url ? "default" : "outline"}
                         disabled={saving === avatar.key}
                         onClick={() => handleAvatarSelect(avatar.key)}
                         className="h-7 px-2 text-xs w-full"
                       >
                         {saving === avatar.key ? (
                           <Loader2 className="h-2.5 w-2.5 animate-spin mr-1" />
-                        ) : userProfile?.avatar_key === avatar.key ? (
+                        ) : userProfile?.avatar_url === avatar.image_url ? (
                           'Current'
                         ) : (
                           'Select'

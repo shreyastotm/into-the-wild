@@ -302,9 +302,9 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        <div className="h-32 bg-gray-200 rounded"></div>
+        <div className="h-4 bg-muted rounded w-3/4"></div>
+        <div className="h-4 bg-muted rounded w-1/2"></div>
+        <div className="h-32 bg-muted rounded"></div>
       </div>
     );
   }
@@ -333,10 +333,10 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   return (
     <div className="space-y-6">
       {/* Trek-Specific Document Status */}
-      <Card className={userRegistration && hasApprovedTrekDocuments() ? 'border-green-200 bg-green-50' : userRegistration ? 'border-blue-200 bg-blue-50' : 'border-gray-200 bg-gray-50'}>
+      <Card className={userRegistration && hasApprovedTrekDocuments() ? 'border-success/50 bg-success/5' : userRegistration ? 'border-info/50 bg-info/5' : 'border-border bg-card'}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FileText className={`h-5 w-5 ${userRegistration && hasApprovedTrekDocuments() ? 'text-green-600' : userRegistration ? 'text-blue-600' : 'text-gray-600'}`} />
+            <FileText className={`h-5 w-5 ${userRegistration && hasApprovedTrekDocuments() ? 'text-success' : userRegistration ? 'text-info' : 'text-muted-foreground'}`} />
             {hasRequirements ? 'ID Verification Required' : 'ID Document Status for This Trek'}
           </CardTitle>
           <CardDescription>
@@ -501,11 +501,11 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
                             if (file) handleUploadProof(idType.id_type_id, file);
                           }}
                           disabled={uploadingProof === idType.id_type_id}
-                          className="mt-1 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                          className="mt-1 block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-info/10 file:text-info hover:file:bg-info/20"
                         />
                       </label>
                       {uploadingProof === idType.id_type_id && (
-                        <p className="text-sm text-blue-600">Uploading...</p>
+                        <p className="text-sm text-info">Uploading...</p>
                       )}
                     </div>
                   )}

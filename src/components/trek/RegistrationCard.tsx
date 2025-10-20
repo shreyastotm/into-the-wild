@@ -108,10 +108,10 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
 
   return (
     <Card className="sticky top-4 sm:top-6">
-      <CardHeader className="bg-gray-50 rounded-t-lg p-4 sm:p-6">
+      <CardHeader className="bg-muted/50 dark:bg-muted/30 rounded-t-lg p-4 sm:p-6">
         <CardTitle className="text-lg sm:text-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
           <span>Registration</span>
-          <span className="text-xl sm:text-2xl font-bold">{formatCurrency(trek.cost)}</span>
+          <span className="text-xl sm:text-2xl font-bold text-foreground">{formatCurrency(trek.cost)}</span>
         </CardTitle>
       </CardHeader>
       <CardContent className="pt-4 sm:pt-6 space-y-4 sm:space-y-6 p-4 sm:p-6">

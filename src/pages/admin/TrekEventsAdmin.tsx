@@ -504,10 +504,10 @@ const TrekEventsAdmin = () => {
       </div>
 
       {/* Search and Filter Controls */}
-      <div className="mb-6 p-3 sm:p-4 bg-gray-50 rounded-lg">
+      <div className="mb-6 p-3 sm:p-4 bg-muted/30 dark:bg-muted/20 rounded-lg">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="relative sm:col-span-2 lg:col-span-1">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
             <Input
               placeholder="Search events..."
               value={searchTerm}
@@ -556,9 +556,9 @@ const TrekEventsAdmin = () => {
 
       {/* Bulk Actions */}
       {selectedEvents.length > 0 && (
-        <div className="mb-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+        <div className="mb-4 p-4 bg-info/10 border border-info/20 rounded-lg">
           <div className="flex items-center justify-between">
-            <span className="text-sm font-medium text-blue-800">
+            <span className="text-sm font-medium text-info-foreground">
               {selectedEvents.length} event(s) selected
             </span>
             <div className="flex gap-2">
@@ -602,17 +602,17 @@ const TrekEventsAdmin = () => {
                       className="p-1"
                     >
                       {selectedEvents.includes(event.trek_id) ? (
-                        <CheckSquare className="h-4 w-4" />
+                        <CheckSquare className="h-4 w-4 text-primary dark:text-primary" />
                       ) : (
-                        <Square className="h-4 w-4" />
+                        <Square className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                       )}
                     </Button>
                     <h3 className="font-semibold text-sm line-clamp-2">{event.name}</h3>
                   </div>
                   <span className={`px-2 py-1 rounded text-xs font-medium ${
                     event.event_type === EventType.CAMPING 
-                      ? 'bg-green-100 text-green-800' 
-                      : 'bg-blue-100 text-blue-800'
+                      ? 'bg-success/10 text-success border border-success/20 dark:bg-success/20 dark:text-success-foreground dark:border-success/30'
+                      : 'bg-info/10 text-info border border-info/20 dark:bg-info/20 dark:text-info-foreground dark:border-info/30'
                   }`}>
                     {event.event_type === EventType.CAMPING ? 'Camping' : 'Trek'}
                   </span>
@@ -695,7 +695,7 @@ const TrekEventsAdmin = () => {
           </div>
 
           {/* Desktop Table Layout */}
-          <div className="hidden md:block">
+          <div className="hidden md:block overflow-x-auto border rounded-lg bg-card/80 dark:bg-card/60">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -706,19 +706,19 @@ const TrekEventsAdmin = () => {
                       onClick={() => handleSelectAll(selectedEvents.length !== filteredEvents.length)}
                     >
                       {selectedEvents.length === filteredEvents.length ? (
-                        <CheckSquare className="h-4 w-4" />
+                        <CheckSquare className="h-4 w-4 text-primary dark:text-primary" />
                       ) : (
-                        <Square className="h-4 w-4" />
+                        <Square className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead>Name</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Start Date</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Price</TableHead>
-                  <TableHead>Participants</TableHead>
-                  <TableHead>Actions</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">Name</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">Type</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">Start Date</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">Status</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">Price</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">Participants</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -731,9 +731,9 @@ const TrekEventsAdmin = () => {
                         onClick={() => handleSelectEvent(event.trek_id, !selectedEvents.includes(event.trek_id))}
                       >
                         {selectedEvents.includes(event.trek_id) ? (
-                          <CheckSquare className="h-4 w-4" />
+                          <CheckSquare className="h-4 w-4 text-primary dark:text-primary" />
                         ) : (
-                          <Square className="h-4 w-4" />
+                          <Square className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                         )}
                       </Button>
                     </TableCell>
@@ -741,8 +741,8 @@ const TrekEventsAdmin = () => {
                     <TableCell>
                       <span className={`px-2 py-1 rounded text-xs font-medium ${
                         event.event_type === EventType.CAMPING 
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-blue-100 text-blue-800'
+                          ? 'bg-success/10 text-success border border-success/20 dark:bg-success/20 dark:text-success-foreground dark:border-success/30'
+                          : 'bg-info/10 text-info border border-info/20 dark:bg-info/20 dark:text-info-foreground dark:border-info/30'
                       }`}>
                         {event.event_type === EventType.CAMPING ? 'Camping' : 'Trek'}
                       </span>
@@ -814,7 +814,7 @@ const TrekEventsAdmin = () => {
       )}
       {!loading && filteredEvents.length === 0 && events.length > 0 && (
         <div className="text-center py-8">
-          <p className="text-gray-500">No events match your current filters.</p>
+          <p className="text-muted-foreground">No events match your current filters.</p>
           <Button 
             variant="outline" 
             onClick={() => {

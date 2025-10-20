@@ -8,7 +8,7 @@ import { TrekParticipants } from '@/components/trek/TrekParticipants';
 import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
 import { ExpenseSplitting } from '@/components/expenses/ExpenseSplitting';
 import { TrekRatings } from '@/components/trek/TrekRatings';
-import { TrekPackingList } from '@/components/trek/TrekPackingList';
+import TrekPackingList from '@/components/trek/TrekPackingList';
 import { TentRental } from '@/components/trek/TentRental';
 import { TrekRequirements } from '@/components/trek/TrekRequirements';
 import { useTrekRegistration } from '../hooks/trek/useTrekRegistration';
@@ -25,11 +25,18 @@ import {
   ClipboardList,
   Info,
   Tent,
-  Shield
+  Shield,
+  TreePine,
+  Mountain,
+  Zap
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { TrekEventStatus, EventType } from '@/types/trek';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardTitle } from '@/components/ui/card';
+import { cn } from '@/lib/utils';
+import { useHaptic } from '@/hooks/useHaptic';
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -81,14 +88,14 @@ export default function TrekEventDetails() {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="animate-pulse">
-          <div className="h-12 bg-gray-200 rounded mb-6"></div>
-          <div className="h-64 bg-gray-200 rounded mb-6"></div>
+          <div className="h-12 bg-muted rounded mb-6"></div>
+          <div className="h-64 bg-muted rounded mb-6"></div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
-              <div className="h-96 bg-gray-200 rounded"></div>
+              <div className="h-96 bg-muted rounded"></div>
             </div>
             <div>
-              <div className="h-64 bg-gray-200 rounded"></div>
+              <div className="h-64 bg-muted rounded"></div>
             </div>
           </div>
         </div>
@@ -138,7 +145,7 @@ export default function TrekEventDetails() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Link to="/trek-events" className="inline-flex items-center text-sm text-gray-600 hover:text-gray-900 mb-6">
+      <Link to="/trek-events" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
         <ChevronLeft className="mr-1 h-4 w-4" />
         Back to Events
       </Link>
@@ -147,6 +154,7 @@ export default function TrekEventDetails() {
         trekName={trekEvent.trek_name}
         startDatetime={trekEvent.start_datetime}
         category={trekEvent.category}
+        difficulty={trekEvent.difficulty}
         status={trekEvent.status as TrekEventStatus | undefined}
         imageUrl={trekEvent.image_url}
         cost={trekEvent.cost}

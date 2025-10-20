@@ -5,6 +5,10 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ClipboardList, AlertCircle, Loader2 } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthProvider';
+import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 
 interface PackingListItem {
   item_id: number; // This will be master_item_id
@@ -19,8 +23,10 @@ interface TrekPackingListProps {
   trekId: string | undefined;
 }
 
-export function TrekPackingList({ trekId }: TrekPackingListProps) {
-  const [packingList, setPackingList] = useState<PackingListItem[]>([]);
+export default function TrekPackingList({ trekId }: TrekPackingListProps) {
+  const { user } = useAuth();
+  const navigate = useNavigate();
+  const [packingItems, setPackingItems] = useState<PackingListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -87,7 +93,7 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
         console.log('Formatted packing list:', formattedList);
 
         console.log('TrekPackingList: Loaded packing list for trek', trekIdNumber, ':', formattedList);
-        setPackingList(formattedList);
+        setPackingItems(formattedList);
 
       } catch (err: unknown) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
@@ -103,9 +109,9 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center py-8">
-        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-        <span className="ml-2 text-muted-foreground">Loading Packing List...</span>
+      <div className="animate-pulse space-y-4">
+        <div className="h-4 bg-muted rounded w-3/4"></div>
+        <div className="h-32 bg-muted rounded"></div>
       </div>
     );
   }
@@ -120,7 +126,7 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
     );
   }
 
-  if (packingList.length === 0) {
+  if (packingItems.length === 0) {
     return (
        <Alert>
         <ClipboardList className="h-4 w-4" />
@@ -133,7 +139,7 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
   }
 
   // Group items by category
-  const groupedItems = packingList.reduce((acc, item) => {
+  const groupedItems = packingItems.reduce((acc, item) => {
     const category = item.category || 'Miscellaneous';
     if (!acc[category]) {
       acc[category] = [];
@@ -144,31 +150,45 @@ export function TrekPackingList({ trekId }: TrekPackingListProps) {
 
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center">
-          <ClipboardList className="mr-2 h-5 w-5" />
-          Packing Checklist
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-         {Object.entries(groupedItems).map(([category, items]) => (
-           <div key={category}>
-             <h3 className="text-lg font-semibold mb-3 border-b pb-1">{category}</h3>
-             <ul className="space-y-3">
-               {items.map((item) => (
-                 <li key={item.item_id} className="flex items-center space-x-3">
-                   <Checkbox id={`item-${item.item_id}`} />
-                   <Label htmlFor={`item-${item.item_id}`} className="flex-grow">
-                     {item.name}
-                     {item.mandatory && <span className="ml-2 text-xs font-medium text-red-600">(Mandatory)</span>}
-                   </Label>
-                 </li>
-               ))}
-             </ul>
-           </div>
-         ))}
-      </CardContent>
-    </Card>
+    <div className="space-y-6">
+      {/* Packing Items */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold">Packing List</h3>
+        
+        {!user ? (
+          // Blur effect for non-logged-in users
+          <div className="relative">
+            <div className="space-y-3 opacity-30 blur-sm pointer-events-none">
+              {packingItems.slice(0, 5).map((item) => (
+                <div key={item.item_id} className="flex items-center gap-3 p-3 bg-card rounded-lg border">
+                  <div className="w-5 h-5 bg-muted rounded"></div>
+                  <span className="text-sm">{item.name}</span>
+                  {item.mandatory && <Badge variant="destructive" className="text-xs">Required</Badge>}
+                </div>
+              ))}
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center">
+              <Card className="p-4 text-center bg-background/95 backdrop-blur-sm border">
+                <p className="text-sm text-muted-foreground mb-2">Sign up to view the complete packing list</p>
+                <Button size="sm" onClick={() => navigate('/auth')}>
+                  Sign Up
+                </Button>
+              </Card>
+            </div>
+          </div>
+        ) : (
+          // Full list for logged-in users
+          <div className="space-y-3">
+            {packingItems.map((item) => (
+              <div key={item.item_id} className="flex items-center gap-3 p-3 bg-card rounded-lg border hover:bg-muted/50 transition-colors">
+                <div className="w-5 h-5 bg-muted rounded"></div>
+                <span className="text-sm flex-1">{item.name}</span>
+                {item.mandatory && <Badge variant="destructive" className="text-xs">Required</Badge>}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
   );
 } 

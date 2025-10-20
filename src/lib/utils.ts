@@ -72,21 +72,21 @@ interface BadgeProps {
 export const getTrekStatusBadgeProps = (status: TrekEventStatus | string | null): BadgeProps => {
   switch (status) {
     case TrekEventStatus.OPEN_FOR_REGISTRATION:
-      return { variant: 'default' as const, className: 'bg-green-600 hover:bg-green-700 text-white' };
+      return { variant: 'default' as const, className: '' };
     case TrekEventStatus.REGISTRATION_CLOSED:
-      return { variant: 'default' as const, className: 'bg-yellow-500 hover:bg-yellow-600 text-white' };
+      return { variant: 'secondary' as const, className: '' };
     case TrekEventStatus.ONGOING:
-      return { variant: 'default' as const, className: 'bg-sky-500 hover:bg-sky-600 text-white' };
+      return { variant: 'default' as const, className: '' };
     case TrekEventStatus.COMPLETED:
-      return { variant: 'default' as const, className: 'bg-primary hover:bg-primary/90 text-white' };
+      return { variant: 'secondary' as const, className: '' };
     case TrekEventStatus.CANCELLED:
-      return { variant: 'destructive' as const, className: 'text-white' }; // Destructive variant usually has its own colors
+      return { variant: 'destructive' as const, className: '' };
     case TrekEventStatus.UPCOMING:
-      return { variant: 'outline' as const, className: 'border-yellow-400 text-yellow-600 bg-yellow-50 hover:bg-yellow-100' };
+      return { variant: 'outline' as const, className: '' };
     case TrekEventStatus.DRAFT:
-      return { variant: 'outline' as const, className: 'border-gray-400 text-gray-600 bg-gray-50 hover:bg-gray-100' };
+      return { variant: 'outline' as const, className: '' };
     default:
       // For any unknown status or if status is null/empty string
-      return { variant: 'outline' as const, className: 'text-gray-700' };
+      return { variant: 'outline' as const, className: '' };
   }
 };

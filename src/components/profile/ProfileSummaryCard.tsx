@@ -16,9 +16,16 @@ export default function ProfileSummaryCard() {
 
   // Dynamic badges based on user data
   const badges = [
-    ...(userProfile?.user_type ? [{ label: userProfile.user_type.charAt(0).toUpperCase() + userProfile.user_type.slice(1), color: 'bg-blue-100 text-blue-800' }] : []),
-    ...(isVerified ? [{ label: 'Verified', color: 'bg-green-100 text-green-800', icon: CheckCircle }] : []),
-    { label: 'Community Member', color: 'bg-purple-100 text-purple-800' },
+    ...(userProfile?.user_type ? [{
+      label: userProfile.user_type.charAt(0).toUpperCase() + userProfile.user_type.slice(1),
+      variant: userProfile.user_type === 'admin' ? 'admin' as const : 'default' as const
+    }] : []),
+    ...(isVerified ? [{
+      label: 'Verified',
+      variant: 'verified' as const,
+      icon: CheckCircle
+    }] : []),
+    { label: 'Community Member', variant: 'community' as const },
   ];
 
   return (
@@ -52,19 +59,23 @@ export default function ProfileSummaryCard() {
 
         <div className="flex-1">
           <div className="text-xl font-bold mb-1">{userProfile?.full_name || user?.email}</div>
-          <div className="text-gray-600 mb-2">{user?.email}</div>
+          <div className="text-muted-foreground mb-2">{user?.email}</div>
           <div className="flex flex-wrap gap-2 mb-2">
             {badges.map(badge => (
-              <Badge key={badge.label} className={`${badge.color} flex items-center gap-1`}>
+              <Badge
+                key={badge.label}
+                variant={badge.variant}
+                className="flex items-center gap-1"
+              >
                 {badge.icon && <badge.icon className="h-3 w-3" />}
                 {badge.label}
               </Badge>
             ))}
           </div>
-          <div className="text-sm text-gray-500">
+          <div className="text-sm text-muted-foreground">
             <span className="mr-4">Member since: <b>{userProfile?.created_at ? new Date(userProfile.created_at).getFullYear() : 'N/A'}</b></span>
             {!isVerified && (
-              <span className="text-orange-600">• ID verification pending</span>
+              <span className="text-warning">• ID verification pending</span>
             )}
           </div>
         </div>

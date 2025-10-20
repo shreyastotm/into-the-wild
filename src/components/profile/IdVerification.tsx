@@ -86,18 +86,14 @@ const IdVerification = () => {
     return 'auto';
   };
 
-  const getTierBadgeColor = (tierId: string) => {
+  const getTierBadgeVariant = (tierId: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
     const tier = verificationTiers.find(t => t.id === tierId);
-    return tier?.color || 'gray';
-  };
-
-  const getTierBadgeClasses = (tierId: string) => {
-    const color = getTierBadgeColor(tierId);
+    const color = tier?.color || 'gray';
     switch (color) {
-      case 'green': return 'bg-green-600 text-white';
-      case 'blue': return 'bg-blue-600 text-white';
-      case 'purple': return 'bg-purple-600 text-white';
-      default: return 'bg-gray-600 text-white';
+      case 'green': return 'default';
+      case 'blue': return 'default';
+      case 'purple': return 'default';
+      default: return 'outline';
     }
   };
 
@@ -263,7 +259,7 @@ const IdVerification = () => {
                 {verificationTiers.find(t => t.id === currentTierId)?.name} - {verificationTiers.find(t => t.id === currentTierId)?.description}
               </p>
             </div>
-            <Badge className={`ml-auto ${getTierBadgeClasses(currentTierId)}`}>
+            <Badge variant={getTierBadgeVariant(currentTierId)} className="ml-auto">
               {currentTierId.toUpperCase()}
             </Badge>
           </div>
@@ -387,7 +383,7 @@ const IdVerification = () => {
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Government ID Verification</span>
-          <Badge className={getTierBadgeClasses(getCurrentTier())}>
+          <Badge variant={getTierBadgeVariant(getCurrentTier())}>
             {getCurrentTier().toUpperCase()}
           </Badge>
         </CardTitle>

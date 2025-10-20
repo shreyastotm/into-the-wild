@@ -296,20 +296,20 @@ export const TrekStatusIndicator: React.FC<{
       icon: React.ReactNode;
       color: string;
     }> = {
-      'PUBLISHED': { icon: <CalendarCheck />, color: 'text-green-500' },
-      'OPEN_FOR_REGISTRATION': { icon: <Users />, color: 'text-blue-500' },
-      'ONGOING': { icon: <Play />, color: 'text-green-500' },
-      'COMPLETED': { icon: <CheckCircle />, color: 'text-gray-500' },
-      'CANCELLED': { icon: <XCircle />, color: 'text-red-500' },
-      'PAID': { icon: <CreditCard />, color: 'text-green-500' },
-      'PENDING_PAYMENT': { icon: <Clock />, color: 'text-yellow-500' },
-      'AVAILABLE': { icon: <CheckCircle />, color: 'text-green-500' },
-      'FULLY_BOOKED': { icon: <XCircle />, color: 'text-red-500' },
+      'PUBLISHED': { icon: <CalendarCheck />, color: 'text-success' },
+      'OPEN_FOR_REGISTRATION': { icon: <Users />, color: 'text-info' },
+      'ONGOING': { icon: <Play />, color: 'text-success' },
+      'COMPLETED': { icon: <CheckCircle />, color: 'text-muted-foreground' },
+      'CANCELLED': { icon: <XCircle />, color: 'text-destructive' },
+      'PAID': { icon: <CreditCard />, color: 'text-success' },
+      'PENDING_PAYMENT': { icon: <Clock />, color: 'text-warning' },
+      'AVAILABLE': { icon: <CheckCircle />, color: 'text-success' },
+      'FULLY_BOOKED': { icon: <XCircle />, color: 'text-destructive' },
     };
 
-    return statusMap[status.toUpperCase()] || { 
-      icon: <AlertTriangle />, 
-      color: 'text-gray-500' 
+    return statusMap[status.toUpperCase()] || {
+      icon: <AlertTriangle />,
+      color: 'text-muted-foreground'
     };
   };
 

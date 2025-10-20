@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Calendar, Users, Clock, Star, Compass, Mountain, Zap, TreePine } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useHaptic } from '@/hooks/use-haptic';
+import { Badge } from '@/components/ui/badge';
 
 interface TrekCardProps {
   trek: {
@@ -27,16 +28,18 @@ interface TrekCardProps {
 const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
   const haptic = useHaptic();
 
-  const getDifficultyColor = (difficulty: string) => {
-    switch (difficulty) {
+  const getDifficultyVariant = (difficulty: string): 'default' | 'easy' | 'moderate' | 'hard' | 'expert' => {
+    switch (difficulty.toLowerCase()) {
       case 'easy':
-        return 'bg-teal-100 dark:bg-teal-900/30 text-teal-800 dark:text-teal-300 border-teal-200 dark:border-teal-700';
+        return 'easy';
       case 'moderate':
-        return 'bg-golden-100 dark:bg-golden-900/30 text-golden-800 dark:text-golden-300 border-golden-200 dark:border-golden-700';
+        return 'moderate';
       case 'hard':
-        return 'bg-coral-100 dark:bg-coral-900/30 text-coral-800 dark:text-coral-300 border-coral-200 dark:border-coral-700';
+        return 'hard';
+      case 'expert':
+        return 'expert';
       default:
-        return 'bg-gray-100 dark:bg-gray-800 text-gray-800 dark:text-gray-300 border-gray-200 dark:border-gray-700';
+        return 'default';
     }
   };
 
@@ -48,13 +51,15 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
   const getDifficultyIcon = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
       case 'easy':
-        return <TreePine className="h-3 w-3 text-green-600" />;
+        return <TreePine className="h-3 w-3 text-green-600 dark:text-green-400" />;
       case 'moderate':
-        return <Mountain className="h-3 w-3 text-yellow-600" />;
+        return <Mountain className="h-3 w-3 text-amber-600 dark:text-amber-400" />;
       case 'hard':
-        return <Zap className="h-3 w-3 text-red-600" />;
+        return <Zap className="h-3 w-3 text-red-600 dark:text-red-400" />;
+      case 'expert':
+        return <Zap className="h-3 w-3 text-purple-600 dark:text-purple-400" />;
       default:
-        return <Mountain className="h-3 w-3 text-gray-600" />;
+        return <Mountain className="h-3 w-3 text-gray-600 dark:text-gray-400" />;
     }
   };
 
@@ -107,19 +112,12 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
         {/* Top Row - Nature-Inspired Difficulty & Featured Badges */}
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10">
           {/* Difficulty Badge - Leaf Shape */}
-          <div className={cn(
-            "relative",
-            getDifficultyColor(trek.difficulty)
-          )}>
-            {/* Leaf shadow */}
-            <div className="absolute -inset-0.5 bg-current opacity-20 blur-sm rounded-full" />
-            <span className="relative inline-flex items-center px-3 py-1.5 text-xs font-bold rounded-full border backdrop-blur-sm shadow-lg bg-white/90 dark:bg-gray-900/90">
-              {getDifficultyIcon(trek.difficulty)}
-              <span className="ml-1">
-                {trek.difficulty.charAt(0).toUpperCase() + trek.difficulty.slice(1)}
-              </span>
+          <Badge variant={getDifficultyVariant(trek.difficulty)} className="text-xs">
+            {getDifficultyIcon(trek.difficulty)}
+            <span className="ml-1">
+              {trek.difficulty.charAt(0).toUpperCase() + trek.difficulty.slice(1)}
             </span>
-          </div>
+          </Badge>
 
           {trek.featured && (
             <div className="relative">

@@ -10,6 +10,7 @@ import { TrekEventStatus } from '@/types/trek';
 interface TrekEventHeaderProps {
   trekName: string;
   category: string | null;
+  difficulty?: string | null; // Add this
   status?: TrekEventStatus | string | null;
   startDatetime: string;
   imageUrl?: string | null;
@@ -22,6 +23,7 @@ interface TrekEventHeaderProps {
 export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
   trekName,
   category,
+  difficulty, // Add this
   status,
   startDatetime,
   imageUrl,
@@ -54,7 +56,7 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
       <div className="flex flex-col gap-3 mb-3">
         <CardTitle className="text-2xl sm:text-3xl font-bold tracking-tight">{trekName}</CardTitle>
         
-        {/* Status and Category badges - Stack on mobile */}
+        {/* Status, Category, and Difficulty badges */}
         <div className="flex flex-col sm:flex-row gap-2">
           {status && (
             (() => {
@@ -70,6 +72,11 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
           {category && (
             <Badge variant="outline" className="border-primary/50 text-primary bg-primary/10 text-sm capitalize">
               {category}
+            </Badge>
+          )}
+          {difficulty && (
+            <Badge variant={getDifficultyVariant(difficulty)} className="text-sm capitalize">
+              {difficulty}
             </Badge>
           )}
         </div>
@@ -98,3 +105,18 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
     </div>
   );
 };
+
+function getDifficultyVariant(difficulty: string): 'default' | 'easy' | 'moderate' | 'hard' | 'expert' {
+  switch (difficulty.toLowerCase()) {
+    case 'easy':
+      return 'easy';
+    case 'moderate':
+      return 'moderate';
+    case 'hard':
+      return 'hard';
+    case 'expert':
+      return 'expert';
+    default:
+      return 'default';
+  }
+}

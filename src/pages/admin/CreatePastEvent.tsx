@@ -123,7 +123,7 @@ export default function CreatePastEvent() {
             </div>
             <div>
               <Label htmlFor="difficulty">Difficulty</Label>
-              <select id="difficulty" className="w-full border rounded h-10 px-3"
+              <select id="difficulty" className="w-full border-2 border-input bg-background text-foreground rounded-lg h-11 px-3 focus:outline-none focus:border-primary focus:ring-4 focus:ring-primary/20 dark:focus:ring-primary/30 hover:border-primary/50 dark:hover:border-primary/60 disabled:cursor-not-allowed disabled:opacity-50"
                 value={difficulty}
                 onChange={(e) => setDifficulty(e.target.value as Difficulty)}
               >
