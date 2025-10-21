@@ -438,54 +438,46 @@ export default function Gallery() {
                 type="gallery"
               />
             ) : (
-              /* Desktop: Grid layout */
+              /* Desktop: Standardized grid layout */
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 {filteredItems.map(trek => (
                   <div
                     key={trek.trek_id}
-                    className="bg-card rounded-xl border border-border overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200"
+                    className="bg-card rounded-xl border border-border overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200 h-[480px] flex flex-col"
                     onClick={() => handleTrekClick(trek)}
                   >
-                    <div className="relative">
+                    {/* Fixed height image container */}
+                    <div className="relative h-56 w-full overflow-hidden flex-shrink-0">
                       {trek.images && trek.images.length > 0 ? (
-                        <div className="relative h-56 w-full overflow-hidden">
-                          <img
-                            src={trek.images[0]}
-                            alt={trek.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Image count badge */}
-                          <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-black/50 text-white">
-                              <Eye className="w-3 h-3 mr-1" />
-                              {getAllImages(trek).length}
-                            </Badge>
-                          </div>
-                        </div>
+                        <img
+                          src={trek.images[0]}
+                          alt={trek.name}
+                          className="w-full h-full object-cover"
+                        />
                       ) : trek.user_contributions && trek.user_contributions.length > 0 ? (
-                        <div className="relative h-56 w-full overflow-hidden">
-                          <img
-                            src={trek.user_contributions[0].image_url}
-                            alt={trek.name}
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Image count badge */}
-                          <div className="absolute top-2 right-2">
-                            <Badge variant="secondary" className="bg-black/50 text-white">
-                              <Eye className="w-3 h-3 mr-1" />
-                              {getAllImages(trek).length}
-                            </Badge>
-                          </div>
-                        </div>
+                        <img
+                          src={trek.user_contributions[0].image_url}
+                          alt={trek.name}
+                          className="w-full h-full object-cover"
+                        />
                       ) : (
-                        <div className="h-56 w-full bg-muted flex items-center justify-center">
+                        <div className="w-full h-full bg-muted flex items-center justify-center">
                           <Mountain className="w-12 h-12 text-muted-foreground" />
                         </div>
                       )}
+                      
+                      {/* Image count badge */}
+                      <div className="absolute top-2 right-2">
+                        <Badge variant="secondary" className="bg-black/50 text-white">
+                          <Eye className="w-3 h-3 mr-1" />
+                          {getAllImages(trek).length}
+                        </Badge>
+                      </div>
                     </div>
 
-                    <div className="p-4">
-                      <h2 className="text-lg font-semibold text-foreground line-clamp-2 mb-2">
+                    {/* Content with fixed layout */}
+                    <div className="p-4 flex flex-col flex-1">
+                      <h2 className="text-lg font-semibold text-foreground line-clamp-2 mb-2 min-h-[3.5rem]">
                         {trek.name}
                       </h2>
 
@@ -509,7 +501,7 @@ export default function Gallery() {
                       )}
 
                       {trek.description && (
-                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3 min-h-[2.5rem]">
                           {trek.description}
                         </p>
                       )}
@@ -522,28 +514,9 @@ export default function Gallery() {
                         </div>
                       )}
 
-                      {/* Thumbnail grid for multiple images */}
-                      {getAllImages(trek).length > 1 && (
-                        <div className="mb-3 grid grid-cols-3 gap-1">
-                          {getAllImages(trek).slice(1, 4).map((url, idx) => (
-                            <img
-                              key={idx}
-                              src={url}
-                              alt=""
-                              className="w-full aspect-square object-cover rounded"
-                            />
-                          ))}
-                          {getAllImages(trek).length > 4 && (
-                            <div className="w-full aspect-square bg-muted rounded flex items-center justify-center">
-                              <span className="text-xs text-muted-foreground">+{getAllImages(trek).length - 3}</span>
-                            </div>
-                          )}
-                        </div>
-                      )}
-
                       {/* Admin background toggle */}
                       {isAdmin && trek.images && trek.images.length > 0 && (
-                        <div className="pt-3 border-t border-border flex items-center gap-2">
+                        <div className="mt-auto pt-3 border-t border-border flex items-center gap-2">
                           <Checkbox
                             id={`bg-${trek.trek_id}`}
                             checked={currentBg === trek.images[0]}

@@ -3,7 +3,7 @@ import axios from 'axios';
 
 const router = express.Router();
 
-// OpenTripPlanner base URL (internal Docker network)
+// OpenTripPlanner base URL (standalone server)
 const OTP_BASE_URL = process.env.OTP_URL || 'http://localhost:8080';
 
 /**
@@ -43,7 +43,7 @@ router.post('/plan', async (req, res) => {
 
     // Call OpenTripPlanner
     const response = await axios.get(
-      `${OTP_BASE_URL}/otp/routers/karnataka/plan?${params}`,
+      `${OTP_BASE_URL}/otp/routers/default/plan?${params}`,
       { timeout: 10000 }
     );
 
@@ -135,7 +135,7 @@ router.post('/time', async (req, res) => {
     });
 
     const response = await axios.get(
-      `${OTP_BASE_URL}/otp/routers/karnataka/plan?${params}`,
+      `${OTP_BASE_URL}/otp/routers/default/plan?${params}`,
       { timeout: 5000 }
     );
 
@@ -165,11 +165,11 @@ router.post('/time', async (req, res) => {
  */
 router.get('/health', async (req, res) => {
   try {
-    const response = await axios.get(`${OTP_BASE_URL}/otp/routers/karnataka`, { timeout: 3000 });
+    const response = await axios.get(`${OTP_BASE_URL}/otp/routers/default`, { timeout: 3000 });
     res.json({
       status: 'ok',
       otpConnected: true,
-      router: 'karnataka'
+      router: 'default'
     });
   } catch (error: any) {
     res.status(503).json({
