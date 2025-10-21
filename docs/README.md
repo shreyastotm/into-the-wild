@@ -176,20 +176,66 @@ This application seems to support several key functionalities:
 *   **Deploying Locally:** `supabase functions deploy --no-verify-jwt`
 *   **Import Maps:** A shared `supabase/functions/import_map.json` is used. Consider per-function import maps for more complex projects.
 
-## 8. Available Scripts
+## 8. Design System Documentation
+
+The complete UI/UX design system is documented in a streamlined set of master documents:
+
+### Core Documentation
+
+*   **`UI_UX_DESIGN_SYSTEM_MASTER.md`** (v3.0 - Complete PWA Edition)
+    *   The comprehensive master document for all UI/UX design
+    *   Covers brand identity, visual design, components, responsive design, PWA features
+    *   Includes complete color palette, typography, spacing system, and animations
+    *   Documents accessibility standards and implementation roadmap
+    *   Latest version includes PWA capabilities and messaging/notifications strategy
+
+*   **`MESSAGING_NOTIFICATIONS_COMMUNICATION_SYSTEM.md`**
+    *   Complete strategy for in-app notifications, toasts, nudges, and user onboarding
+    *   WhatsApp integration guide (current manual setup + future Business API)
+    *   Trek lifecycle communication framework (discovery → registration → during → post-trek)
+    *   Admin notification tools and user preference center
+    *   Technical architecture: database schemas, API endpoints, background jobs
+
+### Quick Reference Documentation
+
+*   **`DESIGN_QUICK_REFERENCE.md`**
+    *   Copy-paste ready code snippets for developers
+    *   Common component patterns and responsive design patterns
+    *   Animation classes and quick color palette reference
+
+*   **`IMPLEMENTATION_PHASES.md`**
+    *   Phased implementation roadmap
+    *   Priority-based task breakdown
+
+*   **`ADMIN_UI_UX_ACCESSIBILITY_FIX_POA.md`**
+    *   Accessibility fixes and WCAG 2.1 AA compliance patterns
+    *   Admin panel specific UI/UX improvements
+
+*   **`ACCESSIBILITY.md`**
+    *   Comprehensive accessibility guidelines
+    *   Testing procedures and compliance checklists
+
+### Design Tokens & System
+
+All design tokens (colors, spacing, typography, shadows) are implemented in:
+*   `src/index.css` - Global styles and CSS custom properties
+*   `tailwind.config.ts` - Tailwind configuration with custom theme
+*   `src/lib/utils.ts` - Utility functions including `cn()` for class merging
+
+## 9. Available Scripts
 
 *(User: List key scripts from your `package.json` here, e.g., `npm run dev`, `npm run build`, `npm run test`, `npm run lint` etc., and briefly describe what they do.)*
 
-*   `npm run dev`: Starts the Next.js development server.
-*   `npm run build`: Builds the Next.js application for production.
-*   `npm run start`: Starts a Next.js production server.
+*   `npm run dev`: Starts the Vite development server.
+*   `npm run build`: Builds the application for production.
+*   `npm run preview`: Preview the production build locally.
 *   ...
 
-## 9. Contributing
+## 10. Contributing
 
 *(User: Add guidelines for contributing to the project if applicable. This might include coding standards, branch naming conventions, pull request processes, etc.)*
 
-## 10. License
+## 11. License
 
 *(User: Specify the license for your project, e.g., MIT, Apache 2.0. If you don't have one, consider adding one.)*
 This project is licensed under the [NAME OF LICENSE] License - see the LICENSE.md file for details.

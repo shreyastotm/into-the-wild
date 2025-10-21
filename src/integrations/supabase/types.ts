@@ -342,6 +342,186 @@ export interface Database {
           }
         ]
       }
+      trek_event_images: {
+        Row: {
+          id: number
+          trek_id: number
+          image_url: string
+          position: number
+          created_at: string | null
+        }
+        Insert: {
+          id?: number
+          trek_id: number
+          image_url: string
+          position: number
+          created_at?: string | null
+        }
+        Update: {
+          id?: number
+          trek_id?: number
+          image_url?: string
+          position?: number
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_event_images_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          }
+        ]
+      }
+      trek_event_videos: {
+        Row: {
+          id: number
+          trek_id: number
+          video_url: string
+          file_size_mb: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: number
+          trek_id: number
+          video_url: string
+          file_size_mb?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: number
+          trek_id?: number
+          video_url?: string
+          file_size_mb?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trek_event_videos_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          }
+        ]
+      }
+      user_trek_images: {
+        Row: {
+          id: number
+          trek_id: number
+          uploaded_by: string
+          image_url: string
+          status: string
+          moderated_by: string | null
+          moderated_at: string | null
+          moderation_notes: string | null
+          is_promoted_to_official: boolean
+          created_at: string | null
+        }
+        Insert: {
+          id?: number
+          trek_id: number
+          uploaded_by: string
+          image_url: string
+          status?: string
+          moderated_by?: string | null
+          moderated_at?: string | null
+          moderation_notes?: string | null
+          is_promoted_to_official?: boolean
+          created_at?: string | null
+        }
+        Update: {
+          id?: number
+          trek_id?: number
+          uploaded_by?: string
+          image_url?: string
+          status?: string
+          moderated_by?: string | null
+          moderated_at?: string | null
+          moderation_notes?: string | null
+          is_promoted_to_official?: boolean
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_trek_images_trek_id_fkey"
+            columns: ["trek_id"]
+            isOneToOne: false
+            referencedRelation: "trek_events"
+            referencedColumns: ["trek_id"]
+          },
+          {
+            foreignKeyName: "user_trek_images_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["user_id"]
+          }
+        ]
+      }
+      image_tags: {
+        Row: {
+          id: number
+          name: string
+          description: string | null
+          color: string | null
+          created_at: string | null
+          created_by: string | null
+        }
+        Insert: {
+          id?: number
+          name: string
+          description?: string | null
+          color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+        }
+        Update: {
+          id?: number
+          name?: string
+          description?: string | null
+          color?: string | null
+          created_at?: string | null
+          created_by?: string | null
+        }
+        Relationships: []
+      }
+      image_tag_assignments: {
+        Row: {
+          id: number
+          image_id: number
+          image_type: string
+          tag_id: number
+          assigned_by: string | null
+          assigned_at: string | null
+        }
+        Insert: {
+          id?: number
+          image_id: number
+          image_type: string
+          tag_id: number
+          assigned_by?: string | null
+          assigned_at?: string | null
+        }
+        Update: {
+          id?: number
+          image_id?: number
+          image_type?: string
+          tag_id?: number
+          assigned_by?: string | null
+          assigned_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "image_tag_assignments_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "image_tags"
+            referencedColumns: ["id"]
+          }
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -358,6 +538,39 @@ export interface Database {
           user_id: string
         }
         Returns: boolean
+      }
+      get_all_image_tags: {
+        Args: Record<string, never>
+        Returns: {
+          id: number
+          name: string
+          color: string
+        }[]
+      }
+      get_image_tags: {
+        Args: {
+          p_image_id: number
+          p_image_type: string
+        }
+        Returns: {
+          tag_id: number
+        }[]
+      }
+      assign_image_tags: {
+        Args: {
+          p_image_id: number
+          p_image_type: string
+          p_tag_ids: number[]
+        }
+        Returns: string
+      }
+      search_treks_by_tags: {
+        Args: {
+          p_tag_ids: number[]
+        }
+        Returns: {
+          trek_id: number
+        }[]
       }
     }
     Enums: {

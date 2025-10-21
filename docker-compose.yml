@@ -9,8 +9,37 @@ services:
       POSTGRES_PASSWORD: postgres
       POSTGRES_DB: into_the_wild
     ports:
-      - "54322:5432"
+      - "54325:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+
+  # OpenTripPlanner for carpooling route planning
+  opentripplanner:
+    image: opentripplanner/opentripplanner:2.5.0
+    container_name: into-the-wild-otp
+    restart: always
+    ports:
+      - "8082:8080"
+    volumes:
+      - ./otp/graphs/karnataka:/var/otp/data
+      - ./otp/cache:/var/otp/cache
+    environment:
+      - JAVA_TOOL_OPTIONS=-Xmx2G
+
+  # Simple backend for OTP API integration
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: into-the-wild-backend
+    restart: always
+    ports:
+      - "3003:3001"
+    environment:
+      - PORT=3001
+      - OTP_URL=http://opentripplanner:8080
+    depends_on:
+      - opentripplanner
+
 volumes:
   pgdata: {}

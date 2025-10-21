@@ -35,7 +35,8 @@ import {
 import CreateTrekMultiStepFormNew from '@/components/trek/CreateTrekMultiStepFormNew';
 import { TrekEventStatus, EventType } from '@/types/trek';
 import { toast } from '@/components/ui/use-toast';
-import { Trash2, Eye, Copy, Search, Filter, Download, CheckSquare, Square } from 'lucide-react';
+import { Trash2, Eye, Copy, Search, Filter, Download, CheckSquare, Square, Image } from 'lucide-react';
+import { TrekImagesManager } from '@/components/admin/TrekImagesManager';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -47,7 +48,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-interface TrekEvent { 
+interface TrekEvent {
   trek_id: number;
   name: string;
   description?: string | null;
@@ -81,16 +82,116 @@ const TrekEventsAdmin = () => {
   const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
   const [isBulkActionLoading, setIsBulkActionLoading] = useState<boolean>(false);
 
+  // Image management state
+  const [imageManagerOpen, setImageManagerOpen] = useState<boolean>(false);
+  const [selectedTrekForImages, setSelectedTrekForImages] = useState<TrekEvent | null>(null);
+  const [trekImages, setTrekImages] = useState<Record<number, Array<{id: number; image_url: string; position: number}>>>({});
+  const [trekVideos, setTrekVideos] = useState<Record<number, {id: number; video_url: string} | null>>({});
+
+  // Fetch images and videos for treks
+  const fetchTrekMedia = useCallback(async (trekIds: number[]) => {
+    if (trekIds.length === 0) return;
+
+    try {
+      // Fetch images from trek_event_images table
+      const { data: images, error: imgError } = await supabase
+        .from('trek_event_images')
+        .select('id, trek_id, image_url, position')
+        .in('trek_id', trekIds)
+        .order('position', { ascending: true });
+
+      if (imgError) throw imgError;
+
+      const imagesByTrek: Record<number, Array<{id: number; image_url: string; position: number}>> = {};
+      (images || []).forEach(img => {
+        if (!imagesByTrek[img.trek_id]) {
+          imagesByTrek[img.trek_id] = [];
+        }
+        imagesByTrek[img.trek_id].push({
+          id: img.id,
+          image_url: img.image_url,
+          position: img.position,
+        });
+      });
+
+      // Also check main trek_events table for image_url column
+      const { data: trekImages, error: trekImgError } = await supabase
+        .from('trek_events')
+        .select('trek_id, name, image_url, image')
+        .in('trek_id', trekIds);
+
+      if (trekImgError) throw trekImgError;
+
+      // Add main trek images to the imagesByTrek if they don't already exist in trek_event_images
+      (trekImages || []).forEach(trek => {
+        if (trek.image_url && trek.image_url.trim() && !imagesByTrek[trek.trek_id]?.some(img => img.image_url === trek.image_url)) {
+          if (!imagesByTrek[trek.trek_id]) {
+            imagesByTrek[trek.trek_id] = [];
+          }
+          // Add as position 1 if not already exists
+          if (!imagesByTrek[trek.trek_id].some(img => img.position === 1)) {
+            imagesByTrek[trek.trek_id].push({
+              id: -1, // Special ID for main trek image
+              image_url: trek.image_url,
+              position: 1,
+            });
+          }
+        }
+        if (trek.image && trek.image.trim() && trek.image !== trek.image_url) {
+          if (!imagesByTrek[trek.trek_id]) {
+            imagesByTrek[trek.trek_id] = [];
+          }
+          // Add as position 2 if not already exists and position 1 is taken
+          if (!imagesByTrek[trek.trek_id].some(img => img.position === 2)) {
+            imagesByTrek[trek.trek_id].push({
+              id: -2, // Special ID for image column
+              image_url: trek.image,
+              position: 2,
+            });
+          }
+        }
+      });
+
+      // Fetch videos
+      const { data: videos, error: videoError } = await supabase
+        .from('trek_event_videos')
+        .select('id, trek_id, video_url')
+        .in('trek_id', trekIds);
+
+      if (videoError) throw videoError;
+
+      const videosByTrek: Record<number, {id: number; video_url: string} | null> = {};
+      (videos || []).forEach(video => {
+        videosByTrek[video.trek_id] = {
+          id: video.id,
+          video_url: video.video_url,
+        };
+      });
+
+      setTrekImages(imagesByTrek);
+      setTrekVideos(videosByTrek);
+    } catch (error) {
+      console.error('Error fetching trek media:', error);
+    }
+  }, []);
+
+  // Enhanced fetchEvents to also fetch images
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
       const { data, error: fetchError } = await supabase
         .from('trek_events')
         .select('trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, image, gpx_file_url, route_data, event_type, government_id_required')
-        .order('start_datetime', { ascending: false }); 
-      
+        .order('start_datetime', { ascending: false });
+
       if (fetchError) throw fetchError;
-      setEvents((data as TrekEvent[]) || []);
+      const events = (data as TrekEvent[]) || [];
+
+      // Fetch images and videos for all treks
+      const trekIds = events.map(e => e.trek_id);
+      await fetchTrekMedia(trekIds);
+
+      setEvents(events);
     } catch (err: unknown) {
       const errorMessage = err instanceof Error ? err.message : "Failed to fetch events";
       setError(`Failed to fetch events: ${errorMessage}`);
@@ -98,11 +199,44 @@ const TrekEventsAdmin = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [fetchTrekMedia]);
+
+  // Enhanced fetchEvents with image fetching
 
   useEffect(() => {
     fetchEvents();
   }, [fetchEvents]);
+
+  // Image management functions
+  const handleManageImages = (trek: TrekEvent) => {
+    setSelectedTrekForImages(trek);
+    setImageManagerOpen(true);
+  };
+
+  const handleImageManagerClose = () => {
+    setImageManagerOpen(false);
+    setSelectedTrekForImages(null);
+  };
+
+  const handleImageManagerRefresh = () => {
+    if (selectedTrekForImages) {
+      // Refresh media for the specific trek
+      fetchTrekMedia([selectedTrekForImages.trek_id]);
+    }
+    fetchEvents(); // Also refresh the full events list
+  };
+
+  // Check if trek is completed (past event)
+  const isCompletedTrek = (trek: TrekEvent) => {
+    const now = new Date();
+    const trekDate = new Date(trek.start_datetime);
+    return trekDate < now;
+  };
+
+  // Get image count for a trek
+  const getImageCount = (trekId: number) => {
+    return trekImages[trekId]?.length || 0;
+  };
 
   const handleStatusChange = async (trekId: number, newStatus: TrekEventStatus) => {
     try {
@@ -172,6 +306,7 @@ const TrekEventsAdmin = () => {
       await supabase.from('trek_costs').delete().eq('trek_id', eventToDelete.trek_id);
       await supabase.from('tent_inventory').delete().eq('event_id', eventToDelete.trek_id);
       await supabase.from('trek_event_images').delete().eq('trek_id', eventToDelete.trek_id);
+      await supabase.from('trek_event_videos').delete().eq('trek_id', eventToDelete.trek_id);
 
       // Finally delete the main event
       const { error: deleteError } = await supabase
@@ -771,33 +906,44 @@ const TrekEventsAdmin = () => {
                     <TableCell>{event.max_participants}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleViewEvent(event)}
                           title="View Event"
                         >
                           <Eye className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleEdit(event)}
                           title="Edit Event"
                         >
                           Edit
                         </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
+                        {isCompletedTrek(event) && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleManageImages(event)}
+                            title={`Manage Images (${getImageCount(event.trek_id)}/3)`}
+                            className={getImageCount(event.trek_id) > 0 ? 'border-primary/50' : ''}
+                          >
+                            <Image className="h-4 w-4" />
+                          </Button>
+                        )}
+                        <Button
+                          variant="outline"
+                          size="sm"
                           onClick={() => handleDuplicate(event)}
                           title="Duplicate Event"
                         >
                           <Copy className="h-4 w-4" />
                         </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm" 
+                        <Button
+                          variant="destructive"
+                          size="sm"
                           onClick={() => handleDelete(event)}
                           title="Delete Event"
                         >
@@ -873,6 +1019,19 @@ const TrekEventsAdmin = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Image Manager Modal */}
+      {selectedTrekForImages && (
+        <TrekImagesManager
+          trekId={selectedTrekForImages.trek_id}
+          trekName={selectedTrekForImages.name}
+          existingImages={trekImages[selectedTrekForImages.trek_id] || []}
+          existingVideo={trekVideos[selectedTrekForImages.trek_id] || null}
+          isOpen={imageManagerOpen}
+          onClose={handleImageManagerClose}
+          onRefresh={handleImageManagerRefresh}
+        />
+      )}
     </div>
   );
 };

@@ -28,6 +28,7 @@ L.Icon.Default.mergeOptions({
 });
 import { useAuth } from '@/components/auth/AuthProvider';
 import { useTransportCoordination, PickupStatus } from '@/hooks/trek/useTransportCoordination';
+import { useRouting } from '@/hooks/trek/useRouting';
 
 interface TravelCoordinationProps {
   transportMode?: 'cars' | 'mini_van' | 'bus' | 'self_drive' | null;
@@ -66,6 +67,8 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     removeDriver
   } = useTransportCoordination(trekId);
 
+  const { calculateRoute, loading: routeLoading, route } = useRouting();
+
   const [selectedLocation, setSelectedLocation] = useState<string>('');
   const [newLocation, setNewLocation] = useState({ name: '', address: '', latitude: '', longitude: '' });
   const [newDriver, setNewDriver] = useState({ user_id: '', vehicle_type: '', vehicle_name: '', registration_number: '', seats_available: '' });
@@ -89,6 +92,21 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
   const handleUpdatePickupStatus = async (participantId: string, status: PickupStatus) => {
     if (!user) return;
     await updatePickupStatus(user.id, participantId, status);
+  };
+
+  // Route planning for carpooling
+  const handleShowRoute = async (pickupLocation: any) => {
+    if (!pickupLocation || !pickupLocation.coordinates) return;
+
+    // For now, use Bangalore coordinates as destination placeholder
+    // In a real implementation, you'd get the trek destination coordinates
+    const trekDestination = { lat: 12.9716, lon: 77.5946 };
+
+    await calculateRoute(
+      { lat: pickupLocation.coordinates.latitude, lon: pickupLocation.coordinates.longitude },
+      trekDestination,
+      'CAR'
+    );
   };
 
   // Component to handle map interaction for pickup location creation
@@ -268,18 +286,28 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                     ))}
                   </SelectContent>
                 </Select>
-                <Button 
-                  onClick={handleSetPickupLocation} 
+                <Button
+                  onClick={handleSetPickupLocation}
                   disabled={!selectedLocation || selectedLocation === userPickupLocation?.id || userAssignedDriver !== null}
                 >
                   Set Location
                 </Button>
               </div>
               {userPickupLocation && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  <MapPin className="h-3.5 w-3.5 inline mr-1" />
-                  {userPickupLocation.address}
-                </p>
+                <div className="mt-3 space-y-2">
+                  <p className="text-sm text-muted-foreground">
+                    <MapPin className="h-3.5 w-3.5 inline mr-1" />
+                    {userPickupLocation.address}
+                  </p>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleShowRoute(userPickupLocation)}
+                    disabled={routeLoading}
+                  >
+                    {routeLoading ? 'Calculating...' : 'Show Route to Trek'}
+                  </Button>
+                </div>
               )}
             </div>
 
@@ -306,6 +334,35 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                   </div>
                 </div>
               </div>
+            )}
+
+            {/* Route Information */}
+            {route && (
+              <Card className="mt-4">
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg">Route to Trek</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Distance:</span>
+                      <span className="font-medium">{route.distanceKm} km</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Duration:</span>
+                      <span className="font-medium">{route.durationMinutes} minutes</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Departure:</span>
+                      <span className="font-medium">{route.startTime}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Arrival:</span>
+                      <span className="font-medium">{route.endTime}</span>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
             )}
           </CardContent>
         </Card>

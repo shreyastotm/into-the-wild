@@ -1,0 +1,20 @@
+{
+  "transitServiceStart": "2024-01-01",
+  "transitServiceEnd": "2025-12-31",
+  "htmlAnnotations": false,
+  "transit": false,
+  "useTransfersTxt": false,
+  "parentStopLinking": false,
+  "stopClusterMode": "proximity",
+  "subwayAccessTime": 2.5,
+  "streets": true,
+  "embedRouterConfig": true,
+  "areaVisibility": true,
+  "platformEntriesLinking": false,
+  "matchBusRoutesToStreets": false,
+  "osmWayPropertySet": "default",
+  "staticBikeRental": false,
+  "maxInterlineDistance": 200,
+  "dataImportReport": false
+}
+
