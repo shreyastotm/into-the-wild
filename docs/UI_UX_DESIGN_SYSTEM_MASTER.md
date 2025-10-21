@@ -1,11 +1,11 @@
 # Into The Wild - Master UI/UX Design System & Implementation Guide
 
-> **Version:** 3.0 - Complete PWA Edition  
-> **Date:** October 21, 2025  
-> **Status:** Complete & Comprehensive  
-> **Application Type:** Progressive Web App (PWA)  
-> **Purpose:** Single source of truth for all UI/UX design decisions, implementation guidelines, brand standards, PWA features, and messaging/notification strategy  
-> **New in v3.0:** 🆕 PWA capabilities, complete messaging & notifications system, WhatsApp integration strategy
+> **Version:** 3.2 - Horizontal Scroll Mobile Cards Edition
+> **Date:** October 25, 2025
+> **Status:** Complete & Comprehensive
+> **Application Type:** Progressive Web App (PWA)
+> **Purpose:** Single source of truth for all UI/UX design decisions, implementation guidelines, brand standards, PWA features, and messaging/notification strategy
+> **New in v3.2:** 🆕 Horizontal Scroll Mobile Cards, Standardized Trek Cards, Touch-Optimized Gallery, Enhanced Mobile Navigation
 
 ---
 
@@ -41,6 +41,9 @@ Into The Wild is a comprehensive **Progressive Web App (PWA)** trekking platform
 - **Smart Messaging** - In-app notifications, WhatsApp integration (200+ members), email
 - **User Onboarding** - 5-step progressive onboarding flow
 - **Trek Lifecycle Communication** - T-7, T-3, T-1 reminders and post-trek engagement
+- **Enhanced Gallery System** - Public gallery with advanced filtering, image tagging, user contributions, and horizontal scroll mobile interface
+- **Media Management** - Up to 5 images + 1 video per trek with drag & drop reordering and mobile-optimized display
+- **Horizontal Scroll Cards** - Touch-optimized mobile card browsing with consistent heights and smooth snap scrolling
 
 ### 1.2 Design Philosophy
 
@@ -737,7 +740,297 @@ const spacing = {
 }
 ```
 
-### 4.5 Logo Integration
+### 4.5 Enhanced Media Management Components
+
+#### Public Gallery Component
+```tsx
+<div className="gallery-container">
+  {/* Filter Sidebar */}
+  <div className="filter-sidebar">
+    <SearchInput placeholder="Search treks..." />
+    <DifficultyFilter />
+    <TagFilter />
+    <SortOptions />
+  </div>
+
+  {/* Responsive Grid */}
+  <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+    {treks.map(trek => (
+      <TrekCard key={trek.id} trek={trek} />
+    ))}
+  </div>
+</div>
+```
+
+**Styles:**
+```css
+.gallery-container {
+  @apply flex gap-6 p-6;
+}
+
+.filter-sidebar {
+  @apply w-64 bg-card rounded-lg p-4 border border-border;
+  @apply sticky top-4 h-fit;
+}
+
+/* Mobile-first responsive grid */
+.grid {
+  @apply grid gap-4;
+  @apply grid-cols-1;           /* Mobile: 1 column */
+  @apply sm:grid-cols-2;        /* Small tablet: 2 columns */
+  @apply lg:grid-cols-3;        /* Desktop: 3 columns */
+  @apply xl:grid-cols-4;        /* Large: 4 columns */
+}
+```
+
+#### Image Tagging System
+```tsx
+<div className="tag-picker">
+  <div className="tag-header">
+    <h3>Manage Tags</h3>
+    <button onClick={toggleTagSelector}>
+      {showTagSelector ? 'Hide' : 'Show'} Tags
+    </button>
+  </div>
+
+  {showTagSelector && (
+    <div className="tag-grid">
+      {availableTags.map(tag => (
+        <TagBadge
+          key={tag.id}
+          tag={tag}
+          selected={selectedTags.includes(tag.id)}
+          onClick={() => toggleTagSelection(tag.id)}
+        />
+      ))}
+    </div>
+  )}
+</div>
+```
+
+**Tag Badge Component:**
+```tsx
+const TagBadge = ({ tag, selected, onClick }) => (
+  <button
+    className={cn(
+      "tag-badge",
+      selected ? "tag-badge-selected" : "tag-badge-unselected"
+    )}
+    onClick={onClick}
+  >
+    <div 
+      className="tag-color-indicator" 
+      style={{ backgroundColor: tag.color }}
+    />
+    {tag.name}
+    {selected && <Check className="w-4 h-4" />}
+  </button>
+);
+```
+
+**Styles:**
+```css
+.tag-badge {
+  @apply flex items-center gap-2 px-3 py-2 rounded-lg;
+  @apply border-2 border-border bg-background;
+  @apply transition-all duration-200;
+  @apply hover:border-primary/50;
+}
+
+.tag-badge-selected {
+  @apply border-primary bg-primary/5 text-primary;
+}
+
+.tag-badge-unselected {
+  @apply border-border bg-background text-foreground;
+}
+
+.tag-color-indicator {
+  @apply w-3 h-3 rounded-full;
+}
+```
+
+#### Drag & Drop Media Manager
+```tsx
+<div className="media-manager">
+  <DndContext onDragEnd={handleDragEnd}>
+    <SortableContext items={imageIds}>
+      {images.map((image, index) => (
+        <SortableImageSlot
+          key={image.id}
+          image={image}
+          position={index + 1}
+          onDelete={handleDeleteImage}
+          onTagChange={handleTagChange}
+        />
+      ))}
+    </SortableContext>
+  </DndContext>
+</div>
+```
+
+**Sortable Image Slot:**
+```tsx
+const SortableImageSlot = ({ image, position, onDelete, onTagChange }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: image.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="image-slot"
+    >
+      {/* Image Preview */}
+      <div className="image-preview">
+        <img src={image.url} alt={`Position ${position}`} />
+      </div>
+
+      {/* Position Label */}
+      <div className="position-label">
+        Position {position}
+      </div>
+
+      {/* Action Buttons */}
+      <div className="action-buttons">
+        <button onClick={() => onDelete(image.id)}>
+          <Trash2 className="w-4 h-4" />
+        </button>
+        <button {...attributes} {...listeners}>
+          <GripVertical className="w-4 h-4" />
+        </button>
+      </div>
+
+      {/* Tag Management */}
+      <TagSelector
+        imageId={image.id}
+        selectedTags={image.tags}
+        onTagChange={onTagChange}
+      />
+    </div>
+  );
+};
+```
+
+**Styles:**
+```css
+.image-slot {
+  @apply bg-card rounded-lg border border-border p-4;
+  @apply transition-all duration-200;
+  @apply hover:shadow-md;
+}
+
+.image-preview {
+  @apply relative h-32 w-full rounded-lg overflow-hidden mb-3;
+}
+
+.image-preview img {
+  @apply w-full h-full object-cover;
+}
+
+.position-label {
+  @apply text-sm font-medium text-muted-foreground mb-2;
+}
+
+.action-buttons {
+  @apply flex gap-2 mb-3;
+}
+
+.action-buttons button {
+  @apply p-2 rounded-md border border-border;
+  @apply hover:bg-muted transition-colors;
+}
+```
+
+### 4.6 Standardized Trek Cards & Horizontal Scroll
+
+#### StandardizedTrekCard Component
+```tsx
+// Mobile-optimized trek card with fixed dimensions
+<div className="mobile-trek-card">
+  {/* Fixed height image container */}
+  <div className="mobile-trek-card-image">
+    <img src={trek.image_url} alt={trek.name} />
+  </div>
+
+  {/* Consistent content layout */}
+  <div className="mobile-trek-card-content">
+    <h3 className="mobile-trek-card-title">{trek.name}</h3>
+    <div className="mobile-trek-card-meta">
+      <div className="flex items-center gap-1">
+        <MapPin className="w-4 h-4" />
+        <span>{trek.location}</span>
+      </div>
+      {/* Meta info */}
+    </div>
+
+    {trek.description && (
+      <p className="mobile-trek-card-description">{trek.description}</p>
+    )}
+
+    <div className="mobile-trek-card-footer">
+      <div className="font-bold text-lg">₹{trek.cost}</div>
+      <Button>View Details</Button>
+    </div>
+  </div>
+</div>
+```
+
+**Features:**
+- **Fixed Height (480px)**: Consistent card dimensions across all treks
+- **Line Clamping**: Title (2 lines), Description (3 lines) with minimum heights
+- **Responsive Image**: 200px fixed height with proper aspect ratio
+- **Touch Optimized**: Large touch targets and smooth interactions
+- **Dark Mode Support**: Full theme compatibility
+
+#### HorizontalTrekScroll Component
+```tsx
+<div className="mobile-horizontal-scroll">
+  <div className="mobile-cards-horizontal">
+    {treks.map(trek => (
+      <StandardizedTrekCard key={trek.id} trek={trek} />
+    ))}
+  </div>
+
+  {/* Scroll indicators */}
+  <div className="mobile-scroll-indicators">
+    {treks.map((_, index) => (
+      <div className={`mobile-scroll-indicator ${
+        index === activeIndex ? 'mobile-scroll-indicator-active' : ''
+      }`} />
+    ))}
+  </div>
+</div>
+```
+
+**Features:**
+- **Touch Scrolling**: Native touch gestures with snap-to-card behavior
+- **Scroll Indicators**: Visual position indicators
+- **Responsive**: Horizontal scroll on mobile, grid layout on desktop
+- **Smooth Animation**: 60fps scrolling performance
+
+#### Mobile Card Specifications
+| Property | Mobile | Desktop |
+|----------|--------|---------|
+| **Layout** | Horizontal Scroll | Grid (3 columns) |
+| **Card Width** | 320px | Auto-fit |
+| **Card Height** | 480px fixed | Auto |
+| **Scroll** | Touch snap | Mouse wheel |
+| **Navigation** | Touch gestures | Click navigation |
+
+### 4.7 Logo Integration
 
 #### Logo File Setup
 ```
@@ -1000,6 +1293,53 @@ const spacing = {
 .nav-link.active {
   @apply text-primary;
 }
+```
+
+### 6.4 Horizontal Scroll Cards
+
+#### **Horizontal Scroll Implementation**
+```css
+/* Mobile horizontal scroll implementation */
+.mobile-horizontal-scroll {
+  @apply -mx-4 px-4;
+  @apply overflow-x-auto scrollbar-hide;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.mobile-cards-horizontal {
+  @apply flex gap-4 pb-2;
+}
+
+.mobile-trek-card {
+  @apply flex-none w-80 max-w-[85vw];
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  height: 480px; /* Fixed height for consistency */
+}
+```
+
+**Key Features:**
+- **Touch Gestures**: Native iOS/Android scroll behavior
+- **Snap Points**: Cards snap into view for better UX
+- **Fixed Heights**: Prevents layout shift during scrolling
+- **Responsive Breakpoint**: `<768px` = horizontal scroll, `≥768px` = grid
+- **Accessibility**: Proper ARIA labels and keyboard support
+
+#### **Mobile Card Height Strategy**
+```typescript
+// Fixed card dimensions prevent layout shifts
+const cardDimensions = {
+  mobile: {
+    width: '320px',
+    height: '480px',     // Fixed height
+    imageHeight: '200px' // Fixed image area
+  },
+  desktop: {
+    width: 'auto',       // Responsive grid
+    height: 'auto'       // Content-based height
+  }
+};
 ```
 
 ---
@@ -1493,6 +1833,15 @@ This document includes:
 - [x] Enhanced form components with dark mode support
 - [x] Table components with proper dark mode styling
 
+#### ✅ **Phase 4.5: Enhanced Media Management (Complete)**
+- [x] Public gallery system with advanced filtering
+- [x] Image tagging system with color-coded categories
+- [x] Enhanced media management (5 images + 1 video)
+- [x] User contribution system with moderation
+- [x] Drag & drop reordering for admin interface
+- [x] Mobile-optimized gallery experience
+- [x] TypeScript improvements with complete type safety
+
 #### 📋 **Phase 5: Polish & Optimization (Planned)**
 - [ ] Performance optimization (lazy loading, code splitting)
 - [ ] Advanced animations (parallax, 3D effects)
@@ -1740,7 +2089,7 @@ This document includes:
 9. **Accessibility Compliance**: WCAG AA standards met across all components
 10. **Performance Optimization**: Fast load times with smooth 60fps animations
 
-### ✅ Current Status (Phase 4 Complete)
+### ✅ Current Status (Phase 4.6 Complete)
 - ✅ Enhanced animations and micro-interactions
 - ✅ Advanced form components with dark mode support
 - ✅ Complete dark mode fixes across all admin pages and components
@@ -1749,6 +2098,16 @@ This document includes:
 - ✅ All TypeScript errors resolved
 - ✅ Badge and tag system fully implemented with semantic variants
 - ✅ Profile page text readability optimized for dark mode
+- ✅ **Horizontal scroll mobile trek cards implementation**
+- ✅ **StandardizedTrekCard component with fixed dimensions**
+- ✅ **Touch-optimized horizontal scrolling with snap behavior**
+- ✅ **Responsive breakpoint switching (mobile scroll ↔ desktop grid)**
+- ✅ **useMediaQuery hook for responsive behavior**
+- ✅ Public gallery system with advanced filtering and mobile optimization
+- ✅ Image tagging system with color-coded categories and drag & drop
+- ✅ Enhanced media management (5 images + 1 video per trek)
+- ✅ User contribution system with moderation workflow
+- ✅ Complete TypeScript type safety across all components
 
 ### Next Phase (Phase 5)
 - Performance optimization and code splitting

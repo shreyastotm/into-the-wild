@@ -1,11 +1,12 @@
 # Into The Wild - Messaging, Notifications & Communication System
 ## Complete UX Strategy for PWA
 
-> **Version:** 1.0  
-> **Date:** October 21, 2025  
+> **Version:** 1.1 - Enhanced Gallery & Media Edition  
+> **Date:** January 25, 2025  
 > **Application Type:** Progressive Web App (PWA)  
 > **Focus:** Trek-Centric Communication for Indian Mobile Users  
-> **Status:** Comprehensive Strategy & Implementation Guide
+> **Status:** Comprehensive Strategy & Implementation Guide  
+> **New in v1.1:** 🆕 Gallery Engagement, Media Sharing, User Contributions, Tag-Based Discovery
 
 ---
 
@@ -21,10 +22,11 @@
 8. [WhatsApp Integration](#8-whatsapp-integration)
 9. [Trek Lifecycle Communication](#9-trek-lifecycle-communication)
 10. [Admin Communication Tools](#10-admin-communication-tools)
-11. [User Preference Center](#11-user-preference-center)
-12. [Implementation Roadmap](#12-implementation-roadmap)
-13. [Technical Architecture](#13-technical-architecture)
-14. [Success Metrics](#14-success-metrics)
+11. [Gallery & Media Communication](#11-gallery--media-communication)
+12. [User Preference Center](#12-user-preference-center)
+13. [Implementation Roadmap](#13-implementation-roadmap)
+14. [Technical Architecture](#14-technical-architecture)
+15. [Success Metrics](#15-success-metrics)
 
 ---
 
@@ -492,6 +494,20 @@ const mobileFirst = {
     heavy: 'error'         // Heavy tap
   }
 };
+```
+
+#### **Enhanced Mobile Card Experience**
+```typescript
+// Mobile cards now support better notification targeting
+const mobileCardFeatures = {
+  horizontalScroll: true,      // Better content discovery
+  fixedHeights: true,          // Consistent layout for notifications
+  touchOptimized: true,        // Improved engagement
+  responsiveBreakpoints: true  // Desktop ↔ mobile seamless transition
+};
+
+// This enables better notification placement and user engagement
+// as users can now easily browse and discover trek content on mobile
 ```
 
 #### 2. Network-Aware Design
@@ -2120,7 +2136,11 @@ const postTrekNotifications = [
         },
         {
           label: 'Share Photos',
-          link: '/trek/{trek_id}/gallery'
+          link: '/gallery?trek={trek_id}'
+        },
+        {
+          label: 'Upload to Gallery',
+          link: '/trek/{trek_id}/upload'
         }
       ]
     }
@@ -2335,7 +2355,126 @@ export const NotificationAnalytics: React.FC = () => {
 
 ---
 
-## 11. User Preference Center
+## 11. Gallery & Media Communication
+
+### 11.1 Public Gallery Engagement
+
+#### New Photos Notifications
+```typescript
+const galleryNotifications = {
+  // New trek photos added
+  newPhotos: {
+    type: 'community',
+    title: 'New Photos from {trek_name} 📸',
+    description: '{user_name} shared {count} photos from {trek_name}',
+    action: {
+      label: 'View Gallery',
+      link: '/gallery?trek={trek_id}'
+    }
+  },
+
+  // User's photo approved
+  photoApproved: {
+    type: 'success',
+    title: 'Your Photo is Live! ✨',
+    description: 'Your photo from {trek_name} is now featured in the gallery',
+    action: {
+      label: 'View in Gallery',
+      link: '/gallery?trek={trek_id}'
+    }
+  },
+
+  // Tag suggestions for better discovery
+  tagSuggestions: {
+    type: 'info',
+    title: 'Help Others Find Your Photos 🏷️',
+    description: 'Add tags to your photos for better discovery',
+    action: {
+      label: 'Manage Tags',
+      link: '/trek/{trek_id}/media'
+    }
+  }
+};
+```
+
+#### Media Management Notifications
+```typescript
+const mediaNotifications = {
+  // Upload confirmation
+  uploadSuccess: {
+    type: 'success',
+    title: 'Photos Uploaded Successfully! 📸',
+    description: 'Your {count} photos are being reviewed and will appear in the gallery soon',
+    actions: [
+      {
+        label: 'Add Tags',
+        link: '/trek/{trek_id}/media'
+      },
+      {
+        label: 'View Gallery',
+        link: '/gallery?trek={trek_id}'
+      }
+    ]
+  },
+
+  // Moderation status updates
+  moderationUpdate: {
+    pending: {
+      type: 'info',
+      title: 'Photos Under Review 🔍',
+      description: 'Your photos are being reviewed by our team'
+    },
+    approved: {
+      type: 'success',
+      title: 'Photos Approved! ✅',
+      description: 'Your photos are now live in the gallery'
+    },
+    rejected: {
+      type: 'warning',
+      title: 'Photos Need Improvement 📝',
+      description: 'Please check our guidelines and resubmit',
+      action: {
+        label: 'View Guidelines',
+        link: '/help/photo-guidelines'
+      }
+    }
+  }
+};
+```
+
+#### Social Sharing Integration
+```typescript
+const socialSharing = {
+  // WhatsApp group sharing
+  whatsappShare: {
+    template: '🏔️ Check out these amazing photos from {trek_name}!\n\n{gallery_link}\n\n#IntoTheWild #Trekking',
+    channels: ['whatsapp', 'in-app']
+  },
+
+  // Gallery update notifications
+  galleryUpdate: {
+    type: 'community',
+    title: 'Gallery Updated! 📸',
+    description: 'New photos added to {trek_name} gallery',
+    action: {
+      label: 'View New Photos',
+      link: '/gallery?trek={trek_id}&new=true'
+    }
+  }
+};
+```
+
+### 11.2 Enhanced User Journey with Gallery
+
+**Post-Trek Engagement (Enhanced):**
+- **T+1**: Feedback request + Photo upload reminder + Gallery access
+- **T+3**: Photo sharing in gallery + Tag suggestions + Community engagement
+- **T+7**: Gallery showcase + Next trek recommendations + Social sharing
+- **Ongoing**: Community gallery engagement + Tag-based discovery + Social sharing
+
+---
+
+## 12. User Preference Center
 
 ```tsx
 // pages/NotificationPreferences.tsx

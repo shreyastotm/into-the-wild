@@ -95,45 +95,121 @@ export default function PublicGallery() {
         .select(`
           image_id,
           image_type,
-          image_tags!inner(id, name, color),
-          trek_event_images!left(trek_id),
-          trek_event_videos!left(trek_id),
-          user_trek_images!left(trek_id)
+          image_tags!inner(id, name, color)
         `);
 
       if (error) throw error;
 
-      // Group tags by trek_id
+      // Group tags by trek_id - fetch trek info for each image type
       const tagsByTrek: Record<number, Array<{id: number; name: string; color: string}>> = {};
 
-      (tagAssignments || []).forEach(assignment => {
-        let trekId: number | null = null;
+      if (tagAssignments && tagAssignments.length > 0) {
+        // Group assignments by image type and fetch trek info
+        const officialImageIds = tagAssignments
+          .filter(a => a.image_type === 'official_image')
+          .map(a => a.image_id);
 
-        // Determine trek_id based on image_type
-        if (assignment.image_type === 'official_image' && assignment.trek_event_images) {
-          trekId = assignment.trek_event_images.trek_id;
-        } else if (assignment.image_type === 'official_video' && assignment.trek_event_videos) {
-          trekId = assignment.trek_event_videos.trek_id;
-        } else if (assignment.image_type === 'user_image' && assignment.user_trek_images) {
-          trekId = assignment.user_trek_images.trek_id;
-        }
+        const officialVideoIds = tagAssignments
+          .filter(a => a.image_type === 'official_video')
+          .map(a => a.image_id);
 
-        if (trekId && trekIds.includes(trekId)) {
-          if (!tagsByTrek[trekId]) {
-            tagsByTrek[trekId] = [];
-          }
+        const userImageIds = tagAssignments
+          .filter(a => a.image_type === 'user_image')
+          .map(a => a.image_id);
 
-          // Only add unique tags per trek
-          const existingTag = tagsByTrek[trekId].find(t => t.id === assignment.image_tags.id);
-          if (!existingTag) {
-            tagsByTrek[trekId].push({
-              id: assignment.image_tags.id,
-              name: assignment.image_tags.name,
-              color: assignment.image_tags.color
+        // Fetch trek info for official images
+        if (officialImageIds.length > 0) {
+          const { data: officialImages } = await supabase
+            .from('trek_event_images')
+            .select('id, trek_id')
+            .in('id', officialImageIds);
+
+          if (officialImages) {
+            officialImages.forEach(img => {
+              const assignments = tagAssignments.filter(a =>
+                a.image_type === 'official_image' && a.image_id === img.id
+              );
+              assignments.forEach(assignment => {
+                if (trekIds.includes(img.trek_id)) {
+                  if (!tagsByTrek[img.trek_id]) {
+                    tagsByTrek[img.trek_id] = [];
+                  }
+                  const existingTag = tagsByTrek[img.trek_id].find(t => t.id === assignment.image_tags.id);
+                  if (!existingTag) {
+                    tagsByTrek[img.trek_id].push({
+                      id: assignment.image_tags.id,
+                      name: assignment.image_tags.name,
+                      color: assignment.image_tags.color
+                    });
+                  }
+                }
+              });
             });
           }
         }
-      });
+
+        // Fetch trek info for official videos
+        if (officialVideoIds.length > 0) {
+          const { data: officialVideos } = await supabase
+            .from('trek_event_videos')
+            .select('id, trek_id')
+            .in('id', officialVideoIds);
+
+          if (officialVideos) {
+            officialVideos.forEach(video => {
+              const assignments = tagAssignments.filter(a =>
+                a.image_type === 'official_video' && a.image_id === video.id
+              );
+              assignments.forEach(assignment => {
+                if (trekIds.includes(video.trek_id)) {
+                  if (!tagsByTrek[video.trek_id]) {
+                    tagsByTrek[video.trek_id] = [];
+                  }
+                  const existingTag = tagsByTrek[video.trek_id].find(t => t.id === assignment.image_tags.id);
+                  if (!existingTag) {
+                    tagsByTrek[video.trek_id].push({
+                      id: assignment.image_tags.id,
+                      name: assignment.image_tags.name,
+                      color: assignment.image_tags.color
+                    });
+                  }
+                }
+              });
+            });
+          }
+        }
+
+        // Fetch trek info for user images
+        if (userImageIds.length > 0) {
+          const { data: userImages } = await supabase
+            .from('user_trek_images')
+            .select('id, trek_id')
+            .in('id', userImageIds);
+
+          if (userImages) {
+            userImages.forEach(img => {
+              const assignments = tagAssignments.filter(a =>
+                a.image_type === 'user_image' && a.image_id === img.id
+              );
+              assignments.forEach(assignment => {
+                if (trekIds.includes(img.trek_id)) {
+                  if (!tagsByTrek[img.trek_id]) {
+                    tagsByTrek[img.trek_id] = [];
+                  }
+                  const existingTag = tagsByTrek[img.trek_id].find(t => t.id === assignment.image_tags.id);
+                  if (!existingTag) {
+                    tagsByTrek[img.trek_id].push({
+                      id: assignment.image_tags.id,
+                      name: assignment.image_tags.name,
+                      color: assignment.image_tags.color
+                    });
+                  }
+                }
+              });
+            });
+          }
+        }
+      }
 
       return tagsByTrek;
     } catch (error) {

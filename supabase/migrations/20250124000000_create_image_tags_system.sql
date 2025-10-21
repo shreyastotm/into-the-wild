@@ -198,12 +198,12 @@ BEGIN
             ELSE uti.image_url
         END as image_url,
         CASE
-            WHEN ita.image_type IN ('official_image', 'official_video') THEN te.trek_id
+            WHEN ita.image_type IN ('official_image', 'official_video') THEN COALESCE(tei.trek_id, tev.trek_id)
             ELSE uti.trek_id
         END as trek_id,
         CASE
-            WHEN ita.image_type IN ('official_image', 'official_video') THEN te.name
-            ELSE te2.name
+            WHEN ita.image_type IN ('official_image', 'official_video') THEN COALESCE(te1.name, te2.name)
+            ELSE te3.name
         END as trek_name,
         jsonb_agg(
             jsonb_build_object(
@@ -223,10 +223,9 @@ BEGIN
     LEFT JOIN public.user_trek_images uti ON (
         ita.image_type = 'user_image' AND ita.image_id = uti.id
     )
-    LEFT JOIN public.trek_events te ON (
-        (ita.image_type IN ('official_image', 'official_video') AND te.trek_id = COALESCE(tei.trek_id, tev.trek_id)) OR
-        (ita.image_type = 'user_image' AND te.trek_id = uti.trek_id)
-    )
+    LEFT JOIN public.trek_events te1 ON tei.trek_id = te1.trek_id
+    LEFT JOIN public.trek_events te2 ON tev.trek_id = te2.trek_id
+    LEFT JOIN public.trek_events te3 ON uti.trek_id = te3.trek_id
     WHERE ita.tag_id = ANY(p_tag_ids)
     GROUP BY
         CASE
@@ -241,12 +240,12 @@ BEGIN
             ELSE uti.image_url
         END,
         CASE
-            WHEN ita.image_type IN ('official_image', 'official_video') THEN te.trek_id
+            WHEN ita.image_type IN ('official_image', 'official_video') THEN COALESCE(tei.trek_id, tev.trek_id)
             ELSE uti.trek_id
         END,
         CASE
-            WHEN ita.image_type IN ('official_image', 'official_video') THEN te.name
-            ELSE te2.name
+            WHEN ita.image_type IN ('official_image', 'official_video') THEN COALESCE(te1.name, te2.name)
+            ELSE te3.name
         END
     ORDER BY COUNT(*) DESC; -- Prioritize images with more matching tags
 END;

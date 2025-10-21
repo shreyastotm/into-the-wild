@@ -2,12 +2,14 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { TrekEventsList, TrekEvent as TrekEventListItem } from '@/components/trek/TrekEventsList';
 import { TrekFilters, FilterOptions } from '@/components/trek/TrekFilters';
 import { NoTreksFound } from '@/components/trek/NoTreksFound';
+import { HorizontalTrekScroll } from '@/components/trek/HorizontalTrekScroll';
 import { supabase } from '@/integrations/supabase/client';
 import { addMonths, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import { getUniqueParticipantCount } from '@/lib/utils';
 import { TrekEventStatus, EventType } from '@/types/trek';
 import { MobilePage, MobileSection, MobileGrid } from '@/components/mobile/MobilePage';
@@ -36,6 +38,7 @@ export type DisplayTrekEvent = TrekEventListItem;
 const TrekEvents = () => {
   const [events, setEvents] = useState<DisplayTrekEvent[]>([]);
   const [loading, setLoading] = useState(true);
+  const isMobile = useMediaQuery('(max-width: 768px)');
 
   // Set page title
   React.useEffect(() => {
@@ -274,7 +277,20 @@ const TrekEvents = () => {
             ))}
           </MobileGrid>
         ) : events.length > 0 ? (
-          <TrekEventsList treks={events} />
+          <>
+            {/* Mobile: Horizontal scroll */}
+            {isMobile ? (
+              <HorizontalTrekScroll
+                treks={events}
+                onTrekClick={(id) => navigate(`/trek-events/${id}`)}
+                showProgress={true}
+                type="event"
+              />
+            ) : (
+              /* Desktop: Grid layout */
+              <TrekEventsList treks={events} />
+            )}
+          </>
         ) : (
           <NoTreksFound />
         )}

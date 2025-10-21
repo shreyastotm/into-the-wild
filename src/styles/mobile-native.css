@@ -329,3 +329,108 @@
   @apply text-sm;
 }
 
+/* ===== HORIZONTAL SCROLL CARDS FOR MOBILE ===== */
+.mobile-horizontal-scroll {
+  @apply -mx-4 px-4;
+  @apply overflow-x-auto;
+  @apply scrollbar-hide;
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  scroll-padding: 16px;
+}
+
+.mobile-horizontal-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Horizontal grid for cards */
+.mobile-cards-horizontal {
+  @apply flex gap-4 pb-2;
+}
+
+/* Standard card dimensions for consistency */
+.mobile-trek-card {
+  @apply flex-none;
+  width: 320px;
+  max-width: 85vw;
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+  @apply rounded-2xl overflow-hidden;
+  @apply bg-white dark:bg-gray-800;
+  @apply border border-gray-200 dark:border-gray-700;
+  @apply shadow-lg;
+  /* Fixed height for consistency */
+  height: 480px;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Image container with fixed aspect ratio */
+.mobile-trek-card-image {
+  @apply relative flex-none;
+  height: 200px;
+  width: 100%;
+  @apply overflow-hidden;
+  @apply bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-800;
+}
+
+.mobile-trek-card-image img {
+  @apply w-full h-full object-cover;
+}
+
+/* Card content with flex layout */
+.mobile-trek-card-content {
+  @apply flex-1 flex flex-col;
+  @apply p-4;
+  min-height: 0; /* Important for flex overflow */
+}
+
+/* Title with fixed line clamp */
+.mobile-trek-card-title {
+  @apply text-lg font-semibold;
+  @apply text-gray-900 dark:text-white;
+  @apply line-clamp-2;
+  @apply mb-2;
+  min-height: 56px; /* 2 lines minimum */
+}
+
+/* Meta info section */
+.mobile-trek-card-meta {
+  @apply flex flex-col gap-2 mb-3;
+  @apply text-sm text-gray-600 dark:text-gray-400;
+}
+
+/* Description with fixed line clamp */
+.mobile-trek-card-description {
+  @apply text-sm text-gray-600 dark:text-gray-400;
+  @apply line-clamp-3;
+  @apply mb-3;
+  min-height: 63px; /* 3 lines minimum */
+}
+
+/* Footer always at bottom */
+.mobile-trek-card-footer {
+  @apply mt-auto pt-3 border-t border-gray-200 dark:border-gray-700;
+  @apply flex items-center justify-between;
+}
+
+/* Progress bar section */
+.mobile-trek-card-progress {
+  @apply mb-3;
+}
+
+/* Scroll indicator dots */
+.mobile-scroll-indicators {
+  @apply flex justify-center gap-2 mt-4;
+}
+
+.mobile-scroll-indicator {
+  @apply w-2 h-2 rounded-full;
+  @apply bg-gray-300 dark:bg-gray-600;
+  @apply transition-all duration-200;
+}
+
+.mobile-scroll-indicator-active {
+  @apply w-6 bg-primary;
+}
+

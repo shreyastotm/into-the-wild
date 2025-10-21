@@ -1,7 +1,9 @@
 import React, { useEffect, useMemo, useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { setHomeBackground, getHomeBackground } from '@/lib/siteSettings';
+import { toast } from '@/components/ui/use-toast';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +11,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { MobilePage, MobileSection, MobileCard, MobileGrid } from '@/components/mobile/MobilePage';
+import { HorizontalTrekScroll } from '@/components/trek/HorizontalTrekScroll';
+import { useMediaQuery } from '@/hooks/useMediaQuery';
 import {
   ChevronLeft,
   ChevronRight,
@@ -57,6 +61,8 @@ export default function Gallery() {
   const [loadingMore, setLoadingMore] = useState(false);
 
   const { userProfile } = useAuth();
+  const isMobile = useMediaQuery('(max-width: 768px)');
+  const navigate = useNavigate();
 
   const isAdmin = useMemo(() => userProfile?.user_type === 'admin', [userProfile]);
 
@@ -205,10 +211,28 @@ export default function Gallery() {
 
   // Handle trek card click
   const handleTrekClick = useCallback((trek: PastTrek) => {
+    if (!userProfile) {
+      toast({
+        title: "Sign in to view gallery",
+        description: "Create an account or sign in to view trek photos and details",
+        variant: "default",
+        action: (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/auth')}
+          >
+            Sign In
+          </Button>
+        ),
+      });
+      return;
+    }
+
     setSelectedTrek(trek);
     setCurrentImageIndex(0);
     setIsDetailOpen(true);
-  }, []);
+  }, [userProfile, navigate]);
 
   // Handle image navigation in carousel
   const handleNextImage = useCallback(() => {
@@ -405,113 +429,142 @@ export default function Gallery() {
           </div>
         ) : (
           <>
-            <MobileGrid>
-              {filteredItems.map(trek => (
-                <MobileCard
-                  key={trek.trek_id}
-                  hoverable
-                  className="overflow-hidden p-0 cursor-pointer"
-                  onClick={() => handleTrekClick(trek)}
-                >
-                  <div className="relative">
-                    {trek.images[0] || trek.user_contributions?.[0] ? (
-                      <div className="mobile-aspect-card overflow-hidden">
-                        <img
-                          src={trek.images[0] || trek.user_contributions?.[0]?.image_url}
-                          alt={trek.name}
-                          className="w-full h-full object-cover"
-                        />
-                        {/* Image count badge */}
-                        <div className="absolute top-2 right-2">
-                          <Badge variant="secondary" className="bg-black/50 text-white">
-                            <Eye className="w-3 h-3 mr-1" />
-                            {getAllImages(trek).length}
-                          </Badge>
+            {/* Mobile: Horizontal scroll */}
+            {isMobile ? (
+              <HorizontalTrekScroll
+                treks={filteredItems}
+                onTrekClick={handleTrekClick}
+                showProgress={false}
+                type="gallery"
+              />
+            ) : (
+              /* Desktop: Grid layout */
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredItems.map(trek => (
+                  <div
+                    key={trek.trek_id}
+                    className="bg-card rounded-xl border border-border overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-200"
+                    onClick={() => handleTrekClick(trek)}
+                  >
+                    <div className="relative">
+                      {trek.images && trek.images.length > 0 ? (
+                        <div className="relative h-56 w-full overflow-hidden">
+                          <img
+                            src={trek.images[0]}
+                            alt={trek.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Image count badge */}
+                          <div className="absolute top-2 right-2">
+                            <Badge variant="secondary" className="bg-black/50 text-white">
+                              <Eye className="w-3 h-3 mr-1" />
+                              {getAllImages(trek).length}
+                            </Badge>
+                          </div>
                         </div>
-                      </div>
-                    ) : (
-                      <div className="mobile-aspect-card bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        <Mountain className="w-8 h-8 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-4">
-                    <h2 className="mobile-heading-3 line-clamp-2">{trek.name}</h2>
-
-                    <div className="mobile-caption mt-2 flex items-center gap-1">
-                      {trek.location && (
-                        <>
-                          <MapPin className="w-3 h-3" />
-                          {trek.location} •
-                        </>
+                      ) : trek.user_contributions && trek.user_contributions.length > 0 ? (
+                        <div className="relative h-56 w-full overflow-hidden">
+                          <img
+                            src={trek.user_contributions[0].image_url}
+                            alt={trek.name}
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Image count badge */}
+                          <div className="absolute top-2 right-2">
+                            <Badge variant="secondary" className="bg-black/50 text-white">
+                              <Eye className="w-3 h-3 mr-1" />
+                              {getAllImages(trek).length}
+                            </Badge>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="h-56 w-full bg-muted flex items-center justify-center">
+                          <Mountain className="w-12 h-12 text-muted-foreground" />
+                        </div>
                       )}
-                      <Calendar className="w-3 h-3 ml-1" />
-                      {new Date(trek.start_datetime).toLocaleDateString('en-IN')}
                     </div>
 
-                    {trek.difficulty && (
-                      <Badge variant="outline" className="mt-2">
-                        {trek.difficulty}
-                      </Badge>
-                    )}
+                    <div className="p-4">
+                      <h2 className="text-lg font-semibold text-foreground line-clamp-2 mb-2">
+                        {trek.name}
+                      </h2>
 
-                    {trek.description && (
-                      <p className="mobile-body-small mt-3 line-clamp-2">
-                        {trek.description}
-                      </p>
-                    )}
-
-                    {/* User contributions indicator */}
-                    {trek.user_contributions && trek.user_contributions.length > 0 && (
-                      <div className="mt-3 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
-                        <Camera className="w-3 h-3" />
-                        {trek.user_contributions.length} community photo{trek.user_contributions.length !== 1 ? 's' : ''}
+                      <div className="text-sm text-muted-foreground mb-3">
+                        <div className="flex items-center gap-1">
+                          {trek.location && (
+                            <>
+                              <MapPin className="w-3 h-3" />
+                              {trek.location} •
+                            </>
+                          )}
+                          <Calendar className="w-3 h-3 ml-1" />
+                          {new Date(trek.start_datetime).toLocaleDateString('en-IN')}
+                        </div>
                       </div>
-                    )}
 
-                    {/* Thumbnail grid for multiple images */}
-                    {getAllImages(trek).length > 1 && (
-                      <div className="mt-3 grid grid-cols-3 gap-1">
-                        {getAllImages(trek).slice(1, 4).map((url, idx) => (
-                          <img
-                            key={idx}
-                            src={url}
-                            alt=""
-                            className="w-full aspect-square object-cover rounded"
+                      {trek.difficulty && (
+                        <Badge variant="outline" className="mb-2">
+                          {trek.difficulty}
+                        </Badge>
+                      )}
+
+                      {trek.description && (
+                        <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+                          {trek.description}
+                        </p>
+                      )}
+
+                      {/* User contributions indicator */}
+                      {trek.user_contributions && trek.user_contributions.length > 0 && (
+                        <div className="mb-3 flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400">
+                          <Camera className="w-3 h-3" />
+                          {trek.user_contributions.length} community photo{trek.user_contributions.length !== 1 ? 's' : ''}
+                        </div>
+                      )}
+
+                      {/* Thumbnail grid for multiple images */}
+                      {getAllImages(trek).length > 1 && (
+                        <div className="mb-3 grid grid-cols-3 gap-1">
+                          {getAllImages(trek).slice(1, 4).map((url, idx) => (
+                            <img
+                              key={idx}
+                              src={url}
+                              alt=""
+                              className="w-full aspect-square object-cover rounded"
+                            />
+                          ))}
+                          {getAllImages(trek).length > 4 && (
+                            <div className="w-full aspect-square bg-muted rounded flex items-center justify-center">
+                              <span className="text-xs text-muted-foreground">+{getAllImages(trek).length - 3}</span>
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Admin background toggle */}
+                      {isAdmin && trek.images && trek.images.length > 0 && (
+                        <div className="pt-3 border-t border-border flex items-center gap-2">
+                          <Checkbox
+                            id={`bg-${trek.trek_id}`}
+                            checked={currentBg === trek.images[0]}
+                            onCheckedChange={(val) => onToggleBackground(trek.images[0], Boolean(val))}
+                            disabled={saving}
+                            onClick={(e) => e.stopPropagation()}
                           />
-                        ))}
-                        {getAllImages(trek).length > 4 && (
-                          <div className="w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
-                            <span className="text-xs text-gray-500">+{getAllImages(trek).length - 3}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-
-                    {/* Admin background toggle */}
-                    {isAdmin && trek.images[0] && (
-                      <div className="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700 flex items-center gap-2">
-                        <Checkbox
-                          id={`bg-${trek.trek_id}`}
-                          checked={currentBg === trek.images[0]}
-                          onCheckedChange={(val) => onToggleBackground(trek.images[0], Boolean(val))}
-                          disabled={saving}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <label
-                          htmlFor={`bg-${trek.trek_id}`}
-                          className="mobile-body-small select-none cursor-pointer"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          Set as page background
-                        </label>
-                      </div>
-                    )}
+                          <label
+                            htmlFor={`bg-${trek.trek_id}`}
+                            className="text-sm select-none cursor-pointer"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Set as page background
+                          </label>
+                        </div>
+                      )}
+                    </div>
                   </div>
-                </MobileCard>
-              ))}
-            </MobileGrid>
+                ))}
+              </div>
+            )}
 
             {/* Load More Button */}
             {hasMore && !loading && (
