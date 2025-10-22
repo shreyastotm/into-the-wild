@@ -17,7 +17,7 @@ export class ErrorBoundary extends React.Component<Record<string, never>, ErrorB
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error to monitoring service if needed
-    // console.error(error, errorInfo);
+    console.error('ErrorBoundary caught an error:', error, errorInfo);
   }
 
   render() {

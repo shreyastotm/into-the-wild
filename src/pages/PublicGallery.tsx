@@ -7,7 +7,8 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { MobilePage, MobileSection, MobileCard, MobileGrid } from '@/components/mobile/MobilePage';
+import { MobilePage, MobileSection, MobileGrid } from '@/components/mobile/MobilePage';
+import { StandardizedTrekCard } from '@/components/trek';
 import {
   ChevronLeft,
   ChevronRight,
@@ -18,8 +19,6 @@ import {
   Search,
   Filter,
   X,
-  Eye,
-  Camera,
   Play,
   Loader2,
   Tag
@@ -51,6 +50,7 @@ type PastTrek = {
     name: string;
     color: string;
   }>;
+  base_price?: number;
 };
 
 export default function PublicGallery() {
@@ -76,7 +76,7 @@ export default function PublicGallery() {
   // Fetch available tags
   const fetchTags = useCallback(async () => {
     try {
-      const { data, error } = await supabase.rpc('get_all_image_tags');
+      const { data, error } = await supabase.rpc('get_all_image_tags') as { data: any[] | null, error: any };
       if (error) throw error;
       setAvailableTags(data || []);
     } catch (error) {
@@ -96,14 +96,14 @@ export default function PublicGallery() {
           image_id,
           image_type,
           image_tags!inner(id, name, color)
-        `);
+        `) as { data: any[] | null, error: any };
 
       if (error) throw error;
 
       // Group tags by trek_id - fetch trek info for each image type
       const tagsByTrek: Record<number, Array<{id: number; name: string; color: string}>> = {};
 
-      if (tagAssignments && tagAssignments.length > 0) {
+      if (tagAssignments && (tagAssignments as any[]).length > 0) {
         // Group assignments by image type and fetch trek info
         const officialImageIds = tagAssignments
           .filter(a => a.image_type === 'official_image')
@@ -122,7 +122,7 @@ export default function PublicGallery() {
           const { data: officialImages } = await supabase
             .from('trek_event_images')
             .select('id, trek_id')
-            .in('id', officialImageIds);
+            .in('id', officialImageIds) as { data: any[] | null, error: any };
 
           if (officialImages) {
             officialImages.forEach(img => {
@@ -153,7 +153,7 @@ export default function PublicGallery() {
           const { data: officialVideos } = await supabase
             .from('trek_event_videos')
             .select('id, trek_id')
-            .in('id', officialVideoIds);
+            .in('id', officialVideoIds) as { data: any[] | null, error: any };
 
           if (officialVideos) {
             officialVideos.forEach(video => {
@@ -184,7 +184,7 @@ export default function PublicGallery() {
           const { data: userImages } = await supabase
             .from('user_trek_images')
             .select('id, trek_id')
-            .in('id', userImageIds);
+            .in('id', userImageIds) as { data: any[] | null, error: any };
 
           if (userImages) {
             userImages.forEach(img => {
@@ -307,7 +307,7 @@ export default function PublicGallery() {
           .from('user_trek_images')
           .select('id, trek_id, image_url, caption, uploaded_by')
           .in('trek_id', trekIds)
-          .eq('status', 'approved');
+          .eq('status', 'approved') as { data: any[] | null, error: any };
 
         if (userImgErr) throw userImgErr;
 
@@ -319,7 +319,7 @@ export default function PublicGallery() {
           const { data: users, error: usersErr } = await supabase
             .from('users')
             .select('user_id, full_name')
-            .in('user_id', userIds);
+            .in('user_id', userIds) as { data: any[] | null, error: any };
 
           if (usersErr) throw usersErr;
 
@@ -363,6 +363,7 @@ export default function PublicGallery() {
         video: videosByTrek[t.trek_id] ?? null,
         user_contributions: userContributionsByTrek[t.trek_id] ?? [],
         tags: tagsByTrek[t.trek_id] ?? [],
+        base_price: t.base_price ?? 0,
       }));
 
       if (append) {
@@ -657,147 +658,23 @@ export default function PublicGallery() {
           <>
             <MobileGrid>
               {filteredItems.map(trek => (
-                <MobileCard
+                <StandardizedTrekCard
                   key={trek.trek_id}
-                  hoverable
-                  className="overflow-hidden p-0 cursor-pointer"
+                  trek={{
+                    trek_id: trek.trek_id,
+                    name: trek.name,
+                    description: trek.description,
+                    location: trek.location,
+                    start_datetime: trek.start_datetime,
+                    difficulty: trek.difficulty,
+                    max_participants: trek.max_participants,
+                    images: trek.images,
+                    base_price: trek.base_price,
+                  }}
                   onClick={() => handleTrekClick(trek)}
-                >
-                  <div className="relative">
-                    {trek.images[0] || trek.video || trek.user_contributions?.[0] ? (
-                      <div className="mobile-aspect-card overflow-hidden">
-                        {trek.video ? (
-                          <div className="relative">
-                            {trek.video.thumbnail_url ? (
-                              <img
-                                src={trek.video.thumbnail_url}
-                                alt={trek.name}
-                                className="w-full h-full object-cover"
-                              />
-                            ) : (
-                              <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                <Play className="w-12 h-12 text-gray-400" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 flex items-center justify-center">
-                              <div className="bg-black/50 rounded-full p-3">
-                                <Play className="w-6 h-6 text-white" />
-                              </div>
-                            </div>
-                          </div>
-                        ) : (
-                          <img
-                            src={trek.images[0] || trek.user_contributions?.[0]?.image_url}
-                            alt={trek.name}
-                            className="w-full h-full object-cover"
-                          />
-                        )}
-                        {/* Media count badge */}
-                        <div className="absolute top-2 right-2">
-                          <Badge variant="secondary" className="bg-black/50 text-white">
-                            <Eye className="w-3 h-3 mr-1" />
-                            {getAllMedia(trek).length}
-                          </Badge>
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="mobile-aspect-card bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                        <Mountain className="w-8 h-8 text-gray-400" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="p-4">
-                    <h2 className="mobile-heading-3 line-clamp-2">{trek.name}</h2>
-
-                    <div className="mobile-caption mt-2 flex items-center gap-1">
-                      {trek.location && (
-                        <>
-                          <MapPin className="w-3 h-3" />
-                          {trek.location} •
-                        </>
-                      )}
-                      <Calendar className="w-3 h-3 ml-1" />
-                      {new Date(trek.start_datetime).toLocaleDateString('en-IN')}
-                    </div>
-
-                    {trek.difficulty && (
-                      <Badge variant="outline" className="mt-2">
-                        {trek.difficulty}
-                      </Badge>
-                    )}
-
-                    {trek.description && (
-                      <p className="mobile-body-small mt-3 line-clamp-2">
-                        {trek.description}
-                      </p>
-                    )}
-
-                    {/* Media type indicators */}
-                    <div className="mt-3 flex flex-wrap gap-1">
-                      {trek.video && (
-                        <Badge variant="outline" className="text-xs">
-                          <Play className="w-3 h-3 mr-1" />
-                          Video
-                        </Badge>
-                      )}
-                      {trek.user_contributions && trek.user_contributions.length > 0 && (
-                        <Badge variant="outline" className="text-xs">
-                          <Camera className="w-3 h-3 mr-1" />
-                          {trek.user_contributions.length} Community
-                        </Badge>
-                      )}
-
-                      {/* Display up to 3 tags */}
-                      {trek.tags && trek.tags.slice(0, 3).map(tag => (
-                        <Badge
-                          key={tag.id}
-                          variant="outline"
-                          className="text-xs"
-                          style={{
-                            borderColor: tag.color,
-                            color: tag.color,
-                            backgroundColor: tag.color + '10'
-                          }}
-                        >
-                          {tag.name}
-                        </Badge>
-                      ))}
-
-                      {trek.tags && trek.tags.length > 3 && (
-                        <Badge variant="outline" className="text-xs">
-                          +{trek.tags.length - 3} more
-                        </Badge>
-                      )}
-                    </div>
-
-                    {/* Thumbnail grid for multiple media */}
-                    {getAllMedia(trek).length > 1 && (
-                      <div className="mt-3 grid grid-cols-3 gap-1">
-                        {getAllMedia(trek).slice(1, 4).map((media, idx) => (
-                          <div key={idx} className="relative">
-                            {media.type === 'video' ? (
-                              <div className="w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
-                                <Play className="w-4 h-4 text-gray-400" />
-                              </div>
-                            ) : (
-                              <img
-                                src={media.url}
-                                alt=""
-                                className="w-full aspect-square object-cover rounded"
-                              />
-                            )}
-                          </div>
-                        ))}
-                        {getAllMedia(trek).length > 4 && (
-                          <div className="w-full aspect-square bg-gray-100 dark:bg-gray-800 rounded flex items-center justify-center">
-                            <span className="text-xs text-gray-500">+{getAllMedia(trek).length - 3}</span>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </MobileCard>
+                  showProgress={false}
+                  type="gallery"
+                />
               ))}
             </MobileGrid>
 
@@ -820,7 +697,7 @@ export default function PublicGallery() {
 
       {/* Trek Detail Modal */}
       <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
-        <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+        <DialogContent className="max-w-6xl max-h-[90vh] overflow-hidden mx-4">
           {selectedTrek && (
             <>
               <DialogHeader>
@@ -865,25 +742,25 @@ export default function PublicGallery() {
                                   <Button
                                     variant="secondary"
                                     size="sm"
-                                    className="absolute left-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white border-0 rounded-full w-10 h-10 p-0"
                                     onClick={handlePrevImage}
                                   >
-                                    <ChevronLeft className="w-4 h-4" />
+                                    <ChevronLeft className="w-5 h-5" />
                                   </Button>
                                   <Button
                                     variant="secondary"
                                     size="sm"
-                                    className="absolute right-2 top-1/2 transform -translate-y-1/2 bg-black/50 hover:bg-black/70 text-white border-0"
+                                    className="absolute right-3 top-1/2 transform -translate-y-1/2 bg-black/60 hover:bg-black/80 text-white border-0 rounded-full w-10 h-10 p-0"
                                     onClick={handleNextImage}
                                   >
-                                    <ChevronRight className="w-4 h-4" />
+                                    <ChevronRight className="w-5 h-5" />
                                   </Button>
                                 </>
                               )}
 
                               {/* Media counter */}
-                              <div className="absolute bottom-2 right-2">
-                                <Badge variant="secondary" className="bg-black/50 text-white">
+                              <div className="absolute bottom-3 right-3">
+                                <Badge variant="secondary" className="bg-black/60 text-white border-0">
                                   {mediaInfo.index} / {mediaInfo.total}
                                 </Badge>
                               </div>
@@ -891,35 +768,6 @@ export default function PublicGallery() {
                           );
                         })()}
                       </div>
-
-                      {/* Thumbnail strip */}
-                      {getAllMedia(selectedTrek).length > 1 && (
-                        <div className="mt-3 flex gap-2 overflow-x-auto pb-2">
-                          {getAllMedia(selectedTrek).map((media, idx) => (
-                            <button
-                              key={idx}
-                              onClick={() => setCurrentImageIndex(idx)}
-                              className={`flex-shrink-0 w-16 h-16 rounded border-2 overflow-hidden ${
-                                idx === currentImageIndex
-                                  ? 'border-primary'
-                                  : 'border-gray-200 dark:border-gray-700'
-                              }`}
-                            >
-                              {media.type === 'video' ? (
-                                <div className="w-full h-full bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
-                                  <Play className="w-4 h-4 text-gray-400" />
-                                </div>
-                              ) : (
-                                <img
-                                  src={media.url}
-                                  alt=""
-                                  className="w-full h-full object-cover"
-                                />
-                              )}
-                            </button>
-                          ))}
-                        </div>
-                      )}
                     </div>
                   ) : (
                     <div className="aspect-video rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">

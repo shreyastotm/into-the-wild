@@ -82,6 +82,7 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
   return (
     <div
       className="mobile-trek-card"
+      data-type={type}
       onClick={() => onClick?.(trek.trek_id)}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -102,6 +103,13 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
 
         {/* Badges overlay */}
         <div className="absolute top-2 right-2 flex flex-col gap-1">
+          {/* Past adventure indicator for gallery type */}
+          {type === 'gallery' && (
+            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700">
+              Past Adventure
+            </Badge>
+          )}
+
           {trek.difficulty && (
             <Badge variant={getDifficultyVariant(trek.difficulty)}>
               {trek.difficulty}
@@ -164,10 +172,12 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
 
         {/* Footer */}
         <div className="mobile-trek-card-footer">
-          <div className="flex items-center gap-1 font-bold text-lg text-primary">
-            <IndianRupee className="w-4 h-4" />
-            {price.toLocaleString('en-IN')}
-          </div>
+          {type === 'event' ? (
+            <div className="flex items-center gap-1 font-bold text-lg text-primary">
+              <IndianRupee className="w-4 h-4" />
+              {price.toLocaleString('en-IN')}
+            </div>
+          ) : null}
 
           {type === 'event' ? (
             <Button size="sm" variant="default">

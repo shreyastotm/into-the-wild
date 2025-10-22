@@ -12,7 +12,6 @@ import { AuthProvider } from './components/auth/AuthProvider';
 import TrekEvents from './pages/TrekEvents';
 import TrekEventDetails from './pages/TrekEventDetails';
 import CreateTrekEvent from './pages/CreateTrekEvent';
-import Gallery from './pages/Gallery';
 import PublicGallery from './pages/PublicGallery';
 import TrekkingGuide from './pages/TrekkingGuide';
 import SafetyTips from './pages/SafetyTips';

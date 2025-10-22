@@ -21,10 +21,12 @@ services:
     ports:
       - "8082:8080"
     volumes:
-      - ./otp/graphs/karnataka:/var/otp/data
+      - ./otp/graphs/karnataka:/var/opentripplanner
       - ./otp/cache:/var/otp/cache
     environment:
-      - JAVA_TOOL_OPTIONS=-Xmx2G
+      - JAVA_TOOL_OPTIONS=-Xmx12G  # Try 12GB
+      - OTP_DIR=/var/opentripplanner
+    command: --build --serve ${OTP_DIR}
 
   # Simple backend for OTP API integration
   backend:
