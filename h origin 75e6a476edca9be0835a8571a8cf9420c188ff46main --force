@@ -1,0 +1,14 @@
+[33mcommit 75e6a476edca9be0835a8571a8cf9420c188ff46[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m)[m
+Author: shreyasmadhan82 <shreyasmadhan82@gmail.com>
+Date:   Wed Oct 22 17:49:01 2025 +0530
+
+    feat: deploy public gallery upgrades
+    
+    - Upgrade PublicGallery to use StandardizedTrekCard components
+    - Remove price display for past treks in gallery mode
+    - Improve modal carousel design and navigation
+    - Add proper modal spacing and gutters
+    - Fix ErrorBoundary to properly log React errors
+    - Fix component import issues in trek/index.ts
+
+.gitignore

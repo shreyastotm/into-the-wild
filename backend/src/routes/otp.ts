@@ -4,7 +4,7 @@ import axios from 'axios';
 const router = express.Router();
 
 // OpenTripPlanner base URL (standalone server)
-const OTP_BASE_URL = process.env.OTP_URL || 'http://localhost:8080';
+const OTP_BASE_URL = process.env.OTP_URL || 'http://localhost:8082';
 
 /**
  * Plan a route between two points for carpooling
