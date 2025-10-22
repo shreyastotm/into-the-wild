@@ -31,6 +31,13 @@ tsconfig.tsbuildinfo
 # VS Code workspace files
 *.code-workspace
 
+# Large files that shouldn't be tracked
+*.osm.pbf
+*.msi
+*.zip
+*.tar.gz
+*.rar
+
 # Temporary files
 .temp/
 *.temp.*
