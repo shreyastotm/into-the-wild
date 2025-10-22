@@ -448,23 +448,38 @@ export default function Gallery() {
                   >
                     {/* Fixed height image container */}
                     <div className="relative h-56 w-full overflow-hidden flex-shrink-0">
-                      {trek.images && trek.images.length > 0 ? (
-                        <img
-                          src={trek.images[0]}
-                          alt={trek.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : trek.user_contributions && trek.user_contributions.length > 0 ? (
-                        <img
-                          src={trek.user_contributions[0].image_url}
-                          alt={trek.name}
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-muted flex items-center justify-center">
-                          <Mountain className="w-12 h-12 text-muted-foreground" />
-                        </div>
-                      )}
+                      {(() => {
+                        // Filter out video URLs and get first actual image
+                        const getFirstImage = () => {
+                          if (trek.images && trek.images.length > 0) {
+                            const firstImage = trek.images.find(url => 
+                              !url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !url.includes('video')
+                            );
+                            return firstImage || trek.images[0];
+                          }
+                          if (trek.user_contributions && trek.user_contributions.length > 0) {
+                            const firstImage = trek.user_contributions.find(uc => 
+                              !uc.image_url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !uc.image_url.includes('video')
+                            );
+                            return firstImage?.image_url;
+                          }
+                          return null;
+                        };
+                        
+                        const imageUrl = getFirstImage();
+                        
+                        return imageUrl ? (
+                          <img
+                            src={imageUrl}
+                            alt={trek.name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-muted flex items-center justify-center">
+                            <Mountain className="w-12 h-12 text-muted-foreground" />
+                          </div>
+                        );
+                      })()}
                       
                       {/* Image count badge */}
                       <div className="absolute top-2 right-2">

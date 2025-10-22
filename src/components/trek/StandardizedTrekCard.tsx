@@ -45,8 +45,22 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
   const availableSpots = maxParticipants - participantCount;
   const spotsFillPercent = maxParticipants > 0 ? (participantCount / maxParticipants) * 100 : 0;
 
-  // Get image URL
-  const imageUrl = trek.image_url || trek.images?.[0] || null;
+  // Get image URL - filter out videos (they often end with .mp4, .mov, etc. or contain 'video')
+  const getFirstImageUrl = () => {
+    if (trek.image_url && !trek.image_url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !trek.image_url.includes('video')) {
+      return trek.image_url;
+    }
+    if (trek.images && trek.images.length > 0) {
+      // Find first non-video URL
+      const firstImage = trek.images.find(url => 
+        !url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !url.includes('video')
+      );
+      return firstImage || trek.images[0];
+    }
+    return null;
+  };
+  
+  const imageUrl = getFirstImageUrl();
 
   // Get price
   const price = trek.cost || trek.base_price || 0;
