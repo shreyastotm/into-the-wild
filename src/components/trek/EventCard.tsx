@@ -14,7 +14,7 @@ import {
 } from 'lucide-react';
 import { format } from 'date-fns';
 
-interface StandardizedTrekCardProps {
+interface EventCardProps {
   trek: {
     trek_id: number;
     name: string;
@@ -33,36 +33,35 @@ interface StandardizedTrekCardProps {
   };
   onClick?: (trekId: number) => void;
   showProgress?: boolean;
-  type?: 'event' | 'gallery';
 }
 
-export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
+export const EventCard: React.FC<EventCardProps> = ({
   trek,
   onClick,
-  showProgress = true,
-  type = 'event'
+  showProgress = true
 }) => {
   const participantCount = trek.participant_count ?? 0;
-  const maxParticipants = trek.max_participants ?? 0;
-  const availableSpots = maxParticipants - participantCount;
-  const spotsFillPercent = maxParticipants > 0 ? (participantCount / maxParticipants) * 100 : 0;
 
-  // Get image URL - filter out videos (they often end with .mp4, .mov, etc. or contain 'video')
+  // Get image URL - filter out videos
   const getFirstImageUrl = () => {
     if (trek.image_url && !trek.image_url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !trek.image_url.includes('video')) {
       return trek.image_url;
     }
     if (trek.images && trek.images.length > 0) {
-      // Find first non-video URL
-      const firstImage = trek.images.find(url => 
+      const firstImage = trek.images.find(url =>
         !url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !url.includes('video')
       );
       return firstImage || trek.images[0];
     }
     return null;
   };
-  
+
   const imageUrl = getFirstImageUrl();
+
+
+  const maxParticipants = trek.max_participants ?? 0;
+  const availableSpots = maxParticipants - participantCount;
+  const spotsFillPercent = maxParticipants > 0 ? (participantCount / maxParticipants) * 100 : 0;
 
   // Get price
   const price = trek.cost || trek.base_price || 0;
@@ -70,16 +69,6 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
   // Format date
   const startDate = new Date(trek.start_datetime);
   const formattedDate = format(startDate, 'MMM dd, yyyy');
-
-  // Get difficulty badge color
-  const getDifficultyVariant = (difficulty: string | null) => {
-    switch (difficulty?.toLowerCase()) {
-      case 'easy': return 'default';
-      case 'moderate': return 'secondary';
-      case 'hard': return 'destructive';
-      default: return 'outline';
-    }
-  };
 
   // Get difficulty icon - matches existing TrekCard.tsx pattern
   const getDifficultyIcon = (difficulty: string) => {
@@ -100,7 +89,7 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
   return (
     <div
       className="mobile-trek-card"
-      data-type={type}
+      data-type="event"
       onClick={() => onClick?.(trek.trek_id)}
       role={onClick ? 'button' : undefined}
       tabIndex={onClick ? 0 : undefined}
@@ -112,34 +101,37 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
             src={imageUrl}
             alt={trek.name}
             loading="lazy"
+            className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center">
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-800">
             <Mountain className="w-12 h-12 text-gray-400 dark:text-gray-600" />
           </div>
         )}
 
-        {/* Badges overlay */}
+        {/* Badges overlay - only past adventure for events */}
         <div className="absolute top-2 right-2 flex flex-col gap-1">
-          {/* Past adventure indicator for gallery type */}
-          {type === 'gallery' && (
-            <Badge variant="outline" className="bg-blue-100 text-blue-800 border-blue-300 dark:bg-blue-900/30 dark:text-blue-300 dark:border-blue-700">
-              Past Adventure
-            </Badge>
-          )}
-
-          {/* Difficulty badge removed from overlay - now in meta section */}
+          {/* Past adventure indicator for gallery type - not used in events */}
         </div>
       </div>
 
       {/* Content Section */}
       <div className="mobile-trek-card-content">
-        {/* Title */}
-        <h3 className="mobile-trek-card-title">
+        {/* Title - moved below image */}
+        <h3 className="mobile-trek-card-title text-base font-bold text-gray-900 dark:text-white mb-2 truncate">
           {trek.name}
         </h3>
 
-        {/* Meta Information */}
+        {/* Category badge - horizontal */}
+        {trek.category && (
+          <div className="mb-3">
+            <Badge variant="outline" className="text-xs">
+              {trek.category.charAt(0).toUpperCase() + trek.category.slice(1)}
+            </Badge>
+          </div>
+        )}
+
+        {/* Meta Information with Difficulty Icon */}
         <div className="mobile-trek-card-meta">
           {trek.location && (
             <div className="flex items-center gap-1">
@@ -176,44 +168,33 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
           </p>
         )}
 
-        {/* Progress Bar (for events only) */}
-        {showProgress && type === 'event' && maxParticipants > 0 && (
-          <div className="mobile-trek-card-progress">
-            <div className="flex justify-between items-center text-xs mb-1">
-              <div className="flex items-center gap-1">
-                <Users className="w-3 h-3" />
-                <span>{participantCount} / {maxParticipants}</span>
-              </div>
-              <span className="text-gray-500 dark:text-gray-500">
-                {availableSpots} spots left
-              </span>
+        {/* Spots Left Counter - consistently positioned above footer */}
+        {showProgress && maxParticipants > 0 && (
+          <div className="flex justify-between items-center text-sm font-medium mb-2">
+            <div className="flex items-center gap-1">
+              <Users className="w-4 h-4" />
+              <span>{participantCount} / {maxParticipants}</span>
             </div>
-            <Progress value={spotsFillPercent} className="h-1.5" />
+            <span className="text-gray-600 dark:text-gray-400">
+              {availableSpots} spots left
+            </span>
           </div>
         )}
 
         {/* Footer */}
         <div className="mobile-trek-card-footer">
-          {type === 'event' ? (
-            <div className="flex items-center gap-1 font-bold text-lg text-primary">
-              <IndianRupee className="w-4 h-4" />
-              {price.toLocaleString('en-IN')}
-            </div>
-          ) : null}
+          <div className="flex items-center gap-1 font-bold text-lg text-primary">
+            <IndianRupee className="w-4 h-4" />
+            {price.toLocaleString('en-IN')}
+          </div>
 
-          {type === 'event' ? (
-            <Button size="sm" variant="default">
-              View Details
-            </Button>
-          ) : (
-            <Button size="sm" variant="outline">
-              View Gallery
-            </Button>
-          )}
+          <Button size="sm" variant="default">
+            View Details
+          </Button>
         </div>
       </div>
     </div>
   );
 };
 
-export default StandardizedTrekCard;
+export default EventCard;

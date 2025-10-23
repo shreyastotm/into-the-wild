@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { TrekEventsList, TrekEvent as TrekEventListItem } from '@/components/trek/TrekEventsList';
 import { TrekFilters, FilterOptions } from '@/components/trek/TrekFilters';
 import { NoTreksFound } from '@/components/trek/NoTreksFound';
-import { HorizontalTrekScroll } from '@/components/trek/HorizontalTrekScroll';
+import { EventCard } from '@/components/trek/EventCard';
 import { supabase } from '@/integrations/supabase/client';
 import { addMonths, startOfWeek, endOfWeek, startOfMonth, endOfMonth } from 'date-fns';
 import { toast } from '@/components/ui/use-toast';
@@ -91,7 +91,7 @@ const TrekEvents = () => {
       setLoading(true);
       
       // Select with aliasing: 'name' as 'trek_name', 'base_price' as 'cost' - include event_type
-      const selectString = 'trek_id,name,description,category,base_price,start_datetime,max_participants,image_url,image,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type';
+      const selectString = 'trek_id,name,description,category,difficulty,base_price,start_datetime,max_participants,image_url,image,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type';
       let query = supabase.from('trek_events').select(selectString);
 
       // Filter out only CANCELLED events - show Draft events for public viewing
@@ -278,14 +278,31 @@ const TrekEvents = () => {
           </MobileGrid>
         ) : events.length > 0 ? (
           <>
-            {/* Mobile: Horizontal scroll */}
+            {/* Mobile: Event cards in grid */}
             {isMobile ? (
-              <HorizontalTrekScroll
-                treks={events}
-                onTrekClick={(id) => navigate(`/trek-events/${id}`)}
-                showProgress={true}
-                type="event"
-              />
+              <MobileGrid>
+                {events.map((event) => (
+                  <EventCard
+                    key={event.trek_id}
+                    trek={{
+                      trek_id: event.trek_id,
+                      name: event.trek_name,
+                      description: event.description,
+                      location: event.location?.name || null,
+                      start_datetime: event.start_datetime,
+                      difficulty: event.difficulty,
+                      duration: event.duration,
+                      cost: event.cost,
+                      max_participants: event.max_participants,
+                      participant_count: event.participant_count,
+                      image_url: event.image_url,
+                      category: event.category,
+                    }}
+                    onClick={() => navigate(`/trek-events/${event.trek_id}`)}
+                    showProgress={true}
+                  />
+                ))}
+              </MobileGrid>
             ) : (
               /* Desktop: Grid layout */
               <TrekEventsList treks={events} />

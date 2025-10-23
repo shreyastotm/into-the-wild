@@ -1,4 +1,6 @@
 export { StandardizedTrekCard } from './StandardizedTrekCard';
+export { EventCard } from './EventCard';
+export { GalleryCard } from './GalleryCard';
 export { HorizontalTrekScroll } from './HorizontalTrekScroll';
 export { default as TrekCard } from './TrekCard';
 export { default as TrekCardBase } from './TrekCardBase';
