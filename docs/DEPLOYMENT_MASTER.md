@@ -147,6 +147,19 @@ should NOT have additional property `nodeVersion`
 ```
 **Solution**: Remove `nodeVersion` from vercel.json and use `engines` field in package.json instead.
 
+#### React chunking issues
+```
+Uncaught TypeError: Cannot read properties of undefined (reading 'useLayoutEffect')
+```
+**Solution**: Ensure React and React-DOM are bundled in the same chunk:
+```typescript
+// In vite.config.ts manualChunks
+if (id.includes('react') || id.includes('react-dom') || 
+    id.includes('scheduler') || id.includes('prop-types')) {
+  return 'vendor-react';
+}
+```
+
 ### Runtime Errors
 
 #### API connection issues
