@@ -29,3 +29,10 @@ alwaysApply: true
 ✅ **REQUIRED:** No `any` types allowed - use proper interfaces
 ✅ **REQUIRED:** Generic types for reusable components
 ✅ **REQUIRED:** Proper error type definitions and handling
+
+## 1.5 Deployment Configuration Standards
+✅ **REQUIRED:** Use Node.js 22.x (LTS) in production
+✅ **REQUIRED:** Install terser as dev dependency for Vite production builds
+✅ **REQUIRED:** Use `engines` field in package.json for Node.js version (not vercel.json)
+✅ **REQUIRED:** Environment variables must be prefixed with `VITE_` for frontend
+✅ **REQUIRED:** All build dependencies must be explicitly installed before deployment

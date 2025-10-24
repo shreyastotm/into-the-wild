@@ -18,7 +18,7 @@ This consolidated guide covers all aspects of deploying the Into The Wild applic
 ### 1. Pre-Deployment Preparation
 
 ```bash
-# Clean install dependencies
+# Clean install dependencies (including optional dependencies)
 npm ci
 
 # Run type checking
@@ -32,6 +32,15 @@ npm run build
 
 # Verify the build output
 npm run preview
+```
+
+#### Dependency Requirements
+The project uses the following optional dependencies for production builds:
+- **terser**: JavaScript minifier (required for Vite production builds)
+
+If you encounter "terser not found" errors, install it:
+```bash
+npm install --save-dev terser
 ```
 
 ### 2. Environment Variables Setup
@@ -109,6 +118,34 @@ FATAL ERROR: Reached heap limit
 ReferenceError: process is not defined
 ```
 **Solution**: Ensure variables are prefixed with `VITE_` and accessed via `import.meta.env.VITE_...`.
+
+#### Terser not found
+```
+[vite:terser] terser not found. Since Vite v3, terser has become an optional dependency.
+```
+**Solution**: Install terser as a dev dependency:
+```bash
+npm install --save-dev terser
+```
+
+#### Node.js version issues
+```
+Error: Node.js Version "18.x" is discontinued and must be upgraded
+```
+**Solution**: Update Node.js version in package.json:
+```json
+{
+  "engines": {
+    "node": "22.x"
+  }
+}
+```
+
+#### Vercel schema validation
+```
+should NOT have additional property `nodeVersion`
+```
+**Solution**: Remove `nodeVersion` from vercel.json and use `engines` field in package.json instead.
 
 ### Runtime Errors
 
