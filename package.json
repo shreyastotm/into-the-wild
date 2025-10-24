@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.4.2",
   "type": "module",
+  "engines": {
+    "node": "18.x"
+  },
   "scripts": {
     "dev": "vite",
     "build": "npm run type-check && npm run lint && vite build",
