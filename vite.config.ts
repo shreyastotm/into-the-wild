@@ -30,15 +30,28 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         // Implement code splitting with manual chunks
-        manualChunks: {
-          // Bundle React ecosystem together - CRITICAL for proper functionality
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          // Supabase
-          'vendor-supabase': ['@supabase/supabase-js'],
-          // UI libraries
-          'vendor-ui': ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
-          // Date utilities
-          'vendor-date': ['date-fns', 'date-fns-tz'],
+        manualChunks: (id) => {
+          if (id.includes('node_modules')) {
+            // Bundle ALL React-related packages together - CRITICAL
+            if (id.includes('react') || id.includes('react-dom') || 
+                id.includes('react-router') || id.includes('scheduler')) {
+              return 'vendor-react';
+            }
+            // Supabase
+            if (id.includes('@supabase')) {
+              return 'vendor-supabase';
+            }
+            // Large UI libraries
+            if (id.includes('lucide') || id.includes('@radix-ui')) {
+              return 'vendor-ui';
+            }
+            // Date utilities
+            if (id.includes('date-fns')) {
+              return 'vendor-date';
+            }
+            // Everything else
+            return 'vendor';
+          }
         },
         // Force new asset names with content hash for better caching
         entryFileNames: `assets/[name]-[hash]-v4.js`,
