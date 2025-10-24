@@ -20,7 +20,6 @@ import {
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useCallback } from "react";
-import React from "react";
 
 
 interface TrekRegistration {

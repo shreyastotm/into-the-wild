@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useHaptic } from '@/hooks/use-haptic';
 import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
 
 interface StaticBottomButtonProps {
   onClick?: () => void;

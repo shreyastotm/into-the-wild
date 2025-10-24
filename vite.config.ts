@@ -34,9 +34,9 @@ export default defineConfig(({ mode }) => ({
       output: {
         // Let Vite handle automatic code splitting
         // This prevents cross-chunk dependency issues
-        entryFileNames: `assets/entry-[name]-[hash]-v6.js`,
-        chunkFileNames: `assets/chunk-[name]-[hash]-v6.js`,
-        assetFileNames: `assets/asset-[name]-[hash]-v6.[ext]`,
+        entryFileNames: `assets/entry-[name]-[hash]-v7.js`,
+        chunkFileNames: `assets/chunk-[name]-[hash]-v7.js`,
+        assetFileNames: `assets/asset-[name]-[hash]-v7.[ext]`,
       },
     },
   },
