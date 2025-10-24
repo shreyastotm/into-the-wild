@@ -30,47 +30,20 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       output: {
         // Implement code splitting with manual chunks
-        manualChunks: (id) => {
-          // Split vendor chunks
-          if (id.includes('node_modules')) {
-            // Keep React and React-DOM together - CRITICAL for proper functionality
-            if (id.includes('react') || id.includes('react-dom') || 
-                id.includes('scheduler') || id.includes('prop-types')) {
-              return 'vendor-react';
-            }
-            if (id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-            if (id.includes('lucide') || id.includes('radix') || id.includes('shadcn')) {
-              return 'vendor-ui';
-            }
-            if (id.includes('date-fns')) {
-              return 'vendor-date-fns';
-            }
-            return 'vendor';
-          }
-          
-          // Split app code by feature
-          if (id.includes('/components/admin/')) {
-            return 'admin';
-          }
-          if (id.includes('/components/trek/')) {
-            return 'trek';
-          }
-          if (id.includes('/components/profile/')) {
-            return 'profile';
-          }
-          if (id.includes('/pages/forum/')) {
-            return 'forum';
-          }
-          if (id.includes('/components/auth/')) {
-            return 'auth';
-          }
+        manualChunks: {
+          // Bundle React ecosystem together - CRITICAL for proper functionality
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
+          // Supabase
+          'vendor-supabase': ['@supabase/supabase-js'],
+          // UI libraries
+          'vendor-ui': ['lucide-react', '@radix-ui/react-dialog', '@radix-ui/react-dropdown-menu'],
+          // Date utilities
+          'vendor-date': ['date-fns', 'date-fns-tz'],
         },
         // Force new asset names with content hash for better caching
-        entryFileNames: `assets/[name]-[hash]-v3.js`,
-        chunkFileNames: `assets/[name]-[hash]-v3.js`,
-        assetFileNames: `assets/[name]-[hash]-v3.[ext]`,
+        entryFileNames: `assets/[name]-[hash]-v4.js`,
+        chunkFileNames: `assets/[name]-[hash]-v4.js`,
+        assetFileNames: `assets/[name]-[hash]-v4.[ext]`,
       },
     },
   },
