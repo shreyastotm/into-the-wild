@@ -66,10 +66,13 @@ export default function ImageModeration() {
       setTotalCount(count || 0);
 
       // Then get paginated results with trek and user details
-      const { data, error } = await supabase.from('user_trek_images').select('*') as any,
+      const { data, error } = await supabase
+        .from("user_trek_images")
+        .select(`
+          *,
+          trek_events(name),
           users!user_trek_images_uploaded_by_fkey(full_name)
-        `,
-        )
+        `)
         .eq("status", activeTab)
         .order("created_at", { ascending: false })
         .range(from, to);

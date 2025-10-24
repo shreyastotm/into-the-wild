@@ -57,10 +57,13 @@ export const TentRequestsAdmin: React.FC<TentRequestsAdminProps> = ({
     try {
       setLoading(true);
 
-      const { data, error } = await supabase.from('tent_requests').select('*') as any,
-          user:profiles(id, full_name, email)
-        `,
-        )
+      const { data, error } = await supabase
+        .from("tent_requests")
+        .select(`
+          *,
+          user:profiles(id, full_name, email),
+          tent_type:tent_types(*)
+        `)
         .eq("event_id", eventId)
         .order("created_at", { ascending: false });
 

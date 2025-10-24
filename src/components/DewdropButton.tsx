@@ -178,7 +178,7 @@ export const DewdropButton = ({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
-      onPointerCancel={() = data-testid="dewdropbutton"> {
+      onPointerCancel={() => {
         setIsDragging(false);
         setIsPressed(false);
       }}
@@ -197,7 +197,7 @@ export const DewdropButton = ({
         style={{
           borderRadius: "30% 70% 70% 30% / 30% 30% 70% 70%", // Organic shape
         }}
-       data-testid="dewdropbutton">
+      >
         {/* Rainbow Refraction Edge */}
         <div
           className={cn(
@@ -206,7 +206,7 @@ export const DewdropButton = ({
             "dark:from-pink-400/30 dark:via-blue-400/30 dark:to-yellow-400/30",
             "mix-blend-overlay",
           )}
-        / data-testid="dewdropbutton">
+        />
 
         {/* Golden Hour Shimmer */}
         <div
@@ -220,7 +220,7 @@ export const DewdropButton = ({
             backgroundPosition: "-200% center",
             animation: "shimmer 3s ease-in-out infinite",
           }}
-        / data-testid="dewdropbutton">
+        />
 
         {/* Inner Glow */}
         <div
@@ -230,10 +230,10 @@ export const DewdropButton = ({
             "opacity-60 group-hover:opacity-80 transition-opacity",
             isStatic && "transition-none"
           )}
-        / data-testid="dewdropbutton">
+        />
 
         {/* Content */}
-        <div className="relative z-10 p-6" data-testid="dewdropbutton">{children}</div>
+        <div className="relative z-10 p-6">{children}</div>
 
         {/* Ripple Effects */}
         {ripples.map((ripple) => (
@@ -249,7 +249,7 @@ export const DewdropButton = ({
                 "radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%)",
               animation: "ripple-expand 1s ease-out forwards",
             }}
-          / data-testid="dewdropbutton">
+          />
         ))}
       </div>
 
@@ -299,7 +299,7 @@ export const DewdropButton = ({
 
       {/* Drag Indicator */}
       {!isStatic && draggable && isDragging && (
-        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm whitespace-nowrap" data-testid="dewdropbutton">
+        <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 text-white text-sm font-medium bg-black/50 px-3 py-1 rounded-full backdrop-blur-sm whitespace-nowrap">
           Release to place
         </div>
       )}

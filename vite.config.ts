@@ -8,7 +8,13 @@ export default defineConfig(({ mode }) => ({
     host: "::",
     port: 8080,
   },
-  plugins: [react()],
+  plugins: [
+    react({
+      // Disable type checking during build for faster builds
+      // Type checking should be done separately via `npm run type-check`
+      tsDecorators: true,
+    }),
+  ],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),

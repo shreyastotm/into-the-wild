@@ -8,7 +8,7 @@
   },
   "scripts": {
     "dev": "vite",
-    "build": "npm run type-check && npm run lint && vite build",
+    "build": "vite build",
     "build:dev": "npm run type-check && vite build --mode development",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

@@ -88,11 +88,11 @@ export default function AdminTrekDetails() {
 
   const fetchTrekDetails = async (id: number) => {
     try {
-      const { datatrek_events } = await supabase
-        .from('"*"')
-        .select($3)
+      const { data, error } = await supabase
+        .from("trek_events")
+        .select("*")
         .eq("trek_id", id)
-        .single() as any;
+        .single();
 
       if (error) throw error;
 
@@ -135,13 +135,11 @@ export default function AdminTrekDetails() {
       // First fetch registrations
       let registrationsData: Array<Record<string, unknown>> = [];
       try {
-        const { datatrek_registrations } = await supabase
-        .from('
-            "registration_id, user_id, booking_datetime, payment_status, payment_proof_url, indemnity_agreed_at",
-          ')
-        .select($3)
+        const { data, error } = await supabase
+          .from("trek_registrations")
+          .select("registration_id, user_id, booking_datetime, payment_status, payment_proof_url, indemnity_agreed_at")
         .eq("trek_id", id)
-        .order("booking_datetime", { ascending: false }) as any;
+          .order("booking_datetime", { ascending: false });
 
         if (!error && data) {
           registrationsData = data;
@@ -179,10 +177,10 @@ export default function AdminTrekDetails() {
       // Fetch user details
       let usersData: Array<Record<string, unknown>> = [];
       try {
-        const { datausers } = await supabase
-        .from('"user_id, full_name, name, email, phone_number"')
-        .select($3)
-        .in("user_id", userIds) as any;
+        const { data, error } = await supabase
+          .from("profiles")
+          .select("user_id, full_name, name, email, phone_number")
+          .in("user_id", userIds);
 
         if (!error && data) {
           usersData = data;
@@ -382,7 +380,7 @@ export default function AdminTrekDetails() {
               <TabsTrigger value="discussion">
                 <Users className="h-4 w-4 mr-2" /> Discussion
               </TabsTrigger>
-              {trekEvent.event_type === "camping" && (
+            {trek.event_type === "camping" && (
                 <TabsTrigger value="tent-requests">
                   <Tent className="h-4 w-4 mr-2" /> Tent Requests
                 </TabsTrigger>
@@ -602,9 +600,9 @@ export default function AdminTrekDetails() {
               </Card>
             </TabsContent>
 
-            {trekEvent.event_type === "camping" && (
+            {trek.event_type === "camping" && (
               <TabsContent value="tent-requests">
-                <TentRequestsAdmin eventId={trekEvent.trek_id} />
+                <TentRequestsAdmin eventId={trek.trek_id} />
               </TabsContent>
             )}
           </Tabs>

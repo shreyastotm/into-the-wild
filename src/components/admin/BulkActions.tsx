@@ -85,7 +85,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({
           disabled={action.loading || (action.disabled && action.disabled([]))}
         >
           {action.loading ? (
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" / data-testid="bulkactions">
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
           ) : (
             action.icon
           )}
@@ -162,7 +162,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({
             }
           >
             {action.loading ? (
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" / data-testid="bulkactions">
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
             ) : (
               action.icon
             )}
@@ -189,7 +189,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({
               }
             >
               {action.loading ? (
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" / data-testid="bulkactions">
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current" />
               ) : (
                 action.icon
               )}
