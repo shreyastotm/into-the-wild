@@ -23,6 +23,8 @@ import { formatCurrency } from "@/lib/utils";
 import { Loader2, Plus, Trash2 } from "lucide-react";
 import { TrekCost, TrekCostType } from "@/integrations/supabase/types";
 import { useCallback } from "react";
+import React from "react";
+
 
 interface TrekCostsManagerProps {
   trekId: number;

@@ -32,12 +32,12 @@ const Layout = ({ children }: LayoutProps) => {
         </div>
       )}
 
-      {/* Floating Hamburger - Always visible on mobile (no header bar) */}
-      <MobileHamburger />
+      {/* Header - Desktop navigation */}
+      <Header />
 
-      {/* Desktop Header - Show on all pages */}
-      <div className="hidden md:block">
-        <Header />
+      {/* Mobile Floating Hamburger - Only on mobile */}
+      <div className="md:hidden">
+      <MobileHamburger />
       </div>
 
       {/* Main Content - Pages handle their own padding for mobile native feel */}

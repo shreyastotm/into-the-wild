@@ -603,16 +603,16 @@ const TrekEventsAdmin = () => {
       if (eventToEdit?.trek_id) {
         trekIdToUpdate = eventToEdit.trek_id;
         const { error: trekError } = await supabase
-        .from("trek_events")
-        .update(sanitizedTrekData)
+          .from("trek_events")
+          .update(sanitizedTrekData)
         .eq("trek_id", trekIdToUpdate) as any;
         if (trekError)
           throw new Error(`Failed to update trek: ${trekError.message}`);
       } else {
         const { data: newTrek, error: trekError } = await supabase
-        .from("trek_events")
-        .insert(sanitizedTrekData)
-        .select("trek_id")
+          .from("trek_events")
+          .insert(sanitizedTrekData)
+          .select("trek_id")
         .single() as any;
         if (trekError)
           throw new Error(`Failed to create trek: ${trekError.message}`);
@@ -641,7 +641,7 @@ const TrekEventsAdmin = () => {
           mandatory: item.mandatory,
         }));
         const { error: assignmentError } = await supabase
-        .from("trek_packing_list_assignments")
+          .from("trek_packing_list_assignments")
         .insert(assignments) as any;
         if (assignmentError) {
           console.error(
@@ -672,7 +672,7 @@ const TrekEventsAdmin = () => {
             file_url: cost.file_url,
           }));
         const { error: costError } = await supabase
-        .from("trek_costs")
+          .from("trek_costs")
         .insert(costsToInsert) as any;
         if (costError)
           throw new Error(`Failed to save costs: ${costError.message}`);
@@ -686,8 +686,8 @@ const TrekEventsAdmin = () => {
       ) {
         // Clear existing tent inventory for this event
         await supabase
-        .from("tent_inventory")
-        .delete()
+          .from("tent_inventory")
+          .delete()
         .eq("event_id", trekIdToUpdate) as any;
 
         // Insert new tent inventory
@@ -702,7 +702,7 @@ const TrekEventsAdmin = () => {
 
         if (tentInventoryToInsert.length > 0) {
           const { error: tentError } = await supabase
-        .from("tent_inventory")
+            .from("tent_inventory")
         .insert(tentInventoryToInsert) as any;
           if (tentError)
             throw new Error(

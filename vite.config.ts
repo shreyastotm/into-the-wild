@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-   build: {
+  build: {
     sourcemap: mode === 'development',
     minify: 'terser',
     terserOptions: {
