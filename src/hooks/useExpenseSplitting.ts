@@ -444,7 +444,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
     try {
       const { datatrek_expense_categories } = await supabase
         .from('"id, name, icon"')
-        .select($3)
+        .select("*")
         .order("name") as any;
 
       if (error) throw error;

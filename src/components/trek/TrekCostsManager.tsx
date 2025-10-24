@@ -47,9 +47,9 @@ export default function TrekCostsManager({
 
   const fetchCosts = useCallback(async () => {
     try {
-      const { datatrek_costs } = await supabase
+      const { data } = await supabase
         .from('"*"')
-        .select($3)
+        .select("*")
         .eq("trek_id", trekId)
         .order("created_at", { ascending: true }) as any;
 

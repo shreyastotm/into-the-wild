@@ -71,7 +71,7 @@ export function useTrekEventDetails(trek_id: string | undefined) {
 
       const { datatrek_events } = await supabase
         .from('"*"')
-        .select($3)
+        .select("*")
         .eq("trek_id", trek_id)
         .single() as any;
 

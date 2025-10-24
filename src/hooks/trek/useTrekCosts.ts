@@ -22,9 +22,9 @@ export function useTrekCosts(trekId: string | number | undefined) {
           throw new Error("Invalid Trek ID provided.");
         }
 
-        const { datatrek_costs } = await supabase
+        const { data } = await supabase
         .from('"*"')
-        .select($3)
+        .select("*")
         .eq("trek_id", numericTrekId) as any;
 
         if (error) {

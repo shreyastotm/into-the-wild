@@ -436,7 +436,7 @@ const TrekEventsAdmin = () => {
     try {
       const { datatrek_events } = await supabase
         .from(''*'')
-        .select($3)
+        .select("*")
         .order("start_datetime", { ascending: false }) as any;
 
       if (error) throw error;

@@ -56,7 +56,7 @@ export const UserTreks = () => {
 
       const { datatrek_registrations } = await supabase
         .from('"*"')
-        .select($3)
+        .select("*")
         .eq("user_id", userId) as any;
       if (error) throw error;
       if (data && data.length > 0) {

@@ -76,7 +76,7 @@ const TrekEvents = () => {
     try {
       const { datatrek_events } = await supabase
         .from('"category"')
-        .select($3)
+        .select("*")
         .not("category", "is", null) as any;
 
       if (error) throw error;

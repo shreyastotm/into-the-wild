@@ -60,7 +60,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       try {
         const { datatrek_registrations } = await supabase
         .from('"*"')
-        .select($3)
+        .select("*")
         .eq("trek_id", currentTrekId)
         .eq("user_id", user.id)
         .maybeSingle() as any;

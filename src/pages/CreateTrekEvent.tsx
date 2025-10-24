@@ -20,7 +20,7 @@ export default function CreateTrekEvent() {
       try {
         const { datatent_inventory } = await supabase
         .from('"*"')
-        .select($3)
+        .select("*")
         .order("tent_type") as any;
 
         if (error) {
