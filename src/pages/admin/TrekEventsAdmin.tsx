@@ -434,8 +434,8 @@ const TrekEventsAdmin = () => {
 
   const handleExportEvents = async () => {
     try {
-      const { datatrek_events } = await supabase
-        .from(''*'')
+      const { data, error } = await supabase
+        .from("trek_events")
         .select("*")
         .order("start_datetime", { ascending: false }) as any;
 

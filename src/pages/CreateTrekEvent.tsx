@@ -18,8 +18,8 @@ export default function CreateTrekEvent() {
   useEffect(() => {
     const fetchTentInventory = async () => {
       try {
-        const { datatent_inventory } = await supabase
-        .from('"*"')
+        const { data, error } = await supabase
+        .from("tent_inventory")
         .select("*")
         .order("tent_type") as any;
 

@@ -44,7 +44,7 @@ export default function RegistrationAdmin() {
 
   async function fetchRegistrations() {
     setLoading(true);
-    const { datatrek_registrations } = await supabase.from(''*'').select("*") as any;
+    const { data, error } = await supabase.from("trek_registrations").select("*") as any;
     // Add filtering/pagination as needed
 
     if (error) {

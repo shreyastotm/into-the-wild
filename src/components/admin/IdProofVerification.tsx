@@ -63,8 +63,8 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
 
   const loadIdTypes = async () => {
     try {
-      const { dataid_types } = await supabase
-        .from(''*'')
+      const { data, error } = await supabase
+        .from("id_types")
         .select("*")
         .eq("is_active", true)
         .order("display_name") as any;

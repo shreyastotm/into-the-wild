@@ -72,8 +72,8 @@ export function useTrekRatings(trekId: string | undefined) {
     setLoading(true);
     try {
       // Fetch all ratings
-      const { datatrek_ratings } = await supabase
-        .from('"*"')
+      const { data, error } = await supabase
+        .from("trek_ratings")
         .select("*")
         .eq("trek_id", trekId) as any;
 
@@ -153,8 +153,8 @@ export function useTrekRatings(trekId: string | undefined) {
 
     try {
       // Fetch ratings given by the current user
-      const { datatrek_participant_ratings } = await supabase
-        .from('"*"')
+      const { data, error } = await supabase
+        .from("trek_ratings")
         .select("*")
         .eq("trek_id", trekId)
         .eq("rated_by_user_id", user.id) as any;

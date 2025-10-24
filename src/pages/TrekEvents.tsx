@@ -74,8 +74,8 @@ const TrekEvents = () => {
 
   const fetchCategories = async () => {
     try {
-      const { datatrek_events } = await supabase
-        .from('"category"')
+      const { data, error } = await supabase
+        .from("trek_events")
         .select("*")
         .not("category", "is", null) as any;
 

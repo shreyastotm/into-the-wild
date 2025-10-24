@@ -443,7 +443,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
   const fetchExpenseCategories = async () => {
     try {
       const { datatrek_expense_categories } = await supabase
-        .from('"id, name, icon"')
+        .from("packing_list_categories")
         .select("*")
         .order("name") as any;
 

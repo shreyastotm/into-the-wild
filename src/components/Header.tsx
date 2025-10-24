@@ -131,7 +131,7 @@ const Header = () => {
                     <ThemeToggle />
                     <Link
                       to="/auth"
-                      className="bg-primary hover:bg-primary-hover text-primary-foreground px-4 py-2 rounded-lg transition-colors shadow-md hover:shadow-lg"
+                      className="bg-primary hover:bg-primary/90 text-primary-foreground px-4 py-2 rounded-lg transition-all duration-200 shadow-md hover:shadow-lg hover:scale-105 font-medium"
                     >
                       Sign In
                     </Link>
@@ -146,7 +146,7 @@ const Header = () => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-gray-600 hover:text-gray-900"
+                    className="text-gray-600 hover:text-gray-900 dark:text-gray-300 dark:hover:text-white"
                   >
                     <Menu className="h-6 w-6" />
                     <span className="sr-only">Open menu</span>

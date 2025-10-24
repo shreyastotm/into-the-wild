@@ -23,7 +23,7 @@ export function useTrekCosts(trekId: string | number | undefined) {
         }
 
         const { data } = await supabase
-        .from('"*"')
+        .from("trek_costs")
         .select("*")
         .eq("trek_id", numericTrekId) as any;
 

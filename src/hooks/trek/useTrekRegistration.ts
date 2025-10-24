@@ -58,8 +58,8 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       if (!user) return;
 
       try {
-        const { datatrek_registrations } = await supabase
-        .from('"*"')
+        const { data, error } = await supabase
+        .from("trek_registrations")
         .select("*")
         .eq("trek_id", currentTrekId)
         .eq("user_id", user.id)

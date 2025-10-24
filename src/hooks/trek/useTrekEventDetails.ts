@@ -69,8 +69,8 @@ export function useTrekEventDetails(trek_id: string | undefined) {
     try {
       setLoading(true);
 
-      const { datatrek_events } = await supabase
-        .from('"*"')
+      const { data, error } = await supabase
+        .from("trek_events")
         .select("*")
         .eq("trek_id", trek_id)
         .single() as any;
