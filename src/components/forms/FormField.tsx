@@ -22,6 +22,8 @@ import { CalendarIcon, AlertCircle, HelpCircle } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 
+import React, { Component } from "react";
+
 export interface FormFieldProps {
   label: string;
   name: string;

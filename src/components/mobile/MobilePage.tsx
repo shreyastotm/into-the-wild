@@ -1,5 +1,7 @@
 import { cn } from "@/lib/utils";
 
+import React, { Component } from "react";
+
 interface MobilePageProps {
   children: React.ReactNode;
   className?: string;

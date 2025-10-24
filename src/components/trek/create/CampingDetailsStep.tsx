@@ -7,6 +7,8 @@ import { PlusCircle, Trash2, Clock, Users, Tent } from "lucide-react";
 import { StepProps } from "./types";
 import { useCallback } from "react";
 
+import React, { useState, useEffect } from "react";
+
 interface CampingDetailsStepProps extends StepProps {
   isLoadingExistingData?: boolean;
 }

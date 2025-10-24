@@ -20,6 +20,8 @@ import {
 import DataTable, { Column } from "@/components/ui/DataTable";
 import { format } from "date-fns";
 
+import React, { Component } from "react";
+
 export interface AdminTableAction {
   label: string;
   icon?: React.ReactNode;

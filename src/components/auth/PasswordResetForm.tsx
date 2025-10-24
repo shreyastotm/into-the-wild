@@ -3,6 +3,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthFormErrors } from "@/types/auth";
 
+import React, { Component } from "react";
+
 interface PasswordResetFormProps {
   email: string;
   loading: boolean;

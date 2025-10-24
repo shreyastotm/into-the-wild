@@ -1,5 +1,7 @@
 import TrekFiltersBase from "./TrekFiltersBase";
 
+import React, { Component } from "react";
+
 export interface FilterOptions {
   search: string;
   category: string;

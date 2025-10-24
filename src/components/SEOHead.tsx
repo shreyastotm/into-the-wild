@@ -1,5 +1,7 @@
 import { Helmet } from "react-helmet-async";
 
+import React, { Component } from "react";
+
 interface SEOHeadProps {
   title?: string;
   description?: string;

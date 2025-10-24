@@ -1,6 +1,8 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "./auth/AuthProvider";
 
+import React, { Component } from "react";
+
 interface ProtectedRouteProps {
   isAdminRoute?: boolean;
 }

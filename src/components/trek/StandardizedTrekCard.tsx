@@ -14,6 +14,8 @@ import {
 } from "lucide-react";
 import { format } from "date-fns";
 
+import React, { Component } from "react";
+
 interface StandardizedTrekCardProps {
   trek: {
     trek_id: number;

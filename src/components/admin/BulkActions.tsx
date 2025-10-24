@@ -7,7 +7,10 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import {
+import React, { Component } from "react";
+
+import React, { Component } from "react";
+
   Checkbox,
   ChevronDown,
   Trash2,

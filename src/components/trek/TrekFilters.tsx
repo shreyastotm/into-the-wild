@@ -1,5 +1,7 @@
 import { FilterBar, FilterOption, SortOption } from "@/components/ui/FilterBar";
 
+import React, { Component } from "react";
+
 export interface FilterOptions {
   search: string;
   category: string;

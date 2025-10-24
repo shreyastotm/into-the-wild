@@ -4,6 +4,8 @@ import { AdHocExpense, FixedExpense } from "@/hooks/useExpenses";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Wallet, ArrowDownRight, ArrowUpRight } from "lucide-react";
 
+import React, { Component } from "react";
+
 interface ExpenseSummaryProps {
   fixedExpenses: FixedExpense[];
   adHocExpenses: AdHocExpense[];

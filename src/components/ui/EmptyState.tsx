@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { LucideIcon } from "lucide-react";
 
+import React, { Component } from "react";
+
 export interface EmptyStateProps {
   title: string;
   description: string;

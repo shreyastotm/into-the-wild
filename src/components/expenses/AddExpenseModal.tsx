@@ -13,6 +13,8 @@ import {
 } from "@/hooks/useExpenseSplitting";
 import { Loader2 } from "lucide-react";
 
+import React, { Component } from "react";
+
 interface AddExpenseModalProps {
   open: boolean;
   onClose: () => void;

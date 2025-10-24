@@ -2,6 +2,8 @@ import { TrekFormWizard } from "./create/TrekFormWizard";
 import { AdminTrekEvent, FormSubmissionData } from "./create/types";
 import { TentInventory } from "@/types/trek";
 
+import React, { Component } from "react";
+
 interface CreateTrekMultiStepFormProps {
   trekToEdit?: AdminTrekEvent;
   onFormSubmit: (data: FormSubmissionData) => Promise<void>;

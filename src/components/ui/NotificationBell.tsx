@@ -2,6 +2,8 @@ import { Bell, BellRing } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
+import React, { Component } from "react";
+
 interface NotificationBellProps {
   unreadCount: number;
   onClick: () => void;

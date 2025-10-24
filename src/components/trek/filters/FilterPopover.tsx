@@ -15,6 +15,8 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { FilterOptions } from "../TrekFilters";
 
+import React, { Component } from "react";
+
 interface FilterPopoverProps {
   options: FilterOptions;
   onFilterChange: (key: keyof FilterOptions, value: string) => void;

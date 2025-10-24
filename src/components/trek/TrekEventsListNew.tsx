@@ -2,6 +2,8 @@ import { useNavigate } from "react-router-dom";
 import { TrekEventStatus } from "@/types/trek";
 import TrekCardBase from "./TrekCardBase";
 
+import React, { Component } from "react";
+
 // Define type for Trek Events
 export interface TrekEvent {
   trek_id: number;

@@ -15,6 +15,8 @@ import { cn } from "@/lib/utils";
 import { useHaptic } from "@/hooks/use-haptic";
 import { Badge } from "@/components/ui/badge";
 
+import React, { Component } from "react";
+
 interface TrekCardProps {
   trek: {
     id: string;

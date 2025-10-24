@@ -12,6 +12,8 @@ import {
 import { EventType } from "@/types/trek";
 import { StepProps } from "./types";
 
+import React, { Component } from "react";
+
 interface ReviewStepProps extends StepProps {
   costs: Array<{ description: string; amount: number }>;
   selectedPackingItems: Set<number>;

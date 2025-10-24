@@ -1,4 +1,6 @@
 import { sanitizeErrorMessage } from "./security";
+import React, { useState, useEffect } from "react";
+
 export interface AppError {
   message: string;
   code?: string;

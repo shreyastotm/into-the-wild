@@ -1,3 +1,5 @@
+import React, { Component } from "react";
+
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type
 interface ExpenseCardProps {
   // Empty props interface - component currently has no props

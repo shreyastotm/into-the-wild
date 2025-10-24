@@ -22,6 +22,8 @@ import {
 import { formatCurrency } from "@/lib/utils";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
+import React, { Component } from "react";
+
 interface AddExpenseFormProps {
   trekId: number;
   participants: { user_id: string; full_name: string }[];

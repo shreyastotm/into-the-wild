@@ -6,6 +6,8 @@ import { MapPin, CalendarDays, Users, IndianRupee } from "lucide-react";
 import { formatCurrency, getTrekStatusBadgeProps } from "@/lib/utils";
 import { TrekEventStatus } from "@/types/trek";
 
+import React, { Component } from "react";
+
 interface TrekEventHeaderProps {
   trekName: string;
   category: string | null;

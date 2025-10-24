@@ -1,3 +1,5 @@
+import React, { Component } from "react";
+
 interface ErrorBoundaryState {
   hasError: boolean;
   error: Error | null;

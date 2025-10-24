@@ -1,0 +1,326 @@
+[
+  {
+    "file": "src\\components\\EmptyState.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Button } from \"@/components/ui/button\";\n\ninterface EmptyStateProps {\n  title: string;\n  des..."
+  },
+  {
+    "file": "src\\components\\ErrorBoundary.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "interface ErrorBoundaryState {\n  hasError: boolean;\n  error: Error | null;\n}\n\nexport class ErrorBoun..."
+  },
+  {
+    "file": "src\\components\\LoadingScreen.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "interface LoadingScreenProps {\n  message?: string;\n}\n\nconst LoadingScreen: React.FC<LoadingScreenPro..."
+  },
+  {
+    "file": "src\\components\\ProtectedRoute.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Navigate, Outlet } from \"react-router-dom\";\nimport { useAuth } from \"./auth/AuthProvider\";\n..."
+  },
+  {
+    "file": "src\\components\\SEOHead.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Helmet } from \"react-helmet-async\";\n\ninterface SEOHeadProps {\n  title?: string;\n  descripti..."
+  },
+  {
+    "file": "src\\lib\\errorHandling.ts",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { sanitizeErrorMessage } from \"./security\";\nexport interface AppError {\n  message: string;\n  ..."
+  },
+  {
+    "file": "src\\components\\admin\\AdminTable.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { formatIndianDate } from '@/utils/indianStandards';\nimport { Button } from \"@/components/ui/..."
+  },
+  {
+    "file": "src\\components\\admin\\BulkActions.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Button } from \"@/components/ui/button\";\nimport { Badge } from \"@/components/ui/badge\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\admin\\StatusBadge.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Badge } from \"@/components/ui/badge\";\nimport {\n  CheckCircle,\n  XCircle,\n  AlertTriangle,\n ..."
+  },
+  {
+    "file": "src\\components\\auth\\AuthProvider.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import {\n  createContext,\n  useState,\n  useEffect,\n  useContext,\n  ReactNode,\n  useCallback,\n  useMe..."
+  },
+  {
+    "file": "src\\components\\auth\\PasswordResetForm.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\auth\\SignInForm.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\auth\\SignUpForm.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Button } from \"@/components/ui/button\";\nimport { Input } from \"@/components/ui/input\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\expenses\\AddExpenseForm.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { calculateGSTPrice } from '@/utils/indianStandards';\nimport React, { useState, useEffect } f..."
+  },
+  {
+    "file": "src\\components\\expenses\\AddExpenseModal.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import {\n  Dialog,\n  DialogContent,\n  DialogHeader,\n  DialogTitle,\n  DialogDescription,\n} from \"@/co..."
+  },
+  {
+    "file": "src\\components\\expenses\\ExpenseCard.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "// eslint-disable-next-line @typescript-eslint/no-empty-object-type\ninterface ExpenseCardProps {\n  /..."
+  },
+  {
+    "file": "src\\components\\expenses\\ExpenseList.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Card, CardContent, CardHeader, CardTitle } from \"@/components/ui/card\";\n\ninterface ExpenseL..."
+  },
+  {
+    "file": "src\\components\\expenses\\ExpenseSummary.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Card, CardContent, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { formatCurr..."
+  },
+  {
+    "file": "src\\components\\forms\\FormActions.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Button } from \"@/components/ui/button\";\nimport { Card, CardContent } from \"@/components/ui/..."
+  },
+  {
+    "file": "src\\components\\forms\\FormField.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Label } from \"@/components/ui/label\";\nimport { Input } from \"@/components/ui/input\";\nimport..."
+  },
+  {
+    "file": "src\\components\\forms\\FormSection.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import {\n  Card,\n  CardContent,\n  CardHeader,\n  CardTitle,\n  CardDescription,\n} from \"@/components/u..."
+  },
+  {
+    "file": "src\\components\\mobile\\MobilePage.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { cn } from \"@/lib/utils\";\n\ninterface MobilePageProps {\n  children: React.ReactNode;\n  classN..."
+  },
+  {
+    "file": "src\\components\\trek\\CreateTrekMultiStepFormNew.tsx",
+    "usesJSX": false,
+    "usesReact": true,
+    "content": "import { TrekFormWizard } from \"./create/TrekFormWizard\";\nimport { AdminTrekEvent, FormSubmissionDat..."
+  },
+  {
+    "file": "src\\components\\trek\\EventCard.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { formatIndianDate } from '@/utils/indianStandards';\nimport { Badge } from \"@/components/ui/b..."
+  },
+  {
+    "file": "src\\components\\trek\\GalleryCard.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { formatIndianDate } from '@/utils/indianStandards';\nimport { Badge } from \"@/components/ui/b..."
+  },
+  {
+    "file": "src\\components\\trek\\NoTreksFound.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "export const NoTreksFound: React.FC = () => (\n  <div>No Treks Found placeholder</div>\n);\n..."
+  },
+  {
+    "file": "src\\components\\trek\\StandardizedTrekCard.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { formatIndianDate } from '@/utils/indianStandards';\nimport { Badge } from \"@/components/ui/b..."
+  },
+  {
+    "file": "src\\components\\trek\\TentRental.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { calculateGSTPrice } from '@/utils/indianStandards';\nimport React, { useState, useEffect } f..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekCard.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Card, CardContent } from \"@/components/ui/card\";\nimport { Button } from \"@/components/ui/bu..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekCardBase.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { formatIndianDate } from '@/utils/indianStandards';\nimport {\n  Card,\n  CardContent,\n  CardFo..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekEventHeader.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { CardTitle, CardDescription } from \"@/components/ui/card\";\nimport { Badge } from \"@/componen..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekEventsList.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { useNavigate } from \"react-router-dom\";\nimport { TrekEventStatus } from \"@/types/trek\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekEventsListNew.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { useNavigate } from \"react-router-dom\";\nimport { TrekEventStatus } from \"@/types/trek\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekFilters.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { FilterBar, FilterOption, SortOption } from \"@/components/ui/FilterBar\";\n\nexport interface F..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekFiltersBase.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Input } from \"@/components/ui/input\";\nimport { Label } from \"@/components/ui/label\";\nimport..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekFiltersNew.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import TrekFiltersBase from \"./TrekFiltersBase\";\n\nexport interface FilterOptions {\n  search: string;..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekParticipants.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { User } from \"lucide-react\";\nimport { Avatar, AvatarFallback, AvatarImage } from \"@/componen..."
+  },
+  {
+    "file": "src\\components\\trek\\TrekStatusBadge.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Badge } from \"@/components/ui/badge\";\nimport {\n  Calendar,\n  CalendarCheck,\n  CalendarX,\n  ..."
+  },
+  {
+    "file": "src\\components\\trek\\UpcomingTreks.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { formatIndianDate } from '@/utils/indianStandards';\nimport React, { useEffect, useState } fr..."
+  },
+  {
+    "file": "src\\components\\ui\\carousel.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "// NOTE: Consolidated to Embla-based carousel below. Previous generic implementation removed to avoi..."
+  },
+  {
+    "file": "src\\components\\ui\\ConfirmDialog.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import {\n  AlertDialog,\n  AlertDialogAction,\n  AlertDialogCancel,\n  AlertDialogContent,\n  AlertDialo..."
+  },
+  {
+    "file": "src\\components\\ui\\EmptyState.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Button } from \"@/components/ui/button\";\nimport { Card, CardContent } from \"@/components/ui/..."
+  },
+  {
+    "file": "src\\components\\ui\\mobile-container.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { cn } from \"@/lib/utils\";\ninterface MobileContainerProps {\n  children: React.ReactNode;\n  cl..."
+  },
+  {
+    "file": "src\\components\\ui\\NotificationBell.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Bell, BellRing } from \"lucide-react\";\nimport { Button } from \"@/components/ui/button\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\ui\\resizable.tsx",
+    "usesJSX": false,
+    "usesReact": true,
+    "content": "import { GripVertical } from \"lucide-react\";\nimport * as ResizablePrimitive from \"react-resizable-pa..."
+  },
+  {
+    "file": "src\\components\\ui\\sheet.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import * as SheetPrimitive from \"@radix-ui/react-dialog\";\nimport { cva, type VariantProps } from \"cl..."
+  },
+  {
+    "file": "src\\components\\ui\\sonner.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { useTheme } from \"next-themes\";\nimport { Toaster as Sonner } from \"sonner\";\n\ntype ToasterPro..."
+  },
+  {
+    "file": "src\\components\\trek\\create\\CampingDetailsStep.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Card, CardContent, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Label } fr..."
+  },
+  {
+    "file": "src\\components\\trek\\create\\CostsStep.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { calculateGSTPrice } from '@/utils/indianStandards';\nimport React, { useState } from \"react\"..."
+  },
+  {
+    "file": "src\\components\\trek\\create\\EventTypeStep.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Card } from \"@/components/ui/card\";\nimport { Label } from \"@/components/ui/label\";\nimport {..."
+  },
+  {
+    "file": "src\\components\\trek\\create\\ReviewStep.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Card, CardContent, CardHeader, CardTitle } from \"@/components/ui/card\";\nimport { Badge } fr..."
+  },
+  {
+    "file": "src\\components\\trek\\filters\\ActiveFilters.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { Badge } from \"@/components/ui/badge\";\nimport { Button } from \"@/components/ui/button\";\nimpo..."
+  },
+  {
+    "file": "src\\components\\trek\\filters\\FilterPopover.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import {\n  Popover,\n  PopoverContent,\n  PopoverTrigger,\n} from \"@/components/ui/popover\";\nimport { B..."
+  },
+  {
+    "file": "src\\components\\trek\\filters\\SortSelect.tsx",
+    "usesJSX": true,
+    "usesReact": true,
+    "content": "import { ChevronDown } from \"lucide-react\";\nimport {\n  Select,\n  SelectContent,\n  SelectItem,\n  Sele..."
+  }
+]

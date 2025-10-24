@@ -1,4 +1,6 @@
 import { cn } from "@/lib/utils";
+import React, { Component } from "react";
+
 interface MobileContainerProps {
   children: React.ReactNode;
   className?: string;

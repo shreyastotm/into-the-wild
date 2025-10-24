@@ -35,6 +35,8 @@ import { TrekEventStatus } from "@/types/trek";
 import { getTrekStatusBadgeProps, formatCurrency } from "@/lib/utils";
 import StatusBadge from "@/components/admin/StatusBadge";
 
+import React, { Component } from "react";
+
 export interface TrekCardBaseProps {
   trek: {
     trek_id: number;

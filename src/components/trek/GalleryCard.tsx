@@ -4,6 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Calendar, MapPin, Clock, Mountain } from "lucide-react";
 import { format } from "date-fns";
 
+import React, { Component } from "react";
+
 interface GalleryCardProps {
   trek: {
     trek_id: number;

@@ -12,6 +12,8 @@ import {
 import { Button } from "@/components/ui/button";
 import { LucideIcon } from "lucide-react";
 
+import React, { Component } from "react";
+
 export interface ConfirmDialogProps {
   title: string;
   description: string;

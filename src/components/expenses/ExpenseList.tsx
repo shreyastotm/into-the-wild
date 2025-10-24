@@ -1,5 +1,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
+import React, { Component } from "react";
+
 interface ExpenseListProps {
   trekId: number;
   participants: { user_id: string; full_name: string }[];

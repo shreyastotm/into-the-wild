@@ -20,49 +20,23 @@ export default defineConfig(({ mode }) => ({
       "@": path.resolve(__dirname, "./src"),
     },
   },
-  build: {
-    // Enable source maps for development only
+   build: {
     sourcemap: mode === 'development',
-    // Minify output
     minify: 'terser',
     terserOptions: {
       compress: {
-        drop_console: mode === 'production', // Remove console.log statements in production
+        drop_console: mode === 'production',
         drop_debugger: true,
       },
     },
-    // Reduce chunk size warnings threshold
     chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
-        // Implement code splitting with manual chunks
-        manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            // Bundle ALL React-related packages together - CRITICAL
-            if (id.includes('react') || id.includes('react-dom') || 
-                id.includes('react-router') || id.includes('scheduler')) {
-              return 'vendor-react';
-            }
-            // Supabase
-            if (id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-            // Large UI libraries
-            if (id.includes('lucide') || id.includes('@radix-ui')) {
-              return 'vendor-ui';
-            }
-            // Date utilities
-            if (id.includes('date-fns')) {
-              return 'vendor-date';
-            }
-            // Everything else
-            return 'vendor';
-          }
-        },
-        // Force new asset names with content hash for better caching
-        entryFileNames: `assets/[name]-[hash]-v4.js`,
-        chunkFileNames: `assets/[name]-[hash]-v4.js`,
-        assetFileNames: `assets/[name]-[hash]-v4.[ext]`,
+        // Let Vite handle automatic code splitting
+        // This prevents cross-chunk dependency issues
+        entryFileNames: `assets/[name]-[hash].js`,
+        chunkFileNames: `assets/[name]-[hash].js`,
+        assetFileNames: `assets/[name]-[hash].[ext]`,
       },
     },
   },

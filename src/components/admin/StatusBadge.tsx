@@ -1,5 +1,8 @@
 import { Badge } from "@/components/ui/badge";
-import {
+import React, { Component } from "react";
+
+import React, { Component } from "react";
+
   CheckCircle,
   XCircle,
   AlertTriangle,

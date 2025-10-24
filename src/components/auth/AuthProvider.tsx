@@ -13,6 +13,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { UserProfile } from "@/types/user";
 import { useToast } from "@/components/ui/use-toast";
 
+import React, { Component } from "react";
+
 interface AuthContextType {
   user: User | null;
   userProfile: UserProfile | null;

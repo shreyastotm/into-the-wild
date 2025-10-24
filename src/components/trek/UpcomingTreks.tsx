@@ -11,6 +11,8 @@ import { format, formatRelative } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useCallback } from "react";
 
+import React, { Component } from "react";
+
 interface Trek {
   trek_id: number;
   name: string;

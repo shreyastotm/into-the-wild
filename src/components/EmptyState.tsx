@@ -1,5 +1,7 @@
 import { Button } from "@/components/ui/button";
 
+import React, { Component } from "react";
+
 interface EmptyStateProps {
   title: string;
   description: string;

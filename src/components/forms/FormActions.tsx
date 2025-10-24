@@ -12,6 +12,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+import React, { Component } from "react";
+
 export interface FormAction {
   label: string;
   onClick:

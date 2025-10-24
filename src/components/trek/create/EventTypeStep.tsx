@@ -4,6 +4,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EventType } from "@/types/trek";
 import { StepProps } from "./types";
 
+import React, { Component } from "react";
+
 export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
   formData,
   setFormData,

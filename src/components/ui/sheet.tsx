@@ -5,6 +5,8 @@ import * as React from "react";
 
 import { cn } from "@/lib/utils";
 
+import React, { Component } from "react";
+
 const Sheet = SheetPrimitive.Root;
 
 const SheetTrigger = SheetPrimitive.Trigger;
