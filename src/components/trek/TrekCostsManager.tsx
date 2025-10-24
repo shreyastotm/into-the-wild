@@ -49,7 +49,7 @@ export default function TrekCostsManager({
 
   const fetchCosts = useCallback(async () => {
     try {
-      const { data } = await supabase
+      const { data, error } = await supabase
         .from("trek_costs")
         .select("*")
         .eq("trek_id", trekId)
