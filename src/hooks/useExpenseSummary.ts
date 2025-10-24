@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 
 export interface ExpenseSummary {
@@ -13,7 +13,7 @@ export const useExpenseSummary = (userId: string | undefined) => {
   const [summary, setSummary] = useState<ExpenseSummary>({
     totalPaid: 0,
     totalOwed: 0,
-    netBalance: 0
+    netBalance: 0,
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);

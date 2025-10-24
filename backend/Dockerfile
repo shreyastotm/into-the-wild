@@ -1,17 +1,19 @@
 FROM node:18-alpine
 
+# Set working directory
 WORKDIR /app
 
-# Copy package files
-COPY package*.json ./
+# Copy backend package files
+COPY backend/package*.json ./
 
-# Install dependencies
+# Install backend dependencies
 RUN npm ci
 
-# Copy source code
-COPY src/ ./src/
+# Copy backend source code
+COPY backend/src/ ./src/
+COPY backend/tsconfig.json ./tsconfig.json
 
-# Build the application
+# Build the backend application
 RUN npm run build
 
 # Expose port

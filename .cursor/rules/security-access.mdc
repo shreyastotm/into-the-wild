@@ -1,0 +1,31 @@
+---
+description: "Security, Authentication, and Data Protection Standards"
+globs: ["src/**/*.{ts,tsx}", "supabase/**/*.{sql}", "backend/**/*.{ts,js}"]
+alwaysApply: true
+---
+
+# 🔒 SECURITY & ACCESS CONTROL RULES
+
+## 4.1 Row Level Security (RLS)
+✅ **REQUIRED:** All database tables must have RLS policies
+✅ **REQUIRED:** Proper user authentication checks on all queries
+✅ **REQUIRED:** Role-based access control (trekker, admin, partner)
+✅ **REQUIRED:** Data isolation between users and treks
+
+## 4.2 Authentication Standards
+✅ **REQUIRED:** Multi-factor authentication for admin accounts
+✅ **REQUIRED:** Secure password policies (minimum 8 characters, complexity)
+✅ **REQUIRED:** Session management with proper expiration
+✅ **REQUIRED:** Protected routes with authentication checks
+
+## 4.3 Data Protection
+✅ **REQUIRED:** Encrypt sensitive data (ID proofs, payment info)
+✅ **REQUIRED:** GDPR compliance for user data handling
+✅ **REQUIRED:** Data backup and recovery procedures
+✅ **REQUIRED:** Audit logging for admin actions
+
+## 4.4 API Security
+✅ **REQUIRED:** Input validation and sanitization on all endpoints
+✅ **REQUIRED:** Rate limiting on API calls
+✅ **REQUIRED:** CORS configuration for frontend access only
+✅ **REQUIRED:** Error messages must not expose system details

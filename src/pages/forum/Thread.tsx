@@ -1,16 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
-import { ArrowLeft, MessageSquare, Pin, Lock, Send, Loader2, Edit, Trash2 } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Separator } from "@/components/ui/separator";
+import {
+  ArrowLeft,
+  MessageSquare,
+  Pin,
+  Lock,
+  Send,
+  Loader2,
+  Edit,
+  Trash2,
+} from "lucide-react";
+import { formatDistanceToNow } from "date-fns";
 
 interface ForumThread {
   id: number;
@@ -46,7 +61,7 @@ export default function ForumThread() {
   const [thread, setThread] = useState<ForumThread | null>(null);
   const [posts, setPosts] = useState<ForumPost[]>([]);
   const [loading, setLoading] = useState(true);
-  const [replyContent, setReplyContent] = useState('');
+  const [replyContent, setReplyContent] = useState("");
   const [replying, setReplying] = useState(false);
 
   useEffect(() => {
@@ -63,8 +78,9 @@ export default function ForumThread() {
 
       // Fetch thread with category and author info
       const { data: threadData, error: threadError } = await supabase
-        .from('forum_threads')
-        .select(`
+        .from("forum_threads")
+        .select(
+          `
           id,
           category_id,
           author_id,
@@ -80,25 +96,27 @@ export default function ForumThread() {
             full_name,
             avatar_url
           )
-        `)
-        .eq('id', id)
+        `,
+        )
+        .eq("id", id)
         .single();
 
       if (threadError) {
-        console.error('Error fetching thread:', threadError);
+        console.error("Error fetching thread:", threadError);
         toast({
           title: "Error",
           description: "Thread not found.",
           variant: "destructive",
         });
-        navigate('/forum');
+        navigate("/forum");
         return;
       }
 
       // Fetch posts in this thread
       const { data: postsData, error: postsError } = await supabase
-        .from('forum_posts')
-        .select(`
+        .from("forum_posts")
+        .select(
+          `
           id,
           thread_id,
           author_id,
@@ -110,13 +128,14 @@ export default function ForumThread() {
             full_name,
             avatar_url
           )
-        `)
-        .eq('thread_id', id)
-        .is('deleted_at', null)
-        .order('created_at');
+        `,
+        )
+        .eq("thread_id", id)
+        .is("deleted_at", null)
+        .order("created_at");
 
       if (postsError) {
-        console.error('Error fetching posts:', postsError);
+        console.error("Error fetching posts:", postsError);
         toast({
           title: "Error",
           description: "Could not load posts.",
@@ -128,21 +147,22 @@ export default function ForumThread() {
       // Transform data
       const transformedThread = {
         ...threadData,
-        category_name: threadData.forum_categories?.name || 'Unknown Category',
-        author_name: threadData.users?.full_name || 'Unknown User',
+        category_name: threadData.forum_categories?.name || "Unknown Category",
+        author_name: threadData.users?.full_name || "Unknown User",
         author_avatar: threadData.users?.avatar_url || null,
       };
 
-      const transformedPosts = postsData?.map(post => ({
-        ...post,
-        author_name: post.users?.full_name || 'Unknown User',
-        author_avatar: post.users?.avatar_url || null,
-      })) || [];
+      const transformedPosts =
+        postsData?.map((post) => ({
+          ...post,
+          author_name: post.users?.full_name || "Unknown User",
+          author_avatar: post.users?.avatar_url || null,
+        })) || [];
 
       setThread(transformedThread);
       setPosts(transformedPosts);
     } catch (error) {
-      console.error('Error fetching thread data:', error);
+      console.error("Error fetching thread data:", error);
       toast({
         title: "Error",
         description: "Could not load thread data.",
@@ -160,22 +180,23 @@ export default function ForumThread() {
       setReplying(true);
 
       // Use the new rate-limited function
-      const { error } = await supabase.rpc('create_forum_post', {
+      const { error } = await supabase.rpc("create_forum_post", {
         p_thread_id: parseInt(id),
-        p_content: replyContent.trim()
+        p_content: replyContent.trim(),
       });
 
       if (error) {
-        console.error('Error creating reply:', error);
+        console.error("Error creating reply:", error);
         toast({
           title: "Error",
-          description: error.message || "Could not post reply. Please try again.",
+          description:
+            error.message || "Could not post reply. Please try again.",
           variant: "destructive",
         });
         return;
       }
 
-      setReplyContent('');
+      setReplyContent("");
       toast({
         title: "Reply Posted",
         description: "Your reply has been posted successfully!",
@@ -185,7 +206,7 @@ export default function ForumThread() {
       // Refresh posts
       fetchThreadData();
     } catch (error) {
-      console.error('Error posting reply:', error);
+      console.error("Error posting reply:", error);
       toast({
         title: "Error",
         description: "Could not post reply. Please try again.",
@@ -260,7 +281,8 @@ export default function ForumThread() {
                 </div>
                 <CardTitle className="text-2xl">{thread.title}</CardTitle>
                 <CardDescription>
-                  in {thread.category_name} • Started by {thread.author_name} • {formatDate(thread.created_at)}
+                  in {thread.category_name} • Started by {thread.author_name} •{" "}
+                  {formatDate(thread.created_at)}
                 </CardDescription>
               </div>
             </div>
@@ -277,15 +299,18 @@ export default function ForumThread() {
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={post.author_avatar || undefined} />
                   <AvatarFallback>
-                    {post.author_name?.charAt(0)?.toUpperCase() || 'U'}
+                    {post.author_name?.charAt(0)?.toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
 
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="font-semibold text-sm">{post.author_name}</span>
+                    <span className="font-semibold text-sm">
+                      {post.author_name}
+                    </span>
                     <span className="text-xs text-gray-500">
-                      {index === 0 ? 'Original Post' : `Reply`} • {formatDate(post.created_at)}
+                      {index === 0 ? "Original Post" : `Reply`} •{" "}
+                      {formatDate(post.created_at)}
                     </span>
                     {post.updated_at !== post.created_at && (
                       <span className="text-xs text-gray-500">
@@ -372,7 +397,8 @@ export default function ForumThread() {
             <Lock className="h-12 w-12 mx-auto mb-4 text-gray-400" />
             <h3 className="text-lg font-semibold mb-2">Thread Locked</h3>
             <p className="text-gray-600">
-              This thread has been locked and is no longer accepting new replies.
+              This thread has been locked and is no longer accepting new
+              replies.
             </p>
           </CardContent>
         </Card>
@@ -382,7 +408,9 @@ export default function ForumThread() {
         <Card>
           <CardContent className="text-center py-8">
             <MessageSquare className="h-12 w-12 mx-auto mb-4 text-gray-400" />
-            <h3 className="text-lg font-semibold mb-2">Join the Conversation</h3>
+            <h3 className="text-lg font-semibold mb-2">
+              Join the Conversation
+            </h3>
             <p className="text-gray-600 mb-4">
               Sign in to reply to this thread and participate in the discussion.
             </p>

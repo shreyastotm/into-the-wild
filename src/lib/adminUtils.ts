@@ -4,7 +4,7 @@
  * we handle admin permissions at the application level
  */
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabase } from "@/integrations/supabase/client";
 
 /**
  * Check if the current user is an admin
@@ -12,25 +12,27 @@ import { supabase } from '@/integrations/supabase/client';
  */
 export async function isCurrentUserAdmin(): Promise<boolean> {
   try {
-    const { data: { user } } = await supabase.auth.getUser();
-    
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
+
     if (!user) return false;
 
     // Query the users table directly
-    const { data, error } = await supabase
-      .from('users')
-      .select('user_type')
-      .eq('user_id', user.id)
-      .single();
+    const { datausers } = await supabase
+        .from('"user_type"')
+        .select($3)
+        .eq("user_id", user.id)
+        .single() as any;
 
     if (error) {
-      console.error('Error checking admin status:', error);
+      console.error("Error checking admin status:", error);
       return false;
     }
 
-    return data?.user_type === 'admin';
+    return data?.user_type === "admin";
   } catch (error) {
-    console.error('Error checking admin status:', error);
+    console.error("Error checking admin status:", error);
     return false;
   }
 }
@@ -41,20 +43,20 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
  */
 export async function isUserAdmin(userId: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('user_type')
-      .eq('user_id', userId)
-      .single();
+    const { datausers } = await supabase
+        .from('"user_type"')
+        .select($3)
+        .eq("user_id", userId)
+        .single() as any;
 
     if (error) {
-      console.error('Error checking admin status:', error);
+      console.error("Error checking admin status:", error);
       return false;
     }
 
-    return data?.user_type === 'admin';
+    return data?.user_type === "admin";
   } catch (error) {
-    console.error('Error checking admin status:', error);
+    console.error("Error checking admin status:", error);
     return false;
   }
 }
@@ -66,6 +68,6 @@ export async function isUserAdmin(userId: string): Promise<boolean> {
 export async function requireAdmin(): Promise<void> {
   const isAdmin = await isCurrentUserAdmin();
   if (!isAdmin) {
-    throw new Error('Admin access required');
+    throw new Error("Admin access required");
   }
 }

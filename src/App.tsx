@@ -1,30 +1,40 @@
-import React from 'react';
-import { BrowserRouter as Router, Route, Routes, Outlet, Navigate, useParams } from 'react-router-dom';
-import Layout from './components/Layout';
-import Index from './pages/Index';
-import Auth from './pages/Auth';
-import AuthCallback from './pages/AuthCallback';
-import TestRoute from './pages/TestRoute';
-import Profile from './pages/Profile';
-import Dashboard from './pages/Dashboard';
-import NotFound from './pages/NotFound';
-import { AuthProvider } from './components/auth/AuthProvider';
-import TrekEvents from './pages/TrekEvents';
-import TrekEventDetails from './pages/TrekEventDetails';
-import CreateTrekEvent from './pages/CreateTrekEvent';
-import PublicGallery from './pages/PublicGallery';
-import TrekkingGuide from './pages/TrekkingGuide';
-import SafetyTips from './pages/SafetyTips';
-import PackingList from './pages/PackingList';
-import FAQPage from './pages/FAQ';
-import ForumHome from './pages/forum';
-import ForumCategory from './pages/forum/Category';
-import ForumThread from './pages/forum/Thread';
-import { Toaster } from './components/ui/toaster';
-import AdminHome from './pages/admin';
-import ResetPassword from './pages/ResetPassword';
-import { ProtectedRoute } from './components/ProtectedRoute';
-import { TooltipProvider } from '@/components/ui/tooltip';
+import { Suspense, lazy } from "react";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Outlet,
+  Navigate,
+  useParams,
+} from "react-router-dom";
+import Layout from "./components/Layout";
+import { AuthProvider } from "./components/auth/AuthProvider";
+import { Toaster } from "./components/ui/toaster";
+import { ProtectedRoute } from "./components/ProtectedRoute";
+import { TooltipProvider } from "@/components/ui/tooltip";
+import { LoadingSpinner } from "./components/ui/LoadingSpinner";
+
+// Lazy load all pages for better performance
+const Index = lazy(() => import("./pages/Index"));
+const Auth = lazy(() => import("./pages/Auth"));
+const AuthCallback = lazy(() => import("./pages/AuthCallback"));
+const TestRoute = lazy(() => import("./pages/TestRoute"));
+const Profile = lazy(() => import("./pages/Profile"));
+const Dashboard = lazy(() => import("./pages/Dashboard"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const TrekEvents = lazy(() => import("./pages/TrekEvents"));
+const TrekEventDetails = lazy(() => import("./pages/TrekEventDetails"));
+const CreateTrekEvent = lazy(() => import("./pages/CreateTrekEvent"));
+const PublicGallery = lazy(() => import("./pages/PublicGallery"));
+const TrekkingGuide = lazy(() => import("./pages/TrekkingGuide"));
+const SafetyTips = lazy(() => import("./pages/SafetyTips"));
+const PackingList = lazy(() => import("./pages/PackingList"));
+const FAQPage = lazy(() => import("./pages/FAQ"));
+const ForumHome = lazy(() => import("./pages/forum"));
+const ForumCategory = lazy(() => import("./pages/forum/Category"));
+const ForumThread = lazy(() => import("./pages/forum/Thread"));
+const AdminHome = lazy(() => import("./pages/admin"));
+const ResetPassword = lazy(() => import("./pages/ResetPassword"));
 
 const AppLayout = () => (
   <Layout>
@@ -44,48 +54,140 @@ function App() {
       <TooltipProvider>
         <Router>
           <Routes>
+            {/* Loading component for lazy-loaded routes */}
+            <Route path="/" element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <Index />
+              </Suspense>
+            } />
+
             {/* Auth routes without Layout (no header) */}
-            <Route path="/login" element={<Auth />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/auth/callback" element={<AuthCallback />} />
-            
+            <Route path="/login" element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <Auth />
+              </Suspense>
+            } />
+            <Route path="/auth" element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <Auth />
+              </Suspense>
+            } />
+            <Route path="/auth/callback" element={
+              <Suspense fallback={<LoadingSpinner fullScreen />}>
+                <AuthCallback />
+              </Suspense>
+            } />
+
             <Route element={<AppLayout />}>
-            <Route path="/" element={<Index />} />
-            <Route path="/test-route" element={<TestRoute />} />
+              <Route path="/test-route" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <TestRoute />
+                </Suspense>
+              } />
 
-            <Route element={<ProtectedRoute />}>
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route element={<ProtectedRoute isAdminRoute />}>
-                 <Route path="/admin/*" element={<AdminHome />} />
+              <Route element={<ProtectedRoute />}>
+                <Route path="/profile" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <Profile />
+                  </Suspense>
+                } />
+                <Route path="/dashboard" element={
+                  <Suspense fallback={<LoadingSpinner />}>
+                    <Dashboard />
+                  </Suspense>
+                } />
+                <Route element={<ProtectedRoute isAdminRoute />}>
+                  <Route path="/admin/*" element={
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <AdminHome />
+                    </Suspense>
+                  } />
+                </Route>
               </Route>
-            </Route>
-            
-            <Route path="/events" element={<TrekEvents />} />
-            <Route path="/events/:id" element={<TrekEventDetails />} />
-            
-            {/* Trek event creation - must be before backwards compatibility redirects */}
-            <Route element={<ProtectedRoute isAdminRoute />}>
-              <Route path="/trek-events/create" element={<CreateTrekEvent />} />
-            </Route>
-            
-            {/* Backwards compatibility redirects */}
-            <Route path="/trek-events" element={<Navigate to="/events" replace />} />
-            <Route path="/trek-events/:id" element={<TrekEventRedirect />} />
-            
-            <Route path="/gallery" element={<PublicGallery />} />
-            <Route path="/trekking-guide" element={<TrekkingGuide />} />
-            <Route path="/safety-tips" element={<SafetyTips />} />
-            <Route path="/packing-list" element={<PackingList />} />
-            <Route path="/faq" element={<FAQPage />} />
-            <Route path="/reset-password" element={<ResetPassword />} />
 
-            {/* Forum routes */}
-            <Route path="/forum" element={<ForumHome />} />
-            <Route path="/forum/c/:slug" element={<ForumCategory />} />
-            <Route path="/forum/t/:id" element={<ForumThread />} />
+              <Route path="/events" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <TrekEvents />
+                </Suspense>
+              } />
+              <Route path="/events/:id" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <TrekEventDetails />
+                </Suspense>
+              } />
 
-            <Route path="*" element={<NotFound />} />
+              {/* Trek event creation - must be before backwards compatibility redirects */}
+              <Route element={<ProtectedRoute isAdminRoute />}>
+                <Route
+                  path="/trek-events/create"
+                  element={
+                    <Suspense fallback={<LoadingSpinner />}>
+                      <CreateTrekEvent />
+                    </Suspense>
+                  }
+                />
+              </Route>
+
+              {/* Backwards compatibility redirects */}
+              <Route
+                path="/trek-events"
+                element={<Navigate to="/events" replace />}
+              />
+              <Route path="/trek-events/:id" element={<TrekEventRedirect />} />
+
+              <Route path="/gallery" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <PublicGallery />
+                </Suspense>
+              } />
+              <Route path="/trekking-guide" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <TrekkingGuide />
+                </Suspense>
+              } />
+              <Route path="/safety-tips" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <SafetyTips />
+                </Suspense>
+              } />
+              <Route path="/packing-list" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <PackingList />
+                </Suspense>
+              } />
+              <Route path="/faq" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <FAQPage />
+                </Suspense>
+              } />
+              <Route path="/reset-password" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ResetPassword />
+                </Suspense>
+              } />
+
+              {/* Forum routes */}
+              <Route path="/forum" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ForumHome />
+                </Suspense>
+              } />
+              <Route path="/forum/c/:slug" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ForumCategory />
+                </Suspense>
+              } />
+              <Route path="/forum/t/:id" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <ForumThread />
+                </Suspense>
+              } />
+
+              <Route path="*" element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <NotFound />
+                </Suspense>
+              } />
             </Route>
           </Routes>
           <Toaster />

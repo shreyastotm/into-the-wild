@@ -1,8 +1,9 @@
 {
   "version": 2,
-  "buildCommand": "npm run build && echo 'Skeleton loading removed - deployed by shreyasmadhan82'",
+  "buildCommand": "vite build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "nodeVersion": "18.x",
   "rewrites": [
     {
       "source": "/((?!api/).*)",
@@ -31,15 +32,15 @@
         },
         {
           "key": "Cache-Control",
-          "value": "no-cache, no-store, must-revalidate"
+          "value": "public, max-age=3600, s-maxage=86400"
         },
         {
           "key": "Pragma",
-          "value": "no-cache"
+          "value": "public"
         },
         {
           "key": "Expires",
-          "value": "0"
+          "value": "86400"
         }
       ]
     }

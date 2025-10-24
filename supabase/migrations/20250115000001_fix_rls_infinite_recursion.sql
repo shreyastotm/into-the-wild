@@ -52,14 +52,17 @@ CREATE POLICY "authenticated_users_read_basic_info" ON public.users
 -- 5. Admin policy (if you have an admin function)
 -- Note: This assumes you have a simple admin check function
 -- If not, we'll create a basic one
-CREATE OR REPLACE FUNCTION public.is_admin(user_id uuid)
+-- Drop existing function first to avoid parameter name conflicts
+DROP FUNCTION IF EXISTS public.is_admin(UUID) CASCADE;
+
+CREATE OR REPLACE FUNCTION public.is_admin(user_id_param UUID DEFAULT auth.uid())
 RETURNS boolean
 LANGUAGE sql
 SECURITY DEFINER
 AS $$
     SELECT EXISTS (
         SELECT 1 FROM public.users 
-        WHERE public.users.user_id = is_admin.user_id 
+        WHERE public.users.user_id = user_id_param 
         AND public.users.user_type = 'admin'
     );
 $$;

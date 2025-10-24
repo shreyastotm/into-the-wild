@@ -6,7 +6,7 @@ interface Coordinates {
 interface RoutePlanRequest {
   from: Coordinates;
   to: Coordinates;
-  mode?: 'CAR' | 'WALK';
+  mode?: "CAR" | "WALK";
   date?: string;
   time?: string;
   arriveBy?: boolean;
@@ -49,7 +49,8 @@ interface TimeEstimate {
 }
 
 // Backend API URL (will be set via environment variable)
-const BACKEND_API_URL = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001';
+const BACKEND_API_URL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:3001";
 
 export const otpService = {
   /**
@@ -58,9 +59,9 @@ export const otpService = {
   async planRoute(request: RoutePlanRequest): Promise<RouteResponse> {
     try {
       const response = await fetch(`${BACKEND_API_URL}/api/routing/plan`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify(request),
       });
@@ -72,7 +73,7 @@ export const otpService = {
 
       return await response.json();
     } catch (error) {
-      console.error('OTP Service Error:', error);
+      console.error("OTP Service Error:", error);
       return {
         success: false,
       };
@@ -82,12 +83,16 @@ export const otpService = {
   /**
    * Get estimated travel time between two points
    */
-  async estimateTime(from: Coordinates, to: Coordinates, mode: 'CAR' = 'CAR'): Promise<TimeEstimate> {
+  async estimateTime(
+    from: Coordinates,
+    to: Coordinates,
+    mode: "CAR" = "CAR",
+  ): Promise<TimeEstimate> {
     try {
       const response = await fetch(`${BACKEND_API_URL}/api/routing/time`, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ from, to, mode }),
       });
@@ -99,7 +104,7 @@ export const otpService = {
 
       return await response.json();
     } catch (error) {
-      console.error('OTP Time Estimation Error:', error);
+      console.error("OTP Time Estimation Error:", error);
       return {
         success: false,
       };
@@ -112,15 +117,14 @@ export const otpService = {
   async checkHealth(): Promise<boolean> {
     try {
       const response = await fetch(`${BACKEND_API_URL}/api/routing/health`, {
-        method: 'GET',
+        method: "GET",
       });
 
       const data = await response.json();
       return data.otpConnected === true;
     } catch (error) {
-      console.error('OTP Health Check Error:', error);
+      console.error("OTP Health Check Error:", error);
       return false;
     }
   },
 };
-

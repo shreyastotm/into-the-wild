@@ -1,22 +1,26 @@
-import React from 'react';
-import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from './auth/AuthProvider';
+import { Navigate, Outlet } from "react-router-dom";
+import { useAuth } from "./auth/AuthProvider";
 
 interface ProtectedRouteProps {
   isAdminRoute?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAdminRoute = false }) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
+  isAdminRoute = false,
+}) => {
   const { user, userProfile, loading } = useAuth();
 
-  console.log('[PROTECTED_ROUTE]', {
+  console.log("[PROTECTED_ROUTE]", {
     loading,
     hasUser: !!user,
     hasProfile: !!userProfile,
     userId: user?.id,
     profileType: userProfile?.user_type,
     isAdminRoute,
-    shouldAllow: !loading && !!user && (!isAdminRoute || userProfile?.user_type === 'admin')
+    shouldAllow:
+      !loading &&
+      !!user &&
+      (!isAdminRoute || userProfile?.user_type === "admin"),
   });
 
   if (loading) {
@@ -31,15 +35,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAdminRoute = f
   }
 
   if (!user) {
-    console.log('[PROTECTED_ROUTE] No user, redirecting to auth');
+    console.log("[PROTECTED_ROUTE] No user, redirecting to auth");
     return <Navigate to="/auth" replace />;
   }
 
-  if (isAdminRoute && userProfile?.user_type !== 'admin') {
-    console.log('[PROTECTED_ROUTE] Admin route but not admin, redirecting to home');
+  if (isAdminRoute && userProfile?.user_type !== "admin") {
+    console.log(
+      "[PROTECTED_ROUTE] Admin route but not admin, redirecting to home",
+    );
     return <Navigate to="/" replace />;
   }
 
-  console.log('[PROTECTED_ROUTE] Access granted');
+  console.log("[PROTECTED_ROUTE] Access granted");
   return <Outlet />;
-}; 
+};

@@ -1,17 +1,25 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { formatIndianDate } from '@/utils/indianStandards';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { format } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
-import { formatCurrency } from '@/lib/utils';
-import { toast } from '@/components/ui/use-toast';
-import { CalendarDays, MapPin, Clock, Users, ArrowRight, CheckCircle2 } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { Skeleton } from '@/components/ui/skeleton';
-import { useCallback } from 'react';
+import { format } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { formatCurrency } from "@/lib/utils";
+import { toast } from "@/components/ui/use-toast";
+import {
+  CalendarDays,
+  MapPin,
+  Clock,
+  Users,
+  ArrowRight,
+  CheckCircle2,
+} from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Skeleton } from "@/components/ui/skeleton";
+import { useCallback } from "react";
 
 interface TrekRegistration {
   trek_id: number;
@@ -28,7 +36,9 @@ interface TrekRegistration {
 }
 
 export const UserTreks = () => {
-  const [trekRegistrations, setTrekRegistrations] = useState<TrekRegistration[]>([]);
+  const [trekRegistrations, setTrekRegistrations] = useState<
+    TrekRegistration[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -37,13 +47,17 @@ export const UserTreks = () => {
     if (!user) return;
     try {
       setLoading(true);
-      
-      const userId = user.id ? (typeof user.id === 'string' ? user.id : String(user.id)) : '';
-      
-      const { data, error } = await supabase
-        .from('trek_registrations')
-        .select('*')
-        .eq('user_id', userId);
+
+      const userId = user.id
+        ? typeof user.id === "string"
+          ? user.id
+          : String(user.id)
+        : "";
+
+      const { datatrek_registrations } = await supabase
+        .from('"*"')
+        .select($3)
+        .eq("user_id", userId) as any;
       if (error) throw error;
       if (data && data.length > 0) {
         // Fetch trek event details for all trek_ids
@@ -62,14 +76,19 @@ export const UserTreks = () => {
 
         const trekIds = data.map((reg: RawRegistration) => reg.trek_id);
         const { data: trekEvents, error: trekEventsError } = await supabase
-          .from('trek_events')
-          .select('trek_id, name, start_datetime, base_price, category, location, max_participants, image_url, status')
-          .in('trek_id', trekIds);
+        .from("trek_events")
+        .select(
+            "trek_id, name, start_datetime, base_price, category, location, max_participants, image_url, status",
+          )
+        .in("trek_id", trekIds) as any;
         if (trekEventsError) throw trekEventsError;
-        const trekMap = (trekEvents || []).reduce((acc, trek) => {
-          acc[trek.trek_id] = trek;
-          return acc;
-        }, {} as Record<number, MappedTrek>);
+        const trekMap = (trekEvents || []).reduce(
+          (acc, trek) => {
+            acc[trek.trek_id] = trek;
+            return acc;
+          },
+          {} as Record<number, MappedTrek>,
+        );
         const now = new Date();
         const transformedData = data
           .map((reg: RawRegistration) => {
@@ -81,9 +100,10 @@ export const UserTreks = () => {
             // Consider a trek as "past" if it's either:
             // 1. The start date has passed, OR
             // 2. The status is COMPLETED or ARCHIVED
-            const isPast = startDate < now || 
-                          trekData.status === 'Completed' || 
-                          trekData.status === 'Archived';
+            const isPast =
+              startDate < now ||
+              trekData.status === "Completed" ||
+              trekData.status === "Archived";
             return {
               ...reg,
               trek_name: trekData.name,
@@ -93,7 +113,7 @@ export const UserTreks = () => {
               location: trekData.location ?? null,
               max_participants: trekData.max_participants ?? 0,
               isPast,
-              image_url: trekData.image_url || null
+              image_url: trekData.image_url || null,
             };
           })
           .filter(Boolean) as TrekRegistration[]; // Filter out the nulls
@@ -103,7 +123,10 @@ export const UserTreks = () => {
         setTrekRegistrations([]);
       }
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to load trek registrations";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load trek registrations";
       toast({
         title: "Error loading your treks",
         description: errorMessage,
@@ -126,19 +149,19 @@ export const UserTreks = () => {
   };
 
   // Separate upcoming and past treks
-  const upcomingTreks = trekRegistrations.filter(reg => !reg.isPast);
-  const pastTreks = trekRegistrations.filter(reg => reg.isPast);
+  const upcomingTreks = trekRegistrations.filter((reg) => !reg.isPast);
+  const pastTreks = trekRegistrations.filter((reg) => reg.isPast);
 
   if (loading) {
     return (
-      <div className="space-y-4">
+      <div className="space-y-4" data-testid="usertreks">
         {[...Array(3)].map((_, index) => (
           <Card key={index} className="w-full">
             <CardHeader>
               <Skeleton className="h-6 w-3/4" />
             </CardHeader>
             <CardContent>
-              <div className="space-y-3">
+              <div className="space-y-3" data-testid="usertreks">
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-full" />
                 <Skeleton className="h-4 w-2/3" />
@@ -154,8 +177,10 @@ export const UserTreks = () => {
     return (
       <Card>
         <CardContent className="pt-6 text-center">
-          <p className="mb-4 text-muted-foreground">You haven't registered for any treks yet</p>
-          <Button onClick={() => navigate('/trek-events')}>
+          <p className="mb-4 text-muted-foreground">
+            You haven't registered for any treks yet
+          </p>
+          <Button onClick={() => navigate("/trek-events")}>
             Find Treks to Join
             <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
@@ -167,26 +192,32 @@ export const UserTreks = () => {
   const renderTrekCard = (trek: TrekRegistration) => {
     let startDate: Date;
     try {
-      startDate = toZonedTime(new Date(trek.start_datetime), 'Asia/Kolkata');
-      if (isNaN(startDate.getTime())) throw new Error('Invalid date');
+      startDate = toZonedTime(new Date(trek.start_datetime), "Asia/Kolkata");
+      if (isNaN(startDate.getTime())) throw new Error("Invalid date");
     } catch {
       // Debug: Log the problematic trek and its start_datetime
-      console.error('Invalid trek start_datetime:', trek);
+      console.error("Invalid trek start_datetime:", trek);
       // Fallback: show 'Invalid date' in UI instead of crashing
       return (
-        <Card key={trek.trek_id} className="mb-4 hover:shadow-md transition-shadow">
+        <Card
+          key={trek.trek_id}
+          className="mb-4 hover:shadow-md transition-shadow"
+        >
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">{trek.trek_name}</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-red-600">Invalid date value</div>
+            <div className="text-red-600" data-testid="usertreks">Invalid date value</div>
           </CardContent>
         </Card>
       );
     }
-    
+
     return (
-      <Card key={trek.trek_id} className="mb-4 hover:shadow-md transition-shadow">
+      <Card
+        key={trek.trek_id}
+        className="mb-4 hover:shadow-md transition-shadow"
+      >
         {/* Trek Image Display */}
         {trek.image_url && (
           <img
@@ -196,47 +227,51 @@ export const UserTreks = () => {
           />
         )}
         <CardHeader className="pb-2">
-          <div className="flex justify-between items-start">
+          <div className="flex justify-between items-start" data-testid="usertreks">
             <CardTitle className="text-lg">{trek.trek_name}</CardTitle>
-            {trek.payment_status === 'Confirmed' && (
-              <div className="flex items-center text-green-600 text-sm">
+            {trek.payment_status === "Confirmed" && (
+              <div className="flex items-center text-green-600 text-sm" data-testid="usertreks">
                 <CheckCircle2 className="h-4 w-4 mr-1" />
                 Confirmed
               </div>
             )}
-            {trek.payment_status === 'Pending' && (
-              <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs">
+            {trek.payment_status === "Pending" && (
+              <div className="bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full text-xs" data-testid="usertreks">
                 Payment Pending
               </div>
             )}
           </div>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3 text-sm">
-            <div className="flex items-center">
+          <div className="space-y-3 text-sm" data-testid="usertreks">
+            <div className="flex items-center" data-testid="usertreks">
               <CalendarDays className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span>{format(startDate, 'EEE, MMM d, yyyy')}</span>
+              <span>{formatIndianDate(startDate)}</span>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center" data-testid="usertreks">
               <Clock className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span>{format(startDate, 'h:mm a')} IST</span>
+              <span>{format(startDate, "h:mm a")} IST</span>
             </div>
-            <div className="flex items-center">
+            <div className="flex items-center" data-testid="usertreks">
               <Users className="h-4 w-4 mr-2 text-muted-foreground" />
-              <span>{trek.participant_count}/{trek.max_participants} participants</span>
+              <span>
+                {trek.participant_count}/{trek.max_participants} participants
+              </span>
             </div>
             {trek.location && (
-              <div className="flex items-center">
+              <div className="flex items-center" data-testid="usertreks">
                 <MapPin className="h-4 w-4 mr-2 text-muted-foreground" />
-                <span>{trek.location.name || "Location details available"}</span>
+                <span>
+                  {trek.location.name || "Location details available"}
+                </span>
               </div>
             )}
           </div>
-          <div className="mt-4 flex justify-between items-center">
-            <div className="font-bold">{formatCurrency(trek.cost)}</div>
-            <Button 
-              variant="outline" 
-              size="sm" 
+          <div className="mt-4 flex justify-between items-center" data-testid="usertreks">
+            <div className="font-bold" data-testid="usertreks">{formatCurrency(trek.cost, "INR")}</div>
+            <Button
+              variant="outline"
+              size="sm"
               onClick={() => goToTrekDetails(trek.trek_id)}
               className="ml-auto"
             >
@@ -254,34 +289,30 @@ export const UserTreks = () => {
         <TabsTrigger value="upcoming">
           Upcoming Treks ({upcomingTreks.length})
         </TabsTrigger>
-        <TabsTrigger value="past">
-          Past Treks ({pastTreks.length})
-        </TabsTrigger>
+        <TabsTrigger value="past">Past Treks ({pastTreks.length})</TabsTrigger>
       </TabsList>
-      
+
       <TabsContent value="upcoming">
         {upcomingTreks.length > 0 ? (
-          <div>
-            {upcomingTreks.map(renderTrekCard)}
-          </div>
+          <div data-testid="usertreks">{upcomingTreks.map(renderTrekCard)}</div>
         ) : (
-          <div className="text-center py-6">
-            <p className="text-muted-foreground mb-4">You have no upcoming treks</p>
-            <Button onClick={() => navigate('/trek-events')}>
+          <div className="text-center py-6" data-testid="usertreks">
+            <p className="text-muted-foreground mb-4">
+              You have no upcoming treks
+            </p>
+            <Button onClick={() => navigate("/trek-events")}>
               Find Treks to Join
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
         )}
       </TabsContent>
-      
+
       <TabsContent value="past">
         {pastTreks.length > 0 ? (
-          <div>
-            {pastTreks.map(renderTrekCard)}
-          </div>
+          <div data-testid="usertreks">{pastTreks.map(renderTrekCard)}</div>
         ) : (
-          <div className="text-center py-6">
+          <div className="text-center py-6" data-testid="usertreks">
             <p className="text-muted-foreground">You have no past treks</p>
           </div>
         )}

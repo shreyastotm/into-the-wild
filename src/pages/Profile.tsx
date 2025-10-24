@@ -1,11 +1,11 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { ProfileForm } from '@/components/profile/ProfileForm';
-import ProfileHeader from '@/components/profile/ProfileHeader';
-import ProfileSummaryCard from '@/components/profile/ProfileSummaryCard';
-import IdVerification from '@/components/profile/IdVerification';
-import { MobilePage, MobileSection } from '@/components/mobile/MobilePage';
+import React, { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { ProfileForm } from "@/components/profile/ProfileForm";
+import ProfileHeader from "@/components/profile/ProfileHeader";
+import ProfileSummaryCard from "@/components/profile/ProfileSummaryCard";
+import IdVerification from "@/components/profile/IdVerification";
+import { MobilePage, MobileSection } from "@/components/mobile/MobilePage";
 
 export default function Profile() {
   const { user, userProfile, loading } = useAuth();
@@ -13,7 +13,7 @@ export default function Profile() {
 
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/auth');
+      navigate("/auth");
     }
   }, [user, loading, navigate]);
 
@@ -32,7 +32,8 @@ export default function Profile() {
       <MobileSection>
         <ProfileHeader />
         <ProfileSummaryCard />
-        {!userProfile?.verification_status || userProfile.verification_status !== 'VERIFIED' ? (
+        {!userProfile?.verification_status ||
+        userProfile.verification_status !== "VERIFIED" ? (
           <IdVerification />
         ) : null}
         <ProfileForm />

@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
-import { TrekCost } from '@/types/trek';
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
+import { TrekCost } from "@/types/trek";
 
 export function useTrekCosts(trekId: string | number | undefined) {
   const [costs, setCosts] = useState<TrekCost[]>([]);
@@ -16,15 +16,16 @@ export function useTrekCosts(trekId: string | number | undefined) {
     const fetchCosts = async () => {
       setLoading(true);
       try {
-        const numericTrekId = typeof trekId === 'string' ? parseInt(trekId, 10) : trekId;
+        const numericTrekId =
+          typeof trekId === "string" ? parseInt(trekId, 10) : trekId;
         if (isNaN(numericTrekId)) {
           throw new Error("Invalid Trek ID provided.");
         }
-        
-        const { data, error } = await supabase
-          .from('trek_costs')
-          .select('*')
-          .eq('trek_id', numericTrekId);
+
+        const { datatrek_costs } = await supabase
+        .from('"*"')
+        .select($3)
+        .eq("trek_id", numericTrekId) as any;
 
         if (error) {
           throw error;
@@ -32,7 +33,10 @@ export function useTrekCosts(trekId: string | number | undefined) {
 
         setCosts(data || []);
       } catch (error: unknown) {
-        const errorMessage = error instanceof Error ? error.message : "Could not load the fixed expenses for this trek.";
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : "Could not load the fixed expenses for this trek.";
         console.error("Error fetching trek costs:", error);
         toast({
           title: "Error fetching costs",
@@ -49,4 +53,4 @@ export function useTrekCosts(trekId: string | number | undefined) {
   }, [trekId]);
 
   return { costs, loading };
-} 
+}

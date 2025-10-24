@@ -1,14 +1,14 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client'; // Corrected path
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { ClipboardList, AlertCircle, Loader2 } from 'lucide-react';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useNavigate } from 'react-router-dom';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client"; // Corrected path
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ClipboardList, AlertCircle, Loader2 } from "lucide-react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 
 interface PackingListItem {
   item_id: number; // This will be master_item_id
@@ -43,13 +43,14 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
       try {
         // Convert trekId to a number since the database expects a number
         const trekIdNumber = parseInt(trekId, 10);
-        
+
         // Fetch items associated with this trek_id from trek_packing_list_assignments
         // Join with master_packing_items to get item details (name, category)
-        console.log('Fetching packing list for trek:', trekIdNumber);
+        console.log("Fetching packing list for trek:", trekIdNumber);
         const { data, error: fetchError } = await supabase
-          .from('trek_packing_list_assignments')
-          .select(`
+          .from("trek_packing_list_assignments")
+          .select(
+            `
             id,
             mandatory,
             master_item_id,
@@ -59,13 +60,14 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
               name,
               category
             )
-          `)
-          .eq('trek_id', trekIdNumber);
+          `,
+          )
+          .eq("trek_id", trekIdNumber);
 
-        console.log('Packing list query result:', { data, error: fetchError });
+        console.log("Packing list query result:", { data, error: fetchError });
 
         if (fetchError) {
-          console.error('Packing list fetch error:', fetchError);
+          console.error("Packing list fetch error:", fetchError);
           throw fetchError;
         }
 
@@ -80,25 +82,31 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
         };
 
         // Transform data to match PackingListItem interface
-        const formattedList = (data as FetchedItem[] | null)?.map(item => {
-          console.log('Processing item:', item);
-          return {
-            item_id: item.master_item_id,
-            name: item.master_packing_items?.name || 'Unknown Item',
-            category: item.master_packing_items?.category || null,
-            mandatory: item.mandatory,
-          };
-        }) || [];
+        const formattedList =
+          (data as FetchedItem[] | null)?.map((item) => {
+            console.log("Processing item:", item);
+            return {
+              item_id: item.master_item_id,
+              name: item.master_packing_items?.name || "Unknown Item",
+              category: item.master_packing_items?.category || null,
+              mandatory: item.mandatory,
+            };
+          }) || [];
 
-        console.log('Formatted packing list:', formattedList);
+        console.log("Formatted packing list:", formattedList);
 
-        console.log('TrekPackingList: Loaded packing list for trek', trekIdNumber, ':', formattedList);
+        console.log(
+          "TrekPackingList: Loaded packing list for trek",
+          trekIdNumber,
+          ":",
+          formattedList,
+        );
         setPackingItems(formattedList);
-
       } catch (err: unknown) {
-        const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
-        console.error('Error fetching packing list:', err);
-        setError('Failed to load packing list. Please try again.');
+        const errorMessage =
+          err instanceof Error ? err.message : "An unknown error occurred";
+        console.error("Error fetching packing list:", err);
+        setError("Failed to load packing list. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -128,49 +136,61 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
 
   if (packingItems.length === 0) {
     return (
-       <Alert>
+      <Alert>
         <ClipboardList className="h-4 w-4" />
         <AlertTitle>Packing Checklist</AlertTitle>
         <AlertDescription>
-          No packing list available for this trek yet. An administrator can add one via the trek management panel.
+          No packing list available for this trek yet. An administrator can add
+          one via the trek management panel.
         </AlertDescription>
       </Alert>
     );
   }
 
   // Group items by category
-  const groupedItems = packingItems.reduce((acc, item) => {
-    const category = item.category || 'Miscellaneous';
-    if (!acc[category]) {
-      acc[category] = [];
-    }
-    acc[category].push(item);
-    return acc;
-  }, {} as Record<string, PackingListItem[]>);
-
+  const groupedItems = packingItems.reduce(
+    (acc, item) => {
+      const category = item.category || "Miscellaneous";
+      if (!acc[category]) {
+        acc[category] = [];
+      }
+      acc[category].push(item);
+      return acc;
+    },
+    {} as Record<string, PackingListItem[]>,
+  );
 
   return (
     <div className="space-y-6">
       {/* Packing Items */}
       <div className="space-y-4">
         <h3 className="text-lg font-semibold">Packing List</h3>
-        
+
         {!user ? (
           // Blur effect for non-logged-in users
           <div className="relative">
             <div className="space-y-3 opacity-30 blur-sm pointer-events-none">
               {packingItems.slice(0, 5).map((item) => (
-                <div key={item.item_id} className="flex items-center gap-3 p-3 bg-card rounded-lg border">
+                <div
+                  key={item.item_id}
+                  className="flex items-center gap-3 p-3 bg-card rounded-lg border"
+                >
                   <div className="w-5 h-5 bg-muted rounded"></div>
                   <span className="text-sm">{item.name}</span>
-                  {item.mandatory && <Badge variant="destructive" className="text-xs">Required</Badge>}
+                  {item.mandatory && (
+                    <Badge variant="destructive" className="text-xs">
+                      Required
+                    </Badge>
+                  )}
                 </div>
               ))}
             </div>
             <div className="absolute inset-0 flex items-center justify-center">
               <Card className="p-4 text-center bg-background/95 backdrop-blur-sm border">
-                <p className="text-sm text-muted-foreground mb-2">Sign up to view the complete packing list</p>
-                <Button size="sm" onClick={() => navigate('/auth')}>
+                <p className="text-sm text-muted-foreground mb-2">
+                  Sign up to view the complete packing list
+                </p>
+                <Button size="sm" onClick={() => navigate("/auth")}>
                   Sign Up
                 </Button>
               </Card>
@@ -180,10 +200,17 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
           // Full list for logged-in users
           <div className="space-y-3">
             {packingItems.map((item) => (
-              <div key={item.item_id} className="flex items-center gap-3 p-3 bg-card rounded-lg border hover:bg-muted/50 transition-colors">
+              <div
+                key={item.item_id}
+                className="flex items-center gap-3 p-3 bg-card rounded-lg border hover:bg-muted/50 transition-colors"
+              >
                 <div className="w-5 h-5 bg-muted rounded"></div>
                 <span className="text-sm flex-1">{item.name}</span>
-                {item.mandatory && <Badge variant="destructive" className="text-xs">Required</Badge>}
+                {item.mandatory && (
+                  <Badge variant="destructive" className="text-xs">
+                    Required
+                  </Badge>
+                )}
               </div>
             ))}
           </div>
@@ -191,4 +218,4 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
       </div>
     </div>
   );
-} 
+}

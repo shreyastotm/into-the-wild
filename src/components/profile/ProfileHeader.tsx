@@ -1,7 +1,6 @@
-
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useNavigate } from 'react-router-dom';
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileHeader() {
   const { signOut } = useAuth();
@@ -9,7 +8,7 @@ export default function ProfileHeader() {
 
   const handleSignOut = async () => {
     await signOut();
-    navigate('/auth');
+    navigate("/auth");
   };
 
   return (

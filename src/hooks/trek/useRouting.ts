@@ -1,6 +1,6 @@
-import { useState } from 'react';
-import { otpService } from '@/services/otpService';
-import { toast } from '@/components/ui/use-toast';
+import { useState } from "react";
+import { otpService } from "@/services/otpService";
+import { toast } from "@/components/ui/use-toast";
 
 interface Coordinates {
   lat: number;
@@ -14,7 +14,7 @@ export function useRouting() {
   const calculateRoute = async (
     from: Coordinates,
     to: Coordinates,
-    mode: 'CAR' | 'WALK' = 'CAR'
+    mode: "CAR" | "WALK" = "CAR",
   ) => {
     setLoading(true);
     try {
@@ -22,8 +22,8 @@ export function useRouting() {
         from,
         to,
         mode,
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toTimeString().split(' ')[0],
+        date: new Date().toISOString().split("T")[0],
+        time: new Date().toTimeString().split(" ")[0],
       });
 
       if (result.success && result.route) {
@@ -31,18 +31,18 @@ export function useRouting() {
         return result.route;
       } else {
         toast({
-          title: 'Route Planning Failed',
-          description: 'Could not calculate route. Please try again.',
-          variant: 'destructive',
+          title: "Route Planning Failed",
+          description: "Could not calculate route. Please try again.",
+          variant: "destructive",
         });
         return null;
       }
     } catch (error) {
-      console.error('Routing error:', error);
+      console.error("Routing error:", error);
       toast({
-        title: 'Route Planning Failed',
-        description: 'Could not calculate route. Please try again.',
-        variant: 'destructive',
+        title: "Route Planning Failed",
+        description: "Could not calculate route. Please try again.",
+        variant: "destructive",
       });
       return null;
     } finally {
@@ -53,7 +53,7 @@ export function useRouting() {
   const estimateTime = async (
     from: Coordinates,
     to: Coordinates,
-    mode: 'CAR' = 'CAR'
+    mode: "CAR" = "CAR",
   ) => {
     setLoading(true);
     try {
@@ -63,18 +63,18 @@ export function useRouting() {
         return result;
       } else {
         toast({
-          title: 'Time Estimation Failed',
-          description: 'Could not estimate travel time.',
-          variant: 'destructive',
+          title: "Time Estimation Failed",
+          description: "Could not estimate travel time.",
+          variant: "destructive",
         });
         return null;
       }
     } catch (error) {
-      console.error('Time estimation error:', error);
+      console.error("Time estimation error:", error);
       toast({
-        title: 'Time Estimation Failed',
-        description: 'Could not estimate travel time.',
-        variant: 'destructive',
+        title: "Time Estimation Failed",
+        description: "Could not estimate travel time.",
+        variant: "destructive",
       });
       return null;
     } finally {
@@ -86,7 +86,7 @@ export function useRouting() {
     try {
       return await otpService.checkHealth();
     } catch (error) {
-      console.error('Service health check error:', error);
+      console.error("Service health check error:", error);
       return false;
     }
   };
@@ -99,4 +99,3 @@ export function useRouting() {
     checkServiceHealth,
   };
 }
-

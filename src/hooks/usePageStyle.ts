@@ -1,11 +1,11 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 
 /**
  * Custom hook to manage page-specific body/html styles
  * Automatically cleans up when component unmounts
  */
 export const usePageStyle = (config: {
-  overflow?: 'hidden' | 'auto' | 'scroll';
+  overflow?: "hidden" | "auto" | "scroll";
   height?: string;
   minHeight?: string;
 }) => {
@@ -39,4 +39,3 @@ export const usePageStyle = (config: {
     };
   }, [config.overflow, config.height, config.minHeight]);
 };
-

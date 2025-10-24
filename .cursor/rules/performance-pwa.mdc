@@ -1,0 +1,32 @@
+---
+description: "Performance Optimization and PWA Compliance"
+globs: ["src/**/*.{ts,tsx,css,js}", "public/**/*", "vite.config.ts", "sw.js"]
+alwaysApply: true
+---
+
+# ⚡ PERFORMANCE & PWA RULES
+
+## 5.1 Performance Budgets
+✅ **REQUIRED:** Lighthouse score > 90 for all pages
+✅ **REQUIRED:** First Contentful Paint < 1.5s
+✅ **REQUIRED:** Largest Contentful Paint < 2.5s
+✅ **REQUIRED:** Cumulative Layout Shift < 0.1
+✅ **REQUIRED:** Bundle size < 500KB gzipped
+
+## 5.2 PWA Implementation
+✅ **REQUIRED:** Service worker for offline support
+✅ **REQUIRED:** App manifest with proper icons and metadata
+✅ **REQUIRED:** Install prompt after 30 seconds of engagement
+✅ **REQUIRED:** Offline indicators and sync capabilities
+
+## 5.3 Mobile Optimization
+✅ **REQUIRED:** Touch-optimized interface (44px minimum targets)
+✅ **REQUIRED:** Safe area support for iOS/Android notches
+✅ **REQUIRED:** Horizontal scroll for mobile trek cards
+✅ **REQUIRED:** Native-feeling interactions and gestures
+
+## 5.4 Image & Media Optimization
+✅ **REQUIRED:** WebP format with fallbacks
+✅ **REQUIRED:** Lazy loading for all images
+✅ **REQUIRED:** Responsive images with proper sizing
+✅ **REQUIRED:** Progressive loading with blur placeholders

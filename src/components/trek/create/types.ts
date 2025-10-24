@@ -1,4 +1,4 @@
-import { EventType, TentInventory } from '@/types/trek';
+import { EventType, TentInventory } from "@/types/trek";
 
 // Form data interface for trek/camping event creation
 export interface AdminTrekEvent {

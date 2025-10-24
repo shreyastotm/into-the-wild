@@ -1,0 +1,34 @@
+---
+description: "UI/UX Design System and Component Standards"
+globs: ["src/**/*.{ts,tsx,css}", "tailwind.config.ts", "src/index.css"]
+alwaysApply: true
+---
+
+# 🎨 DESIGN SYSTEM COMPLIANCE RULES
+
+## 2.1 Golden Hour Color Palette Enforcement
+✅ **REQUIRED:** Use semantic color tokens only (bg-primary, text-secondary, etc.)
+❌ **FORBIDDEN:** Hardcoded hex colors (except in CSS custom properties)
+✅ **REQUIRED:** All components must support both light and dark modes
+✅ **REQUIRED:** Follow exact HSL values from design system:
+   - Primary: 35 85% 65% (Golden Sunlight)
+   - Secondary: 180 100% 27% (Deep Teal)
+   - Accent: 14 82% 62% (Sunset Coral)
+
+## 2.2 Component Architecture
+✅ **REQUIRED:** All new components must extend shadcn/ui base components
+✅ **REQUIRED:** Consistent prop interfaces using TypeScript
+✅ **REQUIRED:** Mobile-first responsive patterns (grid-cols-1 sm:grid-cols-2 lg:grid-cols-3)
+✅ **REQUIRED:** Touch targets minimum 44px (h-11, w-11 or larger)
+
+## 2.3 Animation Standards
+✅ **REQUIRED:** Use CSS transforms and opacity only for 60fps animations
+✅ **REQUIRED:** Follow duration scale: 200ms (fast), 300ms (normal), 500ms (slow)
+✅ **REQUIRED:** Include hover states and micro-interactions for all interactive elements
+✅ **REQUIRED:** Implement skeleton loading states for async operations
+
+## 2.4 Logo Integration Standards
+✅ **REQUIRED:** Logo must appear on every page (header, hero, or watermark)
+✅ **REQUIRED:** Use responsive logo sizing (h-10 mobile, h-12 desktop)
+✅ **REQUIRED:** Include hover animations and proper alt text
+✅ **REQUIRED:** Maintain aspect ratio and visual hierarchy

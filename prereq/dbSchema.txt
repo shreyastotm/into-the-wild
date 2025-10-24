@@ -1,1167 +1,232 @@
 [
   {
-    "table_name": "trek_registrations",
-    "column_name": "pickup_location_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "votes",
-    "column_name": "voter_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "votes",
-    "column_name": "target_type",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "votes",
-    "column_name": "target_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "votes",
-    "column_name": "vote_value",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "votes",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "id",
-    "data_type": "bigint"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "user_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "difficulty_rating",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "enjoyment_rating",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "scenic_rating",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_ratings",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_packing_list_assignments",
-    "column_name": "id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_packing_list_assignments",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_packing_list_assignments",
-    "column_name": "master_item_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_packing_list_assignments",
-    "column_name": "mandatory",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "trek_packing_list_assignments",
-    "column_name": "item_order",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_packing_list_assignments",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_packing_list_assignments",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "id",
-    "data_type": "bigint"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "user_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "status",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "type",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "related_entity_id",
-    "data_type": "bigint"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "registration_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "user_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "booking_datetime",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "cancellation_datetime",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "penalty_applied",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "is_driver",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "indemnity_agreed_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "payment_verified_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "comment_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "user_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "parent_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_packing_items",
-    "column_name": "item_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_packing_items",
-    "column_name": "is_default",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "trek_packing_items",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_packing_items",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "location_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "users",
-    "column_name": "date_of_birth",
-    "data_type": "date"
-  },
-  {
-    "table_name": "users",
-    "column_name": "id_verification_status",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "users",
-    "column_name": "health_data",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "users",
-    "column_name": "badges",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "users",
-    "column_name": "interests",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "users",
-    "column_name": "pet_details",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "users",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "users",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "users",
-    "column_name": "user_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "users",
-    "column_name": "indemnity_accepted",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "users",
-    "column_name": "indemnity_accepted_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "users",
-    "column_name": "verification_docs",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "users",
-    "column_name": "legacy_int_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "users",
-    "column_name": "points",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "users",
-    "column_name": "car_seating_capacity",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "users",
-    "column_name": "has_car",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "users",
-    "column_name": "latitude",
-    "data_type": "double precision"
-  },
-  {
-    "table_name": "users",
-    "column_name": "longitude",
-    "data_type": "double precision"
-  },
-  {
-    "table_name": "users",
-    "column_name": "subscription_type",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "geography_columns",
-    "column_name": "coord_dimension",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "geography_columns",
-    "column_name": "srid",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "geometry_columns",
-    "column_name": "coord_dimension",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "geometry_columns",
-    "column_name": "srid",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "spatial_ref_sys",
-    "column_name": "srid",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "spatial_ref_sys",
-    "column_name": "auth_srid",
-    "data_type": "integer"
+    "table_name": "avatar_catalog",
+    "columns": "key text NOT NULL, name text NOT NULL, image_url text NOT NULL, active boolean NOT NULL DEFAULT true, sort_order integer DEFAULT 0, created_at timestamp with time zone DEFAULT now(), category text NOT NULL DEFAULT 'animal'::text",
+    "constraints": "PK: key"
   },
   {
     "table_name": "comments",
-    "column_name": "comment_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "comments",
-    "column_name": "post_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "comments",
-    "column_name": "user_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "comments",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
+    "columns": "comment_id integer NOT NULL DEFAULT nextval('comments_comment_id_seq'::regclass), post_id integer NOT NULL, user_id integer NOT NULL, body text NOT NULL, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: comment_id | FK: post_id → trek_events.trek_id"
   },
   {
     "table_name": "community_posts",
-    "column_name": "post_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "community_posts",
-    "column_name": "user_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "community_posts",
-    "column_name": "post_type",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "community_posts",
-    "column_name": "visibility",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "community_posts",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "community_posts",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
+    "columns": "post_id integer NOT NULL DEFAULT nextval('community_posts_post_id_seq'::regclass), user_id integer NOT NULL, title character varying NOT NULL, body text NOT NULL, post_type USER-DEFINED NOT NULL, visibility USER-DEFINED NOT NULL DEFAULT 'public'::visibility, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: post_id"
   },
   {
     "table_name": "expense_shares",
-    "column_name": "id",
-    "data_type": "integer"
+    "columns": "id integer NOT NULL DEFAULT nextval('expense_shares_id_seq'::regclass), expense_id integer NOT NULL, user_id uuid NOT NULL, amount numeric NOT NULL, status character varying DEFAULT 'pending'::character varying, payment_method character varying, payment_date timestamp with time zone, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "UQ: expense_id | UQ: expense_id | UQ: user_id | UQ: user_id | PK: id | FK: user_id → users.user_id | FK: expense_id → trek_expenses.id"
   },
   {
-    "table_name": "expense_shares",
-    "column_name": "expense_id",
-    "data_type": "integer"
+    "table_name": "forum_categories",
+    "columns": "id bigint NOT NULL DEFAULT nextval('forum_categories_id_seq'::regclass), name text NOT NULL, slug text NOT NULL, description text, sort_order integer DEFAULT 0, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: id | UQ: slug"
   },
   {
-    "table_name": "expense_shares",
-    "column_name": "user_id",
-    "data_type": "uuid"
+    "table_name": "forum_posts",
+    "columns": "id bigint NOT NULL DEFAULT nextval('forum_posts_id_seq'::regclass), thread_id bigint NOT NULL, author_id uuid NOT NULL, content text NOT NULL, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now(), deleted_at timestamp with time zone",
+    "constraints": "FK: thread_id → forum_threads.id | FK: author_id → users.user_id | PK: id"
   },
   {
-    "table_name": "expense_shares",
-    "column_name": "amount",
-    "data_type": "numeric"
+    "table_name": "forum_tags",
+    "columns": "id bigint NOT NULL DEFAULT nextval('forum_tags_id_seq'::regclass), name character varying NOT NULL, slug character varying NOT NULL, color character varying DEFAULT '#6B7280'::character varying, sort_order integer DEFAULT 0, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "UQ: slug | UQ: name | PK: id"
   },
   {
-    "table_name": "expense_shares",
-    "column_name": "payment_date",
-    "data_type": "timestamp with time zone"
+    "table_name": "forum_thread_tags",
+    "columns": "thread_id bigint NOT NULL, tag_id bigint NOT NULL, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "FK: tag_id → forum_tags.id | FK: thread_id → forum_threads.id | PK: thread_id | PK: thread_id | PK: tag_id | PK: tag_id"
   },
   {
-    "table_name": "expense_shares",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "forum_threads",
+    "columns": "id bigint NOT NULL DEFAULT nextval('forum_threads_id_seq'::regclass), category_id bigint NOT NULL, author_id uuid NOT NULL, title text NOT NULL, locked boolean DEFAULT false, pinned boolean DEFAULT false, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "FK: author_id → users.user_id | FK: category_id → forum_categories.id | PK: id"
   },
   {
-    "table_name": "expense_shares",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "geography_columns",
+    "columns": "f_table_catalog name, f_table_schema name, f_table_name name, f_geography_column name, coord_dimension integer, srid integer, type text",
+    "constraints": "No constraints"
+  },
+  {
+    "table_name": "geometry_columns",
+    "columns": "f_table_catalog character varying, f_table_schema name, f_table_name name, f_geometry_column name, coord_dimension integer, srid integer, type character varying",
+    "constraints": "No constraints"
+  },
+  {
+    "table_name": "id_types",
+    "columns": "id_type_id integer NOT NULL DEFAULT nextval('id_types_id_type_id_seq'::regclass), name character varying NOT NULL, display_name character varying NOT NULL, description text, is_active boolean DEFAULT true, created_at timestamp without time zone DEFAULT now()",
+    "constraints": "PK: id_type_id | UQ: name"
+  },
+  {
+    "table_name": "image_tag_assignments",
+    "columns": "id bigint NOT NULL DEFAULT nextval('image_tag_assignments_id_seq'::regclass), image_id bigint NOT NULL, image_type character varying NOT NULL, tag_id bigint NOT NULL, assigned_by uuid, assigned_at timestamp with time zone DEFAULT now()",
+    "constraints": "UQ: image_type | FK: tag_id → image_tags.id | PK: id | UQ: tag_id | UQ: tag_id | UQ: tag_id | UQ: image_type | UQ: image_type | UQ: image_id | UQ: image_id | UQ: image_id"
+  },
+  {
+    "table_name": "image_tags",
+    "columns": "id bigint NOT NULL DEFAULT nextval('image_tags_id_seq'::regclass), name character varying NOT NULL, description text, color character varying DEFAULT '#6B7280'::character varying, created_at timestamp with time zone DEFAULT now(), created_by uuid",
+    "constraints": "UQ: name | PK: id"
   },
   {
     "table_name": "master_packing_items",
-    "column_name": "id",
-    "data_type": "integer"
+    "columns": "id integer NOT NULL DEFAULT nextval('master_packing_items_id_seq'::regclass), name text NOT NULL, category character varying, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "UQ: name | PK: id"
   },
   {
-    "table_name": "master_packing_items",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "notifications",
+    "columns": "id bigint NOT NULL DEFAULT nextval('notifications_id_seq'::regclass), user_id uuid NOT NULL, message text NOT NULL, link text, status USER-DEFINED NOT NULL DEFAULT 'unread'::notification_status_enum, type USER-DEFINED NOT NULL DEFAULT 'general_info'::notification_type_enum, trek_id integer, related_entity_id bigint, created_at timestamp with time zone NOT NULL DEFAULT now()",
+    "constraints": "FK: trek_id → trek_events.trek_id | PK: id"
   },
   {
-    "table_name": "master_packing_items",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "registration_id_proofs",
+    "columns": "proof_id integer NOT NULL DEFAULT nextval('registration_id_proofs_proof_id_seq'::regclass), registration_id integer NOT NULL, id_type_id integer NOT NULL, proof_url text NOT NULL, uploaded_by character varying NOT NULL, uploaded_at timestamp without time zone DEFAULT now(), verified_by uuid, verified_at timestamp without time zone, verification_status character varying DEFAULT 'pending'::character varying, admin_notes text",
+    "constraints": "PK: proof_id | FK: registration_id → trek_registrations.registration_id | UQ: id_type_id | FK: id_type_id → id_types.id_type_id | UQ: registration_id | UQ: registration_id | UQ: id_type_id"
   },
   {
-    "table_name": "subscriptions_billing",
-    "column_name": "subscription_id",
-    "data_type": "integer"
+    "table_name": "site_settings",
+    "columns": "key text NOT NULL, value jsonb NOT NULL, created_at timestamp with time zone NOT NULL DEFAULT now(), updated_at timestamp with time zone NOT NULL DEFAULT now()",
+    "constraints": "PK: key"
   },
   {
-    "table_name": "subscriptions_billing",
-    "column_name": "user_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "subscriptions_billing",
-    "column_name": "amount",
-    "data_type": "numeric"
+    "table_name": "spatial_ref_sys",
+    "columns": "srid integer NOT NULL, auth_name character varying, auth_srid integer, srtext character varying, proj4text character varying",
+    "constraints": "No constraints"
   },
   {
     "table_name": "subscriptions_billing",
-    "column_name": "start_date",
-    "data_type": "timestamp with time zone"
+    "columns": "subscription_id integer NOT NULL DEFAULT nextval('subscriptions_billing_subscription_id_seq'::regclass), user_id integer, subscription_type character varying NOT NULL, amount numeric NOT NULL, billing_period character varying NOT NULL, start_date timestamp with time zone NOT NULL, end_date timestamp with time zone, renewal_status USER-DEFINED DEFAULT 'active'::renewal_status, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: subscription_id"
   },
   {
-    "table_name": "subscriptions_billing",
-    "column_name": "end_date",
-    "data_type": "timestamp with time zone"
+    "table_name": "tent_inventory",
+    "columns": "id integer NOT NULL DEFAULT nextval('tent_inventory_id_seq'::regclass), event_id integer NOT NULL, tent_type_id integer NOT NULL, total_available integer NOT NULL DEFAULT 0, reserved_count integer NOT NULL DEFAULT 0, created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP, updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP",
+    "constraints": "FK: tent_type_id → tent_types.id | FK: event_id → trek_events.trek_id | UQ: event_id | UQ: event_id | UQ: tent_type_id | UQ: tent_type_id | PK: id"
   },
   {
-    "table_name": "subscriptions_billing",
-    "column_name": "renewal_status",
-    "data_type": "USER-DEFINED"
+    "table_name": "tent_rentals",
+    "columns": "id integer NOT NULL DEFAULT nextval('tent_rentals_id_seq'::regclass), trek_id integer NOT NULL, tent_type text NOT NULL, price_per_tent numeric NOT NULL, available_quantity integer NOT NULL DEFAULT 0, reserved_quantity integer NOT NULL DEFAULT 0, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: id | FK: trek_id → trek_events.trek_id"
   },
   {
-    "table_name": "subscriptions_billing",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "tent_requests",
+    "columns": "id integer NOT NULL DEFAULT nextval('tent_requests_id_seq'::regclass), event_id integer NOT NULL, user_id uuid NOT NULL, tent_type_id integer NOT NULL, quantity_requested integer NOT NULL DEFAULT 1, nights integer NOT NULL DEFAULT 1, total_cost numeric NOT NULL DEFAULT 0.00, status character varying DEFAULT 'pending'::character varying, request_notes text, admin_notes text, created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP, updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP",
+    "constraints": "UQ: tent_type_id | UQ: user_id | UQ: user_id | UQ: user_id | UQ: event_id | UQ: event_id | UQ: event_id | FK: event_id → trek_events.trek_id | UQ: tent_type_id | FK: tent_type_id → tent_types.id | PK: id | UQ: tent_type_id"
   },
   {
-    "table_name": "trek_driver_assignments",
-    "column_name": "assignment_id",
-    "data_type": "integer"
+    "table_name": "tent_types",
+    "columns": "id integer NOT NULL DEFAULT nextval('tent_types_id_seq'::regclass), name character varying NOT NULL, capacity integer NOT NULL, description text, rental_price_per_night numeric NOT NULL DEFAULT 0.00, is_active boolean DEFAULT true, created_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP, updated_at timestamp with time zone DEFAULT CURRENT_TIMESTAMP",
+    "constraints": "PK: id | UQ: name"
   },
   {
-    "table_name": "trek_driver_assignments",
-    "column_name": "trek_id",
-    "data_type": "integer"
+    "table_name": "trek_archive",
+    "columns": "archive_id bigint NOT NULL DEFAULT nextval('trek_archive_archive_id_seq'::regclass), trek_id integer, name character varying NOT NULL, description text, location text, difficulty character varying, start_datetime timestamp with time zone NOT NULL, route_data jsonb, image_url text, created_at timestamp with time zone DEFAULT now(), archived_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: archive_id"
   },
   {
-    "table_name": "trek_driver_assignments",
-    "column_name": "driver_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_driver_assignments",
-    "column_name": "participant_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_driver_assignments",
-    "column_name": "pickup_location_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_driver_assignments",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_driver_assignments",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_drivers",
-    "column_name": "driver_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_drivers",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_drivers",
-    "column_name": "user_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_drivers",
-    "column_name": "seating_capacity",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_drivers",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_drivers",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "trek_comments",
+    "columns": "comment_id integer NOT NULL DEFAULT nextval('trek_comments_comment_id_seq'::regclass), trek_id integer NOT NULL, user_id uuid NOT NULL, comment_text text NOT NULL, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now(), parent_id integer, body text",
+    "constraints": "FK: user_id → users.user_id | FK: trek_id → trek_events.trek_id | FK: parent_id → trek_comments.comment_id | PK: comment_id"
   },
   {
     "table_name": "trek_costs",
-    "column_name": "id",
-    "data_type": "bigint"
+    "columns": "id bigint NOT NULL DEFAULT nextval('trek_costs_id_seq'::regclass), trek_id bigint NOT NULL, cost_type text NOT NULL, description text, amount numeric NOT NULL DEFAULT 0, url text, file_url text, created_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now()), updated_at timestamp with time zone NOT NULL DEFAULT timezone('utc'::text, now())",
+    "constraints": "PK: id | FK: trek_id → trek_events.trek_id"
   },
   {
-    "table_name": "trek_costs",
-    "column_name": "trek_id",
-    "data_type": "bigint"
+    "table_name": "trek_driver_assignments",
+    "columns": "assignment_id integer NOT NULL DEFAULT nextval('trek_driver_assignments_assignment_id_seq'::regclass), trek_id integer NOT NULL, driver_id integer NOT NULL, participant_id uuid NOT NULL, pickup_location_id integer NOT NULL, status character varying NOT NULL DEFAULT 'pending'::character varying, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "FK: trek_id → trek_events.trek_id | PK: assignment_id | FK: pickup_location_id → trek_pickup_locations.location_id | FK: driver_id → trek_drivers.driver_id"
   },
   {
-    "table_name": "trek_costs",
-    "column_name": "amount",
-    "data_type": "numeric"
+    "table_name": "trek_drivers",
+    "columns": "driver_id integer NOT NULL DEFAULT nextval('trek_drivers_driver_id_seq'::regclass), trek_id integer NOT NULL, user_id uuid NOT NULL, vehicle_info text DEFAULT '{}'::jsonb, seating_capacity integer NOT NULL DEFAULT 4, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now(), vehicle_type character varying, vehicle_name character varying, registration_number character varying, seats_available integer DEFAULT 0",
+    "constraints": "FK: trek_id → trek_events.trek_id | PK: driver_id | FK: user_id → users.user_id"
   },
   {
-    "table_name": "trek_costs",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "trek_event_images",
+    "columns": "id bigint NOT NULL DEFAULT nextval('trek_event_images_id_seq'::regclass), trek_id integer NOT NULL, image_url text NOT NULL, position smallint NOT NULL DEFAULT 1, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: id | FK: trek_id → trek_events.trek_id"
   },
   {
-    "table_name": "trek_costs",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_costs",
-    "column_name": "pay_by_date",
-    "data_type": "date"
+    "table_name": "trek_event_videos",
+    "columns": "id bigint NOT NULL DEFAULT nextval('trek_event_videos_id_seq'::regclass), trek_id integer NOT NULL, video_url text NOT NULL, thumbnail_url text, duration_seconds integer, file_size_mb numeric, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "FK: trek_id → trek_events.trek_id | PK: id"
   },
   {
     "table_name": "trek_events",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "start_datetime",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "duration",
-    "data_type": "interval"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "base_price",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "penalty_details",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "max_participants",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "route_data",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "vendor_contacts",
-    "data_type": "jsonb"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "partner_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "booking_amount",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "collect_full_fee",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "is_finalized",
-    "data_type": "boolean"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "end_datetime",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "created_by",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "destination_latitude",
-    "data_type": "double precision"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "destination_longitude",
-    "data_type": "double precision"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "transport_mode",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "event_creator_type",
-    "data_type": "USER-DEFINED"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "trek_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "amount",
-    "data_type": "numeric"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "created_by",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "creator_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "category_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "expense_date",
-    "data_type": "timestamp with time zone"
+    "columns": "trek_id integer NOT NULL DEFAULT nextval('trek_events_trek_id_seq'::regclass), name character varying NOT NULL, description text, category character varying, start_datetime timestamp with time zone NOT NULL, duration interval, base_price numeric NOT NULL, cancellation_policy text, penalty_details numeric, max_participants integer NOT NULL, location text, route_data jsonb, vendor_contacts jsonb, pickup_time_window text, partner_id uuid, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now(), booking_amount numeric, collect_full_fee boolean DEFAULT false, image_url text, gpx_file_url text, is_finalized boolean DEFAULT false, end_datetime timestamp with time zone, difficulty character varying, status character varying, created_by uuid, destination_latitude double precision, destination_longitude double precision, transport_mode USER-DEFINED, event_creator_type USER-DEFINED DEFAULT 'internal'::event_creator_type, event_type character varying DEFAULT 'trek'::character varying, itinerary jsonb, activity_schedule jsonb, volunteer_roles jsonb, image text, transport_plan jsonb, government_id_required boolean DEFAULT false, distance numeric",
+    "constraints": "PK: trek_id | FK: partner_id → users.user_id"
   },
   {
     "table_name": "trek_expense_categories",
-    "column_name": "id",
-    "data_type": "integer"
+    "columns": "id integer NOT NULL DEFAULT nextval('trek_expense_categories_id_seq'::regclass), name character varying NOT NULL, description text, icon character varying, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: id | UQ: name"
   },
   {
-    "table_name": "trek_expense_categories",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "trek_expenses",
+    "columns": "id integer NOT NULL DEFAULT nextval('trek_expenses_id_seq'::regclass), trek_id integer, description text NOT NULL, amount numeric NOT NULL, type text, created_by uuid, created_at timestamp with time zone DEFAULT now(), creator_id uuid, category_id integer, expense_date timestamp with time zone NOT NULL DEFAULT now(), receipt_url text",
+    "constraints": "FK: category_id → trek_expense_categories.id | PK: id | FK: trek_id → trek_events.trek_id"
   },
   {
-    "table_name": "trek_participant_ratings",
-    "column_name": "id",
-    "data_type": "bigint"
+    "table_name": "trek_id_requirements",
+    "columns": "requirement_id integer NOT NULL DEFAULT nextval('trek_id_requirements_requirement_id_seq'::regclass), trek_id integer NOT NULL, id_type_id integer NOT NULL, is_mandatory boolean DEFAULT true, created_at timestamp without time zone DEFAULT now()",
+    "constraints": "UQ: id_type_id | FK: id_type_id → id_types.id_type_id | PK: requirement_id | FK: trek_id → trek_events.trek_id | UQ: trek_id | UQ: trek_id | UQ: id_type_id"
   },
   {
-    "table_name": "trek_participant_ratings",
-    "column_name": "trek_id",
-    "data_type": "integer"
+    "table_name": "trek_packing_items",
+    "columns": "item_id integer NOT NULL DEFAULT nextval('trek_packing_items_item_id_seq'::regclass), name character varying NOT NULL, category character varying, description text, is_default boolean DEFAULT false, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: item_id"
   },
   {
-    "table_name": "trek_participant_ratings",
-    "column_name": "rated_user_id",
-    "data_type": "uuid"
-  },
-  {
-    "table_name": "trek_participant_ratings",
-    "column_name": "rated_by_user_id",
-    "data_type": "uuid"
+    "table_name": "trek_packing_list_assignments",
+    "columns": "id integer NOT NULL DEFAULT nextval('trek_packing_list_assignments_id_seq'::regclass), trek_id integer NOT NULL, master_item_id integer NOT NULL, mandatory boolean DEFAULT false, item_order integer DEFAULT 0, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "UQ: trek_id | UQ: master_item_id | UQ: master_item_id | PK: id | FK: master_item_id → master_packing_items.id | FK: trek_id → trek_events.trek_id | UQ: trek_id"
   },
   {
     "table_name": "trek_participant_ratings",
-    "column_name": "teamwork_rating",
-    "data_type": "integer"
+    "columns": "id bigint NOT NULL, trek_id integer NOT NULL, rated_user_id uuid NOT NULL, rated_by_user_id uuid NOT NULL, teamwork_rating integer NOT NULL, punctuality_rating integer NOT NULL, contribution_rating integer NOT NULL, comments text, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "FK: rated_by_user_id → users.user_id | UQ: rated_by_user_id | UQ: rated_by_user_id | UQ: rated_by_user_id | UQ: rated_user_id | UQ: rated_user_id | UQ: rated_user_id | UQ: trek_id | UQ: trek_id | UQ: trek_id | FK: trek_id → trek_events.trek_id | FK: rated_user_id → users.user_id | PK: id"
   },
   {
-    "table_name": "trek_participant_ratings",
-    "column_name": "punctuality_rating",
-    "data_type": "integer"
+    "table_name": "trek_pickup_locations",
+    "columns": "location_id integer NOT NULL DEFAULT nextval('trek_pickup_locations_location_id_seq'::regclass), trek_id integer NOT NULL, name character varying NOT NULL, address text NOT NULL, coordinates character varying, time character varying DEFAULT now(), created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now(), latitude numeric, longitude numeric",
+    "constraints": "FK: trek_id → trek_events.trek_id | PK: location_id"
   },
   {
-    "table_name": "trek_participant_ratings",
-    "column_name": "contribution_rating",
-    "data_type": "integer"
+    "table_name": "trek_ratings",
+    "columns": "id bigint NOT NULL, trek_id integer NOT NULL, user_id uuid NOT NULL, difficulty_rating integer NOT NULL, enjoyment_rating integer NOT NULL, scenic_rating integer NOT NULL, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: id | FK: user_id → users.user_id | UQ: user_id | UQ: trek_id | UQ: trek_id | UQ: user_id | FK: trek_id → trek_events.trek_id"
   },
   {
-    "table_name": "trek_participant_ratings",
-    "column_name": "created_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "trek_registrations",
+    "columns": "registration_id integer NOT NULL DEFAULT nextval('registrations_registration_id_seq'::regclass), user_id uuid NOT NULL, trek_id integer NOT NULL, booking_datetime timestamp with time zone DEFAULT now(), payment_status text DEFAULT 'Pending'::text, cancellation_datetime timestamp with time zone, penalty_applied numeric, created_at timestamp with time zone DEFAULT now(), pickup_location_id integer, is_driver boolean DEFAULT false, indemnity_agreed_at timestamp with time zone, payment_proof_url text, payment_verified_at timestamp with time zone, verified_by uuid, verified_at timestamp with time zone, rejection_reason text, offered_seats integer, pickup_area text, preferred_pickup_time text, registrant_name character varying, registrant_phone character varying, id_verification_status character varying DEFAULT 'pending'::character varying, id_verification_notes text",
+    "constraints": "FK: trek_id → trek_events.trek_id | PK: registration_id | FK: user_id → users.user_id"
   },
   {
-    "table_name": "trek_participant_ratings",
-    "column_name": "updated_at",
-    "data_type": "timestamp with time zone"
+    "table_name": "trek_transport_assignments",
+    "columns": "id bigint NOT NULL DEFAULT nextval('trek_transport_assignments_id_seq'::regclass), trek_id integer NOT NULL, driver_user_id uuid NOT NULL, passenger_user_id uuid NOT NULL, seats_reserved integer NOT NULL DEFAULT 1, pickup_point text, notes text, created_at timestamp with time zone NOT NULL DEFAULT now()",
+    "constraints": "PK: id | FK: trek_id → trek_events.trek_id | FK: driver_user_id → users.user_id | FK: passenger_user_id → users.user_id"
+  },
+  {
+    "table_name": "user_actions",
+    "columns": "id bigint NOT NULL DEFAULT nextval('user_actions_id_seq'::regclass), user_id uuid NOT NULL, action_type text NOT NULL, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "FK: user_id → users.user_id | PK: id"
+  },
+  {
+    "table_name": "user_trek_images",
+    "columns": "id bigint NOT NULL DEFAULT nextval('user_trek_images_id_seq'::regclass), trek_id integer NOT NULL, uploaded_by uuid NOT NULL, image_url text NOT NULL, caption text, status text DEFAULT 'pending'::text, created_at timestamp with time zone DEFAULT now(), reviewed_by uuid, reviewed_at timestamp with time zone, rejection_reason text",
+    "constraints": "FK: trek_id → trek_events.trek_id | PK: id"
+  },
+  {
+    "table_name": "users",
+    "columns": "full_name character varying NOT NULL, email character varying NOT NULL, phone_number character varying, address text, date_of_birth date, id_verification_status USER-DEFINED DEFAULT 'Pending'::id_verification_status, health_data jsonb, trekking_experience character varying, badges jsonb, interests jsonb, pet_details jsonb, created_at timestamp with time zone DEFAULT now(), updated_at timestamp with time zone DEFAULT now(), user_id uuid NOT NULL, image_url text, user_type text, partner_id text, indemnity_accepted boolean DEFAULT false, indemnity_accepted_at timestamp with time zone, verification_status text DEFAULT 'pending'::text, verification_docs jsonb, avatar_url text, legacy_int_id integer, points integer DEFAULT 0, car_seating_capacity integer, name character varying, has_car boolean DEFAULT false, vehicle_number text, latitude double precision, longitude double precision, subscription_type USER-DEFINED, is_verified boolean DEFAULT true, transport_volunteer_opt_in boolean DEFAULT false, bio text, location character varying, avatar_key text",
+    "constraints": "UQ: email | PK: id | FK: avatar_key → avatar_catalog.key | PK: user_id"
   },
   {
     "table_name": "votes",
-    "column_name": "vote_id",
-    "data_type": "integer"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "difficulty",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "users",
-    "column_name": "trekking_experience",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "payment_status",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "description",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "user_type",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_drivers",
-    "column_name": "vehicle_info",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "type",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "partner_id",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "name",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "address",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_costs",
-    "column_name": "cost_type",
-    "data_type": "text"
-  },
-  {
-    "table_name": "geography_columns",
-    "column_name": "type",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_costs",
-    "column_name": "description",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "coordinates",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "geometry_columns",
-    "column_name": "type",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_costs",
-    "column_name": "url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "spatial_ref_sys",
-    "column_name": "auth_name",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_costs",
-    "column_name": "file_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "spatial_ref_sys",
-    "column_name": "srtext",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "spatial_ref_sys",
-    "column_name": "proj4text",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_expenses",
-    "column_name": "receipt_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_registrations",
-    "column_name": "payment_proof_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_expense_categories",
-    "column_name": "name",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "comments",
-    "column_name": "body",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_expense_categories",
-    "column_name": "description",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "name",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "description",
-    "data_type": "text"
-  },
-  {
-    "table_name": "community_posts",
-    "column_name": "title",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "community_posts",
-    "column_name": "body",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "category",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_expense_categories",
-    "column_name": "icon",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_pickup_locations",
-    "column_name": "time",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "users",
-    "column_name": "avatar_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "cancellation_policy",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "vehicle_number",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "full_name",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "location",
-    "data_type": "text"
-  },
-  {
-    "table_name": "expense_shares",
-    "column_name": "status",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "expense_shares",
-    "column_name": "payment_method",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "comment_text",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "email",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "pickup_time_window",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "phone_number",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "master_packing_items",
-    "column_name": "name",
-    "data_type": "text"
-  },
-  {
-    "table_name": "master_packing_items",
-    "column_name": "category",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "message",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_participant_ratings",
-    "column_name": "comments",
-    "data_type": "text"
-  },
-  {
-    "table_name": "notifications",
-    "column_name": "link",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "address",
-    "data_type": "text"
-  },
-  {
-    "table_name": "subscriptions_billing",
-    "column_name": "subscription_type",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "image_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "subscriptions_billing",
-    "column_name": "billing_period",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "gpx_file_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_comments",
-    "column_name": "body",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "verification_status",
-    "data_type": "text"
-  },
-  {
-    "table_name": "trek_events",
-    "column_name": "status",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_packing_items",
-    "column_name": "name",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_packing_items",
-    "column_name": "category",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_packing_items",
-    "column_name": "description",
-    "data_type": "text"
-  },
-  {
-    "table_name": "users",
-    "column_name": "name",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "trek_driver_assignments",
-    "column_name": "status",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "users",
-    "column_name": "image_url",
-    "data_type": "text"
-  },
-  {
-    "table_name": "geography_columns",
-    "column_name": "f_table_name",
-    "data_type": "name"
-  },
-  {
-    "table_name": "geography_columns",
-    "column_name": "f_geography_column",
-    "data_type": "name"
-  },
-  {
-    "table_name": "geometry_columns",
-    "column_name": "f_geometry_column",
-    "data_type": "name"
-  },
-  {
-    "table_name": "geography_columns",
-    "column_name": "f_table_catalog",
-    "data_type": "name"
-  },
-  {
-    "table_name": "geography_columns",
-    "column_name": "f_table_schema",
-    "data_type": "name"
-  },
-  {
-    "table_name": "geometry_columns",
-    "column_name": "f_table_catalog",
-    "data_type": "character varying"
-  },
-  {
-    "table_name": "geometry_columns",
-    "column_name": "f_table_schema",
-    "data_type": "name"
-  },
-  {
-    "table_name": "geometry_columns",
-    "column_name": "f_table_name",
-    "data_type": "name"
+    "columns": "vote_id integer NOT NULL DEFAULT nextval('votes_vote_id_seq'::regclass), voter_id integer NOT NULL, target_type USER-DEFINED NOT NULL, target_id integer NOT NULL, vote_value integer NOT NULL, created_at timestamp with time zone DEFAULT now()",
+    "constraints": "PK: vote_id"
   }
 ]

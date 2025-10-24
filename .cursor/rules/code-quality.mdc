@@ -1,0 +1,31 @@
+---
+description: "Code Quality, Testing, and Documentation Standards"
+globs: ["src/**/*.{ts,tsx}", "backend/**/*.{ts,js}", "**/*.test.{ts,tsx}", "**/*.spec.{ts,tsx}"]
+alwaysApply: true
+---
+
+# 🧪 CODE QUALITY & TESTING RULES
+
+## 6.1 Testing Requirements
+✅ **REQUIRED:** Unit tests for all utility functions
+✅ **REQUIRED:** Component tests for complex UI logic
+✅ **REQUIRED:** Integration tests for critical user flows
+✅ **REQUIRED:** End-to-end tests for complete workflows
+
+## 6.2 Code Documentation
+✅ **REQUIRED:** JSDoc comments for all public functions
+✅ **REQUIRED:** Component prop documentation
+✅ **REQUIRED:** Architecture decision records for complex features
+✅ **REQUIRED:** README updates with new features
+
+## 6.3 Code Organization
+✅ **REQUIRED:** Consistent file naming (kebab-case for files, PascalCase for components)
+✅ **REQUIRED:** Proper imports and exports (no circular dependencies)
+✅ **REQUIRED:** Error boundaries for component trees
+✅ **REQUIRED:** Consistent error handling patterns
+
+## 6.4 Git Workflow
+✅ **REQUIRED:** Conventional commit messages (feat:, fix:, docs:, etc.)
+✅ **REQUIRED:** Feature branches for new development
+✅ **REQUIRED:** Pull request reviews before merging
+✅ **REQUIRED:** Database migrations committed with schema changes

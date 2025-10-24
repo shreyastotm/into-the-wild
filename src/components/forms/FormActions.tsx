@@ -1,19 +1,34 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { Loader2, Save, X, RotateCcw, Check, ArrowLeft, ArrowRight } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import {
+  Loader2,
+  Save,
+  X,
+  RotateCcw,
+  Check,
+  ArrowLeft,
+  ArrowRight,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export interface FormAction {
   label: string;
-  onClick: ((event?: React.MouseEvent) => void | Promise<void>) | (() => void | Promise<void>);
-  variant?: 'default' | 'destructive' | 'outline' | 'secondary' | 'ghost' | 'link';
-  size?: 'sm' | 'md' | 'lg';
+  onClick:
+    | ((event?: React.MouseEvent) => void | Promise<void>)
+    | (() => void | Promise<void>);
+  variant?:
+    | "default"
+    | "destructive"
+    | "outline"
+    | "secondary"
+    | "ghost"
+    | "link";
+  size?: "sm" | "md" | "lg";
   disabled?: boolean;
   loading?: boolean;
   icon?: React.ReactNode;
-  type?: 'button' | 'submit' | 'reset';
+  type?: "button" | "submit" | "reset";
   className?: string;
 }
 
@@ -23,13 +38,15 @@ export interface FormActionsProps {
   loading?: boolean;
   disabled?: boolean;
   className?: string;
-  variant?: 'default' | 'card' | 'sticky' | 'floating';
-  position?: 'left' | 'center' | 'right' | 'between';
-  size?: 'sm' | 'md' | 'lg';
+  variant?: "default" | "card" | "sticky" | "floating";
+  position?: "left" | "center" | "right" | "between";
+  size?: "sm" | "md" | "lg";
   showSeparator?: boolean;
   separatorClassName?: string;
   stickyOffset?: number;
-  onSave?: ((event?: React.MouseEvent) => void | Promise<void>) | (() => void | Promise<void>);
+  onSave?:
+    | ((event?: React.MouseEvent) => void | Promise<void>)
+    | (() => void | Promise<void>);
   onCancel?: () => void;
   onReset?: () => void;
   onNext?: () => void;
@@ -56,23 +73,23 @@ const FormActions: React.FC<FormActionsProps> = ({
   secondaryActions = [],
   loading = false,
   disabled = false,
-  className = '',
-  variant = 'default',
-  position = 'right',
-  size = 'md',
+  className = "",
+  variant = "default",
+  position = "right",
+  size = "md",
   showSeparator = true,
-  separatorClassName = '',
+  separatorClassName = "",
   stickyOffset = 0,
   onSave,
   onCancel,
   onReset,
   onNext,
   onPrevious,
-  saveLabel = 'Save',
-  cancelLabel = 'Cancel',
-  resetLabel = 'Reset',
-  nextLabel = 'Next',
-  previousLabel = 'Previous',
+  saveLabel = "Save",
+  cancelLabel = "Cancel",
+  resetLabel = "Reset",
+  nextLabel = "Next",
+  previousLabel = "Previous",
   showSave = true,
   showCancel = true,
   showReset = false,
@@ -85,46 +102,46 @@ const FormActions: React.FC<FormActionsProps> = ({
   previousLoading = false,
 }) => {
   const sizeClasses = {
-    sm: 'h-8 px-3 text-sm',
-    md: 'h-10 px-4 text-sm',
-    lg: 'h-12 px-6 text-base'
+    sm: "h-8 px-3 text-sm",
+    md: "h-10 px-4 text-sm",
+    lg: "h-12 px-6 text-base",
   };
 
   const spacingClasses = {
-    sm: 'space-x-2',
-    md: 'space-x-3',
-    lg: 'space-x-4'
+    sm: "space-x-2",
+    md: "space-x-3",
+    lg: "space-x-4",
   };
 
   const paddingClasses = {
-    sm: 'p-3',
-    md: 'p-4',
-    lg: 'p-6'
+    sm: "p-3",
+    md: "p-4",
+    lg: "p-6",
   };
 
   const handleAction = async (action: FormAction, event?: React.MouseEvent) => {
     if (action.disabled || action.loading) return;
     try {
       // If the action expects an event (like form submission), pass it
-      if (typeof action.onClick === 'function' && action.onClick.length > 0) {
+      if (typeof action.onClick === "function" && action.onClick.length > 0) {
         await action.onClick(event as any);
       } else {
         await action.onClick();
       }
     } catch (error) {
-      console.error('Form action failed:', error);
+      console.error("Form action failed:", error);
     }
   };
 
   const renderButton = (action: FormAction, index: number) => (
     <Button
       key={index}
-      variant={action.variant || 'outline'}
+      variant={action.variant || "outline"}
       size={action.size || size}
       onClick={(event) => handleAction(action, event)}
       disabled={disabled || action.disabled || action.loading || loading}
       className={cn(sizeClasses[action.size || size], action.className)}
-      type={action.type || 'button'}
+      type={action.type || "button"}
     >
       {action.loading ? (
         <>
@@ -153,7 +170,7 @@ const FormActions: React.FC<FormActionsProps> = ({
       actions.push({
         label: previousLabel,
         onClick: onPrevious,
-        variant: 'outline',
+        variant: "outline",
         icon: <ArrowLeft className="h-4 w-4" />,
         loading: previousLoading,
       });
@@ -163,7 +180,7 @@ const FormActions: React.FC<FormActionsProps> = ({
       actions.push({
         label: resetLabel,
         onClick: onReset,
-        variant: 'outline',
+        variant: "outline",
         icon: <RotateCcw className="h-4 w-4" />,
         loading: resetLoading,
       });
@@ -173,7 +190,7 @@ const FormActions: React.FC<FormActionsProps> = ({
       actions.push({
         label: cancelLabel,
         onClick: onCancel,
-        variant: 'outline',
+        variant: "outline",
         icon: <X className="h-4 w-4" />,
         loading: cancelLoading,
       });
@@ -182,8 +199,8 @@ const FormActions: React.FC<FormActionsProps> = ({
     if (showSave && onSave) {
       actions.push({
         label: saveLabel,
-        onClick: onSave as ((event?: React.MouseEvent) => void | Promise<void>),
-        variant: 'default',
+        onClick: onSave as (event?: React.MouseEvent) => void | Promise<void>,
+        variant: "default",
         icon: <Save className="h-4 w-4" />,
         loading: saveLoading,
       });
@@ -193,7 +210,7 @@ const FormActions: React.FC<FormActionsProps> = ({
       actions.push({
         label: nextLabel,
         onClick: onNext,
-        variant: 'default',
+        variant: "default",
         icon: <ArrowRight className="h-4 w-4" />,
         loading: nextLoading,
       });
@@ -203,19 +220,27 @@ const FormActions: React.FC<FormActionsProps> = ({
   };
 
   const renderActions = () => {
-    const actions = primaryAction ? [primaryAction, ...secondaryActions] : renderDefaultActions();
+    const actions = primaryAction
+      ? [primaryAction, ...secondaryActions]
+      : renderDefaultActions();
 
     if (actions.length === 0) return null;
 
     const positionClasses = {
-      left: 'justify-start',
-      center: 'justify-center',
-      right: 'justify-end',
-      between: 'justify-between'
+      left: "justify-start",
+      center: "justify-center",
+      right: "justify-end",
+      between: "justify-between",
     };
 
     return (
-      <div className={cn('flex items-center', positionClasses[position], spacingClasses[size])}>
+      <div
+        className={cn(
+          "flex items-center",
+          positionClasses[position],
+          spacingClasses[size],
+        )}
+      >
         {actions.map((action, index) => renderButton(action, index))}
       </div>
     );
@@ -229,14 +254,14 @@ const FormActions: React.FC<FormActionsProps> = ({
   const content = (
     <>
       {renderSeparator()}
-      <div className={cn('flex items-center', paddingClasses[size], className)}>
+      <div className={cn("flex items-center", paddingClasses[size], className)}>
         {renderActions()}
       </div>
     </>
   );
 
   // Sticky variant - fixed at bottom
-  if (variant === 'sticky') {
+  if (variant === "sticky") {
     return (
       <div
         className="fixed bottom-0 left-0 right-0 bg-background border-t z-50"
@@ -248,7 +273,7 @@ const FormActions: React.FC<FormActionsProps> = ({
   }
 
   // Floating variant - floating at bottom
-  if (variant === 'floating') {
+  if (variant === "floating") {
     return (
       <div className="fixed bottom-4 right-4 z-50">
         <Card className="shadow-lg">
@@ -261,7 +286,7 @@ const FormActions: React.FC<FormActionsProps> = ({
   }
 
   // Card variant - wrapped in card
-  if (variant === 'card') {
+  if (variant === "card") {
     return (
       <Card>
         <CardContent className={paddingClasses[size]}>
@@ -276,11 +301,13 @@ const FormActions: React.FC<FormActionsProps> = ({
 };
 
 // Specialized form actions for common use cases
-export const SaveCancelActions: React.FC<Omit<FormActionsProps, 'showSave' | 'showCancel'>> = ({
+export const SaveCancelActions: React.FC<
+  Omit<FormActionsProps, "showSave" | "showCancel">
+> = ({
   onSave,
   onCancel,
-  saveLabel = 'Save Changes',
-  cancelLabel = 'Cancel',
+  saveLabel = "Save Changes",
+  cancelLabel = "Cancel",
   ...props
 }) => (
   <FormActions
@@ -294,13 +321,15 @@ export const SaveCancelActions: React.FC<Omit<FormActionsProps, 'showSave' | 'sh
   />
 );
 
-export const WizardActions: React.FC<Omit<FormActionsProps, 'showNext' | 'showPrevious' | 'showSave'>> = ({
+export const WizardActions: React.FC<
+  Omit<FormActionsProps, "showNext" | "showPrevious" | "showSave">
+> = ({
   onNext,
   onPrevious,
   onSave,
-  nextLabel = 'Next',
-  previousLabel = 'Previous',
-  saveLabel = 'Finish',
+  nextLabel = "Next",
+  previousLabel = "Previous",
+  saveLabel = "Finish",
   ...props
 }) => (
   <FormActions
@@ -317,11 +346,13 @@ export const WizardActions: React.FC<Omit<FormActionsProps, 'showNext' | 'showPr
   />
 );
 
-export const DeleteActions: React.FC<Omit<FormActionsProps, 'showSave' | 'showCancel'>> = ({
+export const DeleteActions: React.FC<
+  Omit<FormActionsProps, "showSave" | "showCancel">
+> = ({
   onSave,
   onCancel,
-  saveLabel = 'Delete',
-  cancelLabel = 'Cancel',
+  saveLabel = "Delete",
+  cancelLabel = "Cancel",
   ...props
 }) => (
   <FormActions
@@ -335,7 +366,7 @@ export const DeleteActions: React.FC<Omit<FormActionsProps, 'showSave' | 'showCa
     primaryAction={{
       label: saveLabel,
       onClick: onSave!,
-      variant: 'destructive',
+      variant: "destructive",
       icon: <X className="h-4 w-4" />,
     }}
   />

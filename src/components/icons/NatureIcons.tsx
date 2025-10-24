@@ -1,12 +1,13 @@
-import React from 'react';
-
 /**
  * Hand-drawn nature-inspired icon set
  * All icons designed to look organic and hand-drawn
  */
 
 // Tent Icon - Hand-drawn style
-export const TentIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const TentIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -33,7 +34,10 @@ export const TentIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Compass Icon - Hand-drawn with organic needle
-export const CompassIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const CompassIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -64,7 +68,10 @@ export const CompassIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<
 );
 
 // Mountain Icon - Hand-drawn peaks
-export const MountainIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const MountainIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -89,7 +96,10 @@ export const MountainIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps
 );
 
 // Tree Icon - Hand-drawn pine tree
-export const TreeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const TreeIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -115,7 +125,10 @@ export const TreeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Campfire Icon - Hand-drawn flames
-export const CampfireIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const CampfireIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -130,7 +143,10 @@ export const CampfireIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps
     <ellipse cx="8" cy="20" rx="3" ry="1" strokeWidth="1.5" />
     <ellipse cx="16" cy="20" rx="3" ry="1" strokeWidth="1.5" />
     {/* Main flame - organic shape */}
-    <path d="M12 6 C10 8 8 12 8 16 C8 18 10 20 12 20 C14 20 16 18 16 16 C16 12 14 8 12 6 Z" strokeWidth="2" />
+    <path
+      d="M12 6 C10 8 8 12 8 16 C8 18 10 20 12 20 C14 20 16 18 16 16 C16 12 14 8 12 6 Z"
+      strokeWidth="2"
+    />
     {/* Inner flame details */}
     <path d="M12 8 C11 10 10 12 10 14" strokeWidth="1" opacity="0.7" />
     <path d="M12 8 C13 10 14 12 14 14" strokeWidth="1" opacity="0.7" />
@@ -141,7 +157,10 @@ export const CampfireIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps
 );
 
 // River Icon - Hand-drawn water
-export const RiverIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const RiverIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -154,8 +173,16 @@ export const RiverIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
   >
     {/* Water surface - wavy organic lines */}
     <path d="M2 14 Q6 12 10 14 T18 14 Q22 12 24 14" strokeWidth="2" />
-    <path d="M2 16 Q6 14 10 16 T18 16 Q22 14 24 16" strokeWidth="1.5" opacity="0.7" />
-    <path d="M2 18 Q6 16 10 18 T18 18 Q22 16 24 18" strokeWidth="1" opacity="0.5" />
+    <path
+      d="M2 16 Q6 14 10 16 T18 16 Q22 14 24 16"
+      strokeWidth="1.5"
+      opacity="0.7"
+    />
+    <path
+      d="M2 18 Q6 16 10 18 T18 18 Q22 16 24 18"
+      strokeWidth="1"
+      opacity="0.5"
+    />
     {/* River banks - irregular curves */}
     <path d="M2 12 L2 22" strokeWidth="1" opacity="0.6" />
     <path d="M22 12 L22 22" strokeWidth="1" opacity="0.6" />
@@ -166,7 +193,10 @@ export const RiverIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Sun Icon - Hand-drawn with rays
-export const SunIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const SunIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -192,7 +222,10 @@ export const SunIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGS
 );
 
 // Moon Icon - Hand-drawn crescent
-export const MoonIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const MoonIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -204,14 +237,24 @@ export const MoonIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
     {...props}
   >
     {/* Moon crescent - hand-drawn curve */}
-    <path d="M12 2 C16 2 20 6 20 12 C20 18 16 22 12 22 C8 22 4 18 4 12 C4 8 6 4 10 3" strokeWidth="2" />
+    <path
+      d="M12 2 C16 2 20 6 20 12 C20 18 16 22 12 22 C8 22 4 18 4 12 C4 8 6 4 10 3"
+      strokeWidth="2"
+    />
     {/* Inner shadow */}
-    <path d="M12 4 C15 4 18 7 18 12 C18 17 15 20 12 20 C9 20 6 17 6 12 C6 8 8 5 11 4.5" strokeWidth="1" opacity="0.3" />
+    <path
+      d="M12 4 C15 4 18 7 18 12 C18 17 15 20 12 20 C9 20 6 17 6 12 C6 8 8 5 11 4.5"
+      strokeWidth="1"
+      opacity="0.3"
+    />
   </svg>
 );
 
 // Star Icon - Hand-drawn with organic points
-export const StarIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const StarIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -223,7 +266,10 @@ export const StarIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
     {...props}
   >
     {/* Star - hand-drawn irregular points */}
-    <path d="M12 2 L14 8 L20 8 L15 12 L17 18 L12 14 L7 18 L9 12 L4 8 L10 8 Z" strokeWidth="2" />
+    <path
+      d="M12 2 L14 8 L20 8 L15 12 L17 18 L12 14 L7 18 L9 12 L4 8 L10 8 Z"
+      strokeWidth="2"
+    />
     {/* Inner details - organic lines */}
     <path d="M12 4 L12.5 7 L13.5 7 L13 4" strokeWidth="1" opacity="0.5" />
     <path d="M12 16 L12.5 13 L13.5 13 L13 16" strokeWidth="1" opacity="0.5" />
@@ -231,7 +277,10 @@ export const StarIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Trail Icon - Hand-drawn path
-export const TrailIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const TrailIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -255,7 +304,10 @@ export const TrailIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Backpack Icon - Hand-drawn hiking gear
-export const BackpackIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const BackpackIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -280,7 +332,10 @@ export const BackpackIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps
 );
 
 // Camera Icon - Hand-drawn photography gear
-export const CameraIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const CameraIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -306,7 +361,10 @@ export const CameraIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<S
 );
 
 // Binoculars Icon - Hand-drawn observation gear
-export const BinocularsIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const BinocularsIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -334,7 +392,10 @@ export const BinocularsIcon = ({ className = "h-6 w-6", ...props }: React.SVGPro
 );
 
 // Leaf Icon - Hand-drawn foliage
-export const LeafIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const LeafIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -346,7 +407,10 @@ export const LeafIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
     {...props}
   >
     {/* Leaf shape - organic curve */}
-    <path d="M12 2 C8 4 6 8 8 12 C10 16 14 18 16 14 C18 10 16 6 12 2 Z" strokeWidth="2" />
+    <path
+      d="M12 2 C8 4 6 8 8 12 C10 16 14 18 16 14 C18 10 16 6 12 2 Z"
+      strokeWidth="2"
+    />
     {/* Central vein - hand-drawn line */}
     <path d="M12 4 L12 16" strokeWidth="1" opacity="0.7" />
     {/* Side veins - organic branches */}
@@ -359,7 +423,10 @@ export const LeafIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Water Drop Icon - Hand-drawn dew drop
-export const WaterDropIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const WaterDropIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -373,14 +440,21 @@ export const WaterDropIcon = ({ className = "h-6 w-6", ...props }: React.SVGProp
     {/* Water drop - organic teardrop shape */}
     <path d="M12 2 C8 6 8 10 12 18 C16 10 16 6 12 2 Z" strokeWidth="2" />
     {/* Surface tension - hand-drawn curve */}
-    <path d="M12 4 C10 6 10 8 12 10 C14 8 14 6 12 4 Z" strokeWidth="1" opacity="0.6" />
+    <path
+      d="M12 4 C10 6 10 8 12 10 C14 8 14 6 12 4 Z"
+      strokeWidth="1"
+      opacity="0.6"
+    />
     {/* Highlight */}
     <path d="M10 6 Q12 4 14 6" strokeWidth="1" opacity="0.4" />
   </svg>
 );
 
 // Wind Icon - Hand-drawn air currents
-export const WindIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const WindIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -401,7 +475,10 @@ export const WindIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Heart Icon - Hand-drawn love for nature
-export const HeartIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const HeartIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -413,14 +490,24 @@ export const HeartIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
     {...props}
   >
     {/* Heart shape - hand-drawn curves */}
-    <path d="M12 4 C8 4 4 8 4 12 C4 16 8 20 12 20 C16 20 20 16 20 12 C20 8 16 4 12 4 Z" strokeWidth="2" />
+    <path
+      d="M12 4 C8 4 4 8 4 12 C4 16 8 20 12 20 C16 20 20 16 20 12 C20 8 16 4 12 4 Z"
+      strokeWidth="2"
+    />
     {/* Heart details - organic lines */}
-    <path d="M12 6 C10 6 8 8 8 12 C8 14 10 16 12 16 C14 16 16 14 16 12 C16 8 14 6 12 6 Z" strokeWidth="1" opacity="0.5" />
+    <path
+      d="M12 6 C10 6 8 8 8 12 C8 14 10 16 12 16 C14 16 16 14 16 12 C16 8 14 6 12 6 Z"
+      strokeWidth="1"
+      opacity="0.5"
+    />
   </svg>
 );
 
 // Award Icon - Hand-drawn achievement badge
-export const AwardIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const AwardIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -432,9 +519,16 @@ export const AwardIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
     {...props}
   >
     {/* Badge shape - hand-drawn star-like */}
-    <path d="M12 2 L16 8 L22 8 L17 13 L19 19 L12 15 L5 19 L7 13 L2 8 L8 8 Z" strokeWidth="2" />
+    <path
+      d="M12 2 L16 8 L22 8 L17 13 L19 19 L12 15 L5 19 L7 13 L2 8 L8 8 Z"
+      strokeWidth="2"
+    />
     {/* Inner details */}
-    <path d="M12 4 L14 7 L17 7 L14 10 L15 13 L12 11 L9 13 L10 10 L7 7 L10 7 Z" strokeWidth="1" opacity="0.6" />
+    <path
+      d="M12 4 L14 7 L17 7 L14 10 L15 13 L12 11 L9 13 L10 10 L7 7 L10 7 Z"
+      strokeWidth="1"
+      opacity="0.6"
+    />
     {/* Ribbon - organic curves */}
     <path d="M12 15 L12 22" strokeWidth="2" />
     <path d="M10 20 L14 20" strokeWidth="1.5" />
@@ -442,7 +536,10 @@ export const AwardIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Users Icon - Hand-drawn people silhouettes
-export const UsersIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const UsersIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -465,7 +562,10 @@ export const UsersIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Clock Icon - Hand-drawn timepiece
-export const ClockIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ClockIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -492,7 +592,10 @@ export const ClockIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Map Icon - Hand-drawn trail map
-export const MapIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const MapIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -504,7 +607,10 @@ export const MapIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGS
     {...props}
   >
     {/* Map outline - hand-drawn irregular shape */}
-    <path d="M2 4 L6 2 L18 4 L22 8 L20 18 L16 20 L8 18 L4 14 Z" strokeWidth="2" />
+    <path
+      d="M2 4 L6 2 L18 4 L22 8 L20 18 L16 20 L8 18 L4 14 Z"
+      strokeWidth="2"
+    />
     {/* Trail lines - organic curves */}
     <path d="M6 8 Q10 6 14 8 Q18 10 18 14" strokeWidth="1" opacity="0.7" />
     <path d="M8 12 Q12 10 16 12" strokeWidth="1" opacity="0.7" />
@@ -515,7 +621,10 @@ export const MapIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGS
 );
 
 // Home Icon - Hand-drawn cabin
-export const HomeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const HomeIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -543,7 +652,10 @@ export const HomeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Settings Icon - Hand-drawn gear
-export const SettingsIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const SettingsIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -569,7 +681,10 @@ export const SettingsIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps
 );
 
 // Bell Icon - Hand-drawn notification
-export const BellIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const BellIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -581,7 +696,10 @@ export const BellIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
     {...props}
   >
     {/* Bell body - hand-drawn curves */}
-    <path d="M6 8 C6 4 9 2 12 2 C15 2 18 4 18 8 C18 12 20 14 20 16 L4 16 C4 14 6 12 6 8 Z" strokeWidth="2" />
+    <path
+      d="M6 8 C6 4 9 2 12 2 C15 2 18 4 18 8 C18 12 20 14 20 16 L4 16 C4 14 6 12 6 8 Z"
+      strokeWidth="2"
+    />
     {/* Bell handle - organic curve */}
     <path d="M10 2 Q12 0 14 2" strokeWidth="2" />
     {/* Clapper - hand-drawn line */}
@@ -592,7 +710,10 @@ export const BellIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Search Icon - Hand-drawn magnifying glass
-export const SearchIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const SearchIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -614,7 +735,10 @@ export const SearchIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<S
 );
 
 // Plus Icon - Hand-drawn addition symbol
-export const PlusIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const PlusIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -634,7 +758,10 @@ export const PlusIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Minus Icon - Hand-drawn subtraction symbol
-export const MinusIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const MinusIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -653,7 +780,10 @@ export const MinusIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Check Icon - Hand-drawn checkmark
-export const CheckIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const CheckIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -672,7 +802,10 @@ export const CheckIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // X Icon - Hand-drawn close symbol
-export const XIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const XIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -692,7 +825,10 @@ export const XIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVG
 );
 
 // Arrow Right Icon - Hand-drawn direction
-export const ArrowRightIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ArrowRightIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -711,7 +847,10 @@ export const ArrowRightIcon = ({ className = "h-6 w-6", ...props }: React.SVGPro
 );
 
 // Arrow Left Icon - Hand-drawn direction
-export const ArrowLeftIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ArrowLeftIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -730,7 +869,10 @@ export const ArrowLeftIcon = ({ className = "h-6 w-6", ...props }: React.SVGProp
 );
 
 // Chevron Down Icon - Hand-drawn dropdown
-export const ChevronDownIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ChevronDownIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -747,7 +889,10 @@ export const ChevronDownIcon = ({ className = "h-6 w-6", ...props }: React.SVGPr
 );
 
 // Chevron Up Icon - Hand-drawn dropdown (reversed)
-export const ChevronUpIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ChevronUpIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -764,7 +909,10 @@ export const ChevronUpIcon = ({ className = "h-6 w-6", ...props }: React.SVGProp
 );
 
 // Menu Icon - Hand-drawn hamburger menu
-export const MenuIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const MenuIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -783,7 +931,10 @@ export const MenuIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Filter Icon - Hand-drawn filter funnel
-export const FilterIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const FilterIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -805,7 +956,10 @@ export const FilterIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<S
 );
 
 // Sort Icon - Hand-drawn sorting arrows
-export const SortIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const SortIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -825,7 +979,10 @@ export const SortIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Edit Icon - Hand-drawn pencil
-export const EditIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const EditIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -848,7 +1005,10 @@ export const EditIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Delete Icon - Hand-drawn trash can
-export const DeleteIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const DeleteIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -873,7 +1033,10 @@ export const DeleteIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<S
 );
 
 // Share Icon - Hand-drawn sharing arrows
-export const ShareIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ShareIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -895,7 +1058,10 @@ export const ShareIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Bookmark Icon - Hand-drawn bookmark
-export const BookmarkIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const BookmarkIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -915,7 +1081,10 @@ export const BookmarkIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps
 );
 
 // Like Icon - Hand-drawn heart (for likes)
-export const LikeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const LikeIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -927,14 +1096,24 @@ export const LikeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
     {...props}
   >
     {/* Heart shape - hand-drawn curves */}
-    <path d="M12 4 C8 4 4 8 4 12 C4 16 8 20 12 20 C16 20 20 16 20 12 C20 8 16 4 12 4 Z" strokeWidth="2" />
+    <path
+      d="M12 4 C8 4 4 8 4 12 C4 16 8 20 12 20 C16 20 20 16 20 12 C20 8 16 4 12 4 Z"
+      strokeWidth="2"
+    />
     {/* Heart details - organic lines */}
-    <path d="M12 6 C10 6 8 8 8 12 C8 14 10 16 12 16 C14 16 16 14 16 12 C16 8 14 6 12 6 Z" strokeWidth="1" opacity="0.5" />
+    <path
+      d="M12 6 C10 6 8 8 8 12 C8 14 10 16 12 16 C14 16 16 14 16 12 C16 8 14 6 12 6 Z"
+      strokeWidth="1"
+      opacity="0.5"
+    />
   </svg>
 );
 
 // Message Icon - Hand-drawn speech bubble
-export const MessageIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const MessageIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -946,7 +1125,10 @@ export const MessageIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<
     {...props}
   >
     {/* Speech bubble - hand-drawn oval */}
-    <path d="M4 10 C4 6 8 4 12 4 C16 4 20 6 20 10 C20 14 16 16 12 16 C8 16 4 14 4 10 Z" strokeWidth="2" />
+    <path
+      d="M4 10 C4 6 8 4 12 4 C16 4 20 6 20 10 C20 14 16 16 12 16 C8 16 4 14 4 10 Z"
+      strokeWidth="2"
+    />
     {/* Speech bubble tail - hand-drawn triangle */}
     <path d="M8 16 L12 20 L16 16" strokeWidth="2" />
     {/* Message lines - hand-drawn lines */}
@@ -956,7 +1138,10 @@ export const MessageIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<
 );
 
 // Export Icon - Hand-drawn upload symbol
-export const ExportIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ExportIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -979,7 +1164,10 @@ export const ExportIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<S
 );
 
 // Import Icon - Hand-drawn download symbol
-export const ImportIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const ImportIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -1002,7 +1190,10 @@ export const ImportIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<S
 );
 
 // Play Icon - Hand-drawn play button
-export const PlayIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const PlayIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -1021,7 +1212,10 @@ export const PlayIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVG
 );
 
 // Pause Icon - Hand-drawn pause button
-export const PauseIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const PauseIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -1041,7 +1235,10 @@ export const PauseIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SV
 );
 
 // Volume Icon - Hand-drawn speaker
-export const VolumeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const VolumeIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"
@@ -1062,7 +1259,10 @@ export const VolumeIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<S
 );
 
 // Mute Icon - Hand-drawn muted speaker
-export const MuteIcon = ({ className = "h-6 w-6", ...props }: React.SVGProps<SVGSVGElement>) => (
+export const MuteIcon = ({
+  className = "h-6 w-6",
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
   <svg
     className={className}
     viewBox="0 0 24 24"

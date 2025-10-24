@@ -1,14 +1,16 @@
 -- supabase/migrations/20250505155504_rpc_get_trek_participant_count.sql
+-- Drop existing function first to avoid parameter name conflicts
+DROP FUNCTION IF EXISTS public.get_trek_participant_count(INTEGER);
 
-CREATE OR REPLACE FUNCTION public.get_trek_participant_count(p_trek_id INT)
-RETURNS INT
+CREATE OR REPLACE FUNCTION public.get_trek_participant_count(trek_id_param INTEGER)
+RETURNS INTEGER
 LANGUAGE sql
 STABLE
 SECURITY DEFINER
 AS $$
-  SELECT COUNT(user_id)::INT
+  SELECT COUNT(user_id)::INTEGER
   FROM public.trek_registrations
-  WHERE trek_id = p_trek_id
+  WHERE trek_id = trek_id_param
   AND payment_status IS DISTINCT FROM 'Cancelled';
 $$;
 

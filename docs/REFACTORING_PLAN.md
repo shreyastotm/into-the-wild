@@ -3,6 +3,7 @@
 ## 📊 Current Code Analysis
 
 ### **✅ Strengths Found:**
+
 - Good TypeScript usage
 - Proper component structure
 - Supabase integration well implemented
@@ -11,18 +12,21 @@
 ### **🟡 Areas for Improvement:**
 
 #### **1. Performance Optimizations**
+
 - **Large Components**: Some components (CreateTrekMultiStepForm, TrekEventDetails) are > 1000 lines
 - **Re-renders**: Missing React.memo for expensive components
 - **Bundle Size**: No code splitting implemented
 - **API Calls**: Some unnecessary re-fetching
 
 #### **2. Code Quality Issues**
+
 - **Type Safety**: Some `any` types used
 - **Error Handling**: Inconsistent error handling patterns
 - **State Management**: Some complex state logic in components
 - **Code Duplication**: Similar logic repeated across components
 
 #### **3. Maintainability**
+
 - **File Organization**: Some large files need splitting
 - **Constants**: Magic numbers and strings scattered
 - **Documentation**: Missing JSDoc comments
@@ -31,18 +35,21 @@
 ## 🎯 **Refactoring Priority Matrix**
 
 ### **🔴 High Priority (Security & Performance)**
+
 1. **Split Large Components** (1-2 days)
 2. **Implement Error Boundaries** (1 day)
 3. **Add Input Validation** (1 day)
 4. **Memory Optimization** (1 day)
 
 ### **🟡 Medium Priority (Code Quality)**
+
 1. **Type Safety Improvements** (2 days)
 2. **Custom Hooks Extraction** (1 day)
 3. **Constants Organization** (0.5 day)
 4. **Code Splitting** (1 day)
 
 ### **🟢 Low Priority (Nice to Have)**
+
 1. **JSDoc Documentation** (1 day)
 2. **Test Coverage** (2-3 days)
 3. **Performance Monitoring** (1 day)
@@ -53,6 +60,7 @@
 ### **Week 1: Critical Refactoring**
 
 #### **Day 1-2: Component Splitting**
+
 ```typescript
 // Current: CreateTrekMultiStepForm.tsx (1000+ lines)
 // Refactor into:
@@ -71,6 +79,7 @@ components/trek/create/
 ```
 
 #### **Day 3: Error Boundaries & Validation**
+
 ```typescript
 // Add error boundaries
 components/common/
@@ -87,16 +96,18 @@ lib/
 ```
 
 #### **Day 4: Memory & Performance**
+
 ```typescript
 // Add React.memo, useMemo, useCallback where needed
 // Implement lazy loading for routes
-const TrekEvents = lazy(() => import('./pages/TrekEvents'));
-const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const TrekEvents = lazy(() => import("./pages/TrekEvents"));
+const AdminPanel = lazy(() => import("./pages/AdminPanel"));
 ```
 
 ### **Week 2: Quality Improvements**
 
 #### **Day 5-6: Type Safety**
+
 ```typescript
 // Replace 'any' types with proper interfaces
 interface StrictTrekEvent extends Omit<TrekEvent, 'any_field'> {
@@ -114,6 +125,7 @@ interface ApiResponse<T> {
 ```
 
 #### **Day 7: Custom Hooks**
+
 ```typescript
 // Extract common logic into reusable hooks
 hooks/
@@ -130,6 +142,7 @@ hooks/
 ```
 
 #### **Day 8: Constants & Config**
+
 ```typescript
 // Centralize configuration
 config/
@@ -142,6 +155,7 @@ config/
 ## 📈 **Performance Optimization Strategy**
 
 ### **1. Bundle Optimization**
+
 ```javascript
 // vite.config.ts improvements
 export default defineConfig({
@@ -149,32 +163,34 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: {
-          vendor: ['react', 'react-dom'],
-          supabase: ['@supabase/supabase-js'],
-          ui: ['lucide-react', '@radix-ui/react-dialog']
-        }
-      }
-    }
-  }
+          vendor: ["react", "react-dom"],
+          supabase: ["@supabase/supabase-js"],
+          ui: ["lucide-react", "@radix-ui/react-dialog"],
+        },
+      },
+    },
+  },
 });
 ```
 
 ### **2. Code Splitting Implementation**
+
 ```typescript
 // Route-based code splitting
 const routes = [
   {
-    path: '/trek-events',
-    component: lazy(() => import('./pages/TrekEvents'))
+    path: "/trek-events",
+    component: lazy(() => import("./pages/TrekEvents")),
   },
   {
-    path: '/admin',
-    component: lazy(() => import('./pages/AdminPanel'))
-  }
+    path: "/admin",
+    component: lazy(() => import("./pages/AdminPanel")),
+  },
 ];
 ```
 
 ### **3. API Optimization**
+
 ```typescript
 // Implement caching and request deduplication
 const useCachedApi = <T>(key: string, fetcher: () => Promise<T>) => {
@@ -190,6 +206,7 @@ const useCachedApi = <T>(key: string, fetcher: () => Promise<T>) => {
 ## 🧪 **Testing Strategy**
 
 ### **Unit Tests (Priority)**
+
 ```typescript
 // Component tests
 src/
@@ -209,6 +226,7 @@ src/
 ```
 
 ### **Integration Tests**
+
 ```typescript
 // E2E critical user flows
 tests/
@@ -221,11 +239,13 @@ tests/
 ## 📝 **File Organization Strategy**
 
 ### **Current Issues:**
+
 - Components scattered across different patterns
 - No clear separation of concerns
 - Large files with multiple responsibilities
 
 ### **Proposed Structure:**
+
 ```
 src/
 ├── components/
@@ -246,6 +266,7 @@ src/
 ## 🔧 **Tools & Dependencies to Add**
 
 ### **Development Tools**
+
 ```json
 {
   "devDependencies": {
@@ -260,6 +281,7 @@ src/
 ```
 
 ### **Runtime Dependencies**
+
 ```json
 {
   "dependencies": {
@@ -274,18 +296,21 @@ src/
 ## 📊 **Success Metrics**
 
 ### **Performance Targets**
+
 - [ ] Bundle size < 500KB (currently ~800KB)
 - [ ] First Contentful Paint < 1.5s
 - [ ] Time to Interactive < 3s
 - [ ] Lighthouse score > 90
 
 ### **Code Quality Targets**
+
 - [ ] TypeScript strict mode enabled
 - [ ] 0 ESLint security warnings
 - [ ] Test coverage > 70%
 - [ ] No 'any' types in production code
 
 ### **Maintainability Targets**
+
 - [ ] No components > 300 lines
 - [ ] No functions > 50 lines
 - [ ] Clear separation of concerns
@@ -293,11 +318,11 @@ src/
 
 ## 🗓️ **Timeline Summary**
 
-| Week | Focus | Deliverables |
-|------|-------|-------------|
-| 1 | Security & Performance | Component splitting, error boundaries, validation |
-| 2 | Code Quality | Type safety, custom hooks, constants |
-| 3 | Testing & Documentation | Unit tests, integration tests, documentation |
-| 4 | Optimization & Polish | Performance tuning, final testing, deployment |
+| Week | Focus                   | Deliverables                                      |
+| ---- | ----------------------- | ------------------------------------------------- |
+| 1    | Security & Performance  | Component splitting, error boundaries, validation |
+| 2    | Code Quality            | Type safety, custom hooks, constants              |
+| 3    | Testing & Documentation | Unit tests, integration tests, documentation      |
+| 4    | Optimization & Polish   | Performance tuning, final testing, deployment     |
 
 **Total Estimated Time: 3-4 weeks part-time or 2 weeks full-time**

@@ -8,7 +8,9 @@ BEGIN;
 -- This block renames 'name' to 'full_name' and adds every other missing column.
 DO $$
 BEGIN
-   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_name='users' AND column_name='name') THEN
+   -- Only rename if 'name' exists and 'full_name' doesn't exist
+   IF EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='users' AND column_name='name') 
+      AND NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema='public' AND table_name='users' AND column_name='full_name') THEN
       ALTER TABLE public.users RENAME COLUMN name TO full_name;
    END IF;
 END $$;

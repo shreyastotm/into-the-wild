@@ -1,7 +1,7 @@
-import { Moon, Sun } from 'lucide-react';
-import { useTheme } from '@/hooks/use-theme';
-import { useHaptic } from '@/hooks/use-haptic';
-import { cn } from '@/lib/utils';
+import { Moon, Sun } from "lucide-react";
+import { useTheme } from "@/hooks/use-theme";
+import { useHaptic } from "@/hooks/use-haptic";
+import { cn } from "@/lib/utils";
 
 /**
  * Beautiful animated theme toggle component
@@ -22,16 +22,16 @@ export const ThemeToggle = () => {
       className={cn(
         "relative w-16 h-8 rounded-full p-1 transition-all duration-300 shadow-md hover:shadow-lg",
         "bg-gradient-to-r from-golden-400 via-coral-400 to-teal-400",
-        "hover:scale-105 active:scale-95"
+        "hover:scale-105 active:scale-95",
       )}
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
-      title={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
+      title={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       {/* Toggle Knob */}
-      <div 
+      <div
         className={cn(
           "w-6 h-6 rounded-full bg-white shadow-md flex items-center justify-center transition-transform duration-300 ease-in-out",
-          isDark ? 'translate-x-8' : 'translate-x-0'
+          isDark ? "translate-x-8" : "translate-x-0",
         )}
       >
         {isDark ? (
@@ -43,14 +43,18 @@ export const ThemeToggle = () => {
 
       {/* Background Icons */}
       <div className="absolute inset-0 flex items-center justify-between px-2 pointer-events-none">
-        <Sun className={cn(
-          "h-3 w-3 transition-opacity duration-300",
-          !isDark ? 'opacity-0' : 'opacity-70 text-white'
-        )} />
-        <Moon className={cn(
-          "h-3 w-3 transition-opacity duration-300",
-          isDark ? 'opacity-0' : 'opacity-70 text-white'
-        )} />
+        <Sun
+          className={cn(
+            "h-3 w-3 transition-opacity duration-300",
+            !isDark ? "opacity-0" : "opacity-70 text-white",
+          )}
+        />
+        <Moon
+          className={cn(
+            "h-3 w-3 transition-opacity duration-300",
+            isDark ? "opacity-0" : "opacity-70 text-white",
+          )}
+        />
       </div>
     </button>
   );
@@ -75,9 +79,9 @@ export const ThemeToggleCompact = () => {
         "p-2 rounded-full transition-all duration-300",
         "bg-gradient-to-br from-golden-100 to-teal-100 dark:from-golden-900/30 dark:to-teal-900/30",
         "hover:scale-110 active:scale-95",
-        "shadow-md hover:shadow-lg"
+        "shadow-md hover:shadow-lg",
       )}
-      aria-label={`Switch to ${isDark ? 'light' : 'dark'} mode`}
+      aria-label={`Switch to ${isDark ? "light" : "dark"} mode`}
     >
       {isDark ? (
         <Sun className="h-5 w-5 text-golden-600 dark:text-golden-400" />
@@ -87,4 +91,3 @@ export const ThemeToggleCompact = () => {
     </button>
   );
 };
-

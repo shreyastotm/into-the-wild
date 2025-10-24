@@ -1,0 +1,31 @@
+---
+description: "WhatsApp Integration and Community Management Standards"
+globs: ["src/**/*.{ts,tsx}", "backend/**/*.{ts,js}", "supabase/**/*.{sql}"]
+alwaysApply: true
+---
+
+# 💬 WHATSAPP & COMMUNITY RULES
+
+## 7.1 WhatsApp Integration Standards
+✅ **REQUIRED:** WhatsApp group creation for each trek
+✅ **REQUIRED:** Automated participant invitations
+✅ **REQUIRED:** Group description templates with trek details
+✅ **REQUIRED:** Message templates for reminders and updates
+
+## 7.2 Community Features
+✅ **REQUIRED:** Forum system with 25+ nature/adventure tags
+✅ **REQUIRED:** User avatar system with Indian wildlife themes
+✅ **REQUIRED:** Community badges and achievement system
+✅ **REQUIRED:** Social sharing capabilities
+
+## 7.3 Communication Templates
+✅ **REQUIRED:** Pre-trek reminder templates (T-7, T-3, T-1)
+✅ **REQUIRED:** Post-trek follow-up templates (T+1, T+3, T+7)
+✅ **REQUIRED:** Weather alert and emergency communication
+✅ **REQUIRED:** Gallery sharing and photo updates
+
+## 7.4 User Preference Management
+✅ **REQUIRED:** Granular notification preferences
+✅ **REQUIRED:** Quiet hours configuration
+✅ **REQUIRED:** Channel selection (in-app, email, WhatsApp, SMS)
+✅ **REQUIRED:** Opt-in/opt-out functionality

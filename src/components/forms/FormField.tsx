@@ -1,22 +1,46 @@
-import React from 'react';
-import { Label } from '@/components/ui/label';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Checkbox } from '@/components/ui/checkbox';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Switch } from '@/components/ui/switch';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon, AlertCircle, HelpCircle } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from '@/lib/utils';
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Switch } from "@/components/ui/switch";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon, AlertCircle, HelpCircle } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
 
 export interface FormFieldProps {
   label: string;
   name: string;
-  type?: 'text' | 'email' | 'password' | 'number' | 'tel' | 'url' | 'textarea' | 'select' | 'checkbox' | 'radio' | 'switch' | 'date' | 'time' | 'datetime-local' | 'file';
+  type?:
+    | "text"
+    | "email"
+    | "password"
+    | "number"
+    | "tel"
+    | "url"
+    | "textarea"
+    | "select"
+    | "checkbox"
+    | "radio"
+    | "switch"
+    | "date"
+    | "time"
+    | "datetime-local"
+    | "file";
   value?: any;
   onChange?: (value: any) => void;
   onBlur?: (e: React.FocusEvent) => void;
@@ -39,8 +63,8 @@ export interface FormFieldProps {
   autoComplete?: string;
   autoFocus?: boolean;
   readOnly?: boolean;
-  size?: 'sm' | 'md' | 'lg';
-  variant?: 'default' | 'outline' | 'ghost';
+  size?: "sm" | "md" | "lg";
+  variant?: "default" | "outline" | "ghost";
   showLabel?: boolean;
   showRequired?: boolean;
   showError?: boolean;
@@ -54,7 +78,7 @@ export interface FormFieldProps {
 const FormField: React.FC<FormFieldProps> = ({
   label,
   name,
-  type = 'text',
+  type = "text",
   value,
   onChange,
   onBlur,
@@ -64,9 +88,9 @@ const FormField: React.FC<FormFieldProps> = ({
   disabled = false,
   error,
   helpText,
-  className = '',
-  labelClassName = '',
-  inputClassName = '',
+  className = "",
+  labelClassName = "",
+  inputClassName = "",
   options = [],
   radioOptions = [],
   rows = 3,
@@ -77,8 +101,8 @@ const FormField: React.FC<FormFieldProps> = ({
   autoComplete,
   autoFocus = false,
   readOnly = false,
-  size = 'md',
-  variant = 'default',
+  size = "md",
+  variant = "default",
   showLabel = true,
   showRequired = true,
   showError = true,
@@ -89,23 +113,26 @@ const FormField: React.FC<FormFieldProps> = ({
   accept,
 }) => {
   const sizeClasses = {
-    sm: 'h-8 text-sm',
-    md: 'h-10 text-sm',
-    lg: 'h-12 text-base'
+    sm: "h-8 text-sm",
+    md: "h-10 text-sm",
+    lg: "h-12 text-base",
   };
 
   const inputSizeClasses = {
-    sm: 'px-2 py-1',
-    md: 'px-3 py-2',
-    lg: 'px-4 py-3'
+    sm: "px-2 py-1",
+    md: "px-3 py-2",
+    lg: "px-4 py-3",
   };
 
   const handleChange = (newValue: any) => {
     onChange?.(newValue);
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const newValue = type === 'number' ? parseFloat(e.target.value) || 0 : e.target.value;
+  const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
+    const newValue =
+      type === "number" ? parseFloat(e.target.value) || 0 : e.target.value;
     handleChange(newValue);
   };
 
@@ -138,7 +165,7 @@ const FormField: React.FC<FormFieldProps> = ({
     const baseInputProps = {
       id: name,
       name,
-      value: value || '',
+      value: value || "",
       onChange: handleInputChange,
       onBlur,
       onFocus,
@@ -150,28 +177,34 @@ const FormField: React.FC<FormFieldProps> = ({
       className: cn(
         sizeClasses[size],
         inputSizeClasses[size],
-        error && 'border-destructive focus:border-destructive',
-        inputClassName
+        error && "border-destructive focus:border-destructive",
+        inputClassName,
       ),
-      ...(type === 'number' && { min, max, step }),
+      ...(type === "number" && { min, max, step }),
       ...(pattern && { pattern }),
       ...(autoComplete && { autoComplete }),
     };
 
     switch (type) {
-      case 'textarea':
+      case "textarea":
         return (
           <Textarea
             {...baseInputProps}
             rows={rows}
-            className={cn(baseInputProps.className, 'resize-none')}
+            className={cn(baseInputProps.className, "resize-none")}
           />
         );
 
-      case 'select':
+      case "select":
         return (
-          <Select value={value || ''} onValueChange={handleSelectChange} disabled={disabled}>
-            <SelectTrigger className={cn(sizeClasses[size], baseInputProps.className)}>
+          <Select
+            value={value || ""}
+            onValueChange={handleSelectChange}
+            disabled={disabled}
+          >
+            <SelectTrigger
+              className={cn(sizeClasses[size], baseInputProps.className)}
+            >
               <SelectValue placeholder={placeholder} />
             </SelectTrigger>
             <SelectContent>
@@ -188,7 +221,7 @@ const FormField: React.FC<FormFieldProps> = ({
           </Select>
         );
 
-      case 'checkbox':
+      case "checkbox":
         return (
           <div className="flex items-center space-x-2">
             <Checkbox
@@ -198,16 +231,21 @@ const FormField: React.FC<FormFieldProps> = ({
               disabled={disabled}
               required={required}
             />
-            <Label htmlFor={name} className={cn('text-sm font-medium', labelClassName)}>
+            <Label
+              htmlFor={name}
+              className={cn("text-sm font-medium", labelClassName)}
+            >
               {label}
-              {required && showRequired && <span className="text-destructive ml-1">*</span>}
+              {required && showRequired && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
           </div>
         );
 
-      case 'radio':
+      case "radio":
         return (
-          <RadioGroup value={value || ''} onValueChange={handleRadioChange}>
+          <RadioGroup value={value || ""} onValueChange={handleRadioChange}>
             {radioOptions.map((option) => (
               <div key={option.value} className="flex items-center space-x-2">
                 <RadioGroupItem
@@ -215,7 +253,10 @@ const FormField: React.FC<FormFieldProps> = ({
                   id={`${name}-${option.value}`}
                   disabled={disabled || option.disabled}
                 />
-                <Label htmlFor={`${name}-${option.value}`} className="text-sm font-medium">
+                <Label
+                  htmlFor={`${name}-${option.value}`}
+                  className="text-sm font-medium"
+                >
                   {option.label}
                 </Label>
               </div>
@@ -223,7 +264,7 @@ const FormField: React.FC<FormFieldProps> = ({
           </RadioGroup>
         );
 
-      case 'switch':
+      case "switch":
         return (
           <div className="flex items-center space-x-2">
             <Switch
@@ -232,29 +273,34 @@ const FormField: React.FC<FormFieldProps> = ({
               onCheckedChange={handleSwitchChange}
               disabled={disabled}
             />
-            <Label htmlFor={name} className={cn('text-sm font-medium', labelClassName)}>
+            <Label
+              htmlFor={name}
+              className={cn("text-sm font-medium", labelClassName)}
+            >
               {label}
-              {required && showRequired && <span className="text-destructive ml-1">*</span>}
+              {required && showRequired && (
+                <span className="text-destructive ml-1">*</span>
+              )}
             </Label>
           </div>
         );
 
-      case 'date':
+      case "date":
         return (
           <Popover>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 className={cn(
-                  'w-full justify-start text-left font-normal',
-                  !value && 'text-muted-foreground',
+                  "w-full justify-start text-left font-normal",
+                  !value && "text-muted-foreground",
                   sizeClasses[size],
-                  baseInputProps.className
+                  baseInputProps.className,
                 )}
                 disabled={disabled}
               >
                 <CalendarIcon className="mr-2 h-4 w-4" />
-                {value ? format(value, 'PPP') : <span>{placeholder}</span>}
+                {value ? format(value, "PPP") : <span>{placeholder}</span>}
               </Button>
             </PopoverTrigger>
             <PopoverContent className="w-auto p-0" align="start">
@@ -269,7 +315,7 @@ const FormField: React.FC<FormFieldProps> = ({
           </Popover>
         );
 
-      case 'file':
+      case "file":
         return (
           <div className="relative">
             {prefix && (
@@ -283,8 +329,8 @@ const FormField: React.FC<FormFieldProps> = ({
               onChange={handleFileChange}
               className={cn(
                 baseInputProps.className,
-                prefix && 'pl-10',
-                suffix && 'pr-10'
+                prefix && "pl-10",
+                suffix && "pr-10",
               )}
               accept={accept}
             />
@@ -309,8 +355,8 @@ const FormField: React.FC<FormFieldProps> = ({
               type={type}
               className={cn(
                 baseInputProps.className,
-                prefix && 'pl-10',
-                suffix && 'pr-10'
+                prefix && "pl-10",
+                suffix && "pr-10",
               )}
             />
             {suffix && (
@@ -324,9 +370,9 @@ const FormField: React.FC<FormFieldProps> = ({
   };
 
   // For checkbox and switch, we don't need a separate label
-  if (type === 'checkbox' || type === 'switch') {
+  if (type === "checkbox" || type === "switch") {
     return (
-      <div className={cn('space-y-2', className)}>
+      <div className={cn("space-y-2", className)}>
         {renderInput()}
         {showError && error && (
           <div className="flex items-center space-x-1 text-sm text-destructive">
@@ -345,34 +391,37 @@ const FormField: React.FC<FormFieldProps> = ({
   }
 
   return (
-    <div className={cn('space-y-2', className)}>
+    <div className={cn("space-y-2", className)}>
       {showLabel && (
-        <Label htmlFor={name} className={cn('text-sm font-medium', labelClassName)}>
+        <Label
+          htmlFor={name}
+          className={cn("text-sm font-medium", labelClassName)}
+        >
           {label}
-          {required && showRequired && <span className="text-destructive ml-1">*</span>}
+          {required && showRequired && (
+            <span className="text-destructive ml-1">*</span>
+          )}
         </Label>
       )}
-      
+
       {icon && (
         <div className="relative">
           <div className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">
             {icon}
           </div>
-          <div className="pl-10">
-            {renderInput()}
-          </div>
+          <div className="pl-10">{renderInput()}</div>
         </div>
       )}
-      
+
       {!icon && renderInput()}
-      
+
       {showError && error && (
         <div className="flex items-center space-x-1 text-sm text-destructive">
           <AlertCircle className="h-4 w-4" />
           <span>{error}</span>
         </div>
       )}
-      
+
       {showHelp && helpText && (
         <div className="flex items-center space-x-1 text-sm text-muted-foreground">
           <HelpCircle className="h-4 w-4" />

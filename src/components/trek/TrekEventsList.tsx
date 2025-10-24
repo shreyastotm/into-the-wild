@@ -1,7 +1,6 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { TrekEventStatus } from '@/types/trek';
-import TrekCardBase from './TrekCardBase';
+import { useNavigate } from "react-router-dom";
+import { TrekEventStatus } from "@/types/trek";
+import TrekCardBase from "./TrekCardBase";
 
 // Define type for Trek Events
 export interface TrekEvent {
@@ -15,7 +14,7 @@ export interface TrekEvent {
   max_participants: number;
   participant_count: number | null;
   location: { name?: string } | null;
-  transport_mode: 'cars' | 'mini_van' | 'bus' | null;
+  transport_mode: "cars" | "mini_van" | "bus" | null;
   cancellation_policy: string | null;
   image_url?: string | null;
   event_creator_type: string;
@@ -25,7 +24,7 @@ export interface TrekEvent {
 interface TrekEventsListProps {
   treks: TrekEvent[];
   useLinks?: boolean;
-  variant?: 'default' | 'compact' | 'detailed';
+  variant?: "default" | "compact" | "detailed";
   showActions?: boolean;
   showProgress?: boolean;
   showStatus?: boolean;
@@ -44,10 +43,10 @@ interface TrekEventsListProps {
   className?: string;
 }
 
-export const TrekEventsList: React.FC<TrekEventsListProps> = ({ 
-  treks, 
+export const TrekEventsList: React.FC<TrekEventsListProps> = ({
+  treks,
   useLinks = true,
-  variant = 'default',
+  variant = "default",
   showActions = true,
   showProgress = true,
   showStatus = true,
@@ -63,7 +62,7 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({
   onShare,
   isBookmarked,
   isRegistered,
-  className = ''
+  className = "",
 }) => {
   const navigate = useNavigate();
 
@@ -93,12 +92,12 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({
 
   const getGridClasses = () => {
     switch (variant) {
-      case 'compact':
-        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3';
-      case 'detailed':
-        return 'grid grid-cols-1 lg:grid-cols-2 gap-6';
+      case "compact":
+        return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3";
+      case "detailed":
+        return "grid grid-cols-1 lg:grid-cols-2 gap-6";
       default:
-        return 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6';
+        return "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6";
     }
   };
 

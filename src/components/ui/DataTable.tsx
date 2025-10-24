@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   Table,
   TableBody,
@@ -6,12 +5,12 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from '@/components/ui/table';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from 'lucide-react';
+} from "@/components/ui/table";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
 export interface Column<T> {
   key: keyof T | string;
@@ -35,9 +34,9 @@ export interface DataTableProps<T> {
   currentPage?: number;
   totalPages?: number;
   onPageChange?: (page: number) => void;
-  onSort?: (column: keyof T | string, direction: 'asc' | 'desc') => void;
+  onSort?: (column: keyof T | string, direction: "asc" | "desc") => void;
   sortColumn?: keyof T | string;
-  sortDirection?: 'asc' | 'desc';
+  sortDirection?: "asc" | "desc";
   actions?: (row: T) => React.ReactNode;
   mobileCard?: (row: T) => React.ReactNode;
   searchable?: boolean;
@@ -50,9 +49,9 @@ export function DataTable<T extends Record<string, any>>({
   data,
   columns,
   loading = false,
-  emptyMessage = 'No data available',
+  emptyMessage = "No data available",
   emptyAction,
-  className = '',
+  className = "",
   cardTitle,
   cardDescription,
   showPagination = false,
@@ -61,18 +60,19 @@ export function DataTable<T extends Record<string, any>>({
   onPageChange,
   onSort,
   sortColumn,
-  sortDirection = 'asc',
+  sortDirection = "asc",
   actions,
   mobileCard,
   searchable = false,
-  searchValue = '',
+  searchValue = "",
   onSearchChange,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = "Search...",
 }: DataTableProps<T>) {
   const handleSort = (column: keyof T | string) => {
     if (!onSort) return;
-    
-    const newDirection = sortColumn === column && sortDirection === 'asc' ? 'desc' : 'asc';
+
+    const newDirection =
+      sortColumn === column && sortDirection === "asc" ? "desc" : "asc";
     onSort(column, newDirection);
   };
 
@@ -80,12 +80,12 @@ export function DataTable<T extends Record<string, any>>({
     if (column.render) {
       return column.render(row[column.key as keyof T], row);
     }
-    
+
     const value = row[column.key as keyof T];
     if (value === null || value === undefined) {
       return <span className="text-muted-foreground">-</span>;
     }
-    
+
     return <span>{String(value)}</span>;
   };
 
@@ -165,8 +165,8 @@ export function DataTable<T extends Record<string, any>>({
             {columns.map((column) => (
               <TableHead
                 key={String(column.key)}
-                className={`${column.headerClassName || ''} ${
-                  column.sortable ? 'cursor-pointer hover:bg-muted/50' : ''
+                className={`${column.headerClassName || ""} ${
+                  column.sortable ? "cursor-pointer hover:bg-muted/50" : ""
                 }`}
                 onClick={() => column.sortable && handleSort(column.key)}
               >
@@ -174,7 +174,7 @@ export function DataTable<T extends Record<string, any>>({
                   <span>{column.label}</span>
                   {column.sortable && sortColumn === column.key && (
                     <span className="text-xs">
-                      {sortDirection === 'asc' ? '↑' : '↓'}
+                      {sortDirection === "asc" ? "↑" : "↓"}
                     </span>
                   )}
                 </div>
@@ -194,11 +194,7 @@ export function DataTable<T extends Record<string, any>>({
                   {renderCellContent(column, row)}
                 </TableCell>
               ))}
-              {actions && (
-                <TableCell>
-                  {actions(row)}
-                </TableCell>
-              )}
+              {actions && <TableCell>{actions(row)}</TableCell>}
             </TableRow>
           ))}
         </TableBody>
@@ -216,18 +212,17 @@ export function DataTable<T extends Record<string, any>>({
             ) : (
               <div className="space-y-2">
                 {columns.map((column) => (
-                  <div key={String(column.key)} className="flex justify-between">
+                  <div
+                    key={String(column.key)}
+                    className="flex justify-between"
+                  >
                     <span className="font-medium text-sm">{column.label}:</span>
                     <span className="text-sm text-muted-foreground">
                       {renderCellContent(column, row)}
                     </span>
                   </div>
                 ))}
-                {actions && (
-                  <div className="pt-2 border-t">
-                    {actions(row)}
-                  </div>
-                )}
+                {actions && <div className="pt-2 border-t">{actions(row)}</div>}
               </div>
             )}
           </CardContent>
@@ -239,7 +234,7 @@ export function DataTable<T extends Record<string, any>>({
   const content = (
     <div className={className}>
       {renderSearch()}
-      
+
       {loading ? (
         renderLoadingSkeleton()
       ) : data.length === 0 ? (
@@ -250,7 +245,7 @@ export function DataTable<T extends Record<string, any>>({
           {renderMobileCards()}
         </>
       )}
-      
+
       {renderPagination()}
     </div>
   );
@@ -261,12 +256,12 @@ export function DataTable<T extends Record<string, any>>({
         {(cardTitle || cardDescription) && (
           <CardHeader>
             {cardTitle && <CardTitle>{cardTitle}</CardTitle>}
-            {cardDescription && <p className="text-sm text-muted-foreground">{cardDescription}</p>}
+            {cardDescription && (
+              <p className="text-sm text-muted-foreground">{cardDescription}</p>
+            )}
           </CardHeader>
         )}
-        <CardContent>
-          {content}
-        </CardContent>
+        <CardContent>{content}</CardContent>
       </Card>
     );
   }

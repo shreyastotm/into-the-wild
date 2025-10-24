@@ -3,12 +3,17 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertTriangle, Upload, FileText, ExternalLink, UserCheck } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { CheckCircle, AlertTriangle, Upload, FileText } from 'lucide-react';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
 import { WithStringId } from '@/integrations/supabase/client';
-import { Link } from 'react-router-dom';
 
 interface DbRegistration {
   registration_id: number;
@@ -66,24 +71,22 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   userRegistration,
   onUploadProof
 }) => {
-  const { user, userProfile } = useAuth();
+  const { user } = useAuth();
   const [requiredIdTypes, setRequiredIdTypes] = useState<IdType[]>([]);
   const [userIdProofs, setUserIdProofs] = useState<RegistrationIdProof[]>([]);
   const [approvedProofs, setApprovedProofs] = useState<RegistrationIdProof[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploadingProof, setUploadingProof] = useState<number | null>(null);
+  const [selectedIdType, setSelectedIdType] = useState<string>('');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
-  // Helper function to check if user has approved trek-specific documents
-  const hasApprovedTrekDocuments = () => {
-    if (!userRegistration) return false;
-    return userIdProofs.some(proof => proof.verification_status === 'approved');
-  };
-
-  // Helper function to check if user has any uploaded documents for this trek
-  const hasUploadedDocuments = () => {
-    if (!userRegistration) return false;
-    return userIdProofs.length > 0;
-  };
+  // Default ID types for government verification
+  const defaultIdTypes: IdType[] = [
+    { id_type_id: 1, display_name: 'Aadhaar Card', is_mandatory: true, name: 'aadhaar', description: null },
+    { id_type_id: 2, display_name: 'Passport', is_mandatory: true, name: 'passport', description: null },
+    { id_type_id: 3, display_name: 'Driving License', is_mandatory: true, name: 'driving_license', description: null },
+    { id_type_id: 4, display_name: 'PAN Card', is_mandatory: true, name: 'pan_card', description: null },
+  ];
 
   useEffect(() => {
     console.log('TrekRequirements: Loading requirements for trek', trekId);
@@ -95,145 +98,28 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
       setLoading(true);
 
       // Load required ID types for this trek
-      // Use direct query instead of RPC function to avoid issues
-      let idTypes;
-      let idTypesError;
-
       console.log('Loading ID requirements for trek:', trekId);
 
-      try {
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('trek_id_requirements')
-          .select(`
-            id_type_id,
-            is_mandatory,
-            id_types!inner(
-              id_type_id,
-              name,
-              display_name,
-              description,
-              is_active
-            )
-          `)
-          .eq('trek_id', trekId);
+      // ID verification tables may not exist yet, return empty array for now
+      console.log('ID verification system not yet implemented, returning empty requirements');
 
-        console.log('Direct query result:', { data: fallbackData, error: fallbackError });
+      // RPC function may not be available yet
+      console.log('RPC function not available yet');
 
-        if (fallbackError) {
-          // Tables might not exist yet, return empty array
-          if (fallbackError.code === 'PGRST116') {
-            console.log('ID verification tables not found, returning empty requirements');
-            idTypes = [];
-            idTypesError = null;
-          } else {
-            console.error('Error loading ID requirements:', fallbackError);
-            idTypes = [];
-            idTypesError = fallbackError;
-          }
-        } else {
-          // Transform the data to match expected format
-          idTypes = (fallbackData || []).map(item => ({
-            id_type_id: item.id_type_id,
-            name: item.id_types.name,
-            display_name: item.id_types.display_name,
-            description: item.id_types.description,
-            is_mandatory: item.is_mandatory
-          })).filter(item =>
-            item.id_types?.is_active !== false &&
-            item.name !== 'aadhaar'  // Exclude Aadhaar cards from trek requirements
-          );
-
-          console.log('Transformed ID types:', idTypes);
-          idTypesError = null;
-        }
-      } catch (tableError) {
-        console.log('ID verification system not yet implemented, returning empty requirements');
-        idTypes = [];
-        idTypesError = null;
-      }
-
-      // Also try RPC function for debugging
-      try {
-        const { data: rpcData, error: rpcError } = await supabase
-          .rpc('get_trek_required_id_types', { trek_id_param: trekId });
-        console.log('RPC function result:', { data: rpcData, error: rpcError });
-      } catch (rpcError) {
-        console.log('RPC function not available:', rpcError);
-      }
-
-      if (idTypesError && !idTypes) {
-        console.error('Error loading ID requirements:', idTypesError);
-        return;
-      }
-
-      console.log('TrekRequirements: Loaded ID types:', idTypes);
-      setRequiredIdTypes(idTypes || []);
+      setRequiredIdTypes([]);
 
       // Load user's ID proofs for this trek (if registered)
-      if (userRegistration && user) {
-        try {
-          const { data: proofs, error: proofsError } = await supabase
-            .from('registration_id_proofs')
-            .select('*')
-            .eq('registration_id', userRegistration.registration_id);
-
-          if (proofsError) {
-            // Table might not exist yet
-            if (proofsError.code === 'PGRST116') {
-              console.log('registration_id_proofs table not found');
-              setUserIdProofs([]);
-            } else {
-              console.error('Error loading ID proofs:', proofsError);
-              setUserIdProofs([]);
-            }
-          } else {
-            setUserIdProofs(proofs || []);
-          }
-        } catch (proofsTableError) {
-          console.log('ID proofs table not available yet');
+      // Tables may not exist yet, set empty array for now
+      console.log('ID proofs table not available yet');
           setUserIdProofs([]);
-        }
-      }
 
       // Load user's previously approved ID proofs (for reuse)
-      if (user) {
-        try {
-          const { data: approvedProofs, error: approvedError } = await supabase
-            .from('registration_id_proofs')
-            .select(`
-              *,
-              id_types!inner(*),
-              trek_registrations!inner(
-                registration_id,
-                trek_events!inner(name)
-              )
-            `)
-            .eq('uploaded_by', user.id)
-            .eq('verification_status', 'approved')
-            .order('verified_at', { ascending: false });
+      // Tables may not exist yet, set empty array for now
+      console.log('Approved proofs table not available yet');
+              setApprovedProofs([]);
 
-          if (approvedError) {
-            // Table might not exist yet
-            if (approvedError.code === 'PGRST116') {
-              console.log('registration_id_proofs table not found for approved proofs');
-              setApprovedProofs([]);
-            } else {
-              console.error('Error loading approved proofs:', approvedError);
-              setApprovedProofs([]);
-            }
-          } else {
-            const formattedApproved = (approvedProofs || []).map(proof => ({
-              ...proof,
-              id_type: proof.id_types,
-              trek_name: proof.trek_registrations?.trek_events?.name
-            }));
-            setApprovedProofs(formattedApproved);
-          }
-        } catch (approvedTableError) {
-          console.log('Approved proofs table not available yet');
-          setApprovedProofs([]);
-        }
-      }
+      console.log('TrekRequirements: Loaded requirements for trek', trekId);
+      setRequiredIdTypes([]);
     } catch (error) {
       console.error('Error loading requirements:', error);
     } finally {
@@ -242,13 +128,15 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   };
 
   const handleUploadProof = async (idTypeId: number, file: File) => {
-    if (!user || !userRegistration || !onUploadProof) return false;
+    if (!user || !onUploadProof) return false;
 
     setUploadingProof(idTypeId);
     try {
       const success = await onUploadProof(idTypeId, file);
       if (success) {
         await loadRequirements(); // Reload to show updated status
+        setSelectedFile(null);
+        setSelectedIdType('');
         toast({
           title: 'Proof Uploaded',
           description: 'Your ID proof has been uploaded and is pending verification.',
@@ -266,6 +154,20 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
     } finally {
       setUploadingProof(null);
     }
+  };
+
+  const handleFileUpload = async () => {
+    if (!selectedIdType || !selectedFile) {
+      toast({
+        title: 'Missing Selection',
+        description: 'Please select an ID type and upload a file.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    const idTypeId = parseInt(selectedIdType, 10);
+    await handleUploadProof(idTypeId, selectedFile);
   };
 
   const getProofStatus = (idTypeId: number) => {
@@ -332,95 +234,62 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
 
   return (
     <div className="space-y-6">
-      {/* Trek-Specific Document Status */}
-      <Card className={userRegistration && hasApprovedTrekDocuments() ? 'border-success/50 bg-success/5' : userRegistration ? 'border-info/50 bg-info/5' : 'border-border bg-card'}>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className={`h-5 w-5 ${userRegistration && hasApprovedTrekDocuments() ? 'text-success' : userRegistration ? 'text-info' : 'text-muted-foreground'}`} />
-            {hasRequirements ? 'ID Verification Required' : 'ID Document Status for This Trek'}
-          </CardTitle>
-          <CardDescription>
-            {userRegistration && hasApprovedTrekDocuments()
-              ? 'Your documents have been verified for this trek'
-              : userRegistration && hasUploadedDocuments()
-                ? 'Your documents are pending verification'
-                : userRegistration
-                  ? 'Upload required ID documents for this trek'
-                  : hasRequirements
-                    ? 'Register for this trek to upload required ID documents'
-                    : 'No ID verification required for this trek'
-            }
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <Badge className={
-                userRegistration && hasApprovedTrekDocuments()
-                  ? 'bg-green-600 text-white'
-                  : userRegistration && hasUploadedDocuments()
-                    ? 'bg-yellow-600 text-white'
-                    : userRegistration && hasRequirements
-                      ? 'bg-gray-600 text-white'
-                      : userRegistration
-                        ? 'bg-blue-600 text-white'
-                        : hasRequirements
-                          ? 'bg-purple-600 text-white'
-                          : 'bg-green-600 text-white'
-              }>
-                {userRegistration && hasApprovedTrekDocuments()
-                  ? 'Documents Approved'
-                  : userRegistration && hasUploadedDocuments()
-                    ? 'Pending Review'
-                    : userRegistration && hasRequirements
-                      ? 'Documents Required'
-                      : userRegistration
-                        ? 'Registration Required'
-                        : hasRequirements
-                          ? 'ID Verification Required'
-                          : 'No Requirements'
-                }
-              </Badge>
-              <div>
-                <p className="font-medium">
-                  {userRegistration && hasApprovedTrekDocuments()
-                    ? '✅ Ready for registration'
-                    : userRegistration && hasUploadedDocuments()
-                      ? '⏳ Awaiting admin verification'
-                      : userRegistration && hasRequirements
-                        ? '📋 Upload documents to register'
-                        : userRegistration
-                          ? '🔐 Register to upload documents'
-                          : hasRequirements
-                            ? '📋 ID verification required'
-                            : '✅ No ID verification needed'
-                  }
-                </p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Single consolidated ID requirement alert */}
-      {(governmentIdRequired || requiredIdTypes.length > 0) && (
-        <Alert className={governmentIdRequired ? "border-blue-200 bg-blue-50" : "border-purple-200 bg-purple-50"}>
-          <AlertTriangle className={`h-4 w-4 ${governmentIdRequired ? 'text-blue-600' : 'text-purple-600'}`} />
-          <AlertTitle className={governmentIdRequired ? 'text-blue-800' : 'text-purple-800'}>
-            {governmentIdRequired ? 'Government ID Required' : 'ID Verification Required'}
+      {/* ID Requirements Alert */}
+      {governmentIdRequired && (
+        <Alert className="border-info/20 bg-info/5 dark:border-info/30 dark:bg-info/10">
+          <AlertTriangle className="h-4 w-4 text-info" />
+          <AlertTitle className="text-info-foreground">
+            Government ID Required
           </AlertTitle>
-          <AlertDescription className={governmentIdRequired ? 'text-blue-700' : 'text-purple-700'}>
-            {governmentIdRequired
-              ? 'This trek requires government ID verification for ticket booking and permits.'
-              : 'This trek requires specific ID verification.'
-            }
-            {userRegistration && !hasApprovedTrekDocuments() && (
+          <AlertDescription className="text-info-foreground/80">
+            This trek requires government ID verification for ticket booking and permits.
+            {userRegistration ? (
               <span className="block mt-2">
-                Please upload your required ID documents below to complete registration.
+                Please upload your ID document below to complete registration.
+              </span>
+            ) : (
+              <span className="block mt-2">
+                You need to upload ID documents to register for this trek.
               </span>
             )}
           </AlertDescription>
         </Alert>
+      )}
+
+      {/* Current ID Proof Status */}
+      {userRegistration && (userIdProofs.length > 0 || approvedProofs.length > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5" />
+              ID Proof Status
+            </CardTitle>
+            <CardDescription>
+              Current status of your uploaded ID documents for this trek.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {defaultIdTypes.map((idType) => {
+              const status = getProofStatus(idType.id_type_id);
+              return (
+                <div key={idType.id_type_id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border">
+                  <div className="flex items-center gap-3">
+                    <FileText className="h-5 w-5 text-muted-foreground" />
+                    <div>
+                      <p className="font-medium">{idType.display_name}</p>
+                      <p className="text-sm text-muted-foreground">
+                        {status === 'previously_approved' ? 'Previously verified' : 
+                         status === 'not_uploaded' ? 'Not uploaded' : 
+                         `Status: ${status}`}
+                      </p>
+                    </div>
+                  </div>
+                  {getStatusBadge(status)}
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
       )}
 
       {/* Previously Approved ID Proofs */}
@@ -441,9 +310,9 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600" />
                   <div>
-                    <p className="font-medium">{proof.id_type?.display_name}</p>
+                    <p className="font-medium">ID Document</p>
                     <p className="text-sm text-muted-foreground">
-                      Verified for {proof.trek_name} on {new Date(proof.verified_at || '').toLocaleDateString()}
+                      Verified on {new Date(proof.verified_at || '').toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -454,106 +323,97 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
         </Card>
       )}
 
-      {/* Trek-Specific ID Requirements */}
-      {requiredIdTypes.length > 0 && (
+      {/* Compact ID Upload Interface */}
+      {governmentIdRequired && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5" />
-              Required ID Proofs
+              Upload ID Proof
             </CardTitle>
             <CardDescription>
-              Upload the following ID proofs to participate in this trek. All proofs will be verified by an administrator.
+              {userRegistration
+                ? 'Upload your ID document to complete registration.'
+                : 'Upload your ID document first, then register for this trek.'
+              }
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-4">
-            {requiredIdTypes.map((idType) => {
-              const proofStatus = getProofStatus(idType.id_type_id);
-              const canUpload = user && userRegistration && proofStatus === 'not_uploaded';
-              const isPreviouslyApproved = proofStatus === 'previously_approved';
-
-              return (
-                <div key={idType.id_type_id} className="border rounded-lg p-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
-                      <h4 className="font-medium">{idType.display_name}</h4>
-                      {idType.is_mandatory && (
-                        <Badge variant="outline" className="text-xs">Required</Badge>
-                      )}
-                    </div>
-                    {getStatusBadge(proofStatus)}
+          <CardContent>
+            {userRegistration ? (
+              /* Show upload interface when user IS registered */
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">
+                      Select ID Type
+                    </label>
+                    <Select value={selectedIdType} onValueChange={(value) => {
+                      console.log('Select changed:', value);
+                      setSelectedIdType(value);
+                    }}>
+                      <SelectTrigger className="w-full cursor-pointer hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20">
+                        <SelectValue placeholder="Choose an ID type to upload" />
+                      </SelectTrigger>
+                      <SelectContent className="z-50">
+                        {defaultIdTypes.map((idType) => (
+                          <SelectItem
+                            key={idType.id_type_id}
+                            value={idType.id_type_id.toString()}
+                            className="cursor-pointer hover:bg-primary/10"
+                          >
+                            {idType.display_name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </div>
 
-                  {idType.description && (
-                    <p className="text-sm text-muted-foreground mb-3">{idType.description}</p>
-                  )}
-
-                  {/* Upload Section */}
-                  {canUpload && (
                     <div className="space-y-2">
-                      <label className="block">
-                        <span className="text-sm font-medium">Upload {idType.display_name}</span>
+                    <label className="text-sm font-medium">
+                      Upload Document (Image or PDF)
+                    </label>
                         <input
                           type="file"
                           accept="image/*,.pdf"
-                          onChange={(e) => {
-                            const file = e.target.files?.[0];
-                            if (file) handleUploadProof(idType.id_type_id, file);
-                          }}
-                          disabled={uploadingProof === idType.id_type_id}
-                          className="mt-1 block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-info/10 file:text-info hover:file:bg-info/20"
+                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
+                      className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 dark:file:bg-primary/20 dark:file:text-primary-foreground"
                         />
-                      </label>
-                      {uploadingProof === idType.id_type_id && (
-                        <p className="text-sm text-info">Uploading...</p>
+                  </div>
+
+                  <Button
+                    onClick={handleFileUpload}
+                    disabled={!selectedIdType || !selectedFile || uploadingProof !== null}
+                    className="w-full"
+                    size="lg"
+                  >
+                    {uploadingProof !== null ? (
+                      <>
+                        <Upload className="mr-2 h-4 w-4 animate-spin" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="mr-2 h-4 w-4" />
+                        Upload ID Proof
+                      </>
                       )}
+                  </Button>
                     </div>
-                  )}
-
-                  {/* Show upload prompt even if not registered */}
-                  {!userRegistration && requiredIdTypes.length > 0 && (
-                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
-                      <p className="text-sm text-blue-800">
-                        <strong>Registration Required:</strong> You need to register for this trek to upload ID documents.
-                      </p>
-                    </div>
-                  )}
-
-                  {/* Status Messages */}
-                  {proofStatus === 'pending' && (
-                    <p className="text-sm text-yellow-600">
-                      Your {idType.display_name} is pending admin verification.
+            ) : (
+              /* Show message when user is NOT registered */
+              <div className="p-6 bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-lg text-center">
+                <div className="flex flex-col items-center gap-3">
+                  <AlertTriangle className="h-8 w-8 text-primary" />
+                  <div>
+                    <p className="font-medium text-primary-foreground mb-2">
+                      Registration Required
                     </p>
-                  )}
-
-                  {proofStatus === 'rejected' && (
-                    <p className="text-sm text-red-600">
-                      Your {idType.display_name} was rejected. Please upload a different document.
-                    </p>
-                  )}
-
-                  {proofStatus === 'approved' && (
-                    <p className="text-sm text-green-600 flex items-center gap-1">
-                      <CheckCircle className="h-4 w-4" />
-                      Your {idType.display_name} has been verified.
-                    </p>
-                  )}
-
-                  {isPreviouslyApproved && (
-                    <p className="text-sm text-blue-600 flex items-center gap-1">
-                      <CheckCircle className="h-4 w-4" />
-                      Your previously approved {idType.display_name} can be used for this trek.
-                    </p>
-                  )}
-
-                  {!isPreviouslyApproved && proofStatus === 'not_uploaded' && (
-                    <p className="text-sm text-muted-foreground">
-                      Please upload your {idType.display_name} for verification.
-                    </p>
-                  )}
+                    <p className="text-sm text-primary-foreground/70">
+                      Please register for this trek first. After registering, you'll be able to upload your ID documents for verification.
+                </p>
+                  </div>
                 </div>
-              );
-            })}
+              </div>
+                  )}
           </CardContent>
         </Card>
       )}

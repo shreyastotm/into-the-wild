@@ -1,13 +1,25 @@
-import React, { useState, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { toast } from '@/components/ui/use-toast';
-import { Upload, Camera, Loader2, CheckCircle, AlertCircle } from 'lucide-react';
-import { Card, CardContent } from '@/components/ui/card';
+import React, { useState, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { toast } from "@/components/ui/use-toast";
+import {
+  Upload,
+  Camera,
+  Loader2,
+  CheckCircle,
+  AlertCircle,
+} from "lucide-react";
+import { Card, CardContent } from "@/components/ui/card";
 
 interface UserImageUploadProps {
   trekId: number;
@@ -15,49 +27,56 @@ interface UserImageUploadProps {
   onUploadSuccess?: () => void;
 }
 
-export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImageUploadProps) {
+export function UserImageUpload({
+  trekId,
+  trekName,
+  onUploadSuccess,
+}: UserImageUploadProps) {
   const { user } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [caption, setCaption] = useState('');
+  const [caption, setCaption] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadSuccess, setUploadSuccess] = useState(false);
 
-  const handleFileSelect = useCallback((event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      toast({
-        title: 'Invalid File Type',
-        description: 'Please select an image file.',
-        variant: 'destructive',
-      });
-      return;
-    }
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "Invalid File Type",
+          description: "Please select an image file.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    // Validate file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
-      toast({
-        title: 'File Too Large',
-        description: 'Please select an image smaller than 10MB.',
-        variant: 'destructive',
-      });
-      return;
-    }
+      // Validate file size (max 10MB)
+      if (file.size > 10 * 1024 * 1024) {
+        toast({
+          title: "File Too Large",
+          description: "Please select an image smaller than 10MB.",
+          variant: "destructive",
+        });
+        return;
+      }
 
-    setSelectedFile(file);
+      setSelectedFile(file);
 
-    // Create preview URL
-    if (previewUrl) {
-      URL.revokeObjectURL(previewUrl);
-    }
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
-    setUploadSuccess(false);
-  }, [previewUrl]);
+      // Create preview URL
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+      }
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+      setUploadSuccess(false);
+    },
+    [previewUrl],
+  );
 
   const handleSubmit = useCallback(async () => {
     if (!selectedFile || !user) return;
@@ -65,48 +84,49 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
     setUploading(true);
     try {
       // Upload image to storage
-      const fileExt = selectedFile.name.split('.').pop();
+      const fileExt = selectedFile.name.split(".").pop();
       const fileName = `${user.id}_${Date.now()}.${fileExt}`;
       const filePath = `user-contributions/${trekId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from('trek-images')
-        .upload(filePath, selectedFile, { cacheControl: '3600' });
+        .from("trek-images")
+        .upload(filePath, selectedFile, { cacheControl: "3600" });
 
       if (uploadError) throw uploadError;
 
       // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('trek-images')
-        .getPublicUrl(filePath);
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("trek-images").getPublicUrl(filePath);
 
       // Save to database
       const { error: dbError } = await supabase
-        .from('user_trek_images')
+        .from("user_trek_images")
         .insert({
           trek_id: trekId,
           uploaded_by: user.id,
           image_url: publicUrl,
           caption: caption.trim() || null,
-          status: 'pending',
+          status: "pending",
         });
 
       if (dbError) {
         // Clean up uploaded file if DB insert fails
-        await supabase.storage.from('trek-images').remove([filePath]);
+        await supabase.storage.from("trek-images").remove([filePath]);
         throw dbError;
       }
 
       setUploadSuccess(true);
       toast({
-        title: 'Image Submitted Successfully',
-        description: 'Your photo has been submitted and is pending admin review.',
+        title: "Image Submitted Successfully",
+        description:
+          "Your photo has been submitted and is pending admin review.",
       });
 
       // Reset form
       setSelectedFile(null);
       setPreviewUrl(null);
-      setCaption('');
+      setCaption("");
 
       // Call success callback if provided
       if (onUploadSuccess) {
@@ -118,13 +138,13 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
         setIsOpen(false);
         setUploadSuccess(false);
       }, 2000);
-
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to upload image';
+      const message =
+        error instanceof Error ? error.message : "Failed to upload image";
       toast({
-        title: 'Upload Failed',
+        title: "Upload Failed",
         description: message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } finally {
       setUploading(false);
@@ -138,7 +158,7 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
     setIsOpen(false);
     setSelectedFile(null);
     setPreviewUrl(null);
-    setCaption('');
+    setCaption("");
     setUploadSuccess(false);
   }, [previewUrl]);
 
@@ -160,7 +180,8 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
 
         <div className="space-y-4">
           <div className="text-sm text-gray-600 dark:text-gray-400">
-            Help us showcase this amazing trek! Upload your photos and they will be reviewed by our team before being added to the gallery.
+            Help us showcase this amazing trek! Upload your photos and they will
+            be reviewed by our team before being added to the gallery.
           </div>
 
           {uploadSuccess ? (
@@ -171,7 +192,8 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
                   Photo Submitted Successfully!
                 </p>
                 <p className="text-green-600 dark:text-green-300 text-sm mt-1">
-                  Your photo is pending admin review and will appear in the gallery once approved.
+                  Your photo is pending admin review and will appear in the
+                  gallery once approved.
                 </p>
               </CardContent>
             </Card>
@@ -179,7 +201,9 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
             <>
               {/* File Upload Area */}
               <div className="space-y-3">
-                <label className="block text-sm font-medium">Select Photo</label>
+                <label className="block text-sm font-medium">
+                  Select Photo
+                </label>
                 <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-gray-400 dark:hover:border-gray-500 transition-colors">
                   <input
                     type="file"
@@ -191,7 +215,7 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
                   />
                   <label
                     htmlFor="image-upload"
-                    className={`cursor-pointer ${uploading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    className={`cursor-pointer ${uploading ? "opacity-50 cursor-not-allowed" : ""}`}
                   >
                     {previewUrl ? (
                       <div className="space-y-3">
@@ -208,7 +232,9 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
                       <div className="space-y-3">
                         <Upload className="w-8 h-8 mx-auto text-gray-400" />
                         <div>
-                          <p className="text-sm font-medium">Click to upload a photo</p>
+                          <p className="text-sm font-medium">
+                            Click to upload a photo
+                          </p>
                           <p className="text-xs text-gray-500 mt-1">
                             PNG, JPG up to 10MB
                           </p>
@@ -245,7 +271,10 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
                         <li>• High quality, well-lit photos work best</li>
                         <li>• Photos should be from this specific trek</li>
                         <li>• No inappropriate or copyrighted content</li>
-                        <li>• Photos will be reviewed before appearing in the gallery</li>
+                        <li>
+                          • Photos will be reviewed before appearing in the
+                          gallery
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -254,12 +283,18 @@ export function UserImageUpload({ trekId, trekName, onUploadSuccess }: UserImage
 
               {/* Submit Button */}
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={handleClose} disabled={uploading}>
+                <Button
+                  variant="outline"
+                  onClick={handleClose}
+                  disabled={uploading}
+                >
                   Cancel
                 </Button>
                 <Button onClick={handleSubmit} disabled={!canSubmit}>
-                  {uploading && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
-                  {uploading ? 'Uploading...' : 'Submit Photo'}
+                  {uploading && (
+                    <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                  )}
+                  {uploading ? "Uploading..." : "Submit Photo"}
                 </Button>
               </div>
             </>

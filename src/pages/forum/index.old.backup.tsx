@@ -1,18 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageSquare, Users, Clock, Pin, Lock, Plus, Loader2, Tag as TagIcon, X } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  MessageSquare,
+  Users,
+  Clock,
+  Pin,
+  Lock,
+  Plus,
+  Loader2,
+  Tag as TagIcon,
+  X,
+} from "lucide-react";
 
 interface ForumCategory {
   id: number;
@@ -56,10 +85,12 @@ export default function ForumHome() {
   const [tags, setTags] = useState<ForumTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
-  const [newThreadTitle, setNewThreadTitle] = useState('');
-  const [newThreadContent, setNewThreadContent] = useState('');
+  const [newThreadTitle, setNewThreadTitle] = useState("");
+  const [newThreadContent, setNewThreadContent] = useState("");
   const [creatingThread, setCreatingThread] = useState(false);
 
   useEffect(() => {
@@ -68,7 +99,7 @@ export default function ForumHome() {
 
   const fetchForumData = async () => {
     const timeoutId = setTimeout(() => {
-      console.error('Forum query timed out');
+      console.error("Forum query timed out");
       setLoading(false);
       toast({
         title: "Loading timed out",
@@ -82,12 +113,12 @@ export default function ForumHome() {
 
       // Fetch categories
       const { data: categoriesData, error: categoriesError } = await supabase
-        .from('forum_categories')
-        .select('*')
-        .order('sort_order');
+        .from("forum_categories")
+        .select("*")
+        .order("sort_order");
 
       if (categoriesError) {
-        console.error('Error fetching categories:', categoriesError);
+        console.error("Error fetching categories:", categoriesError);
         toast({
           title: "Error",
           description: "Could not load forum categories.",
@@ -97,16 +128,18 @@ export default function ForumHome() {
       }
 
       // Fetch tags
-      const { data: tagsData, error: tagsError } = await supabase.rpc('get_forum_tags');
+      const { data: tagsData, error: tagsError } =
+        await supabase.rpc("get_forum_tags");
 
       if (tagsError) {
-        console.error('Error fetching tags:', tagsError);
+        console.error("Error fetching tags:", tagsError);
       }
 
       // Fetch recent threads with author info
       const { data: threadsData, error: threadsError } = await supabase
-        .from('forum_threads')
-        .select(`
+        .from("forum_threads")
+        .select(
+          `
           id,
           category_id,
           author_id,
@@ -119,13 +152,14 @@ export default function ForumHome() {
             full_name,
             avatar_url
           )
-        `)
-        .order('pinned', { ascending: false })
-        .order('updated_at', { ascending: false })
+        `,
+        )
+        .order("pinned", { ascending: false })
+        .order("updated_at", { ascending: false })
         .limit(20);
 
       if (threadsError) {
-        console.error('Error fetching threads:', threadsError);
+        console.error("Error fetching threads:", threadsError);
         toast({
           title: "Error",
           description: "Could not load forum threads.",
@@ -138,8 +172,9 @@ export default function ForumHome() {
       const threadsWithTags = await Promise.all(
         (threadsData || []).map(async (thread) => {
           const { data: threadTags } = await supabase
-            .from('forum_thread_tags')
-            .select(`
+            .from("forum_thread_tags")
+            .select(
+              `
               forum_tags (
                 id,
                 name,
@@ -147,16 +182,18 @@ export default function ForumHome() {
                 color,
                 sort_order
               )
-            `)
-            .eq('thread_id', thread.id);
+            `,
+            )
+            .eq("thread_id", thread.id);
 
           return {
             ...thread,
-            author_name: thread.users?.full_name || 'Unknown User',
+            author_name: thread.users?.full_name || "Unknown User",
             author_avatar: thread.users?.avatar_url || null,
-            tags: threadTags?.map((tt: any) => tt.forum_tags).filter(Boolean) || []
+            tags:
+              threadTags?.map((tt: any) => tt.forum_tags).filter(Boolean) || [],
           };
-        })
+        }),
       );
 
       clearTimeout(timeoutId);
@@ -165,7 +202,7 @@ export default function ForumHome() {
       setThreads(threadsWithTags);
     } catch (error) {
       clearTimeout(timeoutId);
-      console.error('Error fetching forum data:', error);
+      console.error("Error fetching forum data:", error);
       toast({
         title: "Error",
         description: "Could not load forum data.",
@@ -177,7 +214,12 @@ export default function ForumHome() {
   };
 
   const handleCreateThread = async () => {
-    if (!user || !selectedCategoryId || !newThreadTitle.trim() || !newThreadContent.trim()) {
+    if (
+      !user ||
+      !selectedCategoryId ||
+      !newThreadTitle.trim() ||
+      !newThreadContent.trim()
+    ) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields.",
@@ -197,15 +239,18 @@ export default function ForumHome() {
 
     try {
       setCreatingThread(true);
-      const { data, error } = await supabase.rpc('create_forum_thread_with_tags', {
-        p_category_id: selectedCategoryId,
-        p_title: newThreadTitle.trim(),
-        p_content: newThreadContent.trim(),
-        p_tag_ids: selectedTagIds,
-      });
+      const { data, error } = await supabase.rpc(
+        "create_forum_thread_with_tags",
+        {
+          p_category_id: selectedCategoryId,
+          p_title: newThreadTitle.trim(),
+          p_content: newThreadContent.trim(),
+          p_tag_ids: selectedTagIds,
+        },
+      );
 
       if (error) {
-        if (error.message.includes('rate limit')) {
+        if (error.message.includes("rate limit")) {
           toast({
             title: "Rate Limit Exceeded",
             description: "Please wait before creating another thread.",
@@ -223,11 +268,11 @@ export default function ForumHome() {
       });
 
       setShowCreateDialog(false);
-      setNewThreadTitle('');
-      setNewThreadContent('');
+      setNewThreadTitle("");
+      setNewThreadContent("");
       setSelectedCategoryId(null);
       setSelectedTagIds([]);
-      
+
       // Refresh forum data or navigate to new thread
       if (data?.id) {
         navigate(`/forum/t/${data.id}`);
@@ -235,7 +280,7 @@ export default function ForumHome() {
         fetchForumData();
       }
     } catch (error) {
-      console.error('Error creating thread:', error);
+      console.error("Error creating thread:", error);
       toast({
         title: "Error",
         description: "Could not create thread.",
@@ -247,9 +292,9 @@ export default function ForumHome() {
   };
 
   const toggleTag = (tagId: number) => {
-    setSelectedTagIds(prev => {
+    setSelectedTagIds((prev) => {
       if (prev.includes(tagId)) {
-        return prev.filter(id => id !== tagId);
+        return prev.filter((id) => id !== tagId);
       } else {
         return [...prev, tagId];
       }
@@ -257,12 +302,12 @@ export default function ForumHome() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -275,7 +320,10 @@ export default function ForumHome() {
         </div>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((n) => (
-            <div key={n} className="bg-white rounded-lg shadow-sm p-4 animate-pulse">
+            <div
+              key={n}
+              className="bg-white rounded-lg shadow-sm p-4 animate-pulse"
+            >
               <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
               <div className="h-4 bg-gray-200 rounded w-1/2"></div>
             </div>
@@ -292,10 +340,11 @@ export default function ForumHome() {
         <div>
           <h1 className="text-3xl font-bold mb-2">Community Forum</h1>
           <p className="text-gray-600">
-            Connect with fellow trekkers, share experiences, and get advice from the community.
+            Connect with fellow trekkers, share experiences, and get advice from
+            the community.
           </p>
         </div>
-        
+
         {user && (
           <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
             <DialogTrigger asChild>
@@ -316,7 +365,9 @@ export default function ForumHome() {
                   <Label htmlFor="category">Category</Label>
                   <Select
                     value={selectedCategoryId?.toString()}
-                    onValueChange={(value) => setSelectedCategoryId(parseInt(value))}
+                    onValueChange={(value) =>
+                      setSelectedCategoryId(parseInt(value))
+                    }
                   >
                     <SelectTrigger id="category">
                       <SelectValue placeholder="Select a category" />
@@ -330,19 +381,27 @@ export default function ForumHome() {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label>Tags (Select at least one)</Label>
                   <div className="flex flex-wrap gap-2 p-3 border rounded-md max-h-48 overflow-y-auto">
                     {tags.map((tag) => (
                       <Badge
                         key={tag.id}
-                        variant={selectedTagIds.includes(tag.id) ? "default" : "outline"}
+                        variant={
+                          selectedTagIds.includes(tag.id)
+                            ? "default"
+                            : "outline"
+                        }
                         className="cursor-pointer hover:opacity-80 transition-opacity"
                         style={{
-                          backgroundColor: selectedTagIds.includes(tag.id) ? tag.color : 'transparent',
+                          backgroundColor: selectedTagIds.includes(tag.id)
+                            ? tag.color
+                            : "transparent",
                           borderColor: tag.color,
-                          color: selectedTagIds.includes(tag.id) ? 'white' : tag.color
+                          color: selectedTagIds.includes(tag.id)
+                            ? "white"
+                            : tag.color,
                         }}
                         onClick={() => toggleTag(tag.id)}
                       >
@@ -356,11 +415,12 @@ export default function ForumHome() {
                   </div>
                   {selectedTagIds.length > 0 && (
                     <p className="text-xs text-gray-500">
-                      {selectedTagIds.length} tag{selectedTagIds.length > 1 ? 's' : ''} selected
+                      {selectedTagIds.length} tag
+                      {selectedTagIds.length > 1 ? "s" : ""} selected
                     </p>
                   )}
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="title">Thread Title</Label>
                   <Input
@@ -370,7 +430,7 @@ export default function ForumHome() {
                     onChange={(e) => setNewThreadTitle(e.target.value)}
                   />
                 </div>
-                
+
                 <div className="space-y-2">
                   <Label htmlFor="content">Initial Post</Label>
                   <Textarea
@@ -382,7 +442,7 @@ export default function ForumHome() {
                   />
                 </div>
               </div>
-              
+
               <div className="flex justify-end gap-2">
                 <Button
                   variant="outline"
@@ -393,7 +453,13 @@ export default function ForumHome() {
                 </Button>
                 <Button
                   onClick={handleCreateThread}
-                  disabled={creatingThread || !selectedCategoryId || selectedTagIds.length === 0 || !newThreadTitle.trim() || !newThreadContent.trim()}
+                  disabled={
+                    creatingThread ||
+                    !selectedCategoryId ||
+                    selectedTagIds.length === 0 ||
+                    !newThreadTitle.trim() ||
+                    !newThreadContent.trim()
+                  }
                 >
                   {creatingThread ? (
                     <>
@@ -416,7 +482,9 @@ export default function ForumHome() {
       {/* Categories */}
       <div className="grid gap-6 mb-8">
         {categories.map((category) => {
-          const categoryThreads = threads.filter(thread => thread.category_id === category.id);
+          const categoryThreads = threads.filter(
+            (thread) => thread.category_id === category.id,
+          );
 
           return (
             <Card key={category.id}>
@@ -458,11 +526,17 @@ export default function ForumHome() {
                 ) : (
                   <div className="space-y-3">
                     {categoryThreads.slice(0, 3).map((thread) => (
-                      <div key={thread.id} className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors">
+                      <div
+                        key={thread.id}
+                        className="flex items-start gap-3 p-3 rounded-lg hover:bg-gray-50 transition-colors"
+                      >
                         <Avatar className="h-8 w-8">
-                          <AvatarImage src={thread.author_avatar || undefined} />
+                          <AvatarImage
+                            src={thread.author_avatar || undefined}
+                          />
                           <AvatarFallback>
-                            {thread.author_name?.charAt(0)?.toUpperCase() || 'U'}
+                            {thread.author_name?.charAt(0)?.toUpperCase() ||
+                              "U"}
                           </AvatarFallback>
                         </Avatar>
 
@@ -498,14 +572,17 @@ export default function ForumHome() {
                                   className="text-xs px-1.5 py-0"
                                   style={{
                                     borderColor: tag.color,
-                                    color: tag.color
+                                    color: tag.color,
                                   }}
                                 >
                                   {tag.name}
                                 </Badge>
                               ))}
                               {thread.tags.length > 3 && (
-                                <Badge variant="outline" className="text-xs px-1.5 py-0">
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs px-1.5 py-0"
+                                >
                                   +{thread.tags.length - 3}
                                 </Badge>
                               )}
@@ -545,9 +622,7 @@ export default function ForumHome() {
             Sign in to start discussions and join the conversation.
           </p>
           <Button asChild>
-            <Link to="/login">
-              Sign In
-            </Link>
+            <Link to="/login">Sign In</Link>
           </Button>
         </div>
       )}

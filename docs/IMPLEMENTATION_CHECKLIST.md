@@ -6,7 +6,7 @@
 
 ## 🎯 Overview
 
-This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_SYSTEM.md`. 
+This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_SYSTEM.md`.
 
 **Estimated Total Time:** 80-100 hours  
 **Recommended Timeline:** 4 weeks (20-25 hours/week)
@@ -32,6 +32,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Test logo files load correctly in browser
 
 **Verification:**
+
 - ✅ All logo files visible in `public/` folder
 - ✅ Favicon appears in browser tab
 - ✅ og:image shows correct logo when sharing URL
@@ -43,29 +44,31 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 **File:** `src/index.css`
 
 - [ ] Update CSS custom properties in `:root`:
+
   ```css
-  --primary: 174 64% 40%;              /* Teal */
+  --primary: 174 64% 40%; /* Teal */
   --primary-hover: 174 64% 32%;
   --primary-light: 174 64% 92%;
   --primary-foreground: 0 0% 100%;
-  
-  --secondary: 45 95% 58%;             /* Amber */
+
+  --secondary: 45 95% 58%; /* Amber */
   --secondary-hover: 45 95% 48%;
   --secondary-light: 45 95% 95%;
   --secondary-foreground: 220 20% 20%;
-  
-  --accent: 14 91% 58%;                /* Terracotta */
+
+  --accent: 14 91% 58%; /* Terracotta */
   --accent-hover: 14 91% 48%;
   --accent-light: 14 91% 95%;
   --accent-foreground: 0 0% 100%;
-  
-  --info: 204 94% 63%;                 /* Sky Blue */
-  --success: 142 71% 45%;              /* Green */
-  
-  --background-subtle: 174 20% 97%;    /* Teal tint */
+
+  --info: 204 94% 63%; /* Sky Blue */
+  --success: 142 71% 45%; /* Green */
+
+  --background-subtle: 174 20% 97%; /* Teal tint */
   ```
 
 - [ ] Add custom color extensions to `tailwind.config.ts`:
+
   ```typescript
   colors: {
     // ... existing colors
@@ -85,6 +88,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Check dark mode compatibility (if applicable)
 
 **Verification:**
+
 - ✅ All CSS variables defined
 - ✅ Colors display correctly in browser
 - ✅ Contrast checker passes (use WebAIM tool)
@@ -94,29 +98,58 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 ### 1.3 Typography (2 hours)
 
 - [ ] Add Google Fonts to `index.html` `<head>`:
+
   ```html
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap"
+    rel="stylesheet"
+  />
   ```
 
 - [ ] Update `src/index.css` with font families:
+
   ```css
   body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-family:
+      "Inter",
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      sans-serif;
   }
-  
-  h1, h2, h3, h4, h5, h6, .heading {
-    font-family: 'Poppins', sans-serif;
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6,
+  .heading {
+    font-family: "Poppins", sans-serif;
   }
   ```
 
 - [ ] Add typography utility classes to `index.css`:
+
   ```css
   @layer utilities {
-    .text-display-xl { font-size: 4.5rem; line-height: 1.1; font-weight: 800; }
-    .text-display-lg { font-size: 3.75rem; line-height: 1.1; font-weight: 800; }
-    .text-display { font-size: 3rem; line-height: 1.2; font-weight: 700; }
+    .text-display-xl {
+      font-size: 4.5rem;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+    .text-display-lg {
+      font-size: 3.75rem;
+      line-height: 1.1;
+      font-weight: 800;
+    }
+    .text-display {
+      font-size: 3rem;
+      line-height: 1.2;
+      font-weight: 700;
+    }
   }
   ```
 
@@ -126,6 +159,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Test on different screen sizes
 
 **Verification:**
+
 - ✅ Poppins loads for headings
 - ✅ Inter loads for body text
 - ✅ Font weights display correctly
@@ -137,6 +171,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 **File:** `tailwind.config.ts`
 
 - [ ] Update border radius values:
+
   ```typescript
   borderRadius: {
     xs: '0.25rem',
@@ -150,6 +185,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   ```
 
 - [ ] Add shadow system:
+
   ```typescript
   extend: {
     boxShadow: {
@@ -168,6 +204,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Test design tokens with sample components
 
 **Verification:**
+
 - ✅ Border radius applies correctly
 - ✅ Shadows display as expected
 - ✅ No Tailwind config errors
@@ -211,6 +248,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] `xs`, `sm`, `md` (default), `lg`, `xl`
 
 **Test Cases:**
+
 - [ ] All variants render correctly
 - [ ] Hover animations are smooth
 - [ ] Loading state disables interaction
@@ -218,6 +256,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Works with icons (left/right)
 
 **Verification:**
+
 - ✅ All 6 variants styled
 - ✅ Animations run at 60fps
 - ✅ Accessible (keyboard + screen reader)
@@ -249,10 +288,12 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Test responsive behavior
 
 **Files to Create:**
+
 - `src/components/trek/TrekCard.tsx`
 - `src/components/dashboard/DashboardWelcomeCard.tsx`
 
 **Verification:**
+
 - ✅ Cards display correctly
 - ✅ Hover effects smooth
 - ✅ Logo watermark appears/disappears correctly
@@ -283,12 +324,14 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Update textarea and select with same styles
 
 **Test Cases:**
+
 - [ ] All states render correctly
 - [ ] Focus ring visible
 - [ ] Icons positioned correctly
 - [ ] Works with form validation
 
 **Verification:**
+
 - ✅ Inputs styled consistently
 - ✅ Focus states accessible
 - ✅ Error/success states clear
@@ -300,19 +343,23 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 **File:** `src/components/ui/badge.tsx` (create new)
 
 - [ ] Create base Badge component:
+
   ```tsx
   export const Badge = ({ children, variant, ...props }) => {
     const variantClasses = {
-      featured: 'bg-gradient-to-r from-amber-400 to-orange-500 text-white',
-      easy: 'bg-green-100 text-green-800 border border-green-200',
-      moderate: 'bg-amber-100 text-amber-800 border border-amber-200',
-      hard: 'bg-red-100 text-red-800 border border-red-200',
-      open: 'bg-teal-100 text-teal-800 border border-teal-200',
-      full: 'bg-gray-200 text-gray-700',
+      featured: "bg-gradient-to-r from-amber-400 to-orange-500 text-white",
+      easy: "bg-green-100 text-green-800 border border-green-200",
+      moderate: "bg-amber-100 text-amber-800 border border-amber-200",
+      hard: "bg-red-100 text-red-800 border border-red-200",
+      open: "bg-teal-100 text-teal-800 border border-teal-200",
+      full: "bg-gray-200 text-gray-700",
     };
-    
+
     return (
-      <span className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full ${variantClasses[variant]}`} {...props}>
+      <span
+        className={`inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full ${variantClasses[variant]}`}
+        {...props}
+      >
         {children}
       </span>
     );
@@ -324,6 +371,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Create Storybook/test page with all variants
 
 **Verification:**
+
 - ✅ All badge variants styled
 - ✅ Featured badge has subtle animation
 - ✅ Icons align correctly (if added)
@@ -350,6 +398,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Shimmer effect
 
 **Verification:**
+
 - ✅ Loading components work
 - ✅ Animations smooth
 - ✅ Accessible
@@ -367,11 +416,12 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 
 - [ ] Replace `MapPin` icon with logo image
 - [ ] Desktop version (line ~37):
+
   ```tsx
   <Link to="/" className="flex items-center gap-3 group">
-    <img 
-      src="/itw_logo.jpg" 
-      alt="Into the Wild" 
+    <img
+      src="/itw_logo.jpg"
+      alt="Into the Wild"
       className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
     />
     <span className="text-xl font-bold text-gray-800 hidden lg:inline">
@@ -385,12 +435,14 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Verify hover animation works
 
 **Test Cases:**
+
 - [ ] Logo loads correctly
 - [ ] Hover scale effect smooth
 - [ ] Responsive sizing works
 - [ ] Link to homepage works
 
 **Verification:**
+
 - ✅ Header logo visible
 - ✅ Hover effect works
 - ✅ Responsive
@@ -402,24 +454,29 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 **File:** `src/pages/Index.tsx`
 
 - [ ] Update hero section wrapper (line ~18):
+
   ```tsx
   <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
   ```
 
 - [ ] Add logo backdrop layer:
+
   ```tsx
-  {/* Logo Watermark */}
+  {
+    /* Logo Watermark */
+  }
   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-    <img 
-      src="/itw_logo.jpg" 
-      alt="" 
+    <img
+      src="/itw_logo.jpg"
+      alt=""
       aria-hidden="true"
       className="w-[600px] md:w-[800px] h-auto object-contain opacity-[0.03] blur-[0.5px]"
     />
-  </div>
+  </div>;
   ```
 
 - [ ] Wrap existing content in relative container:
+
   ```tsx
   <div className="relative z-10 container mx-auto px-4">
     {/* Existing hero content */}
@@ -430,12 +487,14 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Adjust opacity if needed (0.02-0.05 range)
 
 **Test Cases:**
+
 - [ ] Logo barely visible as texture
 - [ ] Doesn't interfere with text readability
 - [ ] Gradient background shows through
 - [ ] No layout shift
 
 **Verification:**
+
 - ✅ Backdrop implemented
 - ✅ Subtle enough
 - ✅ Doesn't affect performance
@@ -447,15 +506,16 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 **File:** `src/components/LoadingScreen.tsx` (create new)
 
 - [ ] Create component:
+
   ```tsx
   export const LoadingScreen = () => (
     <div className="fixed inset-0 bg-gradient-to-br from-teal-50 via-white to-amber-50 flex items-center justify-center z-50">
       <div className="text-center">
-        <img 
-          src="/itw_logo.jpg" 
-          alt="Into the Wild" 
+        <img
+          src="/itw_logo.jpg"
+          alt="Into the Wild"
           className="h-32 md:h-40 w-auto mx-auto mb-6"
-          style={{ animation: 'pulse-scale 2s ease-in-out infinite' }}
+          style={{ animation: "pulse-scale 2s ease-in-out infinite" }}
         />
         <div className="flex items-center justify-center gap-2">
           <div className="w-2 h-2 bg-teal-600 rounded-full animate-bounce [animation-delay:-0.3s]"></div>
@@ -468,13 +528,15 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   ```
 
 - [ ] Add custom animation to `src/index.css`:
+
   ```css
   @keyframes pulse-scale {
-    0%, 100% { 
+    0%,
+    100% {
       transform: scale(1);
       opacity: 1;
     }
-    50% { 
+    50% {
       transform: scale(1.05);
       opacity: 0.8;
     }
@@ -487,12 +549,14 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] `src/pages/Auth.tsx` (during authentication)
 
 **Test Cases:**
+
 - [ ] Loading screen displays correctly
 - [ ] Animation is smooth
 - [ ] Dots bounce in sequence
 - [ ] Dismisses properly when done
 
 **Verification:**
+
 - ✅ Component created
 - ✅ Integrated in 3+ places
 - ✅ Animations smooth
@@ -505,11 +569,12 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 
 - [ ] Update card wrapper with `group` class
 - [ ] Add logo watermark layer inside card:
+
   ```tsx
   <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
-    <img 
-      src="/itw_logo.jpg" 
-      alt="" 
+    <img
+      src="/itw_logo.jpg"
+      alt=""
       className="h-48 w-auto translate-x-8 translate-y-8 rotate-12"
     />
   </div>
@@ -524,12 +589,14 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Archive trek cards
 
 **Test Cases:**
+
 - [ ] Watermark invisible initially
 - [ ] Appears smoothly on hover
 - [ ] Doesn't interfere with card content
 - [ ] No performance issues with many cards
 
 **Verification:**
+
 - ✅ Watermark on all trek cards
 - ✅ Smooth hover transition
 - ✅ No layout issues
@@ -541,25 +608,26 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 **File:** `src/pages/Auth.tsx`
 
 - [ ] Replace current layout with split-screen design:
+
   ```tsx
   <div className="min-h-screen grid md:grid-cols-2">
     {/* Left Side - Branding */}
     <div className="hidden md:flex relative bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-600 overflow-hidden">
       {/* Logo Pattern Background */}
       <div className="absolute inset-0">
-        <img 
-          src="/itw_logo.jpg" 
-          alt="" 
+        <img
+          src="/itw_logo.jpg"
+          alt=""
           className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-overlay scale-110 blur-sm"
         />
         <div className="absolute inset-0 bg-gradient-to-b from-teal-600/60 via-transparent to-teal-900/60"></div>
       </div>
-      
+
       {/* Content */}
       <div className="relative z-10 flex flex-col items-center justify-center p-12 text-white">
-        <img 
-          src="/itw_logo.jpg" 
-          alt="Into the Wild" 
+        <img
+          src="/itw_logo.jpg"
+          alt="Into the Wild"
           className="h-40 w-auto mb-8 drop-shadow-2xl"
         />
         <h1 className="text-5xl font-bold mb-4 text-center">Into the Wild</h1>
@@ -582,14 +650,14 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
         </div>
       </div>
     </div>
-    
+
     {/* Right Side - Form */}
     <div className="flex items-center justify-center p-8 bg-white">
       <div className="w-full max-w-md">
         {/* Mobile Logo */}
-        <img 
-          src="/itw_logo.jpg" 
-          alt="Into the Wild" 
+        <img
+          src="/itw_logo.jpg"
+          alt="Into the Wild"
           className="h-20 w-auto mx-auto mb-8 md:hidden"
         />
         <AuthForm />
@@ -603,6 +671,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Verify form still works
 
 **Test Cases:**
+
 - [ ] Desktop split screen displays
 - [ ] Stats show correctly
 - [ ] Mobile logo appears on small screens
@@ -610,6 +679,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Responsive breakpoint smooth
 
 **Verification:**
+
 - ✅ Split screen implemented
 - ✅ Responsive
 - ✅ Form functional
@@ -621,19 +691,24 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 **File:** `src/components/EmptyState.tsx` (create new)
 
 - [ ] Create reusable component:
+
   ```tsx
   interface EmptyStateProps {
     title: string;
     description: string;
     action?: React.ReactNode;
   }
-  
-  export const EmptyState = ({ title, description, action }: EmptyStateProps) => (
+
+  export const EmptyState = ({
+    title,
+    description,
+    action,
+  }: EmptyStateProps) => (
     <div className="text-center py-16 px-4">
       <div className="inline-block relative mb-6">
-        <img 
-          src="/itw_logo.jpg" 
-          alt="" 
+        <img
+          src="/itw_logo.jpg"
+          alt=""
           className="h-32 w-auto opacity-15 grayscale"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent"></div>
@@ -652,6 +727,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] No notifications
 
 **Usage Example:**
+
 ```tsx
 <EmptyState
   title="No treks found"
@@ -661,6 +737,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 ```
 
 **Verification:**
+
 - ✅ Component created
 - ✅ Integrated in 4+ places
 - ✅ Logo displays correctly (grayscale)
@@ -692,6 +769,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Badge pulse animation
 
 **Verification:**
+
 - ✅ Scroll animations work
 - ✅ Page transitions smooth
 - ✅ No animation jank
@@ -718,6 +796,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Action buttons
 
 **Verification:**
+
 - ✅ All card types styled
 - ✅ Consistent design language
 
@@ -741,6 +820,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Use for quick actions (e.g., "Create Trek")
 
 **Verification:**
+
 - ✅ Advanced button styles work
 - ✅ Performance acceptable
 
@@ -764,6 +844,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Ensure used consistently
 
 **Verification:**
+
 - ✅ Skeletons match real components
 - ✅ Progress indicators accurate
 
@@ -798,6 +879,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Navigation menu collapse
 
 **Verification:**
+
 - ✅ All breakpoints tested
 - ✅ No layout issues
 - ✅ Content readable
@@ -828,6 +910,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Form inputs have focus rings
 
 **Verification:**
+
 - ✅ WCAG AA compliant
 - ✅ Keyboard accessible
 - ✅ Screen reader friendly
@@ -858,6 +941,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Optimize if > 500KB
 
 **Verification:**
+
 - ✅ Lighthouse score > 90
 - ✅ Images load quickly
 - ✅ Animations smooth (60fps)
@@ -882,6 +966,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
   - [ ] Best practices
 
 **Deliverables:**
+
 - ✅ Component documentation
 - ✅ Usage guidelines
 - ✅ Code examples
@@ -902,6 +987,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Handle logo visibility in dark mode
 
 **Verification:**
+
 - ✅ Dark mode functional
 - ✅ All components styled
 - ✅ Toggle persists preference
@@ -916,6 +1002,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Page load animations
 
 **Verification:**
+
 - ✅ Animations enhance UX
 - ✅ No performance degradation
 
@@ -929,6 +1016,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 - [ ] Celebration effects
 
 **Verification:**
+
 - ✅ Effects are delightful
 - ✅ Not overused
 
@@ -952,6 +1040,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 ## 🎯 Priority Matrix
 
 ### Must Have (Week 1-2)
+
 1. Logo in header
 2. Color system
 3. Typography
@@ -960,6 +1049,7 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 6. Loading screen
 
 ### Should Have (Week 2-3)
+
 7. Trek card redesign
 8. Auth page split screen
 9. Empty states
@@ -968,12 +1058,14 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 12. Dashboard card
 
 ### Nice to Have (Week 3-4)
+
 13. Animations
 14. Skeleton screens
 15. Advanced button effects
 16. Profile enhancements
 
 ### Optional (Week 4+)
+
 17. Dark mode
 18. Advanced animations
 19. Special effects
@@ -982,16 +1074,19 @@ This checklist corresponds to the 7-phase implementation plan in `UI_UX_DESIGN_S
 
 ## 🚀 Quick Start
 
-**Day 1:** 
+**Day 1:**
+
 - [ ] Copy logo to `public/`
 - [ ] Update colors in `index.css`
 - [ ] Add Google Fonts
 
 **Day 2:**
+
 - [ ] Update button component
 - [ ] Replace header logo
 
 **Day 3:**
+
 - [ ] Add hero backdrop
 - [ ] Create loading screen
 

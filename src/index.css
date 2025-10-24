@@ -375,6 +375,403 @@
     @apply transition-all duration-300 active:scale-[0.98] hover:shadow-xl;
   }
 
+  /* Enhanced Nature-Inspired Button Effects */
+  @keyframes mountain-glow {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(244, 164, 96, 0.3), 0 0 40px rgba(0, 139, 139, 0.1);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(244, 164, 96, 0.5), 0 0 60px rgba(0, 139, 139, 0.2);
+    }
+  }
+
+  @keyframes mist-appear {
+    0% { opacity: 0; }
+    50% { opacity: 0.3; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes horizon-glow {
+    0%, 100% {
+      box-shadow: 0 0 15px rgba(244, 164, 96, 0.4);
+    }
+    50% {
+      box-shadow: 0 0 25px rgba(244, 164, 96, 0.6), 0 0 40px rgba(0, 139, 139, 0.2);
+    }
+  }
+
+  @keyframes altitude-shift {
+    0% { transform: translateY(0px) translateZ(0px); }
+    50% { transform: translateY(-3px) translateZ(5px); }
+    100% { transform: translateY(0px) translateZ(0px); }
+  }
+
+  @keyframes nature-pulse {
+    0%, 100% {
+      transform: scale(1);
+      box-shadow: 0 0 15px rgba(244, 164, 96, 0.3);
+    }
+    50% {
+      transform: scale(1.02);
+      box-shadow: 0 0 25px rgba(244, 164, 96, 0.5), 0 0 40px rgba(0, 139, 139, 0.2);
+    }
+  }
+
+  @keyframes floating-light {
+    0%, 100% {
+      transform: translateY(0px) rotate(0deg);
+      opacity: 0.6;
+    }
+    33% {
+      transform: translateY(-5px) rotate(120deg);
+      opacity: 0.8;
+    }
+    66% {
+      transform: translateY(-10px) rotate(240deg);
+      opacity: 0.4;
+    }
+  }
+
+  @keyframes golden-wave {
+    0% {
+      background-position: -200% center;
+      opacity: 0;
+    }
+    50% {
+      opacity: 0.7;
+    }
+    100% {
+      background-position: 200% center;
+      opacity: 0;
+    }
+  }
+
+  /* Button Classes */
+  .btn-nature {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .btn-nature:hover {
+    /* Remove infinite animations, just subtle hover effect */
+    box-shadow: 0 0 15px rgba(244, 164, 96, 0.2);
+    transform: translateY(-1px);
+  }
+
+  .btn-nature::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center,
+      rgba(255, 255, 255, 0.1) 0%,
+      rgba(244, 164, 96, 0.2) 30%,
+      transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .btn-nature:hover::before {
+    opacity: 1;
+  }
+
+  .btn-mountain-responsive:hover {
+    /* Subtle mountain-inspired effect */
+    box-shadow: 0 0 20px rgba(0, 139, 139, 0.15);
+    transform: translateY(-1px);
+  }
+
+  .btn-parallax-hover:hover {
+    /* Much more subtle 3D effect */
+    transform: translateZ(5px) scale(1.02);
+    box-shadow:
+      0 10px 25px rgba(0,0,0,0.15),
+      0 0 20px rgba(244,164,96,0.2);
+  }
+
+  .btn-background-aware {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-background-aware::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 30% 20%, rgba(255,255,255,0.1) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(244,164,96,0.2) 0%, transparent 50%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .btn-background-aware:hover::before {
+    opacity: 1;
+  }
+
+  /* Enhanced floating particles for buttons */
+  .btn-floating-particles::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+  }
+
+  .btn-floating-particles:hover::after {
+    opacity: 1;
+  }
+
+  /* Golden wave effect - Much more subtle */
+  .golden-wave {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg,
+      transparent 0%,
+      rgba(244, 164, 96, 0.1) 50%,
+      transparent 100%);
+    animation: golden-wave 4s ease-in-out infinite;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+
+  .btn-nature:hover .golden-wave {
+    opacity: 0.3;
+  }
+
+  /* Sun Glistening Rock Surface Effects */
+  .btn-rock-glossy {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  }
+
+  .btn-rock-glossy::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.4) 0%,
+      rgba(244, 164, 96, 0.25) 25%,
+      transparent 40%,
+      rgba(0, 139, 139, 0.15) 60%,
+      rgba(255, 255, 255, 0.2) 100%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .btn-rock-glossy::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.6) 45%,
+      rgba(244, 164, 96, 0.4) 50%,
+      rgba(255, 255, 255, 0.3) 55%,
+      transparent 80%);
+    transform: rotate(30deg) translateX(-100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  .btn-rock-glossy:hover::before {
+    opacity: 0.7;
+  }
+
+  .btn-rock-glossy:hover::after {
+    opacity: 1;
+    animation: sun-glisten 2s ease-in-out;
+  }
+
+  .btn-rock-glossy:hover {
+    animation: wet-rock-glow 1.8s ease-in-out infinite, rock-surface-shimmer 2.5s ease-in-out infinite;
+    background-color: rgba(255, 255, 255, 0.45);
+    box-shadow:
+      0 0 25px rgba(244, 164, 96, 0.4),
+      0 0 50px rgba(255, 255, 255, 0.2),
+      0 0 80px rgba(0, 139, 139, 0.1);
+  }
+
+  .btn-rock-glossy:active {
+    animation: press-rock-compression 0.3s ease-out;
+    box-shadow:
+      0 0 15px rgba(244, 164, 96, 0.3),
+      0 0 30px rgba(255, 255, 255, 0.15);
+  }
+
+  /* Enhanced transparency for rock glossy buttons */
+  .btn-rock-glossy.bg-white\/60 {
+    background-color: rgba(255, 255, 255, 0.6) !important;
+  }
+
+  .btn-rock-glossy.bg-white\/60:hover {
+    background-color: rgba(255, 255, 255, 0.45) !important;
+  }
+
+  .btn-rock-glossy.bg-white\/60:active {
+    background-color: rgba(255, 255, 255, 0.3) !important;
+  }
+
+  .dark .btn-rock-glossy.bg-primary\/50 {
+    background-color: rgba(244, 164, 96, 0.5) !important;
+  }
+
+  .dark .btn-rock-glossy.bg-primary\/50:hover {
+    background-color: rgba(244, 164, 96, 0.4) !important;
+  }
+
+  .dark .btn-rock-glossy.bg-primary\/50:active {
+    background-color: rgba(244, 164, 96, 0.25) !important;
+  }
+
+  /* Rock surface texture overlay */
+  .rock-surface-texture {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 25%),
+      radial-gradient(circle at 80% 70%, rgba(244, 164, 96, 0.12) 0%, transparent 25%),
+      radial-gradient(circle at 60% 20%, rgba(0, 139, 139, 0.08) 0%, transparent 20%),
+      radial-gradient(circle at 40% 80%, rgba(255, 255, 255, 0.08) 0%, transparent 18%);
+    background-size: 25px 25px, 20px 20px, 15px 15px, 30px 30px;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .btn-rock-glossy:hover .rock-surface-texture {
+    opacity: 0.4;
+    animation: rock-surface-shimmer 2.5s ease-in-out infinite;
+  }
+
+  /* Additional glossy layer for extra shine */
+  .btn-rock-glossy .glossy-highlight {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg,
+      transparent 0%,
+      rgba(255, 255, 255, 0.1) 30%,
+      rgba(244, 164, 96, 0.08) 50%,
+      transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .btn-rock-glossy:hover .glossy-highlight {
+    opacity: 0.6;
+    animation: golden-wave 3s ease-in-out infinite;
+  }
+
+  /* Dark mode adjustments for rock effects */
+  .dark .btn-rock-glossy::before {
+    background: linear-gradient(135deg,
+      rgba(255, 255, 255, 0.2) 0%,
+      rgba(244, 164, 96, 0.15) 25%,
+      transparent 40%,
+      rgba(0, 139, 139, 0.1) 60%,
+      rgba(255, 255, 255, 0.1) 100%);
+  }
+
+  .dark .btn-rock-glossy::after {
+    background: linear-gradient(45deg,
+      transparent 20%,
+      rgba(255, 255, 255, 0.3) 45%,
+      rgba(244, 164, 96, 0.2) 50%,
+      rgba(255, 255, 255, 0.15) 55%,
+      transparent 80%);
+  }
+
+  .dark .btn-rock-glossy:hover {
+    background-color: rgba(244, 164, 96, 0.35);
+  }
+
+  /* Water droplet effect for enhanced realism */
+  .water-droplet {
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.8) 0%, rgba(244, 164, 96, 0.5) 40%, rgba(255, 255, 255, 0.3) 70%, transparent 100%);
+    border-radius: 50%;
+    opacity: 0;
+    animation: water-droplet-reflection 3s ease-in-out infinite;
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: 0 0 4px rgba(255, 255, 255, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+  }
+
+  .btn-rock-glossy:hover .water-droplet:nth-child(1) {
+    top: 20%;
+    left: 30%;
+    opacity: 0.7;
+    animation-delay: 0.5s;
+  }
+
+  .btn-rock-glossy:hover .water-droplet:nth-child(2) {
+    top: 60%;
+    right: 25%;
+    opacity: 0.6;
+    animation-delay: 1.5s;
+  }
+
+  /* Enhanced water droplet shine */
+  .btn-rock-glossy:hover .water-droplet::before {
+    content: '';
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 30%;
+    height: 30%;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.9) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+
+  /* Sun Glistening Animation */
+  @keyframes sun-glisten {
+    0% {
+      transform: translateX(-100%) translateY(-100%) rotate(30deg) scale(0.5);
+      opacity: 0;
+      filter: blur(1px);
+    }
+    15% {
+      opacity: 0.3;
+      transform: translateX(-40%) translateY(-30%) rotate(30deg) scale(0.8);
+      filter: blur(0.5px);
+    }
+    35% {
+      opacity: 0.9;
+      transform: translateX(20%) translateY(-5%) rotate(30deg) scale(1.3);
+      filter: blur(0px);
+    }
+    65% {
+      opacity: 1;
+      transform: translateX(60%) translateY(25%) rotate(30deg) scale(1.4);
+      filter: blur(0px);
+    }
+    85% {
+      opacity: 0.5;
+      transform: translateX(100%) translateY(60%) rotate(30deg) scale(1.1);
+      filter: blur(0.5px);
+    }
+    100% {
+      transform: translateX(200%) translateY(150%) rotate(30deg) scale(0.3);
+      opacity: 0;
+      filter: blur(2px);
+    }
+  }
+
   /* Height Transitions */
   .height-transition {
     transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);

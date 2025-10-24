@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
-import { supabase } from '@/integrations/supabase/client';
-import { TrekCost } from '@/types/trek';
-import { formatCurrency } from '@/lib/utils';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from "@/integrations/supabase/client";
+import { TrekCost } from "@/types/trek";
+import { formatCurrency } from "@/lib/utils";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 interface TrekEventDetailsProps {
   trek_id?: number;
   description?: string;
   duration?: string;
-  transportMode?: 'cars' | 'mini_van' | 'bus' | 'self_drive' | null;
+  transportMode?: "cars" | "mini_van" | "bus" | "self_drive" | null;
   maxParticipants?: number;
   currentParticipants?: number;
   pickupTimeWindow?: string | null;
@@ -33,35 +33,47 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
       {description && (
         <div>
           <h3 className="text-xl font-semibold mb-2">Event Description</h3>
-          <p className="text-muted-foreground whitespace-pre-wrap">{description}</p>
+          <p className="text-muted-foreground whitespace-pre-wrap">
+            {description}
+          </p>
         </div>
       )}
-      
+
       {/* Key Details Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {duration && (
           <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-medium text-muted-foreground">Duration</p>
+            <p className="text-xs font-medium text-muted-foreground">
+              Duration
+            </p>
             <p className="font-medium">{duration}</p>
           </div>
         )}
         {transportMode && (
           <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-medium text-muted-foreground">Transport Mode</p>
-            <p className="font-medium capitalize">{transportMode.replace('_', ' ')}</p>
+            <p className="text-xs font-medium text-muted-foreground">
+              Transport Mode
+            </p>
+            <p className="font-medium capitalize">
+              {transportMode.replace("_", " ")}
+            </p>
           </div>
         )}
         {maxParticipants !== undefined && (
           <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-medium text-muted-foreground">Group Size</p>
+            <p className="text-xs font-medium text-muted-foreground">
+              Group Size
+            </p>
             <p className="font-medium">
-              {currentParticipants ?? '0'} / {maxParticipants} Participants
+              {currentParticipants ?? "0"} / {maxParticipants} Participants
             </p>
           </div>
         )}
         {pickupTimeWindow && (
           <div className="bg-muted/50 p-3 rounded-md">
-            <p className="text-xs font-medium text-muted-foreground">Pickup Window</p>
+            <p className="text-xs font-medium text-muted-foreground">
+              Pickup Window
+            </p>
             <p className="font-medium">{pickupTimeWindow}</p>
           </div>
         )}
@@ -75,14 +87,18 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
             <CardContent className="pt-4">
               <ul className="space-y-3">
                 {fixedCosts.map((cost, index) => (
-                  <li key={`${cost.id}-${index}`} className="p-3 bg-muted/50 rounded-md">
+                  <li
+                    key={`${cost.id}-${index}`}
+                    className="p-3 bg-muted/50 rounded-md"
+                  >
                     <div className="flex justify-between items-center font-semibold">
-                      <span>{cost.description || 'Unnamed Cost'}</span>
-                      <span>{formatCurrency(cost.amount)}</span>
+                      <span>{cost.description || "Unnamed Cost"}</span>
+                      <span>{formatCurrency(cost.amount, "INR")}</span>
                     </div>
                     {cost.pay_by_date && (
                       <p className="text-xs text-amber-600 mt-1">
-                        Due by: {new Date(cost.pay_by_date).toLocaleDateString()}
+                        Due by:{" "}
+                        {new Date(cost.pay_by_date).toLocaleDateString()}
                       </p>
                     )}
                   </li>
@@ -92,7 +108,7 @@ export const TrekEventDetailsComponent: React.FC<TrekEventDetailsProps> = ({
           </Card>
         </div>
       )}
-      
+
       {/* Cancellation Policy Section */}
       {cancellationPolicy && (
         <div>

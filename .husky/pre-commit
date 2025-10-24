@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+echo "🔍 Running Code Quality Agents pre-commit checks..."
+echo "Project: Into The Wild - Indian Market Standards"
+echo ""
+
+# Run comprehensive quality checks
+npm run quality-check
+
+# Check if tests pass
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "✅ All quality checks passed!"
+    echo "🚀 Ready to commit with confidence"
+    echo ""
+    echo "💡 Pro tip: Run 'npm run full-analysis' for comprehensive code improvement suggestions"
+else
+    echo ""
+    echo "❌ Quality checks failed!"
+    echo "🔧 Run 'npm run auto-fix' for automatic fixes"
+    echo "🔍 Run 'npm run refactor' for code improvements"
+    echo "📊 Run 'npm run bug-detect' for detailed analysis"
+    echo ""
+    echo "Fix the issues above and try committing again."
+    exit 1
+fi

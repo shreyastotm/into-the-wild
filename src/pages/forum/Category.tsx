@@ -1,17 +1,39 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Textarea } from '@/components/ui/textarea';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { MessageSquare, Pin, Lock, Plus, ArrowLeft, Loader2, Tag as TagIcon, X } from 'lucide-react';
-import { Label } from '@/components/ui/label';
+import React, { useState, useEffect } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  MessageSquare,
+  Pin,
+  Lock,
+  Plus,
+  ArrowLeft,
+  Loader2,
+  Tag as TagIcon,
+  X,
+} from "lucide-react";
+import { Label } from "@/components/ui/label";
 
 interface ForumCategory {
   id: number;
@@ -54,8 +76,8 @@ export default function ForumCategory() {
   const [tags, setTags] = useState<ForumTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [creatingThread, setCreatingThread] = useState(false);
-  const [newThreadTitle, setNewThreadTitle] = useState('');
-  const [newThreadContent, setNewThreadContent] = useState('');
+  const [newThreadTitle, setNewThreadTitle] = useState("");
+  const [newThreadContent, setNewThreadContent] = useState("");
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
 
@@ -73,32 +95,34 @@ export default function ForumCategory() {
 
       // Fetch category
       const { data: categoryData, error: categoryError } = await supabase
-        .from('forum_categories')
-        .select('*')
-        .eq('slug', slug)
+        .from("forum_categories")
+        .select("*")
+        .eq("slug", slug)
         .single();
 
       if (categoryError) {
-        console.error('Error fetching category:', categoryError);
+        console.error("Error fetching category:", categoryError);
         toast({
           title: "Error",
           description: "Category not found.",
           variant: "destructive",
         });
-        navigate('/forum');
+        navigate("/forum");
         return;
       }
 
       // Fetch tags
-      const { data: tagsData, error: tagsError } = await supabase.rpc('get_forum_tags');
+      const { data: tagsData, error: tagsError } =
+        await supabase.rpc("get_forum_tags");
       if (tagsError) {
-        console.error('Error fetching tags:', tagsError);
+        console.error("Error fetching tags:", tagsError);
       }
 
       // Fetch threads in this category
       const { data: threadsData, error: threadsError } = await supabase
-        .from('forum_threads')
-        .select(`
+        .from("forum_threads")
+        .select(
+          `
           id,
           category_id,
           author_id,
@@ -111,13 +135,14 @@ export default function ForumCategory() {
             full_name,
             avatar_url
           )
-        `)
-        .eq('category_id', categoryData.id)
-        .order('pinned', { ascending: false })
-        .order('updated_at', { ascending: false });
+        `,
+        )
+        .eq("category_id", categoryData.id)
+        .order("pinned", { ascending: false })
+        .order("updated_at", { ascending: false });
 
       if (threadsError) {
-        console.error('Error fetching threads:', threadsError);
+        console.error("Error fetching threads:", threadsError);
         toast({
           title: "Error",
           description: "Could not load threads.",
@@ -127,17 +152,18 @@ export default function ForumCategory() {
       }
 
       // Transform threads data
-      const transformedThreads = threadsData?.map(thread => ({
-        ...thread,
-        author_name: thread.users?.full_name || 'Unknown User',
-        author_avatar: thread.users?.avatar_url || null,
-      })) || [];
+      const transformedThreads =
+        threadsData?.map((thread) => ({
+          ...thread,
+          author_name: thread.users?.full_name || "Unknown User",
+          author_avatar: thread.users?.avatar_url || null,
+        })) || [];
 
       setCategory(categoryData);
       setTags(tagsData || []);
       setThreads(transformedThreads);
     } catch (error) {
-      console.error('Error fetching category data:', error);
+      console.error("Error fetching category data:", error);
       toast({
         title: "Error",
         description: "Could not load category data.",
@@ -149,7 +175,12 @@ export default function ForumCategory() {
   };
 
   const handleCreateThread = async () => {
-    if (!user || !category || !newThreadTitle.trim() || !newThreadContent.trim()) {
+    if (
+      !user ||
+      !category ||
+      !newThreadTitle.trim() ||
+      !newThreadContent.trim()
+    ) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields.",
@@ -171,16 +202,19 @@ export default function ForumCategory() {
       setCreatingThread(true);
 
       // Use the new rate-limited function with tags
-      const { data: threadData, error: threadError } = await supabase.rpc('create_forum_thread_with_tags', {
-        p_category_id: category.id,
-        p_title: newThreadTitle.trim(),
-        p_content: newThreadContent.trim(),
-        p_tag_ids: selectedTagIds,
-      });
+      const { data: threadData, error: threadError } = await supabase.rpc(
+        "create_forum_thread_with_tags",
+        {
+          p_category_id: category.id,
+          p_title: newThreadTitle.trim(),
+          p_content: newThreadContent.trim(),
+          p_tag_ids: selectedTagIds,
+        },
+      );
 
       if (threadError) {
-        console.error('Error creating thread:', threadError);
-        if (threadError.message.includes('rate limit')) {
+        console.error("Error creating thread:", threadError);
+        if (threadError.message.includes("rate limit")) {
           toast({
             title: "Rate Limit Exceeded",
             description: "Please wait before creating another thread.",
@@ -189,7 +223,9 @@ export default function ForumCategory() {
         } else {
           toast({
             title: "Error",
-            description: threadError.message || "Could not create thread. Please try again.",
+            description:
+              threadError.message ||
+              "Could not create thread. Please try again.",
             variant: "destructive",
           });
         }
@@ -197,8 +233,8 @@ export default function ForumCategory() {
       }
 
       // Reset form and close dialog
-      setNewThreadTitle('');
-      setNewThreadContent('');
+      setNewThreadTitle("");
+      setNewThreadContent("");
       setSelectedTagIds([]);
       setShowCreateDialog(false);
 
@@ -216,7 +252,7 @@ export default function ForumCategory() {
         window.location.reload();
       }
     } catch (error) {
-      console.error('Error creating thread:', error);
+      console.error("Error creating thread:", error);
       toast({
         title: "Error",
         description: "Could not create thread. Please try again.",
@@ -228,9 +264,9 @@ export default function ForumCategory() {
   };
 
   const toggleTag = (tagId: number) => {
-    setSelectedTagIds(prev => {
+    setSelectedTagIds((prev) => {
       if (prev.includes(tagId)) {
-        return prev.filter(id => id !== tagId);
+        return prev.filter((id) => id !== tagId);
       } else {
         return [...prev, tagId];
       }
@@ -238,12 +274,12 @@ export default function ForumCategory() {
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -318,12 +354,20 @@ export default function ForumCategory() {
                       {tags.map((tag) => (
                         <Badge
                           key={tag.id}
-                          variant={selectedTagIds.includes(tag.id) ? "default" : "outline"}
+                          variant={
+                            selectedTagIds.includes(tag.id)
+                              ? "default"
+                              : "outline"
+                          }
                           className="cursor-pointer hover:opacity-80 transition-opacity"
                           style={{
-                            backgroundColor: selectedTagIds.includes(tag.id) ? tag.color : 'transparent',
+                            backgroundColor: selectedTagIds.includes(tag.id)
+                              ? tag.color
+                              : "transparent",
                             borderColor: tag.color,
-                            color: selectedTagIds.includes(tag.id) ? 'white' : tag.color
+                            color: selectedTagIds.includes(tag.id)
+                              ? "white"
+                              : tag.color,
                           }}
                           onClick={() => toggleTag(tag.id)}
                         >
@@ -337,7 +381,8 @@ export default function ForumCategory() {
                     </div>
                     {selectedTagIds.length > 0 && (
                       <p className="text-xs text-gray-500">
-                        {selectedTagIds.length} tag{selectedTagIds.length > 1 ? 's' : ''} selected
+                        {selectedTagIds.length} tag
+                        {selectedTagIds.length > 1 ? "s" : ""} selected
                       </p>
                     )}
                   </div>
@@ -375,7 +420,12 @@ export default function ForumCategory() {
                     </Button>
                     <Button
                       onClick={handleCreateThread}
-                      disabled={creatingThread || selectedTagIds.length === 0 || !newThreadTitle.trim() || !newThreadContent.trim()}
+                      disabled={
+                        creatingThread ||
+                        selectedTagIds.length === 0 ||
+                        !newThreadTitle.trim() ||
+                        !newThreadContent.trim()
+                      }
                     >
                       {creatingThread ? (
                         <>
@@ -423,7 +473,7 @@ export default function ForumCategory() {
                   <Avatar className="h-10 w-10">
                     <AvatarImage src={thread.author_avatar || undefined} />
                     <AvatarFallback>
-                      {thread.author_name?.charAt(0)?.toUpperCase() || 'U'}
+                      {thread.author_name?.charAt(0)?.toUpperCase() || "U"}
                     </AvatarFallback>
                   </Avatar>
 
@@ -443,10 +493,7 @@ export default function ForumCategory() {
                       )}
                     </div>
 
-                    <Link
-                      to={`/forum/t/${thread.id}`}
-                      className="block group"
-                    >
+                    <Link to={`/forum/t/${thread.id}`} className="block group">
                       <h3 className="font-semibold text-lg group-hover:text-primary transition-colors">
                         {thread.title}
                       </h3>

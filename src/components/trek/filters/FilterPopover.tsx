@@ -1,10 +1,19 @@
-import React from 'react';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { Filter } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Separator } from '@/components/ui/separator';
-import { FilterOptions } from '../TrekFilters';
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { Filter } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
+import { FilterOptions } from "../TrekFilters";
 
 interface FilterPopoverProps {
   options: FilterOptions;
@@ -19,23 +28,23 @@ export const FilterPopover: React.FC<FilterPopoverProps> = ({
   onFilterChange,
   onReset,
   categories,
-  activeFilterCount
+  activeFilterCount,
 }) => {
   // Debug logging removed for production
 
   const priceRanges = [
-    { label: 'Any Price', value: '' },
-    { label: 'Under ₹1,000', value: '0-1000' },
-    { label: '₹1,000 - ₹2,500', value: '1000-2500' },
-    { label: '₹2,500 - ₹5,000', value: '2500-5000' },
-    { label: 'Over ₹5,000', value: '5000-999999' },
+    { label: "Any Price", value: "" },
+    { label: "Under ₹1,000", value: "0-1000" },
+    { label: "₹1,000 - ₹2,500", value: "1000-2500" },
+    { label: "₹2,500 - ₹5,000", value: "2500-5000" },
+    { label: "Over ₹5,000", value: "5000-999999" },
   ];
 
   const timeFrames = [
-    { label: 'Any Time', value: '' },
-    { label: 'This Week', value: 'this-week' },
-    { label: 'This Month', value: 'this-month' },
-    { label: 'Next 3 Months', value: 'next-3-months' },
+    { label: "Any Time", value: "" },
+    { label: "This Week", value: "this-week" },
+    { label: "This Month", value: "this-month" },
+    { label: "Next 3 Months", value: "next-3-months" },
   ];
 
   // FILTERS REMOVED FOR DEBUGGING - return null

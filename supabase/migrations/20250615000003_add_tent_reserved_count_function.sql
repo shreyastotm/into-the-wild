@@ -3,6 +3,9 @@
 
 BEGIN;
 
+-- Drop existing function with different signature
+DROP FUNCTION IF EXISTS public.update_tent_reserved_count(INTEGER);
+
 -- Create function to update tent reserved count
 CREATE OR REPLACE FUNCTION public.update_tent_reserved_count(
   p_event_id INTEGER,

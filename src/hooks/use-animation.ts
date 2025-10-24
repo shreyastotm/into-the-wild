@@ -1,14 +1,14 @@
-import { useEffect, useRef, useState } from 'react';
-import { createScrollObserver } from '@/lib/animations';
+import { useEffect, useRef, useState } from "react";
+import { createScrollObserver } from "@/lib/animations";
 
 /**
  * Hook for scroll-based animations
  * Triggers animations when elements enter the viewport
- * 
+ *
  * @example
  * ```tsx
  * const { ref, isVisible } = useScrollAnimation();
- * 
+ *
  * <div ref={ref} className={isVisible ? 'fade-in-up' : 'opacity-0'}>
  *   Content appears on scroll
  * </div>
@@ -22,18 +22,15 @@ export const useScrollAnimation = (options?: IntersectionObserverInit) => {
     const element = ref.current;
     if (!element) return;
 
-    const observer = createScrollObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setIsVisible(true);
-            // Optionally disconnect after first appearance
-            // observer.disconnect();
-          }
-        });
-      },
-      options
-    );
+    const observer = createScrollObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          // Optionally disconnect after first appearance
+          // observer.disconnect();
+        }
+      });
+    }, options);
 
     observer.observe(element);
 
@@ -46,11 +43,11 @@ export const useScrollAnimation = (options?: IntersectionObserverInit) => {
 /**
  * Hook for staggered list animations
  * Animates list items with sequential delays
- * 
+ *
  * @example
  * ```tsx
  * const { getItemProps } = useStaggerAnimation(items.length);
- * 
+ *
  * {items.map((item, i) => (
  *   <div {...getItemProps(i)}>
  *     {item.content}
@@ -63,7 +60,7 @@ export const useStaggerAnimation = (count: number, baseDelay: number = 50) => {
     style: {
       animationDelay: `${index * baseDelay}ms`,
     },
-    className: 'fade-in-up',
+    className: "fade-in-up",
   });
 
   return { getItemProps };
@@ -82,17 +79,14 @@ export const useInView = (options?: IntersectionObserverInit) => {
     const element = ref.current;
     if (!element) return;
 
-    const observer = createScrollObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          setIsInView(entry.isIntersecting);
-          if (entry.isIntersecting && !hasBeenInView) {
-            setHasBeenInView(true);
-          }
-        });
-      },
-      options
-    );
+    const observer = createScrollObserver((entries) => {
+      entries.forEach((entry) => {
+        setIsInView(entry.isIntersecting);
+        if (entry.isIntersecting && !hasBeenInView) {
+          setHasBeenInView(true);
+        }
+      });
+    }, options);
 
     observer.observe(element);
 
@@ -122,8 +116,8 @@ export const useParallax = (speed: number = 0.5) => {
       setOffset(rate);
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, [speed]);
 
   return {
@@ -152,10 +146,9 @@ export const useMountAnimation = (duration: number = 300) => {
 
   return {
     isMounted,
-    animationClass: isMounted ? 'fade-in-scale' : 'opacity-0',
+    animationClass: isMounted ? "fade-in-scale" : "opacity-0",
     style: {
       transition: `all ${duration}ms cubic-bezier(0.4, 0, 0.2, 1)`,
     },
   };
 };
-

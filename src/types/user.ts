@@ -10,9 +10,13 @@ export interface UserProfile {
   health_data?: Record<string, unknown> | null; // JSON
   image_url?: string | null;
   avatar_url?: string | null;
-  user_type?: 'trekker' | 'micro_community' | 'admin' | null;
+  user_type?: "trekker" | "micro_community" | "admin" | null;
   partner_id?: string | null;
-  verification_status?: 'NOT_SUBMITTED' | 'PENDING_REVIEW' | 'VERIFIED' | 'REJECTED';
+  verification_status?:
+    | "NOT_SUBMITTED"
+    | "PENDING_REVIEW"
+    | "VERIFIED"
+    | "REJECTED";
   verification_docs?: Record<string, unknown> | null; // Should be a JSON type
   points?: number | null;
   badges?: Record<string, unknown> | null; // JSON
@@ -25,8 +29,8 @@ export interface UserProfile {
   car_seating_capacity?: number | null;
   vehicle_number?: string | null;
   pet_details?: Record<string, unknown> | null; // JSON
-  subscription_type?: 'community' | 'self_service';
-  subscription_status?: 'active' | 'inactive' | 'cancelled';
+  subscription_type?: "community" | "self_service";
+  subscription_status?: "active" | "inactive" | "cancelled";
   subscription_expiry?: string;
   transport_volunteer_opt_in?: boolean | null;
-} 
+}

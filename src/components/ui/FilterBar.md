@@ -16,29 +16,29 @@ A reusable, mobile-first filter component that provides a clean, minimalist inte
 ### Basic Implementation
 
 ```tsx
-import { FilterBar, FilterOption, SortOption } from '@/components/ui/FilterBar';
+import { FilterBar, FilterOption, SortOption } from "@/components/ui/FilterBar";
 
 const MyComponent = () => {
-  const [searchValue, setSearchValue] = useState('');
-  const [filters, setFilters] = useState({ category: '', status: '' });
-  const [sortValue, setSortValue] = useState('name-asc');
+  const [searchValue, setSearchValue] = useState("");
+  const [filters, setFilters] = useState({ category: "", status: "" });
+  const [sortValue, setSortValue] = useState("name-asc");
 
   const filterOptions: FilterOption[] = [
     {
-      key: 'category',
-      label: 'Category',
-      type: 'select',
+      key: "category",
+      label: "Category",
+      type: "select",
       value: filters.category,
       options: [
-        { value: 'trek', label: 'Trek Events' },
-        { value: 'camping', label: 'Camping Events' }
-      ]
-    }
+        { value: "trek", label: "Trek Events" },
+        { value: "camping", label: "Camping Events" },
+      ],
+    },
   ];
 
   const sortOptions: SortOption[] = [
-    { key: 'name-asc', label: 'Name A-Z', value: 'name-asc' },
-    { key: 'name-desc', label: 'Name Z-A', value: 'name-desc' }
+    { key: "name-asc", label: "Name A-Z", value: "name-asc" },
+    { key: "name-desc", label: "Name Z-A", value: "name-desc" },
   ];
 
   return (
@@ -47,14 +47,16 @@ const MyComponent = () => {
       onSearchChange={setSearchValue}
       searchPlaceholder="Search items..."
       filters={filterOptions}
-      onFilterChange={(key, value) => setFilters(prev => ({ ...prev, [key]: value }))}
+      onFilterChange={(key, value) =>
+        setFilters((prev) => ({ ...prev, [key]: value }))
+      }
       sortValue={sortValue}
       onSortChange={setSortValue}
       sortOptions={sortOptions}
       onReset={() => {
-        setSearchValue('');
-        setFilters({ category: '', status: '' });
-        setSortValue('name-asc');
+        setSearchValue("");
+        setFilters({ category: "", status: "" });
+        setSortValue("name-asc");
       }}
     />
   );
@@ -65,43 +67,44 @@ const MyComponent = () => {
 
 ### FilterBarProps
 
-| Prop | Type | Required | Description |
-|------|------|----------|-------------|
-| `searchValue` | `string` | ✅ | Current search input value |
-| `onSearchChange` | `(value: string) => void` | ✅ | Search input change handler |
-| `searchPlaceholder` | `string` | ❌ | Placeholder text for search input |
-| `filters` | `FilterOption[]` | ✅ | Array of filter configurations |
-| `onFilterChange` | `(key: string, value: string) => void` | ✅ | Filter change handler |
-| `sortValue` | `string` | ✅ | Current sort value |
-| `onSortChange` | `(value: string) => void` | ✅ | Sort change handler |
-| `sortOptions` | `SortOption[]` | ✅ | Available sort options |
-| `onReset` | `() => void` | ✅ | Reset all filters handler |
-| `className` | `string` | ❌ | Additional CSS classes |
-| `showResetButton` | `boolean` | ❌ | Show reset button (default: true) |
-| `showSortInBar` | `boolean` | ❌ | Show sort in main bar (default: true) |
+| Prop                | Type                                   | Required | Description                           |
+| ------------------- | -------------------------------------- | -------- | ------------------------------------- |
+| `searchValue`       | `string`                               | ✅       | Current search input value            |
+| `onSearchChange`    | `(value: string) => void`              | ✅       | Search input change handler           |
+| `searchPlaceholder` | `string`                               | ❌       | Placeholder text for search input     |
+| `filters`           | `FilterOption[]`                       | ✅       | Array of filter configurations        |
+| `onFilterChange`    | `(key: string, value: string) => void` | ✅       | Filter change handler                 |
+| `sortValue`         | `string`                               | ✅       | Current sort value                    |
+| `onSortChange`      | `(value: string) => void`              | ✅       | Sort change handler                   |
+| `sortOptions`       | `SortOption[]`                         | ✅       | Available sort options                |
+| `onReset`           | `() => void`                           | ✅       | Reset all filters handler             |
+| `className`         | `string`                               | ❌       | Additional CSS classes                |
+| `showResetButton`   | `boolean`                              | ❌       | Show reset button (default: true)     |
+| `showSortInBar`     | `boolean`                              | ❌       | Show sort in main bar (default: true) |
 
 ### FilterOption
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `key` | `string` | Unique identifier for the filter |
-| `label` | `string` | Display label for the filter |
-| `type` | `'select' \| 'input' \| 'range'` | Filter input type |
-| `value` | `string` | Current filter value |
-| `options` | `Array<{value: string, label: string}>` | Available options (for select/range) |
-| `placeholder` | `string` | Placeholder text |
+| Property      | Type                                    | Description                          |
+| ------------- | --------------------------------------- | ------------------------------------ |
+| `key`         | `string`                                | Unique identifier for the filter     |
+| `label`       | `string`                                | Display label for the filter         |
+| `type`        | `'select' \| 'input' \| 'range'`        | Filter input type                    |
+| `value`       | `string`                                | Current filter value                 |
+| `options`     | `Array<{value: string, label: string}>` | Available options (for select/range) |
+| `placeholder` | `string`                                | Placeholder text                     |
 
 ### SortOption
 
-| Property | Type | Description |
-|----------|------|-------------|
-| `key` | `string` | Unique identifier |
-| `label` | `string` | Display label |
-| `value` | `string` | Sort value |
+| Property | Type     | Description       |
+| -------- | -------- | ----------------- |
+| `key`    | `string` | Unique identifier |
+| `label`  | `string` | Display label     |
+| `value`  | `string` | Sort value        |
 
 ## Filter Types
 
 ### Select Filter
+
 ```tsx
 {
   key: 'category',
@@ -116,6 +119,7 @@ const MyComponent = () => {
 ```
 
 ### Input Filter
+
 ```tsx
 {
   key: 'search',
@@ -127,6 +131,7 @@ const MyComponent = () => {
 ```
 
 ### Range Filter
+
 ```tsx
 {
   key: 'priceRange',
@@ -157,16 +162,19 @@ const MyComponent = () => {
 ## Examples
 
 ### Events Page (Current Implementation)
+
 ```tsx
 // See src/components/trek/TrekFilters.tsx
 ```
 
 ### User Management
+
 ```tsx
 // See src/components/examples/FilterBarExample.tsx - UserFilterExample
 ```
 
 ### Product Catalog
+
 ```tsx
 // See src/components/examples/FilterBarExample.tsx - ProductFilterExample
 ```

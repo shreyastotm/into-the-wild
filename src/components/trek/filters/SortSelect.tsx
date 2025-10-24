@@ -1,7 +1,11 @@
-
-import React from 'react';
-import { ChevronDown } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ChevronDown } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface SortSelectProps {
   value: string;
@@ -10,12 +14,12 @@ interface SortSelectProps {
 
 export const SortSelect: React.FC<SortSelectProps> = ({ value, onChange }) => {
   const sortOptions = [
-    { label: 'Date: Soonest', value: 'date-asc' },
-    { label: 'Date: Latest', value: 'date-desc' },
-    { label: 'Price: Low to High', value: 'price-asc' },
-    { label: 'Price: High to Low', value: 'price-desc' },
-    { label: 'Name: A to Z', value: 'name-asc' },
-    { label: 'Name: Z to A', value: 'name-desc' },
+    { label: "Date: Soonest", value: "date-asc" },
+    { label: "Date: Latest", value: "date-desc" },
+    { label: "Price: Low to High", value: "price-asc" },
+    { label: "Price: High to Low", value: "price-desc" },
+    { label: "Name: A to Z", value: "name-asc" },
+    { label: "Name: Z to A", value: "name-desc" },
   ];
 
   return (
@@ -28,7 +32,9 @@ export const SortSelect: React.FC<SortSelectProps> = ({ value, onChange }) => {
       </SelectTrigger>
       <SelectContent>
         {sortOptions.map((option) => (
-          <SelectItem key={option.value} value={option.value}>{option.label}</SelectItem>
+          <SelectItem key={option.value} value={option.value}>
+            {option.label}
+          </SelectItem>
         ))}
       </SelectContent>
     </Select>

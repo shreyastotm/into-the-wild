@@ -1,14 +1,15 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { formatIndianDate } from '@/utils/indianStandards';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
-import { MapPin, Calendar, Users, Navigation } from 'lucide-react';
-import { Badge } from '@/components/ui/badge';
-import { getUniqueParticipantCount, formatCurrency } from '@/lib/utils';
-import { format, formatRelative } from 'date-fns';
-import { toZonedTime } from 'date-fns-tz';
-import { useCallback } from 'react';
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { MapPin, Calendar, Users, Navigation } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { getUniqueParticipantCount, formatCurrency } from "@/lib/utils";
+import { format, formatRelative } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
+import { useCallback } from "react";
 
 interface Trek {
   trek_id: number;
@@ -46,7 +47,9 @@ interface FetchedTrekData {
 export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   const [treks, setTreks] = useState<Trek[]>([]);
   const [loading, setLoading] = useState(true);
-  const [participantCounts, setParticipantCounts] = useState<Record<number, number>>({});
+  const [participantCounts, setParticipantCounts] = useState<
+    Record<number, number>
+  >({});
   const navigate = useNavigate();
 
   const fetchUpcomingTreks = useCallback(async () => {
@@ -57,11 +60,11 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
       // Simplified query using current schema names - filter out cancelled treks
       const { data, error } = await supabase
         .from('trek_events')
-        .select('trek_id, name, category, difficulty, start_datetime, base_price, max_participants, description, image_url, status') 
-        .gt('start_datetime', now)
-        .neq('status', 'Cancelled')
-        .order('start_datetime', { ascending: true })
-        .limit(limit);
+        .select('trek_id, name, category, difficulty, start_datetime, base_price, max_participants, description, image_url, status')
+        .gt("start_datetime", now)
+        .neq("status", "Cancelled")
+        .order("start_datetime", { ascending: true })
+        .limit(limit) as any;
 
       if (error) {
         throw error;
@@ -76,16 +79,18 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
           let imageUrl = null;
           if (trek.image_url) {
             try {
-              const { data: urlData } = await supabase.storage.from('trek_assets').getPublicUrl(trek.image_url);
+              const { data: urlData } = await supabase.storage
+        .from("trek_assets")
+        .getPublicUrl(trek.image_url) as any;
               imageUrl = urlData.publicUrl;
             } catch (error) {
-              console.error('Error getting image URL:', error);
+              console.error("Error getting image URL:", error);
               imageUrl = null;
             }
           }
           return {
             trek_id: trek.trek_id,
-            name: trek.name ?? 'Unnamed Trek',
+            name: trek.name ?? "Unnamed Trek",
             category: trek.category ?? null,
             difficulty: trek.difficulty ?? null,
             start_datetime: trek.start_datetime ?? new Date().toISOString(),
@@ -95,14 +100,16 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
             image_url: imageUrl,
             status: trek.status ?? null,
           };
-        })
+        }),
       );
 
       setTreks(mappedTreks);
-      setParticipantCounts({}); 
-
+      setParticipantCounts({});
     } catch (error: unknown) {
-      const errorMessage = error instanceof Error ? error.message : "Failed to load upcoming treks";
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : "Failed to load upcoming treks";
       toast({
         title: "Error fetching treks",
         description: errorMessage,
@@ -124,32 +131,41 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
             // Get an accurate count by just counting all non-cancelled registrations
             // Removed head: true to potentially avoid 500 errors, fetch minimal column instead.
             const { count, error } = await supabase
-              .from('trek_registrations')
-              .select('registration_id', { count: 'exact' }) // Select minimal column, keep count
-              .eq('trek_id', trek.trek_id)
-              .not('payment_status', 'eq', 'Cancelled');
-            
+        .from("trek_registrations")
+        .select("registration_id", { count: "exact" }) // Select minimal column, keep count
+        .eq("trek_id", trek.trek_id)
+        .not("payment_status", "eq", "Cancelled") as any;
+
             if (error) {
-              console.error(`Error fetching count for trek ${trek.trek_id}:`, error);
+              console.error(
+                `Error fetching count for trek ${trek.trek_id}:`,
+                error,
+              );
               counts[trek.trek_id] = 0; // Default to 0 on error
             } else {
               // Use the count directly if available
               counts[trek.trek_id] = count || 0;
             }
           } catch (err) {
-            console.error(`Error processing count for trek ${trek.trek_id}:`, err);
+            console.error(
+              `Error processing count for trek ${trek.trek_id}:`,
+              err,
+            );
             counts[trek.trek_id] = 0;
           }
-        })
+        }),
       );
       setParticipantCounts(counts);
     } catch (err) {
       console.error("Error in Promise.all for participant counts:", err);
       // Set all counts to 0 on error
-      const zeroCounts = treks.reduce((acc, trek) => {
-        acc[trek.trek_id] = 0;
-        return acc;
-      }, {} as Record<number, number>);
+      const zeroCounts = treks.reduce(
+        (acc, trek) => {
+          acc[trek.trek_id] = 0;
+          return acc;
+        },
+        {} as Record<number, number>,
+      );
       setParticipantCounts(zeroCounts);
     }
   }, [treks]);
@@ -167,9 +183,9 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
 
   const toIndianTime = (utcDateString: string) => {
     try {
-       const date = new Date(utcDateString);
-       if (isNaN(date.getTime())) throw new Error('Invalid date string');
-       return toZonedTime(date, 'Asia/Kolkata');
+      const date = new Date(utcDateString);
+      if (isNaN(date.getTime())) throw new Error("Invalid date string");
+      return toZonedTime(date, "Asia/Kolkata");
     } catch (e) {
       console.error("Error converting date to Indian time:", utcDateString, e);
       return new Date(); // Return current date as fallback
@@ -177,35 +193,35 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   };
 
   const getCategoryColor = (category: string | null): string => {
-    if (!category) return 'bg-green-100 text-green-800';
+    if (!category) return "bg-green-100 text-green-800";
 
     const colorMap: Record<string, string> = {
-      'Beginner': 'bg-green-100 text-green-800',
-      'Intermediate': 'bg-orange-100 text-orange-800',
-      'Advanced': 'bg-red-100 text-red-800',
-      'Family': 'bg-green-100 text-green-800',
-      'Weekend': 'bg-orange-100 text-orange-800',
-      'Overnight': 'bg-green-100 text-green-800',
-      'Day Trek': 'bg-orange-100 text-orange-800',
+      Beginner: "bg-green-100 text-green-800",
+      Intermediate: "bg-orange-100 text-orange-800",
+      Advanced: "bg-red-100 text-red-800",
+      Family: "bg-green-100 text-green-800",
+      Weekend: "bg-orange-100 text-orange-800",
+      Overnight: "bg-green-100 text-green-800",
+      "Day Trek": "bg-orange-100 text-orange-800",
     };
 
-    return colorMap[category] || 'bg-green-100 text-green-800';
+    return colorMap[category] || "bg-green-100 text-green-800";
   };
 
   const getCategoryGradient = (category: string | null): string => {
-    if (!category) return 'from-green-200 to-green-300';
+    if (!category) return "from-green-200 to-green-300";
 
     const gradientMap: Record<string, string> = {
-      'Beginner': 'from-green-200 to-green-300',
-      'Intermediate': 'from-orange-200 to-orange-300',
-      'Advanced': 'from-red-200 to-red-300',
-      'Family': 'from-green-200 to-green-300',
-      'Weekend': 'from-orange-200 to-orange-300',
-      'Overnight': 'from-green-200 to-green-300',
-      'Day Trek': 'from-orange-200 to-orange-300',
+      Beginner: "from-green-200 to-green-300",
+      Intermediate: "from-orange-200 to-orange-300",
+      Advanced: "from-red-200 to-red-300",
+      Family: "from-green-200 to-green-300",
+      Weekend: "from-orange-200 to-orange-300",
+      Overnight: "from-green-200 to-green-300",
+      "Day Trek": "from-orange-200 to-orange-300",
     };
 
-    return gradientMap[category] || 'from-green-200 to-green-300';
+    return gradientMap[category] || "from-green-200 to-green-300";
   };
 
   const getCategoryIcon = (category: string | null) => {
@@ -213,9 +229,9 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
     return <Navigation className="h-12 w-12 opacity-40 text-gray-600" />;
   };
 
-  const treksWithCounts: TrekWithCount[] = treks.map(trek => ({
+  const treksWithCounts: TrekWithCount[] = treks.map((trek) => ({
     ...trek,
-    participant_count: participantCounts[trek.trek_id] ?? 0 // Default to 0 if count not yet fetched
+    participant_count: participantCounts[trek.trek_id] ?? 0, // Default to 0 if count not yet fetched
   }));
 
   if (loading) {
@@ -223,87 +239,97 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
   }
 
   if (treks.length === 0) {
-    return <div className="py-8 text-center text-muted-foreground">No upcoming treks found matching your criteria.</div>;
+    return (
+      <div className="py-8 text-center text-muted-foreground">
+        No upcoming treks found matching your criteria.
+      </div>
+    );
   }
 
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 items-center">
       {treksWithCounts.map((trek) => {
-         const indianTime = toIndianTime(trek.start_datetime);
-         return (
-           <div
-             key={trek.trek_id}
-             className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group"
-             onClick={() => navigate(`/events/${trek.trek_id}`)}
-           >
-             <div className="h-56 bg-gray-200 relative overflow-hidden rounded-t-xl">
-                {/* Image or Gradient Background */}
-                {trek.image_url ? (
-                 <img 
-                    src={trek.image_url} 
-                    alt={trek.name} 
-                    className="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
-                    onError={(e) => {
-                      console.error('Image failed to load:', trek.image_url);
-                      e.currentTarget.style.display = 'none';
-                    }}
-                 />
-                ) : (
-                  <div className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${getCategoryGradient(trek.category)}`}>
-                    <div className="flex flex-col items-center text-center px-4">
-                      <Navigation className="h-12 w-12 opacity-40 text-gray-600" />
-                      <span className="mt-2 text-lg font-medium text-gray-700 opacity-80">
-                        {trek.category || "Trek"}
-                      </span>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Gradient Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                
-                {/* Category Badge */}
-                {trek.category && (
-                  <div className="absolute bottom-4 left-4">
-                    <span className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full border ${getCategoryColor(trek.category)}`}>
-                      {trek.category}
+        const indianTime = toIndianTime(trek.start_datetime);
+        return (
+          <div
+            key={trek.trek_id}
+            className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group"
+            onClick={() => navigate(`/events/${trek.trek_id}`)}
+          >
+            <div className="h-56 bg-gray-200 relative overflow-hidden rounded-t-xl">
+              {/* Image or Gradient Background */}
+              {trek.image_url ? (
+                <img
+                  src={trek.image_url}
+                  alt={trek.name}
+                  className="absolute inset-0 object-cover w-full h-full transition-transform duration-500 group-hover:scale-110"
+                  onError={(e) => {
+                    console.error("Image failed to load:", trek.image_url);
+                    e.currentTarget.style.display = "none";
+                  }}
+                />
+              ) : (
+                <div
+                  className={`absolute inset-0 flex items-center justify-center bg-gradient-to-br ${getCategoryGradient(trek.category)}`}
+                >
+                  <div className="flex flex-col items-center text-center px-4">
+                    <Navigation className="h-12 w-12 opacity-40 text-gray-600" />
+                    <span className="mt-2 text-lg font-medium text-gray-700 opacity-80">
+                      {trek.category || "Trek"}
                     </span>
                   </div>
-                )}
-             </div>
-             <div className="p-6">
-               <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">{trek.name}</h3>
-               
-               <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                 {trek.description || "Join us for an amazing trekking experience!"}
-               </p>
-               
-               {/* Meta Info */}
-               <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
-                 <span className="flex items-center gap-1">
-                   <Calendar className="h-4 w-4" />
-                   {format(indianTime, 'E, d MMM yyyy, h:mm a')}
-                 </span>
-                 <span className="flex items-center gap-1">
-                   <Users className="h-4 w-4" />
-                   {trek.participant_count}/{trek.max_participants}
-                 </span>
-               </div>
-               
-               {/* Footer */}
-               <div className="flex items-center justify-between">
-                 <div className="text-2xl font-bold text-primary">
-                   {formatCurrency(trek.base_price)}
-                 </div>
+                </div>
+              )}
+
+              {/* Gradient Overlay */}
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+
+              {/* Category Badge */}
+              {trek.category && (
+                <div className="absolute bottom-4 left-4">
+                  <span
+                    className={`inline-flex items-center px-3 py-1 text-xs font-semibold rounded-full border ${getCategoryColor(trek.category)}`}
+                  >
+                    {trek.category}
+                  </span>
+                </div>
+              )}
+            </div>
+            <div className="p-6">
+              <h3 className="text-xl font-bold text-gray-900 mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                {trek.name}
+              </h3>
+
+              <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                {trek.description ||
+                  "Join us for an amazing trekking experience!"}
+              </p>
+
+              {/* Meta Info */}
+              <div className="flex items-center gap-4 text-sm text-gray-500 mb-4">
+                <span className="flex items-center gap-1">
+                  <Calendar className="h-4 w-4" />
+                  {formatIndianDate(indianTime)}
+                </span>
+                <span className="flex items-center gap-1">
+                  <Users className="h-4 w-4" />
+                  {trek.participant_count}/{trek.max_participants}
+                </span>
+              </div>
+
+              {/* Footer */}
+              <div className="flex items-center justify-between">
+                <div className="text-2xl font-bold text-primary">
+                  {formatCurrency(trek.base_price, "INR")}
+                </div>
                 <Button variant="primary" size="sm" className="w-full">
                   View Details
                 </Button>
-               </div>
-             </div>
-           </div>
-         );
+              </div>
+            </div>
+          </div>
+        );
       })}
     </div>
   );
 };
-

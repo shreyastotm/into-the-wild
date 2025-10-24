@@ -1,5 +1,4 @@
-import React from 'react';
-import TrekFiltersBase from './TrekFiltersBase';
+import TrekFiltersBase from "./TrekFiltersBase";
 
 export interface FilterOptions {
   search: string;
@@ -21,7 +20,7 @@ interface TrekFiltersProps {
   categories: string[];
   locations?: string[];
   className?: string;
-  variant?: 'default' | 'compact' | 'sidebar' | 'floating';
+  variant?: "default" | "compact" | "sidebar" | "floating";
   showSearch?: boolean;
   showCategory?: boolean;
   showEventType?: boolean;
@@ -44,8 +43,8 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
   onReset,
   categories = [],
   locations = [],
-  className = '',
-  variant = 'default',
+  className = "",
+  variant = "default",
   showSearch = true,
   showCategory = true,
   showEventType = true,

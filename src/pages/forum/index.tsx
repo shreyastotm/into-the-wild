@@ -1,20 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MessageSquare, Users, Pin, Lock, Plus, Loader2, Tag as TagIcon, X, Flame } from 'lucide-react';
-import { useHaptic } from '@/hooks/use-haptic';
-import { cn } from '@/lib/utils';
+import React, { useState, useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  MessageSquare,
+  Users,
+  Pin,
+  Lock,
+  Plus,
+  Loader2,
+  Tag as TagIcon,
+  X,
+  Flame,
+} from "lucide-react";
+import { useHaptic } from "@/hooks/use-haptic";
+import { cn } from "@/lib/utils";
 
 interface ForumCategory {
   id: number;
@@ -55,7 +78,7 @@ const Campfire = () => (
     {/* Wood logs */}
     <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-24 h-6 bg-gradient-to-r from-amber-900 to-amber-800 rounded-lg rotate-6" />
     <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-20 h-5 bg-gradient-to-r from-amber-800 to-amber-900 rounded-lg -rotate-12" />
-    
+
     {/* Flames */}
     <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-end gap-1">
       {[...Array(5)].map((_, i) => (
@@ -70,14 +93,14 @@ const Campfire = () => (
         />
       ))}
     </div>
-    
+
     {/* Embers floating up */}
     {[...Array(8)].map((_, i) => (
       <div
         key={`ember-${i}`}
         className="absolute w-1 h-1 bg-orange-400 rounded-full"
         style={{
-          bottom: '2rem',
+          bottom: "2rem",
           left: `${40 + i * 5}%`,
           animation: `float-ember ${3 + i * 0.5}s ease-out infinite`,
           animationDelay: `${i * 0.3}s`,
@@ -85,7 +108,7 @@ const Campfire = () => (
         }}
       />
     ))}
-    
+
     <style>{`
       @keyframes flame-flicker {
         0%, 100% { transform: scaleY(1) scaleX(1); opacity: 1; }
@@ -104,17 +127,17 @@ const Campfire = () => (
 );
 
 // Log Seat Category Card
-const LogSeat = ({ 
-  category, 
-  threadCount, 
-  isActive 
-}: { 
-  category: ForumCategory; 
+const LogSeat = ({
+  category,
+  threadCount,
+  isActive,
+}: {
+  category: ForumCategory;
   threadCount: number;
   isActive: boolean;
 }) => {
   const haptic = useHaptic();
-  
+
   return (
     <Link
       to={`/forum/c/${category.slug}`}
@@ -122,27 +145,30 @@ const LogSeat = ({
       className={cn(
         "block relative group",
         "transition-all duration-300",
-        isActive && "scale-105"
+        isActive && "scale-105",
       )}
     >
-      <div className={cn(
-        "relative overflow-hidden rounded-3xl p-6",
-        "bg-gradient-to-br from-amber-900/80 to-amber-800/80",
-        "backdrop-blur-sm border-2 border-amber-700/50",
-        "shadow-2xl hover:shadow-orange-500/20",
-        "transition-all duration-300",
-        "hover:scale-102 hover:-translate-y-1"
-      )}>
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-3xl p-6",
+          "bg-gradient-to-br from-amber-900/80 to-amber-800/80",
+          "backdrop-blur-sm border-2 border-amber-700/50",
+          "shadow-2xl hover:shadow-orange-500/20",
+          "transition-all duration-300",
+          "hover:scale-102 hover:-translate-y-1",
+        )}
+      >
         {/* Wood grain texture */}
-        <div className="absolute inset-0 opacity-10 bg-repeat"
+        <div
+          className="absolute inset-0 opacity-10 bg-repeat"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v2H0zM0 10h100v2H0zM0 20h100v1H0zM0 25h100v1H0zM0 30h100v2H0z' fill='%23000' fill-opacity='0.2'/%3E%3C/svg%3E")`,
           }}
         />
-        
+
         {/* Warm glow effect */}
         <div className="absolute -inset-4 bg-orange-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-        
+
         {/* Content */}
         <div className="relative">
           <div className="flex items-start justify-between mb-3">
@@ -154,7 +180,7 @@ const LogSeat = ({
               <span className="font-semibold">{threadCount}</span>
             </div>
           </div>
-          
+
           {category.description && (
             <p className="text-amber-200/80 text-sm leading-relaxed">
               {category.description}
@@ -169,43 +195,48 @@ const LogSeat = ({
 // Parchment Thread Card
 const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
   const haptic = useHaptic();
-  
+
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
     });
   };
-  
+
   return (
     <Link
       to={`/forum/t/${thread.id}`}
       onClick={() => haptic.light()}
       className="block group"
     >
-      <div className={cn(
-        "relative overflow-hidden rounded-2xl p-5",
-        "bg-gradient-to-br from-amber-50 to-yellow-50/80",
-        "dark:from-amber-950/40 dark:to-yellow-950/20",
-        "border-2 border-amber-200/50 dark:border-amber-800/50",
-        "shadow-md hover:shadow-xl transition-all duration-300",
-        "hover:scale-[1.02] hover:-translate-y-1"
-      )}>
+      <div
+        className={cn(
+          "relative overflow-hidden rounded-2xl p-5",
+          "bg-gradient-to-br from-amber-50 to-yellow-50/80",
+          "dark:from-amber-950/40 dark:to-yellow-950/20",
+          "border-2 border-amber-200/50 dark:border-amber-800/50",
+          "shadow-md hover:shadow-xl transition-all duration-300",
+          "hover:scale-[1.02] hover:-translate-y-1",
+        )}
+      >
         {/* Paper texture */}
-        <div className="absolute inset-0 opacity-5"
+        <div
+          className="absolute inset-0 opacity-5"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='4' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E")`,
           }}
         />
-        
+
         {/* Torn edge effect at top */}
-        <div className="absolute -top-1 left-0 right-0 h-3 bg-amber-100 dark:bg-amber-900/20"
+        <div
+          className="absolute -top-1 left-0 right-0 h-3 bg-amber-100 dark:bg-amber-900/20"
           style={{
-            clipPath: 'polygon(0 0, 5% 100%, 10% 20%, 15% 80%, 20% 40%, 25% 90%, 30% 10%, 35% 70%, 40% 30%, 45% 85%, 50% 15%, 55% 75%, 60% 35%, 65% 90%, 70% 20%, 75% 80%, 80% 40%, 85% 85%, 90% 25%, 95% 70%, 100% 10%, 100% 0)',
+            clipPath:
+              "polygon(0 0, 5% 100%, 10% 20%, 15% 80%, 20% 40%, 25% 90%, 30% 10%, 35% 70%, 40% 30%, 45% 85%, 50% 15%, 55% 75%, 60% 35%, 65% 90%, 70% 20%, 75% 80%, 80% 40%, 85% 85%, 90% 25%, 95% 70%, 100% 10%, 100% 0)",
           }}
         />
-        
+
         <div className="relative flex items-start gap-4">
           {/* Wax Seal Avatar */}
           <div className="relative flex-shrink-0">
@@ -213,7 +244,7 @@ const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
             <Avatar className="relative h-12 w-12 border-3 border-red-800 ring-2 ring-red-900/30">
               <AvatarImage src={thread.author_avatar || undefined} />
               <AvatarFallback className="bg-red-800 text-white font-bold">
-                {thread.author_name?.charAt(0)?.toUpperCase() || 'U'}
+                {thread.author_name?.charAt(0)?.toUpperCase() || "U"}
               </AvatarFallback>
             </Avatar>
           </div>
@@ -223,7 +254,10 @@ const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
             {(thread.pinned || thread.locked) && (
               <div className="flex items-center gap-2 mb-2">
                 {thread.pinned && (
-                  <Badge variant="secondary" className="text-xs bg-amber-200 dark:bg-amber-900 border-amber-400 dark:border-amber-700">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-amber-200 dark:bg-amber-900 border-amber-400 dark:border-amber-700"
+                  >
                     <Pin className="h-3 w-3 mr-1" />
                     Pinned
                   </Badge>
@@ -290,10 +324,12 @@ export default function ForumHome() {
   const [tags, setTags] = useState<ForumTag[]>([]);
   const [loading, setLoading] = useState(true);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(
+    null,
+  );
   const [selectedTagIds, setSelectedTagIds] = useState<number[]>([]);
-  const [newThreadTitle, setNewThreadTitle] = useState('');
-  const [newThreadContent, setNewThreadContent] = useState('');
+  const [newThreadTitle, setNewThreadTitle] = useState("");
+  const [newThreadContent, setNewThreadContent] = useState("");
   const [creatingThread, setCreatingThread] = useState(false);
 
   useEffect(() => {
@@ -305,18 +341,20 @@ export default function ForumHome() {
       setLoading(true);
 
       const { data: categoriesData, error: categoriesError } = await supabase
-        .from('forum_categories')
-        .select('*')
-        .order('sort_order');
+        .from("forum_categories")
+        .select("*")
+        .order("sort_order");
 
       if (categoriesError) throw categoriesError;
 
-      const { data: tagsData, error: tagsError } = await supabase.rpc('get_forum_tags');
-      if (tagsError) console.error('Error fetching tags:', tagsError);
+      const { data: tagsData, error: tagsError } =
+        await supabase.rpc("get_forum_tags");
+      if (tagsError) console.error("Error fetching tags:", tagsError);
 
       const { data: threadsData, error: threadsError } = await supabase
-        .from('forum_threads')
-        .select(`
+        .from("forum_threads")
+        .select(
+          `
           id,
           category_id,
           author_id,
@@ -329,9 +367,10 @@ export default function ForumHome() {
             full_name,
             avatar_url
           )
-        `)
-        .order('pinned', { ascending: false })
-        .order('updated_at', { ascending: false })
+        `,
+        )
+        .order("pinned", { ascending: false })
+        .order("updated_at", { ascending: false })
         .limit(20);
 
       if (threadsError) throw threadsError;
@@ -339,8 +378,9 @@ export default function ForumHome() {
       const threadsWithTags = await Promise.all(
         (threadsData || []).map(async (thread) => {
           const { data: threadTags } = await supabase
-            .from('forum_thread_tags')
-            .select(`
+            .from("forum_thread_tags")
+            .select(
+              `
               forum_tags (
                 id,
                 name,
@@ -348,23 +388,25 @@ export default function ForumHome() {
                 color,
                 sort_order
               )
-            `)
-            .eq('thread_id', thread.id);
+            `,
+            )
+            .eq("thread_id", thread.id);
 
           return {
             ...thread,
-            author_name: thread.users?.full_name || 'Unknown User',
+            author_name: thread.users?.full_name || "Unknown User",
             author_avatar: thread.users?.avatar_url || null,
-            tags: threadTags?.map((tt: any) => tt.forum_tags).filter(Boolean) || []
+            tags:
+              threadTags?.map((tt: any) => tt.forum_tags).filter(Boolean) || [],
           };
-        })
+        }),
       );
 
       setCategories(categoriesData || []);
       setTags(tagsData || []);
       setThreads(threadsWithTags);
     } catch (error) {
-      console.error('Error fetching forum data:', error);
+      console.error("Error fetching forum data:", error);
       toast({
         title: "Error",
         description: "Could not load forum data.",
@@ -376,7 +418,13 @@ export default function ForumHome() {
   };
 
   const handleCreateThread = async () => {
-    if (!user || !selectedCategoryId || !newThreadTitle.trim() || !newThreadContent.trim() || selectedTagIds.length === 0) {
+    if (
+      !user ||
+      !selectedCategoryId ||
+      !newThreadTitle.trim() ||
+      !newThreadContent.trim() ||
+      selectedTagIds.length === 0
+    ) {
       toast({
         title: "Missing Information",
         description: "Please fill in all fields and select at least one tag.",
@@ -387,12 +435,15 @@ export default function ForumHome() {
 
     try {
       setCreatingThread(true);
-      const { data, error } = await supabase.rpc('create_forum_thread_with_tags', {
-        p_category_id: selectedCategoryId,
-        p_title: newThreadTitle.trim(),
-        p_content: newThreadContent.trim(),
-        p_tag_ids: selectedTagIds,
-      });
+      const { data, error } = await supabase.rpc(
+        "create_forum_thread_with_tags",
+        {
+          p_category_id: selectedCategoryId,
+          p_title: newThreadTitle.trim(),
+          p_content: newThreadContent.trim(),
+          p_tag_ids: selectedTagIds,
+        },
+      );
 
       if (error) throw error;
 
@@ -403,18 +454,18 @@ export default function ForumHome() {
       });
 
       setShowCreateDialog(false);
-      setNewThreadTitle('');
-      setNewThreadContent('');
+      setNewThreadTitle("");
+      setNewThreadContent("");
       setSelectedCategoryId(null);
       setSelectedTagIds([]);
-      
+
       if (data?.id) {
         navigate(`/forum/t/${data.id}`);
       } else {
         fetchForumData();
       }
     } catch (error) {
-      console.error('Error creating thread:', error);
+      console.error("Error creating thread:", error);
       haptic.error();
       toast({
         title: "Error",
@@ -428,8 +479,10 @@ export default function ForumHome() {
 
   const toggleTag = (tagId: number) => {
     haptic.light();
-    setSelectedTagIds(prev => 
-      prev.includes(tagId) ? prev.filter(id => id !== tagId) : [...prev, tagId]
+    setSelectedTagIds((prev) =>
+      prev.includes(tagId)
+        ? prev.filter((id) => id !== tagId)
+        : [...prev, tagId],
     );
   };
 
@@ -438,7 +491,9 @@ export default function ForumHome() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-amber-950">
         <div className="text-center">
           <Campfire />
-          <p className="text-amber-900 dark:text-amber-100 font-medium">Gathering around the campfire...</p>
+          <p className="text-amber-900 dark:text-amber-100 font-medium">
+            Gathering around the campfire...
+          </p>
         </div>
       </div>
     );
@@ -466,10 +521,12 @@ export default function ForumHome() {
         {/* Header with Campfire */}
         <div className="text-center mb-12">
           <Campfire />
-          <h1 className="text-4xl md:text-5xl font-bold text-amber-900 dark:text-amber-100 mb-4"
+          <h1
+            className="text-4xl md:text-5xl font-bold text-amber-900 dark:text-amber-100 mb-4"
             style={{
-              textShadow: '2px 2px 4px rgba(0,0,0,0.1)',
-            }}>
+              textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
+            }}
+          >
             Campfire Conversations
           </h1>
           <p className="text-lg text-amber-800 dark:text-amber-200 max-w-2xl mx-auto">
@@ -483,7 +540,7 @@ export default function ForumHome() {
           <div className="flex justify-center mb-12">
             <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
               <DialogTrigger asChild>
-                <Button 
+                <Button
                   size="lg"
                   className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700 text-white shadow-lg hover:shadow-xl transition-all"
                   onClick={() => haptic.medium()}
@@ -492,11 +549,13 @@ export default function ForumHome() {
                   Share Your Story
                 </Button>
               </DialogTrigger>
-              
+
               {/* Dialog content remains similar but with journal styling */}
               <DialogContent className="max-w-3xl bg-gradient-to-br from-amber-50 to-yellow-50 dark:from-gray-900 dark:to-amber-950">
                 <DialogHeader>
-                  <DialogTitle className="text-2xl text-amber-900 dark:text-amber-100">Write in the Journal</DialogTitle>
+                  <DialogTitle className="text-2xl text-amber-900 dark:text-amber-100">
+                    Write in the Journal
+                  </DialogTitle>
                   <DialogDescription className="text-amber-700 dark:text-amber-300">
                     Share your adventure with the community
                   </DialogDescription>
@@ -511,7 +570,9 @@ export default function ForumHome() {
         {/* Log Seat Categories */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
           {categories.map((category) => {
-            const categoryThreads = threads.filter(t => t.category_id === category.id);
+            const categoryThreads = threads.filter(
+              (t) => t.category_id === category.id,
+            );
             return (
               <LogSeat
                 key={category.id}
@@ -541,10 +602,10 @@ export default function ForumHome() {
             <p className="text-amber-900 dark:text-amber-100 mb-4 text-lg">
               Join the circle to share your stories
             </p>
-            <Button 
+            <Button
               size="lg"
               className="bg-gradient-to-r from-orange-600 to-amber-600 hover:from-orange-700 hover:to-amber-700"
-              onClick={() => navigate('/auth')}
+              onClick={() => navigate("/auth")}
             >
               Sign In to Join
             </Button>
@@ -568,4 +629,3 @@ export default function ForumHome() {
     </div>
   );
 }
-

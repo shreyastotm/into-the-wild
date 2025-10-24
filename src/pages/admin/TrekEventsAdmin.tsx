@@ -1,29 +1,36 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { Calendar } from "@/components/ui/calendar"
+import { formatIndianDate } from '@/utils/indianStandards';
+import React, { useState, useEffect, useCallback } from "react";
+import { CalendarIcon } from "lucide-react";
+import { format } from "date-fns";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/components/ui/popover"
+} from "@/components/ui/popover";
 
 // Dialog imports removed - CreateTrekMultiStepFormNew handles its own dialog
-import { 
-  Form, 
-  FormControl, 
-  FormField, 
-  FormItem, 
-  FormLabel, 
-  FormMessage 
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
-import { supabase } from '../../integrations/supabase/client';
+import { supabase } from "../../integrations/supabase/client";
 import {
   Table,
   TableBody,
@@ -32,11 +39,21 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import CreateTrekMultiStepFormNew from '@/components/trek/CreateTrekMultiStepFormNew';
-import { TrekEventStatus, EventType } from '@/types/trek';
-import { toast } from '@/components/ui/use-toast';
-import { Trash2, Eye, Copy, Search, Filter, Download, CheckSquare, Square, Image } from 'lucide-react';
-import { TrekImagesManager } from '@/components/admin/TrekImagesManager';
+import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
+import { TrekEventStatus, EventType } from "@/types/trek";
+import { toast } from "@/components/ui/use-toast";
+import {
+  Trash2,
+  Eye,
+  Copy,
+  Search,
+  Filter,
+  Download,
+  CheckSquare,
+  Square,
+  Image,
+} from "lucide-react";
+import { TrekImagesManager } from "@/components/admin/TrekImagesManager";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,17 +93,23 @@ const TrekEventsAdmin = () => {
   const [deleteDialogOpen, setDeleteDialogOpen] = useState<boolean>(false);
   const [eventToDelete, setEventToDelete] = useState<TrekEvent | null>(null);
   const [isDeleting, setIsDeleting] = useState<boolean>(false);
-  const [searchTerm, setSearchTerm] = useState<string>('');
-  const [statusFilter, setStatusFilter] = useState<string>('');
-  const [typeFilter, setTypeFilter] = useState<string>('');
+  const [searchTerm, setSearchTerm] = useState<string>("");
+  const [statusFilter, setStatusFilter] = useState<string>("");
+  const [typeFilter, setTypeFilter] = useState<string>("");
   const [selectedEvents, setSelectedEvents] = useState<number[]>([]);
-  const [isBulkActionLoading, setIsBulkActionLoading] = useState<boolean>(false);
+  const [isBulkActionLoading, setIsBulkActionLoading] =
+    useState<boolean>(false);
 
   // Image management state
   const [imageManagerOpen, setImageManagerOpen] = useState<boolean>(false);
-  const [selectedTrekForImages, setSelectedTrekForImages] = useState<TrekEvent | null>(null);
-  const [trekImages, setTrekImages] = useState<Record<number, Array<{id: number; image_url: string; position: number}>>>({});
-  const [trekVideos, setTrekVideos] = useState<Record<number, {id: number; video_url: string} | null>>({});
+  const [selectedTrekForImages, setSelectedTrekForImages] =
+    useState<TrekEvent | null>(null);
+  const [trekImages, setTrekImages] = useState<
+    Record<number, Array<{ id: number; image_url: string; position: number }>>
+  >({});
+  const [trekVideos, setTrekVideos] = useState<
+    Record<number, { id: number; video_url: string } | null>
+  >({});
 
   // Fetch images and videos for treks
   const fetchTrekMedia = useCallback(async (trekIds: number[]) => {
@@ -95,15 +118,18 @@ const TrekEventsAdmin = () => {
     try {
       // Fetch images from trek_event_images table
       const { data: images, error: imgError } = await supabase
-        .from('trek_event_images')
-        .select('id, trek_id, image_url, position')
-        .in('trek_id', trekIds)
-        .order('position', { ascending: true });
+        .from("trek_event_images")
+        .select("id, trek_id, image_url, position")
+        .in("trek_id", trekIds)
+        .order("position", { ascending: true }) as any;
 
       if (imgError) throw imgError;
 
-      const imagesByTrek: Record<number, Array<{id: number; image_url: string; position: number}>> = {};
-      (images || []).forEach(img => {
+      const imagesByTrek: Record<
+        number,
+        Array<{ id: number; image_url: string; position: number }>
+      > = {};
+      (images || []).forEach((img) => {
         if (!imagesByTrek[img.trek_id]) {
           imagesByTrek[img.trek_id] = [];
         }
@@ -116,20 +142,26 @@ const TrekEventsAdmin = () => {
 
       // Also check main trek_events table for image_url column
       const { data: trekImages, error: trekImgError } = await supabase
-        .from('trek_events')
-        .select('trek_id, name, image_url, image')
-        .in('trek_id', trekIds);
+        .from("trek_events")
+        .select("trek_id, name, image_url, image")
+        .in("trek_id", trekIds) as any;
 
       if (trekImgError) throw trekImgError;
 
       // Add main trek images to the imagesByTrek if they don't already exist in trek_event_images
-      (trekImages || []).forEach(trek => {
-        if (trek.image_url && trek.image_url.trim() && !imagesByTrek[trek.trek_id]?.some(img => img.image_url === trek.image_url)) {
+      (trekImages || []).forEach((trek) => {
+        if (
+          trek.image_url &&
+          trek.image_url.trim() &&
+          !imagesByTrek[trek.trek_id]?.some(
+            (img) => img.image_url === trek.image_url,
+          )
+        ) {
           if (!imagesByTrek[trek.trek_id]) {
             imagesByTrek[trek.trek_id] = [];
           }
           // Add as position 1 if not already exists
-          if (!imagesByTrek[trek.trek_id].some(img => img.position === 1)) {
+          if (!imagesByTrek[trek.trek_id].some((img) => img.position === 1)) {
             imagesByTrek[trek.trek_id].push({
               id: -1, // Special ID for main trek image
               image_url: trek.image_url,
@@ -137,31 +169,22 @@ const TrekEventsAdmin = () => {
             });
           }
         }
-        if (trek.image && trek.image.trim() && trek.image !== trek.image_url) {
-          if (!imagesByTrek[trek.trek_id]) {
-            imagesByTrek[trek.trek_id] = [];
-          }
-          // Add as position 2 if not already exists and position 1 is taken
-          if (!imagesByTrek[trek.trek_id].some(img => img.position === 2)) {
-            imagesByTrek[trek.trek_id].push({
-              id: -2, // Special ID for image column
-              image_url: trek.image,
-              position: 2,
-            });
-          }
-        }
+        // Note: 'image' column no longer exists in trek_events, only image_url is used
       });
 
       // Fetch videos
       const { data: videos, error: videoError } = await supabase
-        .from('trek_event_videos')
-        .select('id, trek_id, video_url')
-        .in('trek_id', trekIds);
+        .from("trek_event_videos")
+        .select("id, trek_id, video_url")
+        .in("trek_id", trekIds) as any;
 
       if (videoError) throw videoError;
 
-      const videosByTrek: Record<number, {id: number; video_url: string} | null> = {};
-      (videos || []).forEach(video => {
+      const videosByTrek: Record<
+        number,
+        { id: number; video_url: string } | null
+      > = {};
+      (videos || []).forEach((video) => {
         videosByTrek[video.trek_id] = {
           id: video.id,
           video_url: video.video_url,
@@ -171,7 +194,7 @@ const TrekEventsAdmin = () => {
       setTrekImages(imagesByTrek);
       setTrekVideos(videosByTrek);
     } catch (error) {
-      console.error('Error fetching trek media:', error);
+      console.error("Error fetching trek media:", error);
     }
   }, []);
 
@@ -180,20 +203,23 @@ const TrekEventsAdmin = () => {
     setLoading(true);
     try {
       const { data, error: fetchError } = await supabase
-        .from('trek_events')
-        .select('trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, image, gpx_file_url, route_data, event_type, government_id_required')
-        .order('start_datetime', { ascending: false });
+        .from("trek_events")
+        .select(
+          "trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, image, gpx_file_url, route_data, event_type, government_id_required",
+        )
+        .order("start_datetime", { ascending: false }) as any;
 
       if (fetchError) throw fetchError;
       const events = (data as TrekEvent[]) || [];
 
       // Fetch images and videos for all treks
-      const trekIds = events.map(e => e.trek_id);
+      const trekIds = events.map((e) => e.trek_id);
       await fetchTrekMedia(trekIds);
 
       setEvents(events);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to fetch events";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to fetch events";
       setError(`Failed to fetch events: ${errorMessage}`);
       console.error("Fetch error:", err);
     } finally {
@@ -238,25 +264,29 @@ const TrekEventsAdmin = () => {
     return trekImages[trekId]?.length || 0;
   };
 
-  const handleStatusChange = async (trekId: number, newStatus: TrekEventStatus) => {
+  const handleStatusChange = async (
+    trekId: number,
+    newStatus: TrekEventStatus,
+  ) => {
     try {
       const { error: updateError } = await supabase
-        .from('trek_events')
+        .from("trek_events")
         .update({ status: newStatus })
-        .eq('trek_id', trekId);
+        .eq("trek_id", trekId) as any;
 
       if (updateError) throw updateError;
 
       // Update local state to reflect change immediately
-      setEvents(prevEvents => 
-        prevEvents.map(e => 
-          e.trek_id === trekId ? { ...e, status: newStatus } : e
-        )
+      setEvents((prevEvents) =>
+        prevEvents.map((e) =>
+          e.trek_id === trekId ? { ...e, status: newStatus } : e,
+        ),
       );
       // Optionally, show a success toast
       // toast({ title: "Status Updated", description: `Event status changed to ${newStatus}` });
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update status";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update status";
       setError(`Failed to update status: ${errorMessage}`);
       console.error("Status update error:", err);
       // Optionally, show an error toast
@@ -281,14 +311,14 @@ const TrekEventsAdmin = () => {
 
   const handleConfirmDelete = async () => {
     if (!eventToDelete) return;
-    
+
     setIsDeleting(true);
     try {
       // First, check if there are any registrations for this event
       const { data: registrations, error: regError } = await supabase
-        .from('trek_registrations')
-        .select('registration_id')
-        .eq('trek_id', eventToDelete.trek_id);
+        .from("trek_registrations")
+        .select("registration_id")
+        .eq("trek_id", eventToDelete.trek_id) as any;
 
       if (regError) throw regError;
 
@@ -302,17 +332,32 @@ const TrekEventsAdmin = () => {
       }
 
       // Delete related data first (in order of dependencies)
-      await supabase.from('trek_packing_list_assignments').delete().eq('trek_id', eventToDelete.trek_id);
-      await supabase.from('trek_costs').delete().eq('trek_id', eventToDelete.trek_id);
-      await supabase.from('tent_inventory').delete().eq('event_id', eventToDelete.trek_id);
-      await supabase.from('trek_event_images').delete().eq('trek_id', eventToDelete.trek_id);
-      await supabase.from('trek_event_videos').delete().eq('trek_id', eventToDelete.trek_id);
+      await supabase
+        .from("trek_packing_list_assignments")
+        .delete()
+        .eq("trek_id", eventToDelete.trek_id) as any;
+      await supabase
+        .from("trek_costs")
+        .delete()
+        .eq("trek_id", eventToDelete.trek_id) as any;
+      await supabase
+        .from("tent_inventory")
+        .delete()
+        .eq("event_id", eventToDelete.trek_id) as any;
+      await supabase
+        .from("trek_event_images")
+        .delete()
+        .eq("trek_id", eventToDelete.trek_id) as any;
+      await supabase
+        .from("trek_event_videos")
+        .delete()
+        .eq("trek_id", eventToDelete.trek_id) as any;
 
       // Finally delete the main event
       const { error: deleteError } = await supabase
-        .from('trek_events')
+        .from("trek_events")
         .delete()
-        .eq('trek_id', eventToDelete.trek_id);
+        .eq("trek_id", eventToDelete.trek_id) as any;
 
       if (deleteError) throw deleteError;
 
@@ -326,7 +371,8 @@ const TrekEventsAdmin = () => {
       setDeleteDialogOpen(false);
       setEventToDelete(null);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to delete event";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to delete event";
       toast({
         title: "Error Deleting Event",
         description: errorMessage,
@@ -341,14 +387,16 @@ const TrekEventsAdmin = () => {
   const handleDuplicate = async (event: TrekEvent) => {
     try {
       const { data: newEvent, error: insertError } = await supabase
-        .from('trek_events')
+        .from("trek_events")
         .insert({
           name: `${event.name} (Copy)`,
           description: event.description,
           location: event.location,
           category: event.category,
           difficulty: event.difficulty,
-          start_datetime: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // 7 days from now
+          start_datetime: new Date(
+            Date.now() + 7 * 24 * 60 * 60 * 1000,
+          ).toISOString(), // 7 days from now
           base_price: event.base_price,
           max_participants: event.max_participants,
           status: TrekEventStatus.DRAFT,
@@ -356,8 +404,8 @@ const TrekEventsAdmin = () => {
           image_url: event.image_url,
           gpx_file_url: event.gpx_file_url,
         })
-        .select('trek_id')
-        .single();
+        .select("trek_id")
+        .single() as any;
 
       if (insertError) throw insertError;
 
@@ -368,7 +416,8 @@ const TrekEventsAdmin = () => {
 
       await fetchEvents();
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to duplicate event";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to duplicate event";
       toast({
         title: "Error Duplicating Event",
         description: errorMessage,
@@ -380,43 +429,57 @@ const TrekEventsAdmin = () => {
 
   const handleViewEvent = (event: TrekEvent) => {
     // Navigate to the event details page
-    window.open(`/trek-events/${event.trek_id}`, '_blank');
+    window.open(`/trek-events/${event.trek_id}`, "_blank");
   };
 
   const handleExportEvents = async () => {
     try {
-      const { data, error } = await supabase
-        .from('trek_events')
-        .select('*')
-        .order('start_datetime', { ascending: false });
+      const { datatrek_events } = await supabase
+        .from(''*'')
+        .select($3)
+        .order("start_datetime", { ascending: false }) as any;
 
       if (error) throw error;
 
       // Convert to CSV
-      const headers = ['ID', 'Name', 'Description', 'Location', 'Category', 'Start Date', 'End Date', 'Price', 'Max Participants', 'Status', 'Event Type'];
+      const headers = [
+        "ID",
+        "Name",
+        "Description",
+        "Location",
+        "Category",
+        "Start Date",
+        "End Date",
+        "Price",
+        "Max Participants",
+        "Status",
+        "Event Type",
+      ];
       const csvContent = [
-        headers.join(','),
-        ...(data || []).map(event => [
-          event.trek_id,
-          `"${event.name || ''}"`,
-          `"${event.description || ''}"`,
-          `"${event.location || ''}"`,
-          `"${event.category || ''}"`,
-          event.start_datetime,
-          event.end_datetime || '',
-          event.base_price || '',
-          event.max_participants,
-          event.status || '',
-          event.event_type || ''
-        ].join(','))
-      ].join('\n');
+        headers.join(","),
+        ...(data || []).map((event) =>
+          [
+            event.trek_id,
+            `"${event.name || ""}"`,
+            `"${event.description || ""}"`,
+            `"${event.location || ""}"`,
+            `"${event.category || ""}"`,
+            event.start_datetime,
+            event.end_datetime || "",
+            event.base_price || "",
+            event.max_participants,
+            event.status || "",
+            event.event_type || "",
+          ].join(","),
+        ),
+      ].join("\n");
 
       // Download CSV
-      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const blob = new Blob([csvContent], { type: "text/csv" });
       const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
+      const a = document.createElement("a");
       a.href = url;
-      a.download = `events-export-${new Date().toISOString().split('T')[0]}.csv`;
+      a.download = `events-export-${new Date().toISOString().split("T")[0]}.csv`;
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
@@ -427,7 +490,8 @@ const TrekEventsAdmin = () => {
         description: "Events data has been exported to CSV.",
       });
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to export events";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to export events";
       toast({
         title: "Export Failed",
         description: errorMessage,
@@ -437,29 +501,34 @@ const TrekEventsAdmin = () => {
   };
 
   // Filter events based on search and filters
-  const filteredEvents = events.filter(event => {
-    const matchesSearch = !searchTerm || 
+  const filteredEvents = events.filter((event) => {
+    const matchesSearch =
+      !searchTerm ||
       event.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (event.description && event.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
-      (event.location && event.location.toLowerCase().includes(searchTerm.toLowerCase()));
-    
-    const matchesStatus = !statusFilter || statusFilter === 'all' || event.status === statusFilter;
-    const matchesType = !typeFilter || typeFilter === 'all' || event.event_type === typeFilter;
-    
+      (event.description &&
+        event.description.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (event.location &&
+        event.location.toLowerCase().includes(searchTerm.toLowerCase()));
+
+    const matchesStatus =
+      !statusFilter || statusFilter === "all" || event.status === statusFilter;
+    const matchesType =
+      !typeFilter || typeFilter === "all" || event.event_type === typeFilter;
+
     return matchesSearch && matchesStatus && matchesType;
   });
 
   const handleSelectEvent = (eventId: number, checked: boolean) => {
     if (checked) {
-      setSelectedEvents(prev => [...prev, eventId]);
+      setSelectedEvents((prev) => [...prev, eventId]);
     } else {
-      setSelectedEvents(prev => prev.filter(id => id !== eventId));
+      setSelectedEvents((prev) => prev.filter((id) => id !== eventId));
     }
   };
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
-      setSelectedEvents(filteredEvents.map(event => event.trek_id));
+      setSelectedEvents(filteredEvents.map((event) => event.trek_id));
     } else {
       setSelectedEvents([]);
     }
@@ -467,13 +536,13 @@ const TrekEventsAdmin = () => {
 
   const handleBulkStatusChange = async (newStatus: TrekEventStatus) => {
     if (selectedEvents.length === 0) return;
-    
+
     setIsBulkActionLoading(true);
     try {
       const { error } = await supabase
-        .from('trek_events')
+        .from("trek_events")
         .update({ status: newStatus })
-        .in('trek_id', selectedEvents);
+        .in("trek_id", selectedEvents) as any;
 
       if (error) throw error;
 
@@ -485,7 +554,8 @@ const TrekEventsAdmin = () => {
       await fetchEvents();
       setSelectedEvents([]);
     } catch (err: unknown) {
-      const errorMessage = err instanceof Error ? err.message : "Failed to update events";
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to update events";
       toast({
         title: "Bulk Update Failed",
         description: errorMessage,
@@ -496,7 +566,12 @@ const TrekEventsAdmin = () => {
     }
   };
 
-  const handleFormSubmit = async ({ trekData, packingList, costs, tentInventory }) => {
+  const handleFormSubmit = async ({
+    trekData,
+    packingList,
+    costs,
+    tentInventory,
+  }) => {
     setFormSubmitting(true);
     setError(null);
 
@@ -509,111 +584,143 @@ const TrekEventsAdmin = () => {
       end_datetime: trekData.end_datetime || null,
     };
 
-
     // Validate required fields before submission
-    if (!sanitizedTrekData.name || sanitizedTrekData.name.trim() === '') {
-      throw new Error('Event name is required and cannot be empty.');
+    if (!sanitizedTrekData.name || sanitizedTrekData.name.trim() === "") {
+      throw new Error("Event name is required and cannot be empty.");
     }
 
     if (!sanitizedTrekData.event_type) {
-      throw new Error('Event type is required.');
+      throw new Error("Event type is required.");
     }
 
     if (!sanitizedTrekData.start_datetime) {
-      throw new Error('Start date and time is required.');
+      throw new Error("Start date and time is required.");
     }
 
     try {
-        let trekIdToUpdate;
-        // Step 1: Upsert the main trek data
-        if (eventToEdit?.trek_id) {
-            trekIdToUpdate = eventToEdit.trek_id;
-            const { error: trekError } = await supabase
-                .from('trek_events')
-                .update(sanitizedTrekData)
-                .eq('trek_id', trekIdToUpdate);
-            if (trekError) throw new Error(`Failed to update trek: ${trekError.message}`);
+      let trekIdToUpdate;
+      // Step 1: Upsert the main trek data
+      if (eventToEdit?.trek_id) {
+        trekIdToUpdate = eventToEdit.trek_id;
+        const { error: trekError } = await supabase
+        .from("trek_events")
+        .update(sanitizedTrekData)
+        .eq("trek_id", trekIdToUpdate) as any;
+        if (trekError)
+          throw new Error(`Failed to update trek: ${trekError.message}`);
+      } else {
+        const { data: newTrek, error: trekError } = await supabase
+        .from("trek_events")
+        .insert(sanitizedTrekData)
+        .select("trek_id")
+        .single() as any;
+        if (trekError)
+          throw new Error(`Failed to create trek: ${trekError.message}`);
+        trekIdToUpdate = newTrek.trek_id;
+      }
+
+      if (!trekIdToUpdate) {
+        throw new Error("Could not determine trek ID for subsequent updates.");
+      }
+
+      // Step 2: Clear and re-insert packing list assignments
+      console.log(
+        "Admin Form: Deleting existing packing list for trek",
+        trekIdToUpdate,
+      );
+      await supabase
+        .from("trek_packing_list_assignments")
+        .delete()
+        .eq("trek_id", trekIdToUpdate) as any;
+
+      if (packingList && packingList.length > 0) {
+        console.log("Admin Form: Inserting new packing list:", packingList);
+        const assignments = packingList.map((item) => ({
+          trek_id: trekIdToUpdate,
+          master_item_id: item.master_item_id,
+          mandatory: item.mandatory,
+        }));
+        const { error: assignmentError } = await supabase
+        .from("trek_packing_list_assignments")
+        .insert(assignments) as any;
+        if (assignmentError) {
+          console.error(
+            "Admin Form: Packing list assignment error:",
+            assignmentError,
+          );
+          throw new Error(
+            `Failed to assign packing list: ${assignmentError.message}`,
+          );
         } else {
-            const { data: newTrek, error: trekError } = await supabase
-                .from('trek_events')
-                .insert(sanitizedTrekData)
-                .select('trek_id')
-                .single();
-            if (trekError) throw new Error(`Failed to create trek: ${trekError.message}`);
-            trekIdToUpdate = newTrek.trek_id;
+          console.log("Admin Form: Packing list saved successfully");
         }
+      } else {
+        console.log("Admin Form: No packing list data to save");
+      }
 
-        if (!trekIdToUpdate) {
-            throw new Error("Could not determine trek ID for subsequent updates.");
+      // Step 3: Clear and re-insert fixed costs
+      await supabase.from("trek_costs").delete().eq("trek_id", trekIdToUpdate);
+      if (costs && costs.length > 0) {
+        const costsToInsert = costs
+          .filter((cost) => cost && cost.amount && cost.amount > 0) // Filter out invalid costs
+          .map((cost) => ({
+            trek_id: trekIdToUpdate,
+            cost_type: cost.cost_type || "OTHER", // Ensure cost_type is never null
+            amount: cost.amount,
+            description: cost.description || "",
+            url: cost.url,
+            file_url: cost.file_url,
+          }));
+        const { error: costError } = await supabase
+        .from("trek_costs")
+        .insert(costsToInsert) as any;
+        if (costError)
+          throw new Error(`Failed to save costs: ${costError.message}`);
+      }
+
+      // Step 4: Handle tent inventory for camping events
+      if (
+        trekData.event_type === "camping" &&
+        tentInventory &&
+        tentInventory.length > 0
+      ) {
+        // Clear existing tent inventory for this event
+        await supabase
+        .from("tent_inventory")
+        .delete()
+        .eq("event_id", trekIdToUpdate) as any;
+
+        // Insert new tent inventory
+        const tentInventoryToInsert = tentInventory
+          .filter((tent) => tent.total_available > 0) // Only insert tents with availability > 0
+          .map((tent) => ({
+            event_id: trekIdToUpdate,
+            tent_type_id: tent.tent_type_id,
+            total_available: tent.total_available,
+            reserved_count: 0,
+          }));
+
+        if (tentInventoryToInsert.length > 0) {
+          const { error: tentError } = await supabase
+        .from("tent_inventory")
+        .insert(tentInventoryToInsert) as any;
+          if (tentError)
+            throw new Error(
+              `Failed to save tent inventory: ${tentError.message}`,
+            );
         }
+      }
 
-        // Step 2: Clear and re-insert packing list assignments
-        console.log('Admin Form: Deleting existing packing list for trek', trekIdToUpdate);
-        await supabase.from('trek_packing_list_assignments').delete().eq('trek_id', trekIdToUpdate);
-
-        if (packingList && packingList.length > 0) {
-            console.log('Admin Form: Inserting new packing list:', packingList);
-            const assignments = packingList.map(item => ({ trek_id: trekIdToUpdate, master_item_id: item.master_item_id, mandatory: item.mandatory }));
-            const { error: assignmentError } = await supabase.from('trek_packing_list_assignments').insert(assignments);
-            if (assignmentError) {
-                console.error('Admin Form: Packing list assignment error:', assignmentError);
-                throw new Error(`Failed to assign packing list: ${assignmentError.message}`);
-            } else {
-                console.log('Admin Form: Packing list saved successfully');
-            }
-        } else {
-            console.log('Admin Form: No packing list data to save');
-        }
-
-        // Step 3: Clear and re-insert fixed costs
-        await supabase.from('trek_costs').delete().eq('trek_id', trekIdToUpdate);
-        if (costs && costs.length > 0) {
-          const costsToInsert = costs
-            .filter(cost => cost && cost.amount && cost.amount > 0) // Filter out invalid costs
-            .map(cost => ({
-              trek_id: trekIdToUpdate,
-              cost_type: cost.cost_type || 'OTHER', // Ensure cost_type is never null
-              amount: cost.amount,
-              description: cost.description || '',
-              url: cost.url,
-              file_url: cost.file_url,
-            }));
-          const { error: costError } = await supabase.from('trek_costs').insert(costsToInsert);
-          if (costError) throw new Error(`Failed to save costs: ${costError.message}`);
-        }
-
-        // Step 4: Handle tent inventory for camping events
-        if (trekData.event_type === 'camping' && tentInventory && tentInventory.length > 0) {
-          // Clear existing tent inventory for this event
-          await supabase.from('tent_inventory').delete().eq('event_id', trekIdToUpdate);
-          
-          // Insert new tent inventory
-          const tentInventoryToInsert = tentInventory
-            .filter(tent => tent.total_available > 0) // Only insert tents with availability > 0
-            .map(tent => ({
-              event_id: trekIdToUpdate,
-              tent_type_id: tent.tent_type_id,
-              total_available: tent.total_available,
-              reserved_count: 0
-            }));
-          
-          if (tentInventoryToInsert.length > 0) {
-            const { error: tentError } = await supabase.from('tent_inventory').insert(tentInventoryToInsert);
-            if (tentError) throw new Error(`Failed to save tent inventory: ${tentError.message}`);
-          }
-        }
-
-        // Step 5: Refresh UI
-        await fetchEvents();
-        setEditDialogOpen(false);
-        setEventToEdit(null);
-
+      // Step 5: Refresh UI
+      await fetchEvents();
+      setEditDialogOpen(false);
+      setEventToEdit(null);
     } catch (e: unknown) {
-        const errorMessage = e instanceof Error ? e.message : "Submission failed";
-        setError(`Submission failed: ${errorMessage}`);
-        console.error("Form submission error:", e);
+      const errorMessage = e instanceof Error ? e.message : "Submission failed";
+      setError(`Submission failed: ${errorMessage}`);
+      console.error("Form submission error:", e);
     } finally {
-        setFormSubmitting(false);
+      setFormSubmitting(false);
     }
   };
 
@@ -628,7 +735,12 @@ const TrekEventsAdmin = () => {
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h1 className="text-xl sm:text-2xl font-bold">Manage Events</h1>
         <div className="flex flex-col sm:flex-row gap-2">
-          <Button onClick={handleExportEvents} variant="outline" size="sm" className="w-full sm:w-auto">
+          <Button
+            onClick={handleExportEvents}
+            variant="outline"
+            size="sm"
+            className="w-full sm:w-auto"
+          >
             <Download className="h-4 w-4 mr-2" />
             Export CSV
           </Button>
@@ -656,8 +768,10 @@ const TrekEventsAdmin = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Statuses</SelectItem>
-              {Object.values(TrekEventStatus).map(status => (
-                <SelectItem key={status} value={status}>{status}</SelectItem>
+              {Object.values(TrekEventStatus).map((status) => (
+                <SelectItem key={status} value={status}>
+                  {status}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>
@@ -671,12 +785,12 @@ const TrekEventsAdmin = () => {
               <SelectItem value="camping">Camping</SelectItem>
             </SelectContent>
           </Select>
-          <Button 
-            variant="outline" 
+          <Button
+            variant="outline"
             onClick={() => {
-              setSearchTerm('');
-              setStatusFilter('');
-              setTypeFilter('');
+              setSearchTerm("");
+              setStatusFilter("");
+              setTypeFilter("");
             }}
             className="w-full sm:w-auto"
           >
@@ -686,7 +800,9 @@ const TrekEventsAdmin = () => {
         </div>
       </div>
 
-      {error && !isEditDialogOpen && <p className="text-red-500 mb-4">{error}</p>} 
+      {error && !isEditDialogOpen && (
+        <p className="text-red-500 mb-4">{error}</p>
+      )}
       {loading && !isEditDialogOpen && <p>Loading events...</p>}
 
       {/* Bulk Actions */}
@@ -697,21 +813,24 @@ const TrekEventsAdmin = () => {
               {selectedEvents.length} event(s) selected
             </span>
             <div className="flex gap-2">
-              <Select onValueChange={handleBulkStatusChange} disabled={isBulkActionLoading}>
+              <Select
+                onValueChange={handleBulkStatusChange}
+                disabled={isBulkActionLoading}
+              >
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Bulk status change" />
                 </SelectTrigger>
                 <SelectContent>
-                  {Object.values(TrekEventStatus).map(status => (
+                  {Object.values(TrekEventStatus).map((status) => (
                     <SelectItem key={status} value={status}>
                       Set to {status}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => setSelectedEvents([])}
                 disabled={isBulkActionLoading}
               >
@@ -727,13 +846,21 @@ const TrekEventsAdmin = () => {
           {/* Mobile Card Layout */}
           <div className="block md:hidden space-y-4">
             {filteredEvents.map((event) => (
-              <div key={event.trek_id} className="border rounded-lg p-4 bg-white shadow-sm">
+              <div
+                key={event.trek_id}
+                className="border rounded-lg p-4 bg-white shadow-sm"
+              >
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleSelectEvent(event.trek_id, !selectedEvents.includes(event.trek_id))}
+                      onClick={() =>
+                        handleSelectEvent(
+                          event.trek_id,
+                          !selectedEvents.includes(event.trek_id),
+                        )
+                      }
                       className="p-1"
                     >
                       {selectedEvents.includes(event.trek_id) ? (
@@ -742,37 +869,53 @@ const TrekEventsAdmin = () => {
                         <Square className="h-4 w-4 text-muted-foreground dark:text-muted-foreground" />
                       )}
                     </Button>
-                    <h3 className="font-semibold text-sm line-clamp-2">{event.name}</h3>
+                    <h3 className="font-semibold text-sm line-clamp-2">
+                      {event.name}
+                    </h3>
                   </div>
-                  <span className={`px-2 py-1 rounded text-xs font-medium ${
-                    event.event_type === EventType.CAMPING 
-                      ? 'bg-success/10 text-success border border-success/20 dark:bg-success/20 dark:text-success-foreground dark:border-success/30'
-                      : 'bg-info/10 text-info border border-info/20 dark:bg-info/20 dark:text-info-foreground dark:border-info/30'
-                  }`}>
-                    {event.event_type === EventType.CAMPING ? 'Camping' : 'Trek'}
+                  <span
+                    className={`px-2 py-1 rounded text-xs font-medium ${
+                      event.event_type === EventType.CAMPING
+                        ? "bg-success/10 text-success border border-success/20 dark:bg-success/20 dark:text-success-foreground dark:border-success/30"
+                        : "bg-info/10 text-info border border-info/20 dark:bg-info/20 dark:text-info-foreground dark:border-info/30"
+                    }`}
+                  >
+                    {event.event_type === EventType.CAMPING
+                      ? "Camping"
+                      : "Trek"}
                   </span>
                 </div>
-                
+
                 <div className="space-y-2 text-xs text-muted-foreground mb-3">
                   <div className="flex justify-between">
                     <span>Start Date:</span>
-                    <span>{format(new Date(event.start_datetime), 'MMM d, yyyy')}</span>
+                    <span>
+                      {formatIndianDate(new Date(event.start_datetime))}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Price:</span>
-                    <span>{event.base_price !== null && event.base_price !== undefined ? `₹${event.base_price}` : 'N/A'}</span>
+                    <span>
+                      {event.base_price !== null &&
+                      event.base_price !== undefined
+                        ? `₹${event.base_price}`
+                        : "N/A"}
+                    </span>
                   </div>
                   <div className="flex justify-between">
                     <span>Max Participants:</span>
                     <span>{event.max_participants}</span>
                   </div>
                 </div>
-                
+
                 <div className="mb-3">
                   <Select
-                    value={event.status || ''}
+                    value={event.status || ""}
                     onValueChange={(newStatusValue) => {
-                      handleStatusChange(event.trek_id, newStatusValue as TrekEventStatus);
+                      handleStatusChange(
+                        event.trek_id,
+                        newStatusValue as TrekEventStatus,
+                      );
                     }}
                   >
                     <SelectTrigger className="w-full">
@@ -787,37 +930,37 @@ const TrekEventsAdmin = () => {
                     </SelectContent>
                   </Select>
                 </div>
-                
+
                 <div className="flex gap-2">
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleViewEvent(event)}
                     className="flex-1"
                   >
                     <Eye className="h-4 w-4 mr-1" />
                     View
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleEdit(event)}
                     className="flex-1"
                   >
                     Edit
                   </Button>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
+                  <Button
+                    variant="outline"
+                    size="sm"
                     onClick={() => handleDuplicate(event)}
                     className="flex-1"
                   >
                     <Copy className="h-4 w-4 mr-1" />
                     Copy
                   </Button>
-                  <Button 
-                    variant="destructive" 
-                    size="sm" 
+                  <Button
+                    variant="destructive"
+                    size="sm"
                     onClick={() => handleDelete(event)}
                     className="flex-1"
                   >
@@ -838,7 +981,11 @@ const TrekEventsAdmin = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => handleSelectAll(selectedEvents.length !== filteredEvents.length)}
+                      onClick={() =>
+                        handleSelectAll(
+                          selectedEvents.length !== filteredEvents.length,
+                        )
+                      }
                     >
                       {selectedEvents.length === filteredEvents.length ? (
                         <CheckSquare className="h-4 w-4 text-primary dark:text-primary" />
@@ -847,13 +994,27 @@ const TrekEventsAdmin = () => {
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">Name</TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">Type</TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">Start Date</TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">Status</TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">Price</TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">Participants</TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">Actions</TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">
+                    Name
+                  </TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">
+                    Type
+                  </TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">
+                    Start Date
+                  </TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">
+                    Status
+                  </TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">
+                    Price
+                  </TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">
+                    Participants
+                  </TableHead>
+                  <TableHead className="text-foreground dark:text-foreground">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -863,7 +1024,12 @@ const TrekEventsAdmin = () => {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => handleSelectEvent(event.trek_id, !selectedEvents.includes(event.trek_id))}
+                        onClick={() =>
+                          handleSelectEvent(
+                            event.trek_id,
+                            !selectedEvents.includes(event.trek_id),
+                          )
+                        }
                       >
                         {selectedEvents.includes(event.trek_id) ? (
                           <CheckSquare className="h-4 w-4 text-primary dark:text-primary" />
@@ -874,20 +1040,29 @@ const TrekEventsAdmin = () => {
                     </TableCell>
                     <TableCell>{event.name}</TableCell>
                     <TableCell>
-                      <span className={`px-2 py-1 rounded text-xs font-medium ${
-                        event.event_type === EventType.CAMPING 
-                          ? 'bg-success/10 text-success border border-success/20 dark:bg-success/20 dark:text-success-foreground dark:border-success/30'
-                          : 'bg-info/10 text-info border border-info/20 dark:bg-info/20 dark:text-info-foreground dark:border-info/30'
-                      }`}>
-                        {event.event_type === EventType.CAMPING ? 'Camping' : 'Trek'}
+                      <span
+                        className={`px-2 py-1 rounded text-xs font-medium ${
+                          event.event_type === EventType.CAMPING
+                            ? "bg-success/10 text-success border border-success/20 dark:bg-success/20 dark:text-success-foreground dark:border-success/30"
+                            : "bg-info/10 text-info border border-info/20 dark:bg-info/20 dark:text-info-foreground dark:border-info/30"
+                        }`}
+                      >
+                        {event.event_type === EventType.CAMPING
+                          ? "Camping"
+                          : "Trek"}
                       </span>
                     </TableCell>
-                    <TableCell>{format(new Date(event.start_datetime), 'PPP')}</TableCell> 
+                    <TableCell>
+                      {format(new Date(event.start_datetime), "PPP")}
+                    </TableCell>
                     <TableCell>
                       <Select
-                        value={event.status || ''}
+                        value={event.status || ""}
                         onValueChange={(newStatusValue) => {
-                          handleStatusChange(event.trek_id, newStatusValue as TrekEventStatus);
+                          handleStatusChange(
+                            event.trek_id,
+                            newStatusValue as TrekEventStatus,
+                          );
                         }}
                       >
                         <SelectTrigger className="w-[180px]">
@@ -902,7 +1077,12 @@ const TrekEventsAdmin = () => {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>{event.base_price !== null && event.base_price !== undefined ? `₹${event.base_price}` : 'N/A'}</TableCell>
+                    <TableCell>
+                      {event.base_price !== null &&
+                      event.base_price !== undefined
+                        ? `₹${event.base_price}`
+                        : "N/A"}
+                    </TableCell>
                     <TableCell>{event.max_participants}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
@@ -928,7 +1108,11 @@ const TrekEventsAdmin = () => {
                             size="sm"
                             onClick={() => handleManageImages(event)}
                             title={`Manage Images (${getImageCount(event.trek_id)}/3)`}
-                            className={getImageCount(event.trek_id) > 0 ? 'border-primary/50' : ''}
+                            className={
+                              getImageCount(event.trek_id) > 0
+                                ? "border-primary/50"
+                                : ""
+                            }
                           >
                             <Image className="h-4 w-4" />
                           </Button>
@@ -960,13 +1144,15 @@ const TrekEventsAdmin = () => {
       )}
       {!loading && filteredEvents.length === 0 && events.length > 0 && (
         <div className="text-center py-8">
-          <p className="text-muted-foreground">No events match your current filters.</p>
-          <Button 
-            variant="outline" 
+          <p className="text-muted-foreground">
+            No events match your current filters.
+          </p>
+          <Button
+            variant="outline"
             onClick={() => {
-              setSearchTerm('');
-              setStatusFilter('');
-              setTypeFilter('');
+              setSearchTerm("");
+              setStatusFilter("");
+              setTypeFilter("");
             }}
             className="mt-2"
           >
@@ -977,10 +1163,10 @@ const TrekEventsAdmin = () => {
       {!loading && events.length === 0 && !error && <p>No events found.</p>}
 
       {isEditDialogOpen && (
-        <CreateTrekMultiStepFormNew 
-          trekToEdit={eventToEdit} 
-          onFormSubmit={handleFormSubmit} 
-          onCancel={handleFormCancel} 
+        <CreateTrekMultiStepFormNew
+          trekToEdit={eventToEdit}
+          onFormSubmit={handleFormSubmit}
+          onCancel={handleFormCancel}
         />
       )}
 
@@ -990,11 +1176,13 @@ const TrekEventsAdmin = () => {
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Event</AlertDialogTitle>
             <AlertDialogDescription>
-              Are you sure you want to delete "{eventToDelete?.name}"? This action cannot be undone.
+              Are you sure you want to delete "{eventToDelete?.name}"? This
+              action cannot be undone.
               {eventToDelete && (
                 <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-md">
                   <p className="text-sm text-red-800">
-                    <strong>Warning:</strong> This will permanently delete the event and all associated data including:
+                    <strong>Warning:</strong> This will permanently delete the
+                    event and all associated data including:
                   </p>
                   <ul className="text-sm text-red-700 mt-1 ml-4 list-disc">
                     <li>Event details and settings</li>
@@ -1036,4 +1224,4 @@ const TrekEventsAdmin = () => {
   );
 };
 
-export default TrekEventsAdmin; 
+export default TrekEventsAdmin;

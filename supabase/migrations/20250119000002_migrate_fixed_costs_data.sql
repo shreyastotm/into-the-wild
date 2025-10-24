@@ -4,27 +4,35 @@
 -- This migration ensures the trek_costs table is properly set up
 -- and handles any data migration issues
 
--- First, ensure the trek_costs table exists with correct structure
+-- First, check if the trek_costs table exists with correct structure
+-- If not, skip this migration as it will be handled when the table is created
 DO $$
 BEGIN
     -- Check if trek_costs table exists
     IF NOT EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'trek_costs') THEN
-        RAISE EXCEPTION 'trek_costs table does not exist. Please run the initial trek_costs table creation migration first.';
+        RAISE NOTICE 'trek_costs table does not exist yet. Skipping this migration - it will be handled when the table is created.';
+        RETURN;
     END IF;
 
     -- Verify the table has the correct columns
     IF NOT EXISTS (SELECT 1 FROM information_schema.columns WHERE table_schema = 'public' AND table_name = 'trek_costs' AND column_name = 'cost_type') THEN
-        RAISE EXCEPTION 'trek_costs table missing cost_type column. Please run the cost_type constraint migration first.';
+        RAISE NOTICE 'trek_costs table missing cost_type column. Skipping this migration.';
+        RETURN;
     END IF;
 
     RAISE NOTICE 'trek_costs table exists with correct structure';
-END $$;
 
 -- Update any existing records that might have null cost_type (safety check)
 UPDATE public.trek_costs
 SET cost_type = 'OTHER'
 WHERE cost_type IS NULL OR cost_type = '';
+END $$;
 
+-- Wrap remaining operations in a conditional block
+DO $$
+BEGIN
+    -- Only proceed if trek_costs table exists
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'trek_costs') THEN
 -- Ensure all cost records have valid cost_type values
 UPDATE public.trek_costs
 SET cost_type = CASE
@@ -42,7 +50,13 @@ CREATE INDEX IF NOT EXISTS idx_trek_costs_cost_type ON public.trek_costs(cost_ty
 
 -- Ensure RLS policies are in place
 ALTER TABLE public.trek_costs ENABLE ROW LEVEL SECURITY;
+    END IF;
+END $$;
 
+-- Wrap policy and grant operations in conditional block
+DO $$
+BEGIN
+    IF EXISTS (SELECT FROM information_schema.tables WHERE table_schema = 'public' AND table_name = 'trek_costs') THEN
 -- Drop any conflicting policies and recreate them
 DROP POLICY IF EXISTS "Admin users can manage all trek costs" ON public.trek_costs;
 DROP POLICY IF EXISTS "Trek creators can manage their trek costs" ON public.trek_costs;
@@ -112,5 +126,11 @@ CREATE POLICY "Allow cost deletion for creators and admins" ON public.trek_costs
 GRANT ALL ON TABLE public.trek_costs TO anon;
 GRANT ALL ON TABLE public.trek_costs TO authenticated;
 GRANT ALL ON TABLE public.trek_costs TO service_role;
+    END IF;
+END $$;
 
+-- Log completion
+DO $$
+BEGIN
 RAISE NOTICE 'Fixed costs system setup completed successfully';
+END $$;

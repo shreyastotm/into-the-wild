@@ -1,14 +1,18 @@
-import React, { useState } from 'react';
-import { MessageSquare, Send, Smile, User } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { Separator } from '@/components/ui/separator'; // Keep if used, otherwise remove
-import { toast } from '@/components/ui/use-toast';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { formatDistanceToNow } from 'date-fns';
-import { Badge } from '@/components/ui/badge';
+import React, { useState } from "react";
+import { MessageSquare, Send, Smile, User } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Separator } from "@/components/ui/separator"; // Keep if used, otherwise remove
+import { toast } from "@/components/ui/use-toast";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { formatDistanceToNow } from "date-fns";
+import { Badge } from "@/components/ui/badge";
 
 // Updated interface to match useTrekCommunity hook
 export interface Comment {
@@ -28,18 +32,18 @@ interface TrekDiscussionProps {
   isLoading?: boolean; // Loading state for comments list
 }
 
-export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({ 
+export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
   trekId,
   comments,
   onAddComment,
-  isLoading = false
+  isLoading = false,
 }) => {
   const { user, userProfile } = useAuth();
-  const [newComment, setNewComment] = useState('');
+  const [newComment, setNewComment] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
   // Debug logging removed for production
-  
+
   const handleAddComment = async () => {
     if (!user) {
       toast({
@@ -49,7 +53,7 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
       });
       return;
     }
-    
+
     if (!newComment.trim()) {
       toast({
         title: "Empty comment",
@@ -58,25 +62,25 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
       });
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       if (onAddComment) {
         const success = await onAddComment(newComment.trim());
         if (success) {
-          setNewComment(''); // Clear input only on success
-           toast({
-             title: "Comment posted!",
-             variant: "default",
-           });
+          setNewComment(""); // Clear input only on success
+          toast({
+            title: "Comment posted!",
+            variant: "default",
+          });
         } else {
-           // Error handled within the hook/callback usually, but can add generic one
-           toast({
+          // Error handled within the hook/callback usually, but can add generic one
+          toast({
             title: "Comment failed",
             description: "Unable to add your comment. Please try again.",
             variant: "destructive",
-           });
+          });
         }
       } else {
         toast({
@@ -96,18 +100,18 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
       setIsSubmitting(false);
     }
   };
-  
+
   // Basic emoji picker example
-  const emojis = ['😊', '👍', '🎉', '❤️', '😂', '🤔', '🙏', '🔥'];
+  const emojis = ["😊", "👍", "🎉", "❤️", "😂", "🤔", "🙏", "🔥"];
   const addEmoji = (emoji: string) => {
-    setNewComment(prev => prev + emoji);
+    setNewComment((prev) => prev + emoji);
   };
-  
+
   // Sort comments by creation date (newest first)
-  const sortedComments = [...comments].sort((a, b) => 
-     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  const sortedComments = [...comments].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
   );
-  
+
   // Debug logging removed for production
 
   return (
@@ -116,14 +120,19 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
         <MessageSquare className="h-5 w-5 mr-2 text-primary" />
         Discussion ({sortedComments.length})
       </h3>
-      
+
       {/* Comment Input Section */}
       {user ? (
         <div className="flex gap-3 items-start">
           <Avatar className="h-10 w-10 mt-1">
-            <AvatarImage src={userProfile?.avatar_url || undefined} alt={userProfile?.full_name || 'User'} />
+            <AvatarImage
+              src={userProfile?.avatar_url || undefined}
+              alt={userProfile?.full_name || "User"}
+            />
             <AvatarFallback className="bg-muted text-muted-foreground">
-              {(userProfile?.full_name || user.email || 'U').substring(0, 2).toUpperCase()}
+              {(userProfile?.full_name || user.email || "U")
+                .substring(0, 2)
+                .toUpperCase()}
             </AvatarFallback>
           </Avatar>
           <div className="flex-1">
@@ -135,47 +144,47 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
               disabled={isSubmitting}
             />
             <div className="flex justify-between items-center">
-               <Popover>
-                 <PopoverTrigger asChild>
-                   <Button 
-                      variant="ghost" 
-                      size="icon" 
-                      type="button" 
-                      className="text-muted-foreground hover:bg-muted hover:text-foreground"
-                      disabled={isSubmitting}
-                    >
-                      <Smile className="h-5 w-5" />
-                    </Button>
-                 </PopoverTrigger>
-                 <PopoverContent className="w-auto p-2">
-                    <div className="grid grid-cols-4 gap-1">
-                       {emojis.map(emoji => (
-                         <Button 
-                           key={emoji} 
-                           variant="ghost" 
-                           size="icon" 
-                           onClick={() => addEmoji(emoji)} 
-                           className="text-xl"
-                          >
-                           {emoji}
-                         </Button>
-                       ))}
-                    </div>
-                 </PopoverContent>
-               </Popover>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    type="button"
+                    className="text-muted-foreground hover:bg-muted hover:text-foreground"
+                    disabled={isSubmitting}
+                  >
+                    <Smile className="h-5 w-5" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-2">
+                  <div className="grid grid-cols-4 gap-1">
+                    {emojis.map((emoji) => (
+                      <Button
+                        key={emoji}
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => addEmoji(emoji)}
+                        className="text-xl"
+                      >
+                        {emoji}
+                      </Button>
+                    ))}
+                  </div>
+                </PopoverContent>
+              </Popover>
 
-              <Button 
-                onClick={handleAddComment} 
+              <Button
+                onClick={handleAddComment}
                 disabled={isSubmitting || !newComment.trim()}
                 size="sm"
                 className="gap-2"
               >
                 {isSubmitting ? (
-                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div> 
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
                 ) : (
                   <Send className="h-4 w-4" />
                 )}
-                 Post
+                Post
               </Button>
             </div>
           </div>
@@ -183,23 +192,33 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
       ) : (
         <div className="bg-muted p-4 rounded-lg text-center border border-dashed">
           <User className="h-6 w-6 mx-auto mb-2 text-muted-foreground" />
-          <p className="text-sm text-muted-foreground mb-2">Login to join the conversation</p>
-          <Button variant="outline" size="sm" onClick={() => { /* navigate('/auth') ? */ }}>Login</Button>
+          <p className="text-sm text-muted-foreground mb-2">
+            Login to join the conversation
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              /* navigate('/auth') ? */
+            }}
+          >
+            Login
+          </Button>
         </div>
       )}
-      
+
       {/* Comments List Section */}
       {isLoading ? (
         <div className="py-8 text-center text-muted-foreground">
           {/* Simple loading skeleton for comments */}
           {[...Array(3)].map((_, i) => (
-             <div key={i} className="flex gap-3 items-start mb-4 animate-pulse">
-                <div className="h-10 w-10 rounded-full bg-muted"></div>
-                <div className="flex-1 space-y-2">
-                   <div className="h-4 bg-muted rounded w-1/4"></div>
-                   <div className="h-4 bg-muted rounded w-3/4"></div>
-                </div>
-             </div>
+            <div key={i} className="flex gap-3 items-start mb-4 animate-pulse">
+              <div className="h-10 w-10 rounded-full bg-muted"></div>
+              <div className="flex-1 space-y-2">
+                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+              </div>
+            </div>
           ))}
           <p className="mt-4 text-sm">Loading comments...</p>
         </div>
@@ -207,24 +226,40 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
         <div className="space-y-5 mt-6">
           {sortedComments.map((comment) => (
             <div key={comment.id} className="flex gap-3 items-start">
-              <Avatar className={`h-10 w-10 ${comment.isEventCreator ? 'ring-2 ring-primary ring-offset-1' : ''}`}>
-                <AvatarImage src={comment.userAvatar || undefined} alt={comment.userName} />
+              <Avatar
+                className={`h-10 w-10 ${comment.isEventCreator ? "ring-2 ring-primary ring-offset-1" : ""}`}
+              >
+                <AvatarImage
+                  src={comment.userAvatar || undefined}
+                  alt={comment.userName}
+                />
                 <AvatarFallback className="bg-muted text-muted-foreground">
-                  {(comment.userName || 'A').substring(0, 2).toUpperCase()}
+                  {(comment.userName || "A").substring(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
               <div className="flex-1 bg-background rounded-md pb-2">
                 <div className="flex items-center gap-2 mb-1">
-                  <span className="font-medium text-sm">{comment.userName || 'Anonymous User'}</span>
+                  <span className="font-medium text-sm">
+                    {comment.userName || "Anonymous User"}
+                  </span>
                   {comment.isEventCreator && (
-                    <Badge variant="outline" className="text-xs h-5 border-primary/50 text-primary bg-primary/10">Organizer</Badge>
+                    <Badge
+                      variant="outline"
+                      className="text-xs h-5 border-primary/50 text-primary bg-primary/10"
+                    >
+                      Organizer
+                    </Badge>
                   )}
                   <span className="text-xs text-muted-foreground ml-auto whitespace-nowrap">
-                     {formatDistanceToNow(new Date(comment.createdAt), { addSuffix: true })}
+                    {formatDistanceToNow(new Date(comment.createdAt), {
+                      addSuffix: true,
+                    })}
                   </span>
                 </div>
                 {/* Use whitespace-pre-wrap to respect newlines in comments */}
-                <p className="text-sm text-foreground/90 whitespace-pre-wrap">{comment.content}</p>
+                <p className="text-sm text-foreground/90 whitespace-pre-wrap">
+                  {comment.content}
+                </p>
               </div>
             </div>
           ))}
@@ -233,7 +268,9 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
         <div className="text-center py-8 text-muted-foreground border border-dashed rounded-lg">
           <MessageSquare className="h-8 w-8 mx-auto mb-2 text-muted-foreground/30" />
           <p className="text-sm">No comments yet.</p>
-           {user && <p className="text-sm">Be the first to share your thoughts!</p>} 
+          {user && (
+            <p className="text-sm">Be the first to share your thoughts!</p>
+          )}
         </div>
       )}
     </div>

@@ -113,24 +113,24 @@ export const textureUtils = {
   // Apply texture as background image
   applyTexture: (textureUrl: string, opacity: number = 0.1) => ({
     backgroundImage: textureUrl,
-    backgroundRepeat: 'repeat',
+    backgroundRepeat: "repeat",
     opacity,
   }),
 
   // Create texture overlay class
   textureOverlay: (textureUrl: string, opacity: number = 0.1) => ({
     backgroundImage: textureUrl,
-    backgroundRepeat: 'repeat',
-    position: 'absolute' as const,
+    backgroundRepeat: "repeat",
+    position: "absolute" as const,
     inset: 0,
     opacity,
-    pointerEvents: 'none' as const,
+    pointerEvents: "none" as const,
   }),
 
   // Combine multiple textures
   combineTextures: (textures: string[], opacity: number = 0.1) => ({
-    backgroundImage: textures.join(', '),
-    backgroundRepeat: 'repeat',
+    backgroundImage: textures.join(", "),
+    backgroundRepeat: "repeat",
     opacity,
   }),
 };
@@ -138,7 +138,10 @@ export const textureUtils = {
 // Pre-made texture combinations for common use cases
 export const texturePresets = {
   // Journal page - parchment with subtle lines
-  journal: textureUtils.combineTextures([paperTextures.parchment, paperTextures.notebook], 0.08),
+  journal: textureUtils.combineTextures(
+    [paperTextures.parchment, paperTextures.notebook],
+    0.08,
+  ),
 
   // Wooden sign - oak wood with grain
   woodenSign: textureUtils.applyTexture(woodTextures.oak, 0.15),
@@ -147,13 +150,19 @@ export const texturePresets = {
   leatherBook: textureUtils.applyTexture(leatherTextures.distressed, 0.2),
 
   // Stone tablet - granite with slate layers
-  stoneTablet: textureUtils.combineTextures([stoneTextures.granite, stoneTextures.slate], 0.12),
+  stoneTablet: textureUtils.combineTextures(
+    [stoneTextures.granite, stoneTextures.slate],
+    0.12,
+  ),
 
   // Canvas tent - canvas fabric texture
   canvasTent: textureUtils.applyTexture(fabricTextures.canvas, 0.1),
 
   // Nature background - moss and bark combined
-  natureBackground: textureUtils.combineTextures([natureTextures.moss, natureTextures.bark], 0.08),
+  natureBackground: textureUtils.combineTextures(
+    [natureTextures.moss, natureTextures.bark],
+    0.08,
+  ),
 };
 
 // Export all texture categories

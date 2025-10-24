@@ -1,11 +1,11 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
-import { toast } from '@/components/ui/use-toast';
+import React, { useState, useEffect, useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 import {
   CheckCircle,
   XCircle,
@@ -15,9 +15,9 @@ import {
   Eye,
   Loader2,
   ChevronLeft,
-  ChevronRight
-} from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+  ChevronRight,
+} from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface UserImage {
   id: number;
@@ -27,7 +27,7 @@ interface UserImage {
   uploader_name: string;
   image_url: string;
   caption: string | null;
-  status: 'pending' | 'approved' | 'rejected';
+  status: "pending" | "approved" | "rejected";
   created_at: string;
   reviewed_by: string | null;
   reviewed_at: string | null;
@@ -42,12 +42,12 @@ export default function ImageModeration() {
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState<Set<number>>(new Set());
   const [selectedImage, setSelectedImage] = useState<UserImage | null>(null);
-  const [rejectionReason, setRejectionReason] = useState('');
-  const [activeTab, setActiveTab] = useState('pending');
+  const [rejectionReason, setRejectionReason] = useState("");
+  const [activeTab, setActiveTab] = useState("pending");
   const [currentPage, setCurrentPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
 
-  const isAdmin = userProfile?.user_type === 'admin';
+  const isAdmin = userProfile?.user_type === "admin";
 
   const fetchImages = useCallback(async () => {
     if (!isAdmin) return;
@@ -59,32 +59,29 @@ export default function ImageModeration() {
 
       // First get total count
       const { count } = await supabase
-        .from('user_trek_images')
-        .select('*', { count: 'exact', head: true })
-        .eq('status', activeTab);
+        .from("user_trek_images")
+        .select("*", { count: "exact", head: true })
+        .eq("status", activeTab);
 
       setTotalCount(count || 0);
 
       // Then get paginated results with trek and user details
-      const { data, error } = await supabase
-        .from('user_trek_images')
-        .select(`
-          *,
-          trek_events!inner(name),
+      const { data, error } = await supabase.from('user_trek_images').select('*') as any,
           users!user_trek_images_uploaded_by_fkey(full_name)
-        `)
-        .eq('status', activeTab)
-        .order('created_at', { ascending: false })
+        `,
+        )
+        .eq("status", activeTab)
+        .order("created_at", { ascending: false })
         .range(from, to);
 
       if (error) throw error;
 
-      const formattedImages: UserImage[] = (data || []).map(img => ({
+      const formattedImages: UserImage[] = (data || []).map((img) => ({
         id: img.id,
         trek_id: img.trek_id,
-        trek_name: img.trek_events?.name || 'Unknown Trek',
+        trek_name: img.trek_events?.name || "Unknown Trek",
         uploaded_by: img.uploaded_by,
-        uploader_name: img.users?.full_name || 'Unknown User',
+        uploader_name: img.users?.full_name || "Unknown User",
         image_url: img.image_url,
         caption: img.caption,
         status: img.status,
@@ -96,11 +93,12 @@ export default function ImageModeration() {
 
       setImages(formattedImages);
     } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to fetch images';
+      const message =
+        error instanceof Error ? error.message : "Failed to fetch images";
       toast({
-        title: 'Error',
+        title: "Error",
         description: message,
-        variant: 'destructive',
+        variant: "destructive",
       });
     } finally {
       setLoading(false);
@@ -111,141 +109,174 @@ export default function ImageModeration() {
     fetchImages();
   }, [fetchImages]);
 
-  const handleApprove = useCallback(async (imageId: number) => {
-    if (!userProfile) return;
+  const handleApprove = useCallback(
+    async (imageId: number) => {
+      if (!userProfile) return;
 
-    setActionLoading(prev => new Set([...prev, imageId]));
-    try {
-      const { error } = await supabase
-        .from('user_trek_images')
-        .update({
-          status: 'approved',
-          reviewed_by: userProfile.user_id,
-          reviewed_at: new Date().toISOString(),
-        })
-        .eq('id', imageId);
+      setActionLoading((prev) => new Set([...prev, imageId]));
+      try {
+        const { error } = await supabase
+          .from("user_trek_images")
+          .update({
+            status: "approved",
+            reviewed_by: userProfile.user_id,
+            reviewed_at: new Date().toISOString(),
+          })
+          .eq("id", imageId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: 'Image Approved',
-        description: 'The image has been approved and will now appear in the gallery.',
-      });
+        toast({
+          title: "Image Approved",
+          description:
+            "The image has been approved and will now appear in the gallery.",
+        });
 
-      fetchImages();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to approve image';
-      toast({
-        title: 'Error',
-        description: message,
-        variant: 'destructive',
-      });
-    } finally {
-      setActionLoading(prev => {
-        const next = new Set(prev);
-        next.delete(imageId);
-        return next;
-      });
-    }
-  }, [userProfile, fetchImages]);
+        fetchImages();
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to approve image";
+        toast({
+          title: "Error",
+          description: message,
+          variant: "destructive",
+        });
+      } finally {
+        setActionLoading((prev) => {
+          const next = new Set(prev);
+          next.delete(imageId);
+          return next;
+        });
+      }
+    },
+    [userProfile, fetchImages],
+  );
 
-  const handleReject = useCallback(async (imageId: number) => {
-    if (!userProfile || !rejectionReason.trim()) {
-      toast({
-        title: 'Rejection Reason Required',
-        description: 'Please provide a reason for rejecting this image.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
-    setActionLoading(prev => new Set([...prev, imageId]));
-    try {
-      const { error } = await supabase
-        .from('user_trek_images')
-        .update({
-          status: 'rejected',
-          reviewed_by: userProfile.user_id,
-          reviewed_at: new Date().toISOString(),
-          rejection_reason: rejectionReason.trim(),
-        })
-        .eq('id', imageId);
-
-      if (error) throw error;
-
-      toast({
-        title: 'Image Rejected',
-        description: 'The image has been rejected and the user has been notified.',
-      });
-
-      setRejectionReason('');
-      setSelectedImage(null);
-      fetchImages();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to reject image';
-      toast({
-        title: 'Error',
-        description: message,
-        variant: 'destructive',
-      });
-    } finally {
-      setActionLoading(prev => {
-        const next = new Set(prev);
-        next.delete(imageId);
-        return next;
-      });
-    }
-  }, [userProfile, rejectionReason, fetchImages]);
-
-  const handlePromoteToOfficial = useCallback(async (imageId: number) => {
-    if (!userProfile) return;
-
-    setActionLoading(prev => new Set([...prev, imageId]));
-    try {
-      // Call the database function to promote the image
-      const { data, error } = await supabase.rpc('promote_user_image_to_official', {
-        p_user_image_id: imageId
-      });
-
-      if (error) throw error;
-
-      if (data !== 'Image promoted successfully') {
-        throw new Error(data);
+  const handleReject = useCallback(
+    async (imageId: number) => {
+      if (!userProfile || !rejectionReason.trim()) {
+        toast({
+          title: "Rejection Reason Required",
+          description: "Please provide a reason for rejecting this image.",
+          variant: "destructive",
+        });
+        return;
       }
 
-      // Then approve the image
-      await handleApprove(imageId);
+      setActionLoading((prev) => new Set([...prev, imageId]));
+      try {
+        const { error } = await supabase
+          .from("user_trek_images")
+          .update({
+            status: "rejected",
+            reviewed_by: userProfile.user_id,
+            reviewed_at: new Date().toISOString(),
+            rejection_reason: rejectionReason.trim(),
+          })
+          .eq("id", imageId);
 
-      toast({
-        title: 'Image Promoted',
-        description: 'The image has been promoted to an official trek image and approved.',
-      });
+        if (error) throw error;
 
-      fetchImages();
-    } catch (error: unknown) {
-      const message = error instanceof Error ? error.message : 'Failed to promote image';
-      toast({
-        title: 'Error',
-        description: message,
-        variant: 'destructive',
-      });
-    } finally {
-      setActionLoading(prev => {
-        const next = new Set(prev);
-        next.delete(imageId);
-        return next;
-      });
-    }
-  }, [userProfile, handleApprove, fetchImages]);
+        toast({
+          title: "Image Rejected",
+          description:
+            "The image has been rejected and the user has been notified.",
+        });
+
+        setRejectionReason("");
+        setSelectedImage(null);
+        fetchImages();
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to reject image";
+        toast({
+          title: "Error",
+          description: message,
+          variant: "destructive",
+        });
+      } finally {
+        setActionLoading((prev) => {
+          const next = new Set(prev);
+          next.delete(imageId);
+          return next;
+        });
+      }
+    },
+    [userProfile, rejectionReason, fetchImages],
+  );
+
+  const handlePromoteToOfficial = useCallback(
+    async (imageId: number) => {
+      if (!userProfile) return;
+
+      setActionLoading((prev) => new Set([...prev, imageId]));
+      try {
+        // Call the database function to promote the image
+        const { data, error } = await supabase.rpc(
+          "promote_user_image_to_official",
+          {
+            p_user_image_id: imageId,
+          },
+        );
+
+        if (error) throw error;
+
+        if (data !== "Image promoted successfully") {
+          throw new Error(data);
+        }
+
+        // Then approve the image
+        await handleApprove(imageId);
+
+        toast({
+          title: "Image Promoted",
+          description:
+            "The image has been promoted to an official trek image and approved.",
+        });
+
+        fetchImages();
+      } catch (error: unknown) {
+        const message =
+          error instanceof Error ? error.message : "Failed to promote image";
+        toast({
+          title: "Error",
+          description: message,
+          variant: "destructive",
+        });
+      } finally {
+        setActionLoading((prev) => {
+          const next = new Set(prev);
+          next.delete(imageId);
+          return next;
+        });
+      }
+    },
+    [userProfile, handleApprove, fetchImages],
+  );
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending':
-        return <Badge variant="outline"><Clock className="w-3 h-3 mr-1" />Pending</Badge>;
-      case 'approved':
-        return <Badge className="bg-green-100 text-green-800"><CheckCircle className="w-3 h-3 mr-1" />Approved</Badge>;
-      case 'rejected':
-        return <Badge variant="destructive"><XCircle className="w-3 h-3 mr-1" />Rejected</Badge>;
+      case "pending":
+        return (
+          <Badge variant="outline">
+            <Clock className="w-3 h-3 mr-1" />
+            Pending
+          </Badge>
+        );
+      case "approved":
+        return (
+          <Badge className="bg-green-100 text-green-800">
+            <CheckCircle className="w-3 h-3 mr-1" />
+            Approved
+          </Badge>
+        );
+      case "rejected":
+        return (
+          <Badge variant="destructive">
+            <XCircle className="w-3 h-3 mr-1" />
+            Rejected
+          </Badge>
+        );
       default:
         return <Badge variant="outline">{status}</Badge>;
     }
@@ -258,7 +289,9 @@ export default function ImageModeration() {
       <div className="container mx-auto p-6">
         <Card>
           <CardContent className="p-6 text-center">
-            <p className="text-gray-500">You don't have permission to access this page.</p>
+            <p className="text-gray-500">
+              You don't have permission to access this page.
+            </p>
           </CardContent>
         </Card>
       </div>
@@ -274,7 +307,11 @@ export default function ImageModeration() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="space-y-6"
+      >
         <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="pending" className="flex items-center gap-2">
             <Clock className="w-4 h-4" />
@@ -307,11 +344,11 @@ export default function ImageModeration() {
             <Card>
               <CardContent className="p-8 text-center">
                 <p className="text-gray-500">
-                  {activeTab === 'pending'
-                    ? 'No images pending review.'
-                    : activeTab === 'approved'
-                    ? 'No approved images.'
-                    : 'No rejected images.'}
+                  {activeTab === "pending"
+                    ? "No images pending review."
+                    : activeTab === "approved"
+                      ? "No approved images."
+                      : "No rejected images."}
                 </p>
               </CardContent>
             </Card>
@@ -324,7 +361,7 @@ export default function ImageModeration() {
                       <div className="aspect-video relative">
                         <img
                           src={image.image_url}
-                          alt={image.caption || 'User contributed image'}
+                          alt={image.caption || "User contributed image"}
                           className="w-full h-full object-cover cursor-pointer"
                           onClick={() => setSelectedImage(image)}
                         />
@@ -336,7 +373,9 @@ export default function ImageModeration() {
                       <div className="p-3">
                         <div className="flex items-center gap-2 mb-2">
                           <User className="w-4 h-4 text-gray-400" />
-                          <span className="text-sm font-medium truncate">{image.uploader_name}</span>
+                          <span className="text-sm font-medium truncate">
+                            {image.uploader_name}
+                          </span>
                         </div>
 
                         <div className="flex items-center gap-2 mb-2">
@@ -353,10 +392,12 @@ export default function ImageModeration() {
                         )}
 
                         <div className="text-xs text-gray-500 mb-3">
-                          {new Date(image.created_at).toLocaleDateString('en-IN')}
+                          {new Date(image.created_at).toLocaleDateString(
+                            "en-IN",
+                          )}
                         </div>
 
-                        {activeTab === 'pending' && (
+                        {activeTab === "pending" && (
                           <div className="flex gap-2">
                             <Button
                               size="sm"
@@ -385,7 +426,7 @@ export default function ImageModeration() {
                           </div>
                         )}
 
-                        {activeTab === 'approved' && (
+                        {activeTab === "approved" && (
                           <Button
                             size="sm"
                             className="w-full"
@@ -414,7 +455,9 @@ export default function ImageModeration() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.max(1, prev - 1))
+                    }
                     disabled={currentPage === 1}
                   >
                     <ChevronLeft className="w-4 h-4" />
@@ -428,7 +471,9 @@ export default function ImageModeration() {
                   <Button
                     variant="outline"
                     size="sm"
-                    onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                    onClick={() =>
+                      setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                    }
                     disabled={currentPage === totalPages}
                   >
                     Next
@@ -442,7 +487,7 @@ export default function ImageModeration() {
       </Tabs>
 
       {/* Rejection Dialog */}
-      {selectedImage && activeTab === 'pending' && (
+      {selectedImage && activeTab === "pending" && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
           <Card className="max-w-md w-full">
             <CardHeader>
@@ -478,7 +523,7 @@ export default function ImageModeration() {
                   className="flex-1"
                   onClick={() => {
                     setSelectedImage(null);
-                    setRejectionReason('');
+                    setRejectionReason("");
                   }}
                 >
                   Cancel

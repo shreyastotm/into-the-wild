@@ -7,12 +7,14 @@ Based on the Perplexity audit report and codebase analysis, I've identified **cr
 ## 🎯 PART 1: CRITICAL ISSUES IDENTIFIED
 
 ### 1.1 Root Causes
+
 1. **Hardcoded colors** in components (e.g., `bg-white`, `border-gray-300`) without `dark:` variants
 2. **Insufficient contrast ratios** in dark mode (text/backgrounds too similar)
 3. **Missing theme-aware CSS variables** for interactive states
 4. **Inconsistent use of semantic tokens** from `index.css`
 
 ### 1.2 Affected Components
+
 - ✗ Input fields
 - ✗ Select dropdowns
 - ✗ Dialogs/Modals
@@ -28,14 +30,15 @@ Based on the Perplexity audit report and codebase analysis, I've identified **cr
 ### 2.1 Input Component (`src/components/ui/input.tsx`)
 
 **Current Issues:**
+
 - Hardcoded `bg-white` and `border-gray-300`
 - No dark mode contrast
 
 **Fixed Code:**
 
 ```tsx
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
   ({ className, type, ...props }, ref) => {
@@ -62,22 +65,23 @@ const Input = React.forwardRef<HTMLInputElement, React.ComponentProps<"input">>(
           "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
           // Error state support (can be added via className)
           "aria-[invalid=true]:border-destructive aria-[invalid=true]:ring-destructive/20",
-          className
+          className,
         )}
         ref={ref}
         {...props}
       />
-    )
-  }
-)
-Input.displayName = "Input"
+    );
+  },
+);
+Input.displayName = "Input";
 
-export { Input }
+export { Input };
 ```
 
 ### 2.2 Select Component (`src/components/ui/select.tsx`)
 
 **Current Issues:**
+
 - Hardcoded `bg-white`, `border-gray-300`
 - Dropdown content doesn't have sufficient dark mode contrast
 
@@ -108,7 +112,7 @@ const SelectTrigger = React.forwardRef<
       "hover:border-primary/50",
       "dark:hover:border-primary/60",
       "ring-offset-background disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1",
-      className
+      className,
     )}
     {...props}
   >
@@ -117,8 +121,8 @@ const SelectTrigger = React.forwardRef<
       <ChevronDown className="h-4 w-4 opacity-50" />
     </SelectPrimitive.Icon>
   </SelectPrimitive.Trigger>
-))
-SelectTrigger.displayName = SelectPrimitive.Trigger.displayName
+));
+SelectTrigger.displayName = SelectPrimitive.Trigger.displayName;
 
 // ... existing scroll buttons ...
 
@@ -141,7 +145,7 @@ const SelectContent = React.forwardRef<
         "data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2",
         position === "popper" &&
           "data-[side=bottom]:translate-y-1 data-[side=left]:-translate-x-1 data-[side=right]:translate-x-1 data-[side=top]:-translate-y-1",
-        className
+        className,
       )}
       position={position}
       {...props}
@@ -151,7 +155,7 @@ const SelectContent = React.forwardRef<
         className={cn(
           "p-1",
           position === "popper" &&
-            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]"
+            "h-[var(--radix-select-trigger-height)] w-full min-w-[var(--radix-select-trigger-width)]",
         )}
       >
         {children}
@@ -159,8 +163,8 @@ const SelectContent = React.forwardRef<
       <SelectScrollDownButton />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
-))
-SelectContent.displayName = SelectPrimitive.Content.displayName
+));
+SelectContent.displayName = SelectPrimitive.Content.displayName;
 
 const SelectItem = React.forwardRef<
   React.ElementRef<typeof SelectPrimitive.Item>,
@@ -174,7 +178,7 @@ const SelectItem = React.forwardRef<
       "focus:bg-accent focus:text-accent-foreground",
       "dark:focus:bg-accent dark:focus:text-accent-foreground",
       "data-[disabled]:pointer-events-none data-[disabled]:opacity-50",
-      className
+      className,
     )}
     {...props}
   >
@@ -185,8 +189,8 @@ const SelectItem = React.forwardRef<
     </span>
     <SelectPrimitive.ItemText>{children}</SelectPrimitive.ItemText>
   </SelectPrimitive.Item>
-))
-SelectItem.displayName = SelectPrimitive.Item.displayName
+));
+SelectItem.displayName = SelectPrimitive.Item.displayName;
 
 // ... rest of exports remain the same ...
 ```
@@ -200,43 +204,61 @@ SelectItem.displayName = SelectPrimitive.Item.displayName
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
-  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & { descriptionId?: string; descriptionText?: string; }
->(({ className, children, descriptionId = "dialog-desc", descriptionText = "Dialog window. Please review the content and take action as needed.", ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      aria-describedby={descriptionId}
-      className={cn(
-        "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
-        // Improved dark mode support
-        "border border-border bg-background text-foreground p-6 shadow-lg",
-        "dark:border-border dark:bg-card dark:text-foreground",
-        "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
-        "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-        "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-        "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
-        "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
-        "sm:rounded-lg",
-        className
-      )}
-      {...props}
-    >
-      <div id={descriptionId} className="sr-only">{descriptionText}</div>
-      {children}
-      <DialogPrimitive.Close className={cn(
-        "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity",
-        "hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
-        "disabled:pointer-events-none",
-        "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
-      )}>
-        <X className="h-4 w-4" />
-        <span className="sr-only">Close</span>
-      </DialogPrimitive.Close>
-    </DialogPrimitive.Content>
-  </DialogPortal>
-))
-DialogContent.displayName = DialogPrimitive.Content.displayName
+  React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content> & {
+    descriptionId?: string;
+    descriptionText?: string;
+  }
+>(
+  (
+    {
+      className,
+      children,
+      descriptionId = "dialog-desc",
+      descriptionText = "Dialog window. Please review the content and take action as needed.",
+      ...props
+    },
+    ref,
+  ) => (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        aria-describedby={descriptionId}
+        className={cn(
+          "fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4",
+          // Improved dark mode support
+          "border border-border bg-background text-foreground p-6 shadow-lg",
+          "dark:border-border dark:bg-card dark:text-foreground",
+          "duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
+          "data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          "data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
+          "data-[state=closed]:slide-out-to-left-1/2 data-[state=closed]:slide-out-to-top-[48%]",
+          "data-[state=open]:slide-in-from-left-1/2 data-[state=open]:slide-in-from-top-[48%]",
+          "sm:rounded-lg",
+          className,
+        )}
+        {...props}
+      >
+        <div id={descriptionId} className="sr-only">
+          {descriptionText}
+        </div>
+        {children}
+        <DialogPrimitive.Close
+          className={cn(
+            "absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity",
+            "hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
+            "disabled:pointer-events-none",
+            "data-[state=open]:bg-accent data-[state=open]:text-muted-foreground",
+          )}
+        >
+          <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
+        </DialogPrimitive.Close>
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  ),
+);
+DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 // ... rest remains the same ...
 ```
@@ -246,8 +268,8 @@ DialogContent.displayName = DialogPrimitive.Content.displayName
 **Fixed Code:**
 
 ```tsx
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 const Card = React.forwardRef<
   HTMLDivElement,
@@ -260,12 +282,12 @@ const Card = React.forwardRef<
       // Dark mode border support
       "border-border dark:border-border",
       "hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 ease-out",
-      className
+      className,
     )}
     {...props}
   />
-))
-Card.displayName = "Card"
+));
+Card.displayName = "Card";
 
 // ... rest remains the same ...
 ```
@@ -275,26 +297,32 @@ Card.displayName = "Card"
 **Fixed Code:**
 
 ```tsx
-import * as React from "react"
-import { cva, type VariantProps } from "class-variance-authority"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cva, type VariantProps } from "class-variance-authority";
+import { cn } from "@/lib/utils";
 
 const badgeVariants = cva(
   "inline-flex items-center gap-1 px-3 py-1 text-xs font-semibold rounded-full transition-all duration-200",
   {
     variants: {
       variant: {
-        featured: "bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg animate-pulse-subtle",
+        featured:
+          "bg-gradient-to-r from-amber-400 to-orange-500 text-white shadow-lg animate-pulse-subtle",
         easy: "bg-green-100 text-green-800 border border-green-200 dark:bg-green-900/30 dark:text-green-300 dark:border-green-700",
-        moderate: "bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
+        moderate:
+          "bg-amber-100 text-amber-800 border border-amber-200 dark:bg-amber-900/30 dark:text-amber-300 dark:border-amber-700",
         hard: "bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
         open: "bg-teal-100 text-teal-800 border border-teal-200 dark:bg-teal-900/30 dark:text-teal-300 dark:border-teal-700",
         full: "bg-gray-200 text-gray-700 dark:bg-gray-700 dark:text-gray-300",
-        cancelled: "bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
+        cancelled:
+          "bg-red-100 text-red-800 border border-red-200 dark:bg-red-900/30 dark:text-red-300 dark:border-red-700",
         new: "bg-blue-500 text-white dark:bg-blue-600 dark:text-white",
-        default: "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
-        secondary: "bg-secondary/10 text-secondary border border-secondary/20 dark:bg-secondary/20 dark:text-secondary-foreground dark:border-secondary/30",
-        outline: "border border-border text-foreground dark:border-border dark:text-foreground",
+        default:
+          "bg-muted text-muted-foreground dark:bg-muted dark:text-muted-foreground",
+        secondary:
+          "bg-secondary/10 text-secondary border border-secondary/20 dark:bg-secondary/20 dark:text-secondary-foreground dark:border-secondary/30",
+        outline:
+          "border border-border text-foreground dark:border-border dark:text-foreground",
       },
       size: {
         sm: "px-2 py-0.5 text-xs",
@@ -306,8 +334,8 @@ const badgeVariants = cva(
       variant: "open",
       size: "default",
     },
-  }
-)
+  },
+);
 
 // ... rest remains the same ...
 ```
@@ -329,12 +357,12 @@ const TableRow = React.forwardRef<
       "border-b border-border transition-colors",
       "hover:bg-muted/50 dark:hover:bg-muted/30",
       "data-[state=selected]:bg-muted dark:data-[state=selected]:bg-muted",
-      className
+      className,
     )}
     {...props}
   />
-))
-TableRow.displayName = "TableRow"
+));
+TableRow.displayName = "TableRow";
 
 const TableHead = React.forwardRef<
   HTMLTableCellElement,
@@ -346,12 +374,12 @@ const TableHead = React.forwardRef<
       "h-12 px-4 text-left align-middle font-medium",
       "text-muted-foreground dark:text-muted-foreground",
       "[&:has([role=checkbox])]:pr-0",
-      className
+      className,
     )}
     {...props}
   />
-))
-TableHead.displayName = "TableHead"
+));
+TableHead.displayName = "TableHead";
 
 // ... rest remains the same ...
 ```
@@ -361,8 +389,8 @@ TableHead.displayName = "TableHead"
 **Fixed Code:**
 
 ```tsx
-import * as React from "react"
-import { cn } from "@/lib/utils"
+import * as React from "react";
+import { cn } from "@/lib/utils";
 
 const Textarea = React.forwardRef<
   HTMLTextAreaElement,
@@ -386,16 +414,16 @@ const Textarea = React.forwardRef<
         "dark:hover:border-primary/60",
         "disabled:cursor-not-allowed disabled:opacity-50 md:text-sm",
         "resize-vertical",
-        className
+        className,
       )}
       ref={ref}
       {...props}
     />
-  )
-})
-Textarea.displayName = "Textarea"
+  );
+});
+Textarea.displayName = "Textarea";
 
-export { Textarea }
+export { Textarea };
 ```
 
 ## 🎨 PART 3: THEME CSS IMPROVEMENTS
@@ -503,6 +531,7 @@ For admin pages (`ForumAdmin.tsx`, `TrekEventsAdmin.tsx`, `EventRegistrations.ts
 ### 4.2 TrekEvents Page (`src/pages/TrekEvents.tsx`)
 
 No major changes needed - already uses semantic components. Verify:
+
 - TrekFilters component uses updated Input/Select
 - Cards use updated Card component
 
@@ -548,6 +577,7 @@ Add these npm scripts to `package.json`:
 ### 5.3 Browser Testing Matrix
 
 Test in:
+
 - Chrome/Edge (latest)
 - Firefox (latest)
 - Safari (latest)
@@ -556,12 +586,14 @@ Test in:
 ## ⚡ PART 6: IMPLEMENTATION ORDER
 
 ### Phase 1: Foundation (Day 1)
+
 1. Update `src/index.css` dark mode variables
 2. Fix Input component
 3. Fix Select component
 4. Test in one admin page
 
 ### Phase 2: Core Components (Day 2)
+
 5. Fix Dialog component
 6. Fix Card component
 7. Fix Badge component
@@ -569,6 +601,7 @@ Test in:
 9. Add/fix Textarea component
 
 ### Phase 3: Page Updates (Day 3)
+
 10. Update ForumAdmin.tsx
 11. Update TrekEventsAdmin.tsx
 12. Update EventRegistrations.tsx
@@ -576,6 +609,7 @@ Test in:
 14. Verify TrekEventDetails.tsx
 
 ### Phase 4: Testing & Polish (Day 4)
+
 15. Run Lighthouse audits
 16. Manual testing in dark mode
 17. Fix any remaining issues
@@ -586,17 +620,20 @@ Test in:
 ### Success Metrics:
 
 ✅ **WCAG 2.1 AA Compliance:**
+
 - Normal text: contrast ratio ≥ 4.5:1
 - Large text (18pt+): contrast ratio ≥ 3:1
 - UI components: contrast ratio ≥ 3:1
 
 ✅ **Visual Clarity:**
+
 - All interactive elements visible in both modes
 - Focus states clearly visible (keyboard navigation)
 - Error states immediately noticeable
 - Status indicators distinct
 
 ✅ **Consistency:**
+
 - All pages follow same theme patterns
 - No hardcoded colors outside theme system
 - All components use semantic tokens
@@ -606,15 +643,17 @@ Test in:
 ### 8.1 Future Enhancements
 
 1. **Add Theme Toggle to Admin Panel:**
+
 ```tsx
 // Add to AdminSidebar.tsx
-import { ThemeToggle } from '@/components/ThemeToggle';
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 // Add in sidebar
-<ThemeToggle />
+<ThemeToggle />;
 ```
 
 2. **Create Contrast Checker Utility:**
+
 ```typescript
 // src/lib/contrastChecker.ts
 export function checkContrast(foreground: string, background: string): boolean {
@@ -623,6 +662,7 @@ export function checkContrast(foreground: string, background: string): boolean {
 ```
 
 3. **Storybook for Component Testing:**
+
 ```bash
 npm install --save-dev @storybook/react
 ```
@@ -630,21 +670,25 @@ npm install --save-dev @storybook/react
 ### 8.2 Documentation Updates
 
 Create `docs/ACCESSIBILITY.md`:
+
 ```markdown
 # Accessibility Guidelines
 
 ## Color Usage
+
 - Always use theme tokens from `index.css`
 - Never hardcode colors
 - Test in both light and dark modes
 
 ## Component Patterns
+
 ...
 ```
 
 ## 🎓 SUMMARY
 
 **Total Files to Modify: 11**
+
 1. `src/index.css` - Enhanced dark mode variables
 2. `src/components/ui/input.tsx` - Dark mode support
 3. `src/components/ui/select.tsx` - Dark mode support
@@ -662,4 +706,4 @@ Create `docs/ACCESSIBILITY.md`:
 
 ---
 
-*Note: This document represents the complete Plan of Action for fixing the admin UI/UX and accessibility issues identified in the Perplexity audit report. Each component fix includes specific code changes, and the implementation is structured in phases for systematic deployment.*
+_Note: This document represents the complete Plan of Action for fixing the admin UI/UX and accessibility issues identified in the Perplexity audit report. Each component fix includes specific code changes, and the implementation is structured in phases for systematic deployment._

@@ -1,7 +1,7 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function AuthCallback() {
   const navigate = useNavigate();
@@ -11,41 +11,47 @@ export default function AuthCallback() {
     const handleAuthCallback = async () => {
       try {
         // Wait a moment for Supabase to process the OAuth callback
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
         // Get the current session
-        const { data: { session }, error } = await supabase.auth.getSession();
-        
+        const {
+          data: { session },
+          error,
+        } = await supabase.auth.getSession();
+
         if (error) {
-          console.error('Auth callback error:', error);
-          navigate('/auth?error=' + encodeURIComponent(error.message));
+          console.error("Auth callback error:", error);
+          navigate("/auth?error=" + encodeURIComponent(error.message));
           return;
         }
 
         if (session?.user) {
-          console.log('OAuth callback successful, user:', session.user.email);
+          console.log("OAuth callback successful, user:", session.user.email);
           // Fetch user profile after successful auth
           await fetchUserProfile();
-          navigate('/dashboard');
+          navigate("/dashboard");
         } else {
           // Check URL parameters for OAuth errors
           const urlParams = new URLSearchParams(window.location.search);
-          const errorParam = urlParams.get('error');
-          const errorDescription = urlParams.get('error_description');
-          
+          const errorParam = urlParams.get("error");
+          const errorDescription = urlParams.get("error_description");
+
           if (errorParam) {
-            console.error('OAuth error:', errorParam, errorDescription);
-            navigate('/auth?error=' + encodeURIComponent(errorDescription || errorParam));
+            console.error("OAuth error:", errorParam, errorDescription);
+            navigate(
+              "/auth?error=" +
+                encodeURIComponent(errorDescription || errorParam),
+            );
             return;
           }
-          
+
           // If no session and no error, redirect to auth
-          console.log('No session found, redirecting to auth');
-          navigate('/auth');
+          console.log("No session found, redirecting to auth");
+          navigate("/auth");
         }
       } catch (error) {
-        console.error('Auth callback error:', error);
-        navigate('/auth?error=Authentication failed');
+        console.error("Auth callback error:", error);
+        navigate("/auth?error=Authentication failed");
       }
     };
 
@@ -57,7 +63,9 @@ export default function AuthCallback() {
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
         <p className="text-gray-600">Completing sign in...</p>
-        <p className="text-sm text-gray-500 mt-2">Auth callback route is working</p>
+        <p className="text-sm text-gray-500 mt-2">
+          Auth callback route is working
+        </p>
       </div>
     </div>
   );

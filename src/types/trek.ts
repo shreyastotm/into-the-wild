@@ -1,16 +1,16 @@
 export enum TrekEventStatus {
-  DRAFT = 'Draft',
-  UPCOMING = 'Upcoming',
-  OPEN_FOR_REGISTRATION = 'Open for Registration',
-  REGISTRATION_CLOSED = 'Registration Closed',
-  ONGOING = 'Ongoing',
-  COMPLETED = 'Completed',
-  CANCELLED = 'Cancelled',
+  DRAFT = "Draft",
+  UPCOMING = "Upcoming",
+  OPEN_FOR_REGISTRATION = "Open for Registration",
+  REGISTRATION_CLOSED = "Registration Closed",
+  ONGOING = "Ongoing",
+  COMPLETED = "Completed",
+  CANCELLED = "Cancelled",
 }
 
 export enum EventType {
-  TREK = 'trek',
-  CAMPING = 'camping'
+  TREK = "trek",
+  CAMPING = "camping",
 }
 
 // Camping event specific types
@@ -72,10 +72,10 @@ export interface BaseEvent {
   transport_mode?: string | null;
   government_id_required?: boolean;
   transport_plan?: {
-    allowed_modes?: Array<'self_drive' | 'mini_van' | 'bus' | 'hybrid'>;
-    default_mode?: 'self_drive' | 'mini_van' | 'bus' | 'hybrid';
+    allowed_modes?: Array<"self_drive" | "mini_van" | "bus" | "hybrid">;
+    default_mode?: "self_drive" | "mini_van" | "bus" | "hybrid";
     booked_vehicle?: {
-      type: 'mini_van' | 'bus';
+      type: "mini_van" | "bus";
       seats: number;
       vendor?: string;
       cost?: number;
@@ -106,7 +106,7 @@ export interface TrekEvent extends BaseEvent {
   // Trek-specific fields
 }
 
-// Camping-specific interface  
+// Camping-specific interface
 export interface CampingEvent extends BaseEvent {
   event_type: EventType.CAMPING;
   itinerary?: CampingItinerary | null;
@@ -125,14 +125,17 @@ export interface TrekEventListItem extends BaseEvent {
   // Will be gradually replaced with the new Event types
 }
 
+export type TrekCostType = 'TREK_FEE' | 'TRANSPORT' | 'ACCOMMODATION' | 'EQUIPMENT' | 'FOOD' | 'PERMIT' | 'INSURANCE' | 'OTHER';
+
 export interface TrekCost {
   id: number;
   trek_id: number;
   description: string | null;
   amount: number;
-  cost_type: string;
+  cost_type: TrekCostType | string;
   url?: string | null;
   file_url?: string | null;
+  pay_by_date?: string | null;
   created_at?: string;
   updated_at?: string;
 }
@@ -164,7 +167,7 @@ export interface TentRequest {
   quantity_requested: number;
   nights: number;
   total_cost: number;
-  status: 'pending' | 'approved' | 'rejected' | 'cancelled';
+  status: "pending" | "approved" | "rejected" | "cancelled";
   request_notes?: string;
   admin_notes?: string;
   tent_type?: TentType;
@@ -173,4 +176,4 @@ export interface TentRequest {
 // Update camping event to include tent inventory
 export interface CampingEventWithTents extends CampingEvent {
   tent_inventory?: TentInventory[];
-} 
+}

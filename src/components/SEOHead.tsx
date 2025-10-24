@@ -1,5 +1,4 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import { Helmet } from "react-helmet-async";
 
 interface SEOHeadProps {
   title?: string;
@@ -9,7 +8,7 @@ interface SEOHeadProps {
   ogTitle?: string;
   ogDescription?: string;
   ogImage?: string;
-  ogType?: 'website' | 'article';
+  ogType?: "website" | "article";
   structuredData?: object;
   noindex?: boolean;
 }
@@ -22,18 +21,20 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
   ogTitle,
   ogDescription,
   ogImage,
-  ogType = 'website',
+  ogType = "website",
   structuredData,
-  noindex = false
+  noindex = false,
 }) => {
   const siteTitle = "Into The Wild - Trekking Community";
-  const siteDescription = "Join India's premier trekking community. Discover amazing treks, connect with fellow adventurers, and share your wilderness experiences.";
+  const siteDescription =
+    "Join India's premier trekking community. Discover amazing treks, connect with fellow adventurers, and share your wilderness experiences.";
   const siteUrl = "https://into-the-wild.com"; // Update with actual domain
   const defaultImage = "/itw_logo.png"; // Update with actual logo
 
   const fullTitle = title ? `${title} | ${siteTitle}` : siteTitle;
   const metaDescription = description || siteDescription;
-  const metaKeywords = keywords || "trekking, hiking, India, adventure, community, forum";
+  const metaKeywords =
+    keywords || "trekking, hiking, India, adventure, community, forum";
   const fullCanonicalUrl = canonicalUrl ? `${siteUrl}${canonicalUrl}` : siteUrl;
 
   return (
@@ -43,7 +44,10 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta name="description" content={metaDescription} />
       <meta name="keywords" content={metaKeywords} />
       <meta name="author" content="Into The Wild" />
-      <meta name="robots" content={noindex ? "noindex,nofollow" : "index,follow"} />
+      <meta
+        name="robots"
+        content={noindex ? "noindex,nofollow" : "index,follow"}
+      />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
       {/* Canonical URL */}
@@ -53,8 +57,14 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="og:type" content={ogType} />
       <meta property="og:url" content={fullCanonicalUrl} />
       <meta property="og:title" content={ogTitle || fullTitle} />
-      <meta property="og:description" content={ogDescription || metaDescription} />
-      <meta property="og:image" content={ogImage ? `${siteUrl}${ogImage}` : `${siteUrl}${defaultImage}`} />
+      <meta
+        property="og:description"
+        content={ogDescription || metaDescription}
+      />
+      <meta
+        property="og:image"
+        content={ogImage ? `${siteUrl}${ogImage}` : `${siteUrl}${defaultImage}`}
+      />
       <meta property="og:site_name" content={siteTitle} />
       <meta property="og:locale" content="en_IN" />
 
@@ -62,8 +72,14 @@ export const SEOHead: React.FC<SEOHeadProps> = ({
       <meta property="twitter:card" content="summary_large_image" />
       <meta property="twitter:url" content={fullCanonicalUrl} />
       <meta property="twitter:title" content={ogTitle || fullTitle} />
-      <meta property="twitter:description" content={ogDescription || metaDescription} />
-      <meta property="twitter:image" content={ogImage ? `${siteUrl}${ogImage}` : `${siteUrl}${defaultImage}`} />
+      <meta
+        property="twitter:description"
+        content={ogDescription || metaDescription}
+      />
+      <meta
+        property="twitter:image"
+        content={ogImage ? `${siteUrl}${ogImage}` : `${siteUrl}${defaultImage}`}
+      />
 
       {/* Structured Data / JSON-LD */}
       {structuredData && (

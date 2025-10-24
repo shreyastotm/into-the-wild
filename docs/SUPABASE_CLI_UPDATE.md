@@ -1,6 +1,7 @@
 # 🔄 Supabase CLI Update Guide
 
 ## Current Status
+
 - **Current Version**: 2.23.4
 - **Latest Available**: 2.47.2
 - **Update Required**: ✅ Yes
@@ -18,16 +19,17 @@ Since the automatic update methods failed, here are the manual steps to update S
    - Download the file
 
 3. **Extract and replace**:
+
    ```powershell
    # Extract the zip file
    Expand-Archive -Path "supabase_windows_amd64.zip" -DestinationPath "supabase-temp"
-   
+
    # Find your current Supabase CLI location
    where.exe supabase
-   
+
    # Replace the executable (replace PATH_TO_SUPABASE with actual path)
    Copy-Item "supabase-temp\supabase.exe" "PATH_TO_SUPABASE\supabase.exe" -Force
-   
+
    # Clean up
    Remove-Item "supabase-temp" -Recurse -Force
    Remove-Item "supabase_windows_amd64.zip" -Force
@@ -68,6 +70,7 @@ Expected output: `2.47.2` or higher
 ## What's New in v2.47.2
 
 Key improvements since v2.23.4:
+
 - Enhanced database migration handling
 - Better error reporting
 - Improved performance
@@ -78,12 +81,14 @@ Key improvements since v2.23.4:
 ## Troubleshooting
 
 ### If update fails:
+
 1. **Check permissions**: Run PowerShell as Administrator
 2. **Close all terminals**: Ensure no Supabase processes are running
 3. **Check antivirus**: Some antivirus software blocks executable replacements
 4. **Manual replacement**: Download and manually replace the executable
 
 ### If commands don't work after update:
+
 1. **Restart terminal**: Close and reopen your terminal
 2. **Check PATH**: Ensure Supabase is in your system PATH
 3. **Reinstall**: If issues persist, uninstall and reinstall
@@ -91,6 +96,7 @@ Key improvements since v2.23.4:
 ## Next Steps
 
 After updating:
+
 1. **Test tent rental setup**: Run the tent rental SQL scripts
 2. **Verify migrations**: Check that all migrations work correctly
 3. **Test edit functionality**: Ensure the edit event workflow works properly

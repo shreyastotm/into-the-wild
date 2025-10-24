@@ -1,19 +1,24 @@
-import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { EventType, TentInventory } from '@/types/trek';
-import { useTrekForm } from './useTrekForm';
-import { EventTypeStep } from './EventTypeStep';
-import { BasicDetailsStep } from './BasicDetailsStep';
-import { PackingListStep } from './PackingListStep';
-import { CostsStep } from './CostsStep';
-import { CampingDetailsStep } from './CampingDetailsStep';
-import { ReviewStep } from './ReviewStep';
-import { AdminTrekEvent, FormSubmissionData } from './types';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/components/ui/use-toast';
+import React, { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import { EventType, TentInventory } from "@/types/trek";
+import { useTrekForm } from "./useTrekForm";
+import { EventTypeStep } from "./EventTypeStep";
+import { BasicDetailsStep } from "./BasicDetailsStep";
+import { PackingListStep } from "./PackingListStep";
+import { CostsStep } from "./CostsStep";
+import { CampingDetailsStep } from "./CampingDetailsStep";
+import { ReviewStep } from "./ReviewStep";
+import { AdminTrekEvent, FormSubmissionData } from "./types";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "@/components/ui/use-toast";
 
 interface TrekFormWizardProps {
   trekToEdit?: AdminTrekEvent;
@@ -26,7 +31,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
   trekToEdit,
   onFormSubmit,
   onCancel,
-  tentInventory = []
+  tentInventory = [],
 }) => {
   const {
     formData,
@@ -37,17 +42,25 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
     handleImageChange,
     handleGpxChange,
     validateStep,
-    resetForm
+    resetForm,
   } = useTrekForm(trekToEdit);
 
   const [step, setStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  
+
   // Additional state for form steps
-  const [selectedPackingItems, setSelectedPackingItems] = useState<Set<number>>(new Set());
-  const [mandatoryPackingItems, setMandatoryPackingItems] = useState<Set<number>>(new Set());
-  const [costs, setCosts] = useState<Array<{ description: string; amount: number; cost_type: string }>>([]);
-  const [packingItems, setPackingItems] = useState<Array<{ id: number; name: string; category: string | null }>>([]);
+  const [selectedPackingItems, setSelectedPackingItems] = useState<Set<number>>(
+    new Set(),
+  );
+  const [mandatoryPackingItems, setMandatoryPackingItems] = useState<
+    Set<number>
+  >(new Set());
+  const [costs, setCosts] = useState<
+    Array<{ description: string; amount: number; cost_type: string }>
+  >([]);
+  const [packingItems, setPackingItems] = useState<
+    Array<{ id: number; name: string; category: string | null }>
+  >([]);
   const [isLoadingExistingData, setIsLoadingExistingData] = useState(false);
 
   // Load existing data when editing
@@ -59,65 +72,76 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
 
   const loadExistingData = async () => {
     if (!trekToEdit?.trek_id) {
-      console.log('TrekFormWizard: No trekToEdit or trek_id provided');
+      console.log("TrekFormWizard: No trekToEdit or trek_id provided");
       return;
     }
 
-    console.log('TrekFormWizard: Loading existing data for trek:', trekToEdit.trek_id);
+    console.log(
+      "TrekFormWizard: Loading existing data for trek:",
+      trekToEdit.trek_id,
+    );
     setIsLoadingExistingData(true);
     try {
       // Load existing packing list items
       const { data: packingData, error: packingError } = await supabase
-        .from('trek_packing_list_assignments')
-        .select('master_item_id, mandatory')
-        .eq('trek_id', trekToEdit.trek_id);
+        .from("trek_packing_list_assignments")
+        .select("master_item_id, mandatory")
+        .eq("trek_id", trekToEdit.trek_id);
 
       if (packingError) {
-        console.error('TrekFormWizard: Error loading packing list:', packingError);
+        console.error(
+          "TrekFormWizard: Error loading packing list:",
+          packingError,
+        );
       } else {
-        console.log('TrekFormWizard: Loading packing list data:', packingData);
-        const selected = new Set((packingData || []).map(item => item.master_item_id));
-        const mandatory = new Set((packingData || []).filter(item => item.mandatory).map(item => item.master_item_id));
-        console.log('TrekFormWizard: Selected items:', Array.from(selected));
-        console.log('TrekFormWizard: Mandatory items:', Array.from(mandatory));
+        console.log("TrekFormWizard: Loading packing list data:", packingData);
+        const selected = new Set(
+          (packingData || []).map((item) => item.master_item_id),
+        );
+        const mandatory = new Set(
+          (packingData || [])
+            .filter((item) => item.mandatory)
+            .map((item) => item.master_item_id),
+        );
+        console.log("TrekFormWizard: Selected items:", Array.from(selected));
+        console.log("TrekFormWizard: Mandatory items:", Array.from(mandatory));
         setSelectedPackingItems(selected);
         setMandatoryPackingItems(mandatory);
       }
 
       // Load existing costs
       const { data: costsData, error: costsError } = await supabase
-        .from('trek_costs')
-        .select('*')
-        .eq('trek_id', trekToEdit.trek_id);
+        .from("trek_costs")
+        .select("*")
+        .eq("trek_id", trekToEdit.trek_id);
 
       if (costsError) {
-        console.error('Error loading costs:', costsError);
+        console.error("Error loading costs:", costsError);
       } else {
-        const formattedCosts = (costsData || []).map(cost => ({
-          description: cost.description || '',
+        const formattedCosts = (costsData || []).map((cost) => ({
+          description: cost.description || "",
           amount: cost.amount || 0,
-          cost_type: cost.cost_type || 'OTHER'
+          cost_type: cost.cost_type || "OTHER",
         }));
         setCosts(formattedCosts);
       }
 
       // Load master packing items for display
       const { data: masterItems, error: masterError } = await supabase
-        .from('master_packing_items')
-        .select('id, name, category');
+        .from("master_packing_items")
+        .select("id, name, category");
 
       if (masterError) {
-        console.error('Error loading master packing items:', masterError);
+        console.error("Error loading master packing items:", masterError);
       } else {
         setPackingItems(masterItems || []);
       }
-
     } catch (error) {
-      console.error('Error loading existing data:', error);
+      console.error("Error loading existing data:", error);
       toast({
-        title: 'Error',
-        description: 'Failed to load existing event data',
-        variant: 'destructive'
+        title: "Error",
+        description: "Failed to load existing event data",
+        variant: "destructive",
       });
     } finally {
       setIsLoadingExistingData(false);
@@ -132,15 +156,15 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
   // Get step names for progress indication
   const getStepName = (stepNumber: number) => {
     const steps = [
-      'Event Type',
-      'Basic Details',
-      'Packing List',
-      'Fixed Costs',
-      formData.event_type === EventType.CAMPING ? 'Camping Details' : 'Review',
-      formData.event_type === EventType.CAMPING ? 'Review' : ''
+      "Event Type",
+      "Basic Details",
+      "Packing List",
+      "Fixed Costs",
+      formData.event_type === EventType.CAMPING ? "Camping Details" : "Review",
+      formData.event_type === EventType.CAMPING ? "Review" : "",
     ].filter(Boolean);
-    
-    return steps[stepNumber - 1] || '';
+
+    return steps[stepNumber - 1] || "";
   };
 
   // Navigation handlers
@@ -194,28 +218,38 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
     setSubmitting(true);
     try {
       // Prepare packing list data
-      const packingList = Array.from(selectedPackingItems).map(itemId => ({
+      const packingList = Array.from(selectedPackingItems).map((itemId) => ({
         master_item_id: itemId,
-        mandatory: mandatoryPackingItems.has(itemId)
+        mandatory: mandatoryPackingItems.has(itemId),
       }));
 
-      console.log('TrekFormWizard: Preparing submission data');
-      console.log('TrekFormWizard: Selected items:', Array.from(selectedPackingItems));
-      console.log('TrekFormWizard: Mandatory items:', Array.from(mandatoryPackingItems));
-      console.log('TrekFormWizard: Packing list to submit:', packingList);
+      console.log("TrekFormWizard: Preparing submission data");
+      console.log(
+        "TrekFormWizard: Selected items:",
+        Array.from(selectedPackingItems),
+      );
+      console.log(
+        "TrekFormWizard: Mandatory items:",
+        Array.from(mandatoryPackingItems),
+      );
+      console.log("TrekFormWizard: Packing list to submit:", packingList);
 
       const submissionData: FormSubmissionData = {
         trekData: formData,
         packingList,
         costs,
-        tentInventory: formData.event_type === EventType.CAMPING ? tentInventory : undefined
+        tentInventory:
+          formData.event_type === EventType.CAMPING ? tentInventory : undefined,
       };
 
-      console.log('TrekFormWizard: Calling onFormSubmit with data:', submissionData);
+      console.log(
+        "TrekFormWizard: Calling onFormSubmit with data:",
+        submissionData,
+      );
       await onFormSubmit(submissionData);
       resetForm();
     } catch (error) {
-      console.error('TrekFormWizard: Form submission error:', error);
+      console.error("TrekFormWizard: Form submission error:", error);
     } finally {
       setSubmitting(false);
     }
@@ -226,16 +260,16 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
     const stepProps = {
       formData,
       setFormData,
-      errors
+      errors,
     };
 
     switch (step) {
       case 1:
         return <EventTypeStep {...stepProps} isEdit={!!trekToEdit} />;
-      
+
       case 2:
         return (
-          <BasicDetailsStep 
+          <BasicDetailsStep
             {...stepProps}
             imagePreview={imagePreview}
             handleImageChange={handleImageChange}
@@ -243,7 +277,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
             handleGpxChange={handleGpxChange}
           />
         );
-      
+
       case 3:
         return (
           <PackingListStep
@@ -254,7 +288,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
             isLoadingExistingData={isLoadingExistingData}
           />
         );
-      
+
       case 4:
         return (
           <CostsStep
@@ -264,11 +298,16 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
             isLoadingExistingData={isLoadingExistingData}
           />
         );
-      
+
       case 5:
         // For Trek: Review Step, For Camping: Camping Details Step
         if (formData.event_type === EventType.CAMPING) {
-          return <CampingDetailsStep {...stepProps} isLoadingExistingData={isLoadingExistingData} />;
+          return (
+            <CampingDetailsStep
+              {...stepProps}
+              isLoadingExistingData={isLoadingExistingData}
+            />
+          );
         } else {
           return (
             <ReviewStep
@@ -282,7 +321,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
             />
           );
         }
-      
+
       case 6:
         // Only for Camping: Review Step
         return (
@@ -296,12 +335,14 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
             gpxFile={gpxFile}
           />
         );
-      
+
       default:
         return (
           <div className="text-center py-8">
             <h3 className="text-lg font-semibold">Invalid Step</h3>
-            <p className="text-muted-foreground">Something went wrong with the form navigation</p>
+            <p className="text-muted-foreground">
+              Something went wrong with the form navigation
+            </p>
           </div>
         );
     }
@@ -318,23 +359,23 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {trekToEdit ? 'Edit Event' : 'Create New Event'}
+            {trekToEdit ? "Edit Event" : "Create New Event"}
           </DialogTitle>
         </DialogHeader>
 
         {/* Progress Indicator */}
         <div className="space-y-2">
           <div className="flex justify-between text-xs text-muted-foreground">
-            <span>Step {step} of {totalSteps}</span>
+            <span>
+              Step {step} of {totalSteps}
+            </span>
             <span>{getStepName(step)}</span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
 
         {/* Step Content */}
-        <div className="min-h-[400px]">
-          {renderStep()}
-        </div>
+        <div className="min-h-[400px]">{renderStep()}</div>
 
         {/* Navigation */}
         <div className="flex justify-between pt-4 border-t">
@@ -351,10 +392,19 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
             <Button variant="ghost" onClick={onCancel} disabled={submitting}>
               Cancel
             </Button>
-            
+
             {isLastStep ? (
-              <Button onClick={handleSubmit} disabled={submitting || isLoadingExistingData}>
-                {submitting ? (trekToEdit ? 'Updating...' : 'Creating...') : (trekToEdit ? 'Update Event' : `Create ${formData.event_type === EventType.CAMPING ? 'Camping Event' : 'Trek'}`)}
+              <Button
+                onClick={handleSubmit}
+                disabled={submitting || isLoadingExistingData}
+              >
+                {submitting
+                  ? trekToEdit
+                    ? "Updating..."
+                    : "Creating..."
+                  : trekToEdit
+                    ? "Update Event"
+                    : `Create ${formData.event_type === EventType.CAMPING ? "Camping Event" : "Trek"}`}
               </Button>
             ) : (
               <Button onClick={handleNext} disabled={!canGoNext || submitting}>

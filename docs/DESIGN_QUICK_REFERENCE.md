@@ -36,16 +36,16 @@ bg-green-500   #4CAF50
 
 ```tsx
 // Hero Background
-className="bg-gradient-to-br from-teal-50 via-white to-amber-50"
+className = "bg-gradient-to-br from-teal-50 via-white to-amber-50";
 
 // Premium Button
-className="bg-gradient-to-r from-[#F2705D] to-orange-500"
+className = "bg-gradient-to-r from-[#F2705D] to-orange-500";
 
 // Auth Screen
-className="bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-600"
+className = "bg-gradient-to-br from-teal-600 via-teal-500 to-emerald-600";
 
 // Card Overlay
-className="bg-gradient-to-t from-black/60 via-transparent to-transparent"
+className = "bg-gradient-to-t from-black/60 via-transparent to-transparent";
 ```
 
 ---
@@ -54,16 +54,16 @@ className="bg-gradient-to-t from-black/60 via-transparent to-transparent"
 
 ```tsx
 // Common Patterns
-className="p-4"       // 16px - small padding
-className="p-6"       // 24px - default card padding
-className="p-8"       // 32px - large padding
-className="py-12"     // 48px - section vertical
-className="py-24"     // 96px - large section
+className = "p-4"; // 16px - small padding
+className = "p-6"; // 24px - default card padding
+className = "p-8"; // 32px - large padding
+className = "py-12"; // 48px - section vertical
+className = "py-24"; // 96px - large section
 
 // Gaps
-className="gap-4"     // Between elements
-className="gap-6"     // Between cards
-className="gap-8"     // Between sections
+className = "gap-4"; // Between elements
+className = "gap-6"; // Between cards
+className = "gap-8"; // Between sections
 ```
 
 ---
@@ -155,18 +155,18 @@ className="gap-8"     // Between sections
 
 ```tsx
 // Standard Input
-<input 
+<input
   className="w-full px-4 py-3 rounded-lg border-2 border-gray-300 bg-white text-gray-900 placeholder:text-gray-400 transition-all duration-200 focus:outline-none focus:border-teal-500 focus:ring-4 focus:ring-teal-100 hover:border-gray-400"
   placeholder="Enter your name"
 />
 
 // Error State
-<input 
+<input
   className="w-full px-4 py-3 rounded-lg border-2 border-red-500 bg-white text-gray-900 focus:outline-none focus:border-red-500 focus:ring-4 focus:ring-red-100"
 />
 
 // Success State
-<input 
+<input
   className="w-full px-4 py-3 rounded-lg border-2 border-green-500 bg-white text-gray-900 focus:outline-none focus:border-green-500 focus:ring-4 focus:ring-green-100"
 />
 ```
@@ -177,17 +177,17 @@ className="gap-8"     // Between sections
 
 ```tsx
 // Header Logo
-<img 
-  src="/itw_logo.jpg" 
-  alt="Into the Wild" 
+<img
+  src="/itw_logo.jpg"
+  alt="Into the Wild"
   className="h-12 w-auto transition-transform duration-300 group-hover:scale-105"
 />
 
 // Hero Backdrop
 <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-  <img 
-    src="/itw_logo.jpg" 
-    alt="" 
+  <img
+    src="/itw_logo.jpg"
+    alt=""
     aria-hidden="true"
     className="w-[800px] h-auto object-contain opacity-[0.03] blur-[0.5px]"
   />
@@ -195,24 +195,24 @@ className="gap-8"     // Between sections
 
 // Card Watermark (on hover)
 <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
-  <img 
-    src="/itw_logo.jpg" 
-    alt="" 
+  <img
+    src="/itw_logo.jpg"
+    alt=""
     className="h-48 w-auto translate-x-8 translate-y-8 rotate-12"
   />
 </div>
 
 // Loading Screen
-<img 
-  src="/itw_logo.jpg" 
-  alt="Into the Wild" 
+<img
+  src="/itw_logo.jpg"
+  alt="Into the Wild"
   className="h-32 md:h-40 w-auto mx-auto animate-pulse"
 />
 
 // Empty State
-<img 
-  src="/itw_logo.jpg" 
-  alt="" 
+<img
+  src="/itw_logo.jpg"
+  alt=""
   className="h-32 w-auto opacity-15 grayscale"
 />
 ```
@@ -240,8 +240,12 @@ className="gap-8"     // Between sections
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 /* Fade In Up */
@@ -266,8 +270,14 @@ className="gap-8"     // Between sections
 }
 
 @keyframes scaleIn {
-  from { transform: scale(0.9); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
 }
 ```
 
@@ -306,18 +316,19 @@ className="gap-8"     // Between sections
 ## 🎭 Common Patterns
 
 ### Hero Section
+
 ```tsx
 <section className="relative w-full py-12 md:py-24 lg:py-32 xl:py-48 overflow-hidden bg-gradient-to-br from-teal-50 via-white to-amber-50">
   {/* Logo Backdrop */}
   <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-    <img 
-      src="/itw_logo.jpg" 
-      alt="" 
+    <img
+      src="/itw_logo.jpg"
+      alt=""
       aria-hidden="true"
       className="w-[600px] md:w-[800px] h-auto object-contain opacity-[0.03] blur-[0.5px]"
     />
   </div>
-  
+
   {/* Content */}
   <div className="relative z-10 container mx-auto px-4">
     <div className="flex flex-col items-center justify-center text-center">
@@ -336,22 +347,27 @@ className="gap-8"     // Between sections
 ```
 
 ### Trek Card
+
 ```tsx
 <div className="group bg-white rounded-xl border border-gray-200 shadow-md hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 cursor-pointer overflow-hidden">
   {/* Image */}
   <div className="relative h-56 overflow-hidden">
-    <img 
-      src={trek.image} 
+    <img
+      src={trek.image}
       alt={trek.title}
       className="w-full h-full object-cover transform transition-transform duration-500 group-hover:scale-110"
     />
     <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-    
+
     {/* Logo Watermark */}
     <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-10 transition-opacity duration-500 pointer-events-none">
-      <img src="/itw_logo.jpg" alt="" className="h-32 w-auto translate-x-4 translate-y-4 rotate-12" />
+      <img
+        src="/itw_logo.jpg"
+        alt=""
+        className="h-32 w-auto translate-x-4 translate-y-4 rotate-12"
+      />
     </div>
-    
+
     {/* Badges */}
     <div className="absolute top-4 right-4">
       <span className="inline-flex items-center px-3 py-1 bg-gradient-to-r from-amber-400 to-orange-500 text-white text-xs font-semibold rounded-full">
@@ -359,7 +375,7 @@ className="gap-8"     // Between sections
       </span>
     </div>
   </div>
-  
+
   {/* Content */}
   <div className="p-6">
     <h3 className="text-xl font-bold text-gray-900 mb-2 group-hover:text-teal-600 transition-colors">
@@ -368,12 +384,10 @@ className="gap-8"     // Between sections
     <p className="text-gray-600 text-sm mb-4 line-clamp-2">
       {trek.description}
     </p>
-    
+
     {/* Footer */}
     <div className="flex items-center justify-between">
-      <div className="text-2xl font-bold text-teal-600">
-        ₹{trek.price}
-      </div>
+      <div className="text-2xl font-bold text-teal-600">₹{trek.price}</div>
       <button className="px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-lg transition-colors">
         View Details
       </button>
@@ -383,6 +397,7 @@ className="gap-8"     // Between sections
 ```
 
 ### Loading Skeleton
+
 ```tsx
 <div className="animate-pulse">
   <div className="h-56 bg-gray-200 rounded-t-xl mb-4"></div>
@@ -403,17 +418,17 @@ className="gap-8"     // Between sections
 
 Need to update a specific element? Here's where to find it:
 
-| Element | File Path |
-|---------|-----------|
-| Header Logo | `src/components/Header.tsx` line 37 |
-| Hero Section | `src/pages/Index.tsx` line 18 |
-| Main Button | `src/components/ui/button.tsx` |
-| Trek Cards | `src/components/trek/TrekEventsList.tsx` |
-| Auth Page | `src/pages/Auth.tsx` |
-| Dashboard | `src/pages/Dashboard.tsx` |
-| Footer | `src/components/Footer.tsx` |
-| Loading | Create `src/components/LoadingScreen.tsx` |
-| Empty State | Create `src/components/EmptyState.tsx` |
+| Element      | File Path                                 |
+| ------------ | ----------------------------------------- |
+| Header Logo  | `src/components/Header.tsx` line 37       |
+| Hero Section | `src/pages/Index.tsx` line 18             |
+| Main Button  | `src/components/ui/button.tsx`            |
+| Trek Cards   | `src/components/trek/TrekEventsList.tsx`  |
+| Auth Page    | `src/pages/Auth.tsx`                      |
+| Dashboard    | `src/pages/Dashboard.tsx`                 |
+| Footer       | `src/components/Footer.tsx`               |
+| Loading      | Create `src/components/LoadingScreen.tsx` |
+| Empty State  | Create `src/components/EmptyState.tsx`    |
 
 ---
 

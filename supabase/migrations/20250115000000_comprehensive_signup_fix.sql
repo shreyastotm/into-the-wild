@@ -7,6 +7,13 @@
 
 BEGIN;
 
+-- Create user_verification_status enum if it doesn't exist
+DO $$ BEGIN
+  IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'user_verification_status') THEN
+    CREATE TYPE public.user_verification_status AS ENUM ('NOT_SUBMITTED', 'PENDING_REVIEW', 'VERIFIED', 'REJECTED');
+  END IF;
+END $$;
+
 -- 1. First, let's standardize the users table schema
 -- Ensure we have the correct columns and remove any duplicates
 

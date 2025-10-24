@@ -1,0 +1,33 @@
+---
+description: "Phase-based Implementation and Feature Development Standards"
+globs: ["src/**/*.{ts,tsx}", "docs/**/*.{md,mdx}", "supabase/**/*.{sql}"]
+alwaysApply: true
+---
+
+# 📋 IMPLEMENTATION PHASE RULES
+
+## 8.1 Phase 4 Requirements (Current)
+✅ **REQUIRED:** Enhanced animations and micro-interactions
+✅ **REQUIRED:** Advanced form components with dark mode
+✅ **REQUIRED:** Complete dark mode fixes across all components
+✅ **REQUIRED:** Table components with proper dark mode styling
+✅ **REQUIRED:** Horizontal scroll mobile trek cards
+✅ **REQUIRED:** Public gallery system with advanced filtering
+
+## 8.2 Component Standards
+✅ **REQUIRED:** All components must follow established patterns
+✅ **REQUIRED:** Consistent prop interfaces and naming
+✅ **REQUIRED:** Mobile-first responsive implementation
+✅ **REQUIRED:** Accessibility compliance (WCAG 2.1 AA)
+
+## 8.3 Quality Gates
+✅ **REQUIRED:** Code review approval before merging
+✅ **REQUIRED:** Testing requirements met before deployment
+✅ **REQUIRED:** Documentation updated with changes
+✅ **REQUIRED:** Performance benchmarks verified
+
+## 8.4 Migration Standards
+✅ **REQUIRED:** Database migrations follow naming conventions
+✅ **REQUIRED:** Rollback procedures documented
+✅ **REQUIRED:** Test migrations on development before production
+✅ **REQUIRED:** Backup procedures before major changes

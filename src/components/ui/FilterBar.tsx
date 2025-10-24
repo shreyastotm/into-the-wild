@@ -1,14 +1,26 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { Filter, X } from 'lucide-react';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { Filter, X } from "lucide-react";
 
 export interface FilterOption {
   key: string;
   label: string;
-  type: 'select' | 'input' | 'range';
+  type: "select" | "input" | "range";
   options?: Array<{ value: string; label: string }>;
   placeholder?: string;
   value?: string;
@@ -25,19 +37,19 @@ export interface FilterBarProps {
   searchValue: string;
   onSearchChange: (value: string) => void;
   searchPlaceholder?: string;
-  
+
   // Filter options
   filters: FilterOption[];
   onFilterChange: (key: string, value: string) => void;
-  
+
   // Sort functionality
   sortValue: string;
   onSortChange: (value: string) => void;
   sortOptions: SortOption[];
-  
+
   // Reset functionality
   onReset: () => void;
-  
+
   // UI customization
   className?: string;
   showResetButton?: boolean;
@@ -61,27 +73,33 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   // Check if any filters are active
-  const hasActiveFilters = filters.some(filter => 
-    filter.value && filter.value !== "" && filter.value !== "all"
+  const hasActiveFilters = filters.some(
+    (filter) => filter.value && filter.value !== "" && filter.value !== "all",
   );
 
   // Render filter input based on type
   const renderFilterInput = (filter: FilterOption) => {
     switch (filter.type) {
-      case 'select':
+      case "select":
         return (
           <div key={filter.key}>
-            <label className="block text-sm font-medium mb-2">{filter.label}</label>
+            <label className="block text-sm font-medium mb-2">
+              {filter.label}
+            </label>
             <Select
               value={filter.value || "all"}
-              onValueChange={(value) => onFilterChange(filter.key, value === "all" ? "" : value)}
+              onValueChange={(value) =>
+                onFilterChange(filter.key, value === "all" ? "" : value)
+              }
             >
               <SelectTrigger>
-                <SelectValue placeholder={filter.placeholder || `Select ${filter.label}`} />
+                <SelectValue
+                  placeholder={filter.placeholder || `Select ${filter.label}`}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All {filter.label}</SelectItem>
-                {filter.options?.map(option => (
+                {filter.options?.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -90,33 +108,43 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </Select>
           </div>
         );
-      
-      case 'input':
+
+      case "input":
         return (
           <div key={filter.key}>
-            <label className="block text-sm font-medium mb-2">{filter.label}</label>
+            <label className="block text-sm font-medium mb-2">
+              {filter.label}
+            </label>
             <Input
-              placeholder={filter.placeholder || `Enter ${filter.label.toLowerCase()}`}
+              placeholder={
+                filter.placeholder || `Enter ${filter.label.toLowerCase()}`
+              }
               value={filter.value || ""}
               onChange={(e) => onFilterChange(filter.key, e.target.value)}
             />
           </div>
         );
-      
-      case 'range':
+
+      case "range":
         return (
           <div key={filter.key}>
-            <label className="block text-sm font-medium mb-2">{filter.label}</label>
+            <label className="block text-sm font-medium mb-2">
+              {filter.label}
+            </label>
             <Select
               value={filter.value || "all"}
-              onValueChange={(value) => onFilterChange(filter.key, value === "all" ? "" : value)}
+              onValueChange={(value) =>
+                onFilterChange(filter.key, value === "all" ? "" : value)
+              }
             >
               <SelectTrigger>
-                <SelectValue placeholder={filter.placeholder || `Select ${filter.label}`} />
+                <SelectValue
+                  placeholder={filter.placeholder || `Select ${filter.label}`}
+                />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">Any {filter.label}</SelectItem>
-                {filter.options?.map(option => (
+                {filter.options?.map((option) => (
                   <SelectItem key={option.value} value={option.value}>
                     {option.label}
                   </SelectItem>
@@ -125,7 +153,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             </Select>
           </div>
         );
-      
+
       default:
         return null;
     }
@@ -143,7 +171,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           className="w-full"
         />
       </div>
-      
+
       {/* Quick Sort - Show in bar if enabled */}
       {showSortInBar && (
         <Select value={sortValue} onValueChange={onSortChange}>
@@ -151,9 +179,9 @@ export const FilterBar: React.FC<FilterBarProps> = ({
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="bg-white dark:bg-gray-800 border-gray-300 dark:border-gray-600">
-            {sortOptions.map(option => (
-              <SelectItem 
-                key={option.value} 
+            {sortOptions.map((option) => (
+              <SelectItem
+                key={option.value}
                 value={option.value}
                 className="text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700"
               >
@@ -163,13 +191,13 @@ export const FilterBar: React.FC<FilterBarProps> = ({
           </SelectContent>
         </Select>
       )}
-      
+
       {/* Filter Button - Opens popup */}
       <Button variant="outline" onClick={() => setIsFilterOpen(true)}>
         <Filter className="h-4 w-4 mr-2" />
         Filters
       </Button>
-      
+
       {/* Reset Button - Only show if filters are active and enabled */}
       {showResetButton && hasActiveFilters && (
         <Button variant="ghost" size="sm" onClick={onReset}>
@@ -184,7 +212,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
     <div className="space-y-4">
       {/* Render all filters */}
       {filters.map(renderFilterInput)}
-      
+
       {/* Sort option in popup if not shown in bar */}
       {!showSortInBar && (
         <div>
@@ -194,7 +222,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {sortOptions.map(option => (
+              {sortOptions.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.label}
                 </SelectItem>
@@ -219,7 +247,7 @@ export const FilterBar: React.FC<FilterBarProps> = ({
   return (
     <div className="mb-6">
       <CompactLayout />
-      
+
       {/* Universal Filter Popup */}
       <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
         <SheetContent side="right" className="w-full sm:w-96">

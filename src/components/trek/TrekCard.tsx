@@ -1,10 +1,19 @@
-import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { MapPin, Calendar, Users, Clock, Star, Compass, Mountain, Zap, TreePine } from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { useHaptic } from '@/hooks/use-haptic';
-import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import {
+  MapPin,
+  Calendar,
+  Users,
+  Clock,
+  Star,
+  Compass,
+  Mountain,
+  Zap,
+  TreePine,
+} from "lucide-react";
+import { cn } from "@/lib/utils";
+import { useHaptic } from "@/hooks/use-haptic";
+import { Badge } from "@/components/ui/badge";
 
 interface TrekCardProps {
   trek: {
@@ -15,7 +24,7 @@ interface TrekCardProps {
     location: string;
     date: string;
     price: number;
-    difficulty: 'easy' | 'moderate' | 'hard';
+    difficulty: "easy" | "moderate" | "hard";
     participants: number;
     maxParticipants: number;
     duration: string;
@@ -28,18 +37,20 @@ interface TrekCardProps {
 const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
   const haptic = useHaptic();
 
-  const getDifficultyVariant = (difficulty: string): 'default' | 'easy' | 'moderate' | 'hard' | 'expert' => {
+  const getDifficultyVariant = (
+    difficulty: string,
+  ): "default" | "easy" | "moderate" | "hard" | "expert" => {
     switch (difficulty.toLowerCase()) {
-      case 'easy':
-        return 'easy';
-      case 'moderate':
-        return 'moderate';
-      case 'hard':
-        return 'hard';
-      case 'expert':
-        return 'expert';
+      case "easy":
+        return "easy";
+      case "moderate":
+        return "moderate";
+      case "hard":
+        return "hard";
+      case "expert":
+        return "expert";
       default:
-        return 'default';
+        return "default";
     }
   };
 
@@ -50,16 +61,22 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
 
   const getDifficultyIcon = (difficulty: string) => {
     switch (difficulty.toLowerCase()) {
-      case 'easy':
-        return <TreePine className="h-3 w-3 text-green-600 dark:text-green-400" />;
-      case 'moderate':
-        return <Mountain className="h-3 w-3 text-amber-600 dark:text-amber-400" />;
-      case 'hard':
+      case "easy":
+        return (
+          <TreePine className="h-3 w-3 text-green-600 dark:text-green-400" />
+        );
+      case "moderate":
+        return (
+          <Mountain className="h-3 w-3 text-amber-600 dark:text-amber-400" />
+        );
+      case "hard":
         return <Zap className="h-3 w-3 text-red-600 dark:text-red-400" />;
-      case 'expert':
+      case "expert":
         return <Zap className="h-3 w-3 text-purple-600 dark:text-purple-400" />;
       default:
-        return <Mountain className="h-3 w-3 text-gray-600 dark:text-gray-400" />;
+        return (
+          <Mountain className="h-3 w-3 text-gray-600 dark:text-gray-400" />
+        );
     }
   };
 
@@ -69,14 +86,15 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
         "group overflow-hidden border-0 shadow-lg hover:shadow-2xl card-interactive touch-ripple cursor-pointer relative",
         "bg-gradient-to-br from-amber-50 to-yellow-50/80 dark:from-amber-950/40 dark:to-yellow-950/20",
         "border-2 border-amber-200/50 dark:border-amber-800/50",
-        className
+        className,
       )}
       onClick={handleCardClick}
     >
       {/* Compact Image - 16:9 ratio with organic enhancements */}
       <div className="relative aspect-[16/9] overflow-hidden">
         {/* Paper texture overlay */}
-        <div className="absolute inset-0 opacity-5 pointer-events-none"
+        <div
+          className="absolute inset-0 opacity-5 pointer-events-none"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='4' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E")`,
           }}
@@ -108,14 +126,18 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
             />
           </svg>
         </div>
-        
+
         {/* Top Row - Nature-Inspired Difficulty & Featured Badges */}
         <div className="absolute top-3 left-3 right-3 flex items-start justify-between z-10">
           {/* Difficulty Badge - Leaf Shape */}
-          <Badge variant={getDifficultyVariant(trek.difficulty)} className="text-xs">
+          <Badge
+            variant={getDifficultyVariant(trek.difficulty)}
+            className="text-xs"
+          >
             {getDifficultyIcon(trek.difficulty)}
             <span className="ml-1">
-              {trek.difficulty.charAt(0).toUpperCase() + trek.difficulty.slice(1)}
+              {trek.difficulty.charAt(0).toUpperCase() +
+                trek.difficulty.slice(1)}
             </span>
           </Badge>
 
@@ -130,7 +152,7 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
             </div>
           )}
         </div>
-        
+
         {/* Bottom Row - Title & Price */}
         <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
           <div className="flex items-end justify-between gap-3">
@@ -145,43 +167,56 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
             </div>
             <div className="text-right flex-shrink-0">
               <div className="text-golden-300 text-xs font-medium">from</div>
-              <div className="text-white font-bold text-xl drop-shadow-md">₹{trek.price.toLocaleString('en-IN')}</div>
+              <div className="text-white font-bold text-xl drop-shadow-md">
+                ₹{trek.price.toLocaleString("en-IN")}
+              </div>
             </div>
           </div>
         </div>
 
         {/* Logo Watermark (appears on hover) */}
         <div className="absolute bottom-0 right-0 opacity-0 group-hover:opacity-10 transition-opacity duration-700 pointer-events-none">
-          <img 
-            src="/itw_logo.png" 
-            alt="" 
+          <img
+            src="/itw_logo.png"
+            alt=""
             className="h-24 w-auto translate-x-3 translate-y-3 rotate-12"
           />
         </div>
       </div>
-      
+
       {/* Compact Meta Info with organic styling */}
       <CardContent className="p-4 bg-gradient-to-br from-amber-50/80 to-yellow-50/60 dark:from-amber-950/40 dark:to-yellow-950/20 relative">
         {/* Torn edge effect */}
-        <div className="absolute -top-2 left-0 right-0 h-2 bg-amber-100/50 dark:bg-amber-900/30"
+        <div
+          className="absolute -top-2 left-0 right-0 h-2 bg-amber-100/50 dark:bg-amber-900/30"
           style={{
-            clipPath: 'polygon(0 100%, 3% 0%, 8% 40%, 12% 10%, 18% 60%, 22% 20%, 28% 80%, 32% 30%, 38% 70%, 42% 15%, 48% 85%, 52% 25%, 58% 75%, 62% 35%, 68% 90%, 72% 20%, 78% 65%, 82% 40%, 88% 80%, 92% 25%, 98% 60%, 100% 15%, 100% 100%)',
+            clipPath:
+              "polygon(0 100%, 3% 0%, 8% 40%, 12% 10%, 18% 60%, 22% 20%, 28% 80%, 32% 30%, 38% 70%, 42% 15%, 48% 85%, 52% 25%, 58% 75%, 62% 35%, 68% 90%, 72% 20%, 78% 65%, 82% 40%, 88% 80%, 92% 25%, 98% 60%, 100% 15%, 100% 100%)",
           }}
         />
 
         <div className="grid grid-cols-3 gap-2 text-center relative z-10">
           <MetaItem
-            icon={<Calendar className="h-4 w-4 text-amber-700 dark:text-amber-400" />}
-            value={new Date(trek.date).toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
+            icon={
+              <Calendar className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+            }
+            value={new Date(trek.date).toLocaleDateString("en-IN", {
+              month: "short",
+              day: "numeric",
+            })}
             label="Date"
           />
           <MetaItem
-            icon={<Users className="h-4 w-4 text-amber-700 dark:text-amber-400" />}
+            icon={
+              <Users className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+            }
             value={`${trek.participants}/${trek.maxParticipants}`}
             label="Spots"
           />
           <MetaItem
-            icon={<Clock className="h-4 w-4 text-amber-700 dark:text-amber-400" />}
+            icon={
+              <Clock className="h-4 w-4 text-amber-700 dark:text-amber-400" />
+            }
             value={trek.duration}
             label="Duration"
           />
@@ -192,11 +227,17 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
 };
 
 // Compact Meta Item Component - Organic styling
-const MetaItem = ({ icon, value, label }: { icon: React.ReactNode; value: string; label: string }) => (
+const MetaItem = ({
+  icon,
+  value,
+  label,
+}: {
+  icon: React.ReactNode;
+  value: string;
+  label: string;
+}) => (
   <div className="flex flex-col items-center gap-1 py-2 px-1 rounded-lg bg-white/60 dark:bg-amber-900/20 backdrop-blur-sm border border-amber-200/30 dark:border-amber-800/30">
-    <div className="text-amber-700 dark:text-amber-400">
-      {icon}
-    </div>
+    <div className="text-amber-700 dark:text-amber-400">{icon}</div>
     <div className="text-sm font-bold text-amber-900 dark:text-amber-100">
       {value}
     </div>

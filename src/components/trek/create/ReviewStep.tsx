@@ -1,9 +1,16 @@
-import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, MapPin, Users, IndianRupee, Package, Clock, Tent } from 'lucide-react';
-import { EventType } from '@/types/trek';
-import { StepProps } from './types';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Calendar,
+  MapPin,
+  Users,
+  IndianRupee,
+  Package,
+  Clock,
+  Tent,
+} from "lucide-react";
+import { EventType } from "@/types/trek";
+import { StepProps } from "./types";
 
 interface ReviewStepProps extends StepProps {
   costs: Array<{ description: string; amount: number }>;
@@ -21,29 +28,34 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
   mandatoryPackingItems,
   packingItems,
   imagePreview,
-  gpxFile
+  gpxFile,
 }) => {
   const formatDateTime = (dateTime: string) => {
-    return new Date(dateTime).toLocaleString('en-IN', {
-      timeZone: 'Asia/Kolkata',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateTime).toLocaleString("en-IN", {
+      timeZone: "Asia/Kolkata",
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const totalCosts = costs.reduce((sum, cost) => sum + cost.amount, 0);
-  const selectedItems = packingItems.filter(item => selectedPackingItems.has(item.id));
-  const mandatoryItems = packingItems.filter(item => mandatoryPackingItems.has(item.id));
+  const selectedItems = packingItems.filter((item) =>
+    selectedPackingItems.has(item.id),
+  );
+  const mandatoryItems = packingItems.filter((item) =>
+    mandatoryPackingItems.has(item.id),
+  );
 
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
         <h3 className="text-lg font-semibold">Review & Submit</h3>
         <p className="text-sm text-muted-foreground">
-          Please review all details before creating your {formData.event_type?.toLowerCase()}
+          Please review all details before creating your{" "}
+          {formData.event_type?.toLowerCase()}
         </p>
       </div>
 
@@ -56,21 +68,31 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <div className="flex items-center gap-2 mb-2">
-                <Badge variant={formData.event_type === EventType.CAMPING ? "default" : "secondary"}>
-                  {formData.event_type === EventType.CAMPING ? "🏕️ Camping Event" : "🥾 Trek Event"}
+                <Badge
+                  variant={
+                    formData.event_type === EventType.CAMPING
+                      ? "default"
+                      : "secondary"
+                  }
+                >
+                  {formData.event_type === EventType.CAMPING
+                    ? "🏕️ Camping Event"
+                    : "🥾 Trek Event"}
                 </Badge>
               </div>
               <h4 className="font-semibold text-lg">{formData.name}</h4>
               {formData.description && (
-                <p className="text-sm text-muted-foreground mt-1">{formData.description}</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  {formData.description}
+                </p>
               )}
             </div>
 
             {imagePreview && (
               <div className="flex justify-center">
-                <img 
-                  src={imagePreview} 
-                  alt="Event preview" 
+                <img
+                  src={imagePreview}
+                  alt="Event preview"
                   className="w-32 h-24 object-cover rounded-lg border"
                 />
               </div>
@@ -85,7 +107,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                 <Calendar className="h-4 w-4 text-blue-600" />
                 <div>
                   <p className="font-medium">Start Date</p>
-                  <p className="text-muted-foreground">{formatDateTime(formData.start_datetime)}</p>
+                  <p className="text-muted-foreground">
+                    {formatDateTime(formData.start_datetime)}
+                  </p>
                 </div>
               </div>
             )}
@@ -95,7 +119,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                 <Calendar className="h-4 w-4 text-red-600" />
                 <div>
                   <p className="font-medium">End Date</p>
-                  <p className="text-muted-foreground">{formatDateTime(formData.end_datetime)}</p>
+                  <p className="text-muted-foreground">
+                    {formatDateTime(formData.end_datetime)}
+                  </p>
                 </div>
               </div>
             )}
@@ -114,7 +140,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
               <Users className="h-4 w-4 text-purple-600" />
               <div>
                 <p className="font-medium">Capacity</p>
-                <p className="text-muted-foreground">{formData.max_participants} participants</p>
+                <p className="text-muted-foreground">
+                  {formData.max_participants} participants
+                </p>
               </div>
             </div>
           </div>
@@ -154,15 +182,20 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             <div className="flex justify-between items-center">
               <div>
                 <span className="font-medium">Registration Fee per Person</span>
-                <span className="text-xs text-muted-foreground ml-2">(refundable)</span>
+                <span className="text-xs text-muted-foreground ml-2">
+                  (refundable)
+                </span>
               </div>
-              <span className="text-lg font-semibold text-green-600">₹{formData.base_price?.toFixed(2)}</span>
+              <span className="text-lg font-semibold text-green-600">
+                ₹{formData.base_price?.toFixed(2)}
+              </span>
             </div>
 
             <p className="text-xs text-muted-foreground">
-              This is an advance payment to secure your place. As per our FAQ, cancellations 48 hours prior to the event are 100% refundable.
+              This is an advance payment to secure your place. As per our FAQ,
+              cancellations 48 hours prior to the event are 100% refundable.
             </p>
-            
+
             {totalCosts > 0 && (
               <>
                 <hr className="my-4" />
@@ -170,13 +203,17 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   <p className="font-medium text-sm">Fixed Costs:</p>
                   {costs.map((cost, index) => (
                     <div key={index} className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">{cost.description}</span>
+                      <span className="text-muted-foreground">
+                        {cost.description}
+                      </span>
                       <span>₹{cost.amount.toFixed(2)}</span>
                     </div>
                   ))}
                   <div className="flex justify-between font-semibold pt-2 border-t">
                     <span>Total Fixed Costs</span>
-                    <span className="text-orange-600">₹{totalCosts.toFixed(2)}</span>
+                    <span className="text-orange-600">
+                      ₹{totalCosts.toFixed(2)}
+                    </span>
                   </div>
                 </div>
               </>
@@ -198,10 +235,16 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
             <div className="space-y-3">
               {mandatoryItems.length > 0 && (
                 <div>
-                  <p className="font-medium text-sm mb-2 text-red-600">Mandatory Items:</p>
+                  <p className="font-medium text-sm mb-2 text-red-600">
+                    Mandatory Items:
+                  </p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {mandatoryItems.map((item) => (
-                      <Badge key={item.id} variant="destructive" className="text-xs">
+                      <Badge
+                        key={item.id}
+                        variant="destructive"
+                        className="text-xs"
+                      >
                         {item.name}
                       </Badge>
                     ))}
@@ -211,12 +254,18 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
 
               {selectedItems.length > mandatoryItems.length && (
                 <div>
-                  <p className="font-medium text-sm mb-2 text-blue-600">Optional Items:</p>
+                  <p className="font-medium text-sm mb-2 text-blue-600">
+                    Optional Items:
+                  </p>
                   <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                     {selectedItems
-                      .filter(item => !mandatoryPackingItems.has(item.id))
+                      .filter((item) => !mandatoryPackingItems.has(item.id))
                       .map((item) => (
-                        <Badge key={item.id} variant="secondary" className="text-xs">
+                        <Badge
+                          key={item.id}
+                          variant="secondary"
+                          className="text-xs"
+                        >
                           {item.name}
                         </Badge>
                       ))}
@@ -243,7 +292,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                 <div key={index} className="border-l-4 border-l-blue-500 pl-3">
                   <p className="font-medium">{day.title}</p>
                   {day.accommodation && (
-                    <p className="text-sm text-muted-foreground">Accommodation: {day.accommodation}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Accommodation: {day.accommodation}
+                    </p>
                   )}
                   {day.activities && day.activities.length > 0 && (
                     <div className="text-sm">
@@ -263,34 +314,43 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
       )}
 
       {/* Volunteer Roles */}
-      {formData.event_type === EventType.CAMPING && formData.volunteer_roles?.roles && formData.volunteer_roles.roles.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="text-base flex items-center">
-              <Users className="h-4 w-4 mr-2" />
-              Volunteer Roles ({formData.volunteer_roles.roles.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {formData.volunteer_roles.roles.map((role, index) => (
-                <div key={index} className="border rounded-lg p-3">
-                  <div className="flex justify-between items-start mb-2">
-                    <h5 className="font-medium">{role.title}</h5>
-                    <Badge variant="outline">{role.spots_needed} spot{role.spots_needed !== 1 ? 's' : ''}</Badge>
+      {formData.event_type === EventType.CAMPING &&
+        formData.volunteer_roles?.roles &&
+        formData.volunteer_roles.roles.length > 0 && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-base flex items-center">
+                <Users className="h-4 w-4 mr-2" />
+                Volunteer Roles ({formData.volunteer_roles.roles.length})
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {formData.volunteer_roles.roles.map((role, index) => (
+                  <div key={index} className="border rounded-lg p-3">
+                    <div className="flex justify-between items-start mb-2">
+                      <h5 className="font-medium">{role.title}</h5>
+                      <Badge variant="outline">
+                        {role.spots_needed} spot
+                        {role.spots_needed !== 1 ? "s" : ""}
+                      </Badge>
+                    </div>
+                    {role.description && (
+                      <p className="text-sm text-muted-foreground mb-1">
+                        {role.description}
+                      </p>
+                    )}
+                    {role.requirements && (
+                      <p className="text-xs text-blue-600">
+                        Requirements: {role.requirements}
+                      </p>
+                    )}
                   </div>
-                  {role.description && (
-                    <p className="text-sm text-muted-foreground mb-1">{role.description}</p>
-                  )}
-                  {role.requirements && (
-                    <p className="text-xs text-blue-600">Requirements: {role.requirements}</p>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
       {/* Files */}
       {gpxFile && (

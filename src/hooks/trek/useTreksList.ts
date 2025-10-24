@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from '@/components/ui/use-toast';
-import { EventType } from '@/types/trek';
+import { toast } from "@/components/ui/use-toast";
+import { EventType } from "@/types/trek";
 
 interface TrekEvent {
   trek_id: number;
@@ -15,11 +15,11 @@ interface TrekEvent {
   participant_count: number | null;
   location: Record<string, unknown> | null;
   route_data: Record<string, unknown> | null;
-  transport_mode: 'cars' | 'mini_van' | 'bus' | null;
+  transport_mode: "cars" | "mini_van" | "bus" | null;
   vendor_contacts: Record<string, unknown> | null;
   pickup_time_window: string | null;
   cancellation_policy: string | null;
-  event_creator_type: 'internal' | 'external' | null;
+  event_creator_type: "internal" | "external" | null;
   partner_id: number | null;
   image_url?: string | null;
   event_type: EventType;
@@ -38,19 +38,20 @@ export function useTreksList() {
       setLoading(true);
       const start = (page - 1) * pageSize;
       const end = start + pageSize - 1;
-      
+
       const { data, error, count } = await supabase
-        .from('trek_events')
-        .select('*', { count: 'exact' })
-        .order('start_datetime', { ascending: true })
+        .from("trek_events")
+        .select("*", { count: "exact" })
+        .order("start_datetime", { ascending: true })
         .range(start, end);
-      
+
       if (error) throw new Error(error.message);
-      
+
       setTreks(data as TrekEvent[]);
       setHasMore(count !== null && start + data.length < count);
     } catch (err: unknown) {
-      const error = err instanceof Error ? err : new Error("Failed to load trek events");
+      const error =
+        err instanceof Error ? err : new Error("Failed to load trek events");
       setError(error);
       toast({
         title: "Error fetching treks",
@@ -64,13 +65,13 @@ export function useTreksList() {
 
   function nextPage() {
     if (hasMore) {
-      setPage(p => p + 1);
+      setPage((p) => p + 1);
     }
   }
 
   function prevPage() {
     if (page > 1) {
-      setPage(p => p - 1);
+      setPage((p) => p - 1);
     }
   }
 
@@ -82,6 +83,6 @@ export function useTreksList() {
     hasMore,
     fetchTreks,
     nextPage,
-    prevPage
+    prevPage,
   };
 }

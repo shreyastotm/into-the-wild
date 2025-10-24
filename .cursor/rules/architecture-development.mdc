@@ -1,0 +1,31 @@
+---
+description: "Core architecture and development workflow enforcement"
+globs: ["**/*.{ts,tsx,js,jsx,sql,md}", "docker-compose.yml", "Dockerfile*"]
+alwaysApply: true
+---
+
+# 🏗️ ARCHITECTURE & DEVELOPMENT RULES
+
+## 1.1 Docker-First Development
+✅ **REQUIRED:** All database operations must go through Docker containers
+❌ **FORBIDDEN:** Direct Supabase cloud database modifications during development
+✅ **REQUIRED:** Use `docker-compose up -d postgres backend` for local development
+✅ **REQUIRED:** Apply migrations via Docker exec commands, not Supabase CLI
+
+## 1.2 Frontend-Backend Separation
+✅ **REQUIRED:** Frontend code must be in `src/` directory only
+❌ **FORBIDDEN:** Backend logic in React components
+✅ **REQUIRED:** API calls through Supabase client or fetch to backend endpoints
+✅ **REQUIRED:** Environment variables prefixed with `VITE_` for frontend
+
+## 1.3 Indian Market Context
+✅ **REQUIRED:** Date formats must use DD/MM/YYYY format
+✅ **REQUIRED:** Currency display must show ₹ symbol and Indian number formatting
+✅ **REQUIRED:** GST calculations must be included where applicable (18% default)
+✅ **REQUIRED:** Mobile-first responsive design (320px minimum width)
+
+## 1.4 TypeScript Strict Mode
+✅ **REQUIRED:** All TypeScript files must use strict type checking
+✅ **REQUIRED:** No `any` types allowed - use proper interfaces
+✅ **REQUIRED:** Generic types for reusable components
+✅ **REQUIRED:** Proper error type definitions and handling

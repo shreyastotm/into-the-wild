@@ -1,0 +1,31 @@
+---
+description: "Trek Management and Communication Standards"
+globs: ["src/**/*.{ts,tsx}", "supabase/**/*.{sql,ts}", "backend/**/*.{ts,js}"]
+alwaysApply: true
+---
+
+# 🏔️ TREK LIFECYCLE & COMMUNICATION RULES
+
+## 3.1 Trek Data Standards
+✅ **REQUIRED:** All trek events must have: name, description, difficulty, dates, location, cost, capacity
+✅ **REQUIRED:** Difficulty levels: Easy (🌲), Moderate (⛰️), Hard (⚡), Expert (⚡)
+✅ **REQUIRED:** Status management: Draft → Upcoming → Open for Registration → Active → Completed → Cancelled
+✅ **REQUIRED:** Distance tracking in kilometers with proper validation
+
+## 3.2 Registration Workflow Standards
+✅ **REQUIRED:** Multi-step registration with indemnity acceptance
+✅ **REQUIRED:** Payment proof upload and admin verification
+✅ **REQUIRED:** Pickup location selection and mapping
+✅ **REQUIRED:** WhatsApp group integration for each trek
+
+## 3.3 Communication Automation
+✅ **REQUIRED:** T-7, T-3, T-1 day automated reminders
+✅ **REQUIRED:** Weather alert integration and notifications
+✅ **REQUIRED:** Post-trek feedback requests (T+1, T+3, T+7)
+✅ **REQUIRED:** Registration confirmation and payment verification notifications
+
+## 3.4 Media Management Standards
+✅ **REQUIRED:** Support for 5 images + 1 video per trek
+✅ **REQUIRED:** Drag & drop reordering in admin interface
+✅ **REQUIRED:** Image tagging system with color-coded categories
+✅ **REQUIRED:** Public gallery with advanced filtering

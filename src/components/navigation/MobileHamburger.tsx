@@ -1,37 +1,60 @@
-import React, { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { User, MapPin, Home, Calendar, UserCircle, LogOut, LogIn, MessageSquare, Menu, HelpCircle } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { ThemeToggleCompact } from '@/components/ThemeToggle';
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import { useAuth } from "@/components/auth/AuthProvider";
+import {
+  User,
+  MapPin,
+  Home,
+  Calendar,
+  UserCircle,
+  LogOut,
+  LogIn,
+  MessageSquare,
+  Menu,
+  HelpCircle,
+} from "lucide-react";
+import { Link } from "react-router-dom";
+import { ThemeToggleCompact } from "@/components/ThemeToggle";
 
 export function MobileHamburger() {
   const { user, userProfile, loading, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const navLinks = [
-    { to: '/', label: 'Home' },
-    { to: '/events', label: 'Events' },
-    { to: '/forum', label: 'Forum' },
-    { to: '/gallery', label: 'Past Adventures' },
-    { to: '/faq', label: 'FAQ' },
+    { to: "/", label: "Home" },
+    { to: "/events", label: "Events" },
+    { to: "/forum", label: "Forum" },
+    { to: "/gallery", label: "Past Adventures" },
+    { to: "/faq", label: "FAQ" },
   ];
 
-  const authLinks = user ? [
-    { to: '/dashboard', label: 'Dashboard' },
-    { to: '/profile', label: 'Profile' },
-  ] : [];
+  const authLinks = user
+    ? [
+        { to: "/dashboard", label: "Dashboard" },
+        { to: "/profile", label: "Profile" },
+      ]
+    : [];
 
-  if (userProfile?.user_type === 'admin') {
-    authLinks.push({ to: '/admin', label: 'Admin' });
+  if (userProfile?.user_type === "admin") {
+    authLinks.push({ to: "/admin", label: "Admin" });
   }
 
   return (
     <div className="md:hidden">
       <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
         <SheetTrigger asChild>
-          <Button variant="ghost" size="sm" className="text-gray-900 dark:text-primary-foreground hover:text-gray-900 dark:hover:text-primary-foreground fixed top-4 right-4 z-50 bg-white/95 dark:bg-primary/95 backdrop-blur border-2 border-gray-300 dark:border-primary rounded-full w-12 h-12 p-0 shadow-lg">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="text-gray-900 dark:text-primary-foreground hover:text-gray-900 dark:hover:text-primary-foreground fixed top-4 right-4 z-50 bg-white/95 dark:bg-primary/95 backdrop-blur border-2 border-gray-300 dark:border-primary rounded-full w-12 h-12 p-0 shadow-lg"
+          >
             <Menu className="h-6 w-6" />
             <span className="sr-only">Open menu</span>
           </Button>
@@ -54,12 +77,18 @@ export function MobileHamburger() {
           <nav className="mt-6 space-y-4">
             {/* Main Navigation Links */}
             <div className="space-y-2">
-              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Navigation</h3>
+              <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                Navigation
+              </h3>
               {navLinks.map((link) => {
-                const icon = link.to === '/' ? Home :
-                             link.to === '/forum' ? MessageSquare :
-                             link.to === '/faq' ? HelpCircle :
-                             Calendar;
+                const icon =
+                  link.to === "/"
+                    ? Home
+                    : link.to === "/forum"
+                      ? MessageSquare
+                      : link.to === "/faq"
+                        ? HelpCircle
+                        : Calendar;
                 const IconComponent = icon;
                 return (
                   <Link
@@ -78,11 +107,13 @@ export function MobileHamburger() {
             {/* User Section */}
             {!loading && (
               <div className="space-y-2 border-t pt-4">
-                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">Account</h3>
+                <h3 className="text-sm font-semibold text-gray-500 uppercase tracking-wider">
+                  Account
+                </h3>
                 {user ? (
                   <>
                     {authLinks.map((link) => {
-                      const icon = link.to === '/dashboard' ? UserCircle : User;
+                      const icon = link.to === "/dashboard" ? UserCircle : User;
                       const IconComponent = icon;
                       return (
                         <Link

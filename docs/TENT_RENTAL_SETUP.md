@@ -1,12 +1,15 @@
 # 🏕️ Tent Rental Feature Setup Guide
 
 ## Overview
+
 The tent rental feature allows users to request tent rentals for camping events. This feature requires specific database tables and setup steps to function properly.
 
 ## Current Status
+
 ❌ **Feature Not Set Up** - The tent rental tables have not been applied to the database yet.
 
 ## Prerequisites
+
 - Supabase CLI installed and configured
 - Admin access to the database
 - Camping events configured with `event_type = 'camping'`
@@ -34,16 +37,17 @@ After running migrations, verify these tables exist:
 
 ```sql
 -- Check if tent rental tables exist
-SELECT table_name 
-FROM information_schema.tables 
-WHERE table_schema = 'public' 
+SELECT table_name
+FROM information_schema.tables
+WHERE table_schema = 'public'
 AND table_name IN ('tent_types', 'tent_inventory', 'tent_requests');
 ```
 
 Expected output:
+
 ```
 tent_types
-tent_inventory  
+tent_inventory
 tent_requests
 ```
 
@@ -72,7 +76,7 @@ INSERT INTO tent_inventory (event_id, tent_type_id, total_available) VALUES
 (EVENT_ID, 2, 8);  -- 8 x 3-Person Tents
 
 -- Check inventory
-SELECT 
+SELECT
   ti.*,
   tt.name as tent_name,
   tt.capacity,
@@ -94,6 +98,7 @@ WHERE ti.event_id = EVENT_ID;
 ### Tables Created
 
 #### `tent_types`
+
 - `id` (SERIAL PRIMARY KEY)
 - `name` (VARCHAR(100) UNIQUE)
 - `capacity` (INTEGER)
@@ -102,6 +107,7 @@ WHERE ti.event_id = EVENT_ID;
 - `is_active` (BOOLEAN)
 
 #### `tent_inventory`
+
 - `id` (SERIAL PRIMARY KEY)
 - `event_id` (INTEGER → trek_events.trek_id)
 - `tent_type_id` (INTEGER → tent_types.id)
@@ -109,6 +115,7 @@ WHERE ti.event_id = EVENT_ID;
 - `reserved_count` (INTEGER)
 
 #### `tent_requests`
+
 - `id` (SERIAL PRIMARY KEY)
 - `event_id` (INTEGER → trek_events.trek_id)
 - `user_id` (UUID → auth.users.id)
@@ -131,8 +138,9 @@ The following RLS policies are automatically created:
 ## Admin Management
 
 ### View All Tent Requests
+
 ```sql
-SELECT 
+SELECT
   tr.*,
   tt.name as tent_name,
   u.name as user_name,
@@ -145,28 +153,30 @@ ORDER BY tr.created_at DESC;
 ```
 
 ### Approve/Reject Requests
+
 ```sql
 -- Approve a request
-UPDATE tent_requests 
-SET status = 'approved', 
+UPDATE tent_requests
+SET status = 'approved',
     admin_notes = 'Approved for camping event'
 WHERE id = REQUEST_ID;
 
 -- Reject a request
-UPDATE tent_requests 
-SET status = 'rejected', 
+UPDATE tent_requests
+SET status = 'rejected',
     admin_notes = 'No tents available'
 WHERE id = REQUEST_ID;
 ```
 
 ### Update Reserved Counts
+
 ```sql
 -- Manually update reserved count (usually handled automatically)
-UPDATE tent_inventory 
+UPDATE tent_inventory
 SET reserved_count = (
   SELECT COALESCE(SUM(quantity_requested), 0)
-  FROM tent_requests 
-  WHERE event_id = tent_inventory.event_id 
+  FROM tent_requests
+  WHERE event_id = tent_inventory.event_id
     AND tent_type_id = tent_inventory.tent_type_id
     AND status IN ('pending', 'approved')
 )
@@ -176,16 +186,21 @@ WHERE event_id = EVENT_ID;
 ## Troubleshooting
 
 ### Issue: "Tent rental feature is not yet set up"
+
 **Solution**: Run `supabase db push` to apply migrations
 
 ### Issue: "No tent rentals are available for this camping event"
+
 **Solution**: Add tent inventory for the event using the SQL above
 
 ### Issue: "Permission denied" errors
+
 **Solution**: Check RLS policies and ensure user is authenticated
 
 ### Issue: Tables don't exist after migration
-**Solution**: 
+
+**Solution**:
+
 1. Check migration status: `supabase migration list`
 2. Check for errors: `supabase db push --debug`
 3. Manually run migration: `supabase db reset` then `supabase db push`
@@ -193,6 +208,7 @@ WHERE event_id = EVENT_ID;
 ## Feature Usage
 
 ### For Users
+
 1. Register for a camping event
 2. Go to the "Tent Rental" tab
 3. Select tent type, quantity, and nights
@@ -201,6 +217,7 @@ WHERE event_id = EVENT_ID;
 6. Wait for approval/rejection
 
 ### For Admins
+
 1. View tent requests in admin panel
 2. Approve/reject requests
 3. Add tent inventory for events
@@ -209,16 +226,19 @@ WHERE event_id = EVENT_ID;
 ## Cost Calculation
 
 Tent rental costs are calculated as:
+
 ```
 Total Cost = Quantity × Nights × Price Per Night
 ```
 
 Example:
+
 - 2 tents × 3 nights × ₹500/night = ₹3,000
 
 ## Integration with Events
 
 The tent rental feature only appears for events with:
+
 - `event_type = 'camping'`
 - User is registered for the event
 - Tent inventory exists for the event

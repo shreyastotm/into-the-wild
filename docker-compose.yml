@@ -1,4 +1,3 @@
-version: '3.8'
 services:
   postgres:
     image: postgres:15
@@ -13,20 +12,19 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  # OpenTripPlanner for carpooling route planning
-  opentripplanner:
-    image: opentripplanner/opentripplanner:2.5.0
-    container_name: into-the-wild-otp
-    restart: always
-    ports:
-      - "8080:8080"
-    volumes:
-      - ./otp/graphs/karnataka:/var/opentripplanner
-      - ./otp/cache:/var/otp/cache
-    environment:
-      - JAVA_TOOL_OPTIONS=-Xmx12G  # Try 12GB
-      - OTP_DIR=/var/opentripplanner
-    command: --build --serve ${OTP_DIR}
+  # OpenTripPlanner for carpooling route planning (disabled - needs proper OSM data setup)
+  # opentripplanner:
+  #   image: opentripplanner/opentripplanner:2.5.0
+  #   container_name: into-the-wild-otp
+  #   restart: always
+  #   ports:
+  #     - "8080:8080"
+  #   volumes:
+  #     - ./otp/standalone:/var/opentripplanner
+  #     - ./otp/cache:/var/otp/cache
+  #   environment:
+  #     - JAVA_TOOL_OPTIONS=-Xmx8G
+  #   command: --build --serve /var/opentripplanner
 
   # Simple backend for OTP API integration
   backend:
@@ -39,9 +37,7 @@ services:
       - "3003:3001"
     environment:
       - PORT=3001
-      - OTP_URL=http://opentripplanner:8080
-    depends_on:
-      - opentripplanner
+      - OTP_URL=http://localhost:8080  # Fallback URL (OTP not running)
 
 volumes:
   pgdata: {}

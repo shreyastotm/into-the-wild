@@ -1,5 +1,4 @@
-import React from 'react';
-import { cn } from '@/lib/utils';
+import { cn } from "@/lib/utils";
 
 interface MobilePageProps {
   children: React.ReactNode;
@@ -23,10 +22,10 @@ export const MobilePage: React.FC<MobilePageProps> = ({
   return (
     <div
       className={cn(
-        'min-h-screen w-full',
-        !noPadding && 'mobile-container',
-        useSafeArea && 'mobile-safe-top mobile-safe-bottom',
-        className
+        "min-h-screen w-full",
+        !noPadding && "mobile-container",
+        useSafeArea && "mobile-safe-top mobile-safe-bottom",
+        className,
       )}
     >
       {children}
@@ -52,7 +51,7 @@ export const MobileSection: React.FC<MobileSectionProps> = ({
   subtitle,
 }) => {
   return (
-    <section className={cn('mobile-section', className)}>
+    <section className={cn("mobile-section", className)}>
       {(title || subtitle) && (
         <div className="mb-4 sm:mb-6">
           {title && <h2 className="mobile-heading-2">{title}</h2>}
@@ -91,13 +90,14 @@ export const MobileCard: React.FC<MobileCardProps> = ({
   return (
     <div
       className={cn(
-        compact ? 'mobile-card-compact' : 'mobile-card',
-        isInteractive && 'cursor-pointer active:scale-[0.98] transition-transform',
-        hoverable && 'hover:shadow-xl hover:-translate-y-0.5',
-        className
+        compact ? "mobile-card-compact" : "mobile-card",
+        isInteractive &&
+          "cursor-pointer active:scale-[0.98] transition-transform",
+        hoverable && "hover:shadow-xl hover:-translate-y-0.5",
+        className,
       )}
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
+      role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
       {children}
@@ -118,7 +118,7 @@ export const MobileList: React.FC<MobileListProps> = ({
   children,
   className,
 }) => {
-  return <div className={cn('mobile-list', className)}>{children}</div>;
+  return <div className={cn("mobile-list", className)}>{children}</div>;
 };
 
 interface MobileListItemProps {
@@ -139,12 +139,12 @@ export const MobileListItem: React.FC<MobileListItemProps> = ({
   return (
     <div
       className={cn(
-        'mobile-list-item',
-        onClick && 'cursor-pointer active:scale-[0.98]',
-        className
+        "mobile-list-item",
+        onClick && "cursor-pointer active:scale-[0.98]",
+        className,
       )}
       onClick={onClick}
-      role={onClick ? 'button' : undefined}
+      role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
       {children}
@@ -169,15 +169,8 @@ export const MobileGrid: React.FC<MobileGridProps> = ({
   cols = 1,
 }) => {
   return (
-    <div
-      className={cn(
-        'mobile-grid',
-        cols === 2 && 'grid-cols-2',
-        className
-      )}
-    >
+    <div className={cn("mobile-grid", cols === 2 && "grid-cols-2", className)}>
       {children}
     </div>
   );
 };
-

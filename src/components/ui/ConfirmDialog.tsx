@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -9,16 +8,16 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from '@/components/ui/alert-dialog';
-import { Button } from '@/components/ui/button';
-import { LucideIcon } from 'lucide-react';
+} from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { LucideIcon } from "lucide-react";
 
 export interface ConfirmDialogProps {
   title: string;
   description: string;
   confirmText?: string;
   cancelText?: string;
-  variant?: 'default' | 'destructive' | 'warning';
+  variant?: "default" | "destructive" | "warning";
   icon?: LucideIcon;
   onConfirm: () => void | Promise<void>;
   onCancel?: () => void;
@@ -33,9 +32,9 @@ export interface ConfirmDialogProps {
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   title,
   description,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
-  variant = 'default',
+  confirmText = "Confirm",
+  cancelText = "Cancel",
+  variant = "default",
   icon: Icon,
   onConfirm,
   onCancel,
@@ -44,13 +43,13 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   trigger,
   open,
   onOpenChange,
-  className = ''
+  className = "",
 }) => {
   const handleConfirm = async () => {
     try {
       await onConfirm();
     } catch (error) {
-      console.error('Confirm action failed:', error);
+      console.error("Confirm action failed:", error);
     }
   };
 
@@ -60,23 +59,23 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 
   const getVariantStyles = () => {
     switch (variant) {
-      case 'destructive':
+      case "destructive":
         return {
-          actionVariant: 'destructive' as const,
-          iconColor: 'text-destructive',
-          borderColor: 'border-destructive/20'
+          actionVariant: "destructive" as const,
+          iconColor: "text-destructive",
+          borderColor: "border-destructive/20",
         };
-      case 'warning':
+      case "warning":
         return {
-          actionVariant: 'default' as const,
-          iconColor: 'text-yellow-600',
-          borderColor: 'border-yellow-200'
+          actionVariant: "default" as const,
+          iconColor: "text-yellow-600",
+          borderColor: "border-yellow-200",
         };
       default:
         return {
-          actionVariant: 'default' as const,
-          iconColor: 'text-primary',
-          borderColor: 'border-border'
+          actionVariant: "default" as const,
+          iconColor: "text-primary",
+          borderColor: "border-border",
         };
     }
   };
@@ -88,7 +87,9 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
       <AlertDialogHeader>
         <div className="flex items-center space-x-3">
           {Icon && (
-            <div className={`p-2 rounded-full bg-muted ${styles.borderColor} border`}>
+            <div
+              className={`p-2 rounded-full bg-muted ${styles.borderColor} border`}
+            >
               <Icon className={`h-5 w-5 ${styles.iconColor}`} />
             </div>
           )}
@@ -100,18 +101,19 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           {description}
         </AlertDialogDescription>
       </AlertDialogHeader>
-      
+
       <AlertDialogFooter>
-        <AlertDialogCancel 
-          onClick={handleCancel}
-          disabled={loading}
-        >
+        <AlertDialogCancel onClick={handleCancel} disabled={loading}>
           {cancelText}
         </AlertDialogCancel>
         <AlertDialogAction
           onClick={handleConfirm}
           disabled={disabled || loading}
-          className={variant === 'destructive' ? 'bg-destructive hover:bg-destructive/90' : ''}
+          className={
+            variant === "destructive"
+              ? "bg-destructive hover:bg-destructive/90"
+              : ""
+          }
         >
           {loading ? (
             <>
@@ -129,9 +131,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   if (trigger) {
     return (
       <AlertDialog open={open} onOpenChange={onOpenChange}>
-        <AlertDialogTrigger asChild>
-          {trigger}
-        </AlertDialogTrigger>
+        <AlertDialogTrigger asChild>{trigger}</AlertDialogTrigger>
         {dialogContent}
       </AlertDialog>
     );
@@ -145,17 +145,19 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
 };
 
 // Specialized confirmation dialogs for common use cases
-export const DeleteConfirmDialog: React.FC<Omit<ConfirmDialogProps, 'variant' | 'confirmText' | 'icon'> & {
-  itemName?: string;
-  itemType?: string;
-}> = ({
+export const DeleteConfirmDialog: React.FC<
+  Omit<ConfirmDialogProps, "variant" | "confirmText" | "icon"> & {
+    itemName?: string;
+    itemType?: string;
+  }
+> = ({
   itemName,
-  itemType = 'item',
-  title = 'Delete Confirmation',
+  itemType = "item",
+  title = "Delete Confirmation",
   description,
   ...props
 }) => {
-  const defaultDescription = itemName 
+  const defaultDescription = itemName
     ? `Are you sure you want to delete "${itemName}"? This action cannot be undone.`
     : `Are you sure you want to delete this ${itemType}? This action cannot be undone.`;
 
@@ -166,19 +168,16 @@ export const DeleteConfirmDialog: React.FC<Omit<ConfirmDialogProps, 'variant' | 
       description={description || defaultDescription}
       variant="destructive"
       confirmText="Delete"
-      icon={require('lucide-react').Trash2}
+      icon={require("lucide-react").Trash2}
     />
   );
 };
 
-export const WarningConfirmDialog: React.FC<Omit<ConfirmDialogProps, 'variant' | 'icon'> & {
-  warningText?: string;
-}> = ({
-  warningText,
-  title = 'Warning',
-  description,
-  ...props
-}) => {
+export const WarningConfirmDialog: React.FC<
+  Omit<ConfirmDialogProps, "variant" | "icon"> & {
+    warningText?: string;
+  }
+> = ({ warningText, title = "Warning", description, ...props }) => {
   return (
     <ConfirmDialog
       {...props}
@@ -186,21 +185,20 @@ export const WarningConfirmDialog: React.FC<Omit<ConfirmDialogProps, 'variant' |
       description={description}
       variant="warning"
       confirmText="Proceed"
-      icon={require('lucide-react').AlertTriangle}
+      icon={require("lucide-react").AlertTriangle}
     />
   );
 };
 
-export const InfoConfirmDialog: React.FC<Omit<ConfirmDialogProps, 'variant' | 'icon'>> = ({
-  title = 'Confirmation',
-  ...props
-}) => {
+export const InfoConfirmDialog: React.FC<
+  Omit<ConfirmDialogProps, "variant" | "icon">
+> = ({ title = "Confirmation", ...props }) => {
   return (
     <ConfirmDialog
       {...props}
       title={title}
       variant="default"
-      icon={require('lucide-react').Info}
+      icon={require("lucide-react").Info}
     />
   );
 };

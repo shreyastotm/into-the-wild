@@ -1,4 +1,4 @@
-import React from "react";
+import { formatIndianDate } from '@/utils/indianStandards';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -74,7 +74,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   // Format date
   const startDate = new Date(trek.start_datetime);
-  const formattedDate = format(startDate, "MMM dd, yyyy");
+  const formattedDate = formatIndianDate(startDate);
 
   // Get difficulty icon - matches existing TrekCard.tsx pattern
   const getDifficultyIcon = (difficulty: string) => {

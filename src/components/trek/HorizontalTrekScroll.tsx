@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { StandardizedTrekCard } from './StandardizedTrekCard';
+import React, { useRef, useEffect, useState } from "react";
+import { GalleryCard } from "./GalleryCard";
 
 interface HorizontalTrekScrollProps {
   treks: Array<{
@@ -20,14 +20,14 @@ interface HorizontalTrekScrollProps {
   }>;
   onTrekClick?: (trekId: number) => void;
   showProgress?: boolean;
-  type?: 'event' | 'gallery';
+  type?: "event" | "gallery";
 }
 
 export const HorizontalTrekScroll: React.FC<HorizontalTrekScrollProps> = ({
   treks,
   onTrekClick,
   showProgress = true,
-  type = 'event'
+  type = "event",
 }) => {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -43,26 +43,17 @@ export const HorizontalTrekScroll: React.FC<HorizontalTrekScrollProps> = ({
       setActiveIndex(index);
     };
 
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
   }, []);
 
   return (
     <div className="relative">
       {/* Horizontal scroll container */}
-      <div
-        ref={scrollContainerRef}
-        className="mobile-horizontal-scroll"
-      >
+      <div ref={scrollContainerRef} className="mobile-horizontal-scroll">
         <div className="mobile-cards-horizontal">
           {treks.map((trek) => (
-            <StandardizedTrekCard
-              key={trek.trek_id}
-              trek={trek}
-              onClick={onTrekClick}
-              showProgress={showProgress}
-              type={type}
-            />
+            <GalleryCard key={trek.trek_id} trek={trek} onClick={onTrekClick} />
           ))}
         </div>
       </div>
@@ -74,7 +65,7 @@ export const HorizontalTrekScroll: React.FC<HorizontalTrekScrollProps> = ({
             <div
               key={index}
               className={`mobile-scroll-indicator ${
-                index === activeIndex ? 'mobile-scroll-indicator-active' : ''
+                index === activeIndex ? "mobile-scroll-indicator-active" : ""
               }`}
             />
           ))}

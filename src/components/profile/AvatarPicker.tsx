@@ -1,19 +1,26 @@
-import React, { useState, useEffect } from 'react';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Input } from '@/components/ui/input';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
-import { Search, Check, Loader2, Sparkles } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { Badge } from "@/components/ui/badge";
+import { Search, Check, Loader2, Sparkles } from "lucide-react";
 
 interface AvatarOption {
   key: string;
   name: string;
-  category: 'animal' | 'bird' | 'insect';
+  category: "animal" | "bird" | "insect";
   image_url: string;
   sort_order: number;
 }
@@ -27,18 +34,22 @@ interface AvatarPickerProps {
 export const AvatarPicker: React.FC<AvatarPickerProps> = ({
   trigger,
   open,
-  onOpenChange
+  onOpenChange,
 }) => {
   const { user, userProfile, fetchUserProfile } = useAuth();
   const { toast } = useToast();
   const [avatars, setAvatars] = useState<AvatarOption[]>([]);
   const [filteredAvatars, setFilteredAvatars] = useState<AvatarOption[]>([]);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'animal' | 'bird' | 'insect'>('all');
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<
+    "all" | "animal" | "bird" | "insect"
+  >("all");
   const [saving, setSaving] = useState<string | null>(null);
   const [internalOpen, setInternalOpen] = useState(false);
-  const [imageLoadStatus, setImageLoadStatus] = useState<Record<string, boolean>>({});
+  const [imageLoadStatus, setImageLoadStatus] = useState<
+    Record<string, boolean>
+  >({});
 
   useEffect(() => {
     fetchAvatars();
@@ -61,42 +72,42 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
   const fetchAvatars = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase.rpc('get_avatar_catalog');
+      const { data, error } = await supabase.rpc("get_avatar_catalog");
 
       if (error) {
-        console.error('Error fetching avatars:', error);
+        console.error("Error fetching avatars:", error);
         // For now, use fallback avatar data if database isn't available
         const fallbackAvatars: AvatarOption[] = [
           {
-            key: 'bengal_tiger',
-            name: 'Bengal Tiger',
-            category: 'animal',
-            image_url: '/avatars/animals/bengal_tiger.svg',
-            sort_order: 1
+            key: "bengal_tiger",
+            name: "Bengal Tiger",
+            category: "animal",
+            image_url: "/avatars/animals/bengal_tiger.svg",
+            sort_order: 1,
           },
           {
-            key: 'indian_elephant',
-            name: 'Indian Elephant',
-            category: 'animal',
-            image_url: '/avatars/animals/indian_elephant.svg',
-            sort_order: 2
+            key: "indian_elephant",
+            name: "Indian Elephant",
+            category: "animal",
+            image_url: "/avatars/animals/indian_elephant.svg",
+            sort_order: 2,
           },
           {
-            key: 'indian_peacock',
-            name: 'Indian Peacock',
-            category: 'bird',
-            image_url: '/avatars/birds/indian_peacock.svg',
-            sort_order: 1
+            key: "indian_peacock",
+            name: "Indian Peacock",
+            category: "bird",
+            image_url: "/avatars/birds/indian_peacock.svg",
+            sort_order: 1,
           },
           {
-            key: 'atlas_moth',
-            name: 'Atlas Moth',
-            category: 'insect',
-            image_url: '/avatars/insects/atlas_moth.svg',
-            sort_order: 1
-          }
+            key: "atlas_moth",
+            name: "Atlas Moth",
+            category: "insect",
+            image_url: "/avatars/insects/atlas_moth.svg",
+            sort_order: 1,
+          },
         ];
-        
+
         // Check which fallback images actually exist
         const validAvatars: AvatarOption[] = [];
         for (const avatar of fallbackAvatars) {
@@ -119,39 +130,39 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
       }
       setAvatars(validAvatars);
     } catch (error) {
-      console.error('Error fetching avatars:', error);
+      console.error("Error fetching avatars:", error);
       // Use only working fallback avatars
       const fallbackAvatars: AvatarOption[] = [
         {
-          key: 'bengal_tiger',
-          name: 'Bengal Tiger',
-          category: 'animal',
-          image_url: '/avatars/animals/bengal_tiger.svg',
-          sort_order: 1
+          key: "bengal_tiger",
+          name: "Bengal Tiger",
+          category: "animal",
+          image_url: "/avatars/animals/bengal_tiger.svg",
+          sort_order: 1,
         },
         {
-          key: 'indian_elephant',
-          name: 'Indian Elephant',
-          category: 'animal',
-          image_url: '/avatars/animals/indian_elephant.svg',
-          sort_order: 2
+          key: "indian_elephant",
+          name: "Indian Elephant",
+          category: "animal",
+          image_url: "/avatars/animals/indian_elephant.svg",
+          sort_order: 2,
         },
         {
-          key: 'indian_peacock',
-          name: 'Indian Peacock',
-          category: 'bird',
-          image_url: '/avatars/birds/indian_peacock.svg',
-          sort_order: 1
+          key: "indian_peacock",
+          name: "Indian Peacock",
+          category: "bird",
+          image_url: "/avatars/birds/indian_peacock.svg",
+          sort_order: 1,
         },
         {
-          key: 'atlas_moth',
-          name: 'Atlas Moth',
-          category: 'insect',
-          image_url: '/avatars/insects/atlas_moth.svg',
-          sort_order: 1
-        }
+          key: "atlas_moth",
+          name: "Atlas Moth",
+          category: "insect",
+          image_url: "/avatars/insects/atlas_moth.svg",
+          sort_order: 1,
+        },
       ];
-      
+
       // Check which fallback images actually exist
       const validAvatars: AvatarOption[] = [];
       for (const avatar of fallbackAvatars) {
@@ -167,22 +178,25 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
   };
 
   const filterAvatars = () => {
-    let filtered = avatars.filter(avatar => {
+    let filtered = avatars.filter((avatar) => {
       // Only show avatars with loaded images or not yet attempted
       return imageLoadStatus[avatar.key] !== false;
     });
 
     // Filter by category
-    if (selectedCategory !== 'all') {
-      filtered = filtered.filter(avatar => avatar.category === selectedCategory);
+    if (selectedCategory !== "all") {
+      filtered = filtered.filter(
+        (avatar) => avatar.category === selectedCategory,
+      );
     }
 
     // Filter by search query
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
-      filtered = filtered.filter(avatar =>
-        avatar.name.toLowerCase().includes(query) ||
-        avatar.key.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (avatar) =>
+          avatar.name.toLowerCase().includes(query) ||
+          avatar.key.toLowerCase().includes(query),
       );
     }
 
@@ -206,12 +220,12 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
 
     try {
       setSaving(avatarKey as string);
-      const { data, error } = await supabase.rpc('set_user_avatar', {
-        p_avatar_key: avatarKey
+      const { data, error } = await supabase.rpc("set_user_avatar", {
+        p_avatar_key: avatarKey,
       });
 
       if (error) {
-        console.error('Error setting avatar:', error);
+        console.error("Error setting avatar:", error);
         toast({
           title: "Error",
           description: "Could not update avatar. Please try again.",
@@ -229,7 +243,7 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
         variant: "default",
       });
     } catch (error) {
-      console.error('Error setting avatar:', error);
+      console.error("Error setting avatar:", error);
       toast({
         title: "Error",
         description: "Could not update avatar. Please try again.",
@@ -242,19 +256,27 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
-      case 'animal': return '🦁';
-      case 'bird': return '🐦';
-      case 'insect': return '🦋';
-      default: return '❓';
+      case "animal":
+        return "🦁";
+      case "bird":
+        return "🐦";
+      case "insect":
+        return "🦋";
+      default:
+        return "❓";
     }
   };
 
   const getCategoryBadgeVariant = (category: string) => {
     switch (category) {
-      case 'animal': return 'default';
-      case 'bird': return 'secondary';
-      case 'insect': return 'outline';
-      default: return 'default';
+      case "animal":
+        return "default";
+      case "bird":
+        return "secondary";
+      case "insect":
+        return "outline";
+      default:
+        return "default";
     }
   };
 
@@ -273,11 +295,7 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      {trigger && (
-        <DialogTrigger asChild>
-          {trigger}
-        </DialogTrigger>
-      )}
+      {trigger && <DialogTrigger asChild>{trigger}</DialogTrigger>}
       <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
         <DialogHeader className="pb-2">
           <DialogTitle className="flex items-center gap-2 text-lg">
@@ -287,12 +305,24 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
         </DialogHeader>
 
         <div className="mt-2">
-          <Tabs value={selectedCategory} onValueChange={(value) => setSelectedCategory(value as any)} className="w-full">
+          <Tabs
+            value={selectedCategory}
+            onValueChange={(value) => setSelectedCategory(value as any)}
+            className="w-full"
+          >
             <TabsList className="grid w-full grid-cols-4 h-8">
-              <TabsTrigger value="all" className="text-xs">All</TabsTrigger>
-              <TabsTrigger value="animal" className="text-xs">Animals</TabsTrigger>
-              <TabsTrigger value="bird" className="text-xs">Birds</TabsTrigger>
-              <TabsTrigger value="insect" className="text-xs">Insects</TabsTrigger>
+              <TabsTrigger value="all" className="text-xs">
+                All
+              </TabsTrigger>
+              <TabsTrigger value="animal" className="text-xs">
+                Animals
+              </TabsTrigger>
+              <TabsTrigger value="bird" className="text-xs">
+                Birds
+              </TabsTrigger>
+              <TabsTrigger value="insect" className="text-xs">
+                Insects
+              </TabsTrigger>
             </TabsList>
 
             <TabsContent value={selectedCategory} className="mt-4">
@@ -303,17 +333,26 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
               ) : (
                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                   {filteredAvatars.map((avatar) => (
-                    <div key={avatar.key} className="flex flex-col items-center space-y-1">
+                    <div
+                      key={avatar.key}
+                      className="flex flex-col items-center space-y-1"
+                    >
                       <div className="relative">
                         <Avatar className="h-16 w-16 cursor-pointer hover:ring-2 hover:ring-primary transition-all">
                           <AvatarImage
                             src={avatar.image_url}
                             alt={avatar.name}
                             onLoad={() => {
-                              setImageLoadStatus(prev => ({ ...prev, [avatar.key]: true }));
+                              setImageLoadStatus((prev) => ({
+                                ...prev,
+                                [avatar.key]: true,
+                              }));
                             }}
                             onError={() => {
-                              setImageLoadStatus(prev => ({ ...prev, [avatar.key]: false }));
+                              setImageLoadStatus((prev) => ({
+                                ...prev,
+                                [avatar.key]: false,
+                              }));
                             }}
                           />
                           <AvatarFallback className="text-lg">
@@ -336,7 +375,11 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
 
                       <Button
                         size="sm"
-                        variant={userProfile?.avatar_url === avatar.image_url ? "default" : "outline"}
+                        variant={
+                          userProfile?.avatar_url === avatar.image_url
+                            ? "default"
+                            : "outline"
+                        }
                         disabled={saving === avatar.key}
                         onClick={() => handleAvatarSelect(avatar.key)}
                         className="h-7 px-2 text-xs w-full"
@@ -344,9 +387,9 @@ export const AvatarPicker: React.FC<AvatarPickerProps> = ({
                         {saving === avatar.key ? (
                           <Loader2 className="h-2.5 w-2.5 animate-spin mr-1" />
                         ) : userProfile?.avatar_url === avatar.image_url ? (
-                          'Current'
+                          "Current"
                         ) : (
-                          'Select'
+                          "Select"
                         )}
                       </Button>
                     </div>

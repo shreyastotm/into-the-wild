@@ -1,13 +1,13 @@
 /**
  * Haptic Feedback Hook
- * 
+ *
  * Provides haptic (vibration) feedback for touch interactions
  * Falls back gracefully on browsers/devices that don't support vibration
- * 
+ *
  * @example
  * ```tsx
  * const haptic = useHaptic();
- * 
+ *
  * <Button onClick={() => {
  *   haptic.light();
  *   // ... handle click
@@ -41,7 +41,8 @@ export interface HapticFeedback {
  */
 export const useHaptic = (): HapticFeedback => {
   // Check if vibration API is available
-  const isSupported = typeof navigator !== 'undefined' && 'vibrate' in navigator;
+  const isSupported =
+    typeof navigator !== "undefined" && "vibrate" in navigator;
 
   const vibrate = (pattern: number | number[]) => {
     if (isSupported) {
@@ -49,7 +50,7 @@ export const useHaptic = (): HapticFeedback => {
         navigator.vibrate(pattern);
       } catch (error) {
         // Silently fail if vibration is not available
-        console.debug('Haptic feedback not available:', error);
+        console.debug("Haptic feedback not available:", error);
       }
     }
   };
@@ -71,16 +72,16 @@ export const useHaptic = (): HapticFeedback => {
  * Automatically applies appropriate feedback based on button type
  */
 export const useButtonHaptic = (
-  variant: 'default' | 'destructive' | 'success' = 'default'
+  variant: "default" | "destructive" | "success" = "default",
 ) => {
   const haptic = useHaptic();
 
   const handleClick = () => {
     switch (variant) {
-      case 'destructive':
+      case "destructive":
         haptic.warning();
         break;
-      case 'success':
+      case "success":
         haptic.success();
         break;
       default:
@@ -90,4 +91,3 @@ export const useButtonHaptic = (
 
   return handleClick;
 };
-

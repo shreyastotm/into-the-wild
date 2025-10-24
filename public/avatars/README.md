@@ -31,6 +31,7 @@ public/avatars/
 ## Usage in Database
 
 Avatar URLs should point to these local assets:
+
 - `/avatars/animals/bengal_tiger.svg`
 - `/avatars/birds/indian_peacock.svg`
 - `/avatars/insects/atlas_moth.svg`

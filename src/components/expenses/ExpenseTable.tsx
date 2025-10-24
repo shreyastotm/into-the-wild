@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
-import { formatCurrency } from '@/lib/utils';
-import { format } from 'date-fns';
-import { AdHocExpense, ExpenseShare, FixedExpense } from '@/hooks/useExpenses';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { 
+import React, { useState } from "react";
+import { formatCurrency } from "@/lib/utils";
+import { format } from "date-fns";
+import { AdHocExpense, ExpenseShare, FixedExpense } from "@/hooks/useExpenses";
+import { useAuth } from "@/components/auth/AuthProvider";
+import {
   Table,
   TableBody,
   TableCell,
@@ -11,10 +11,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { toast } from '@/components/ui/use-toast';
-import { supabase } from '@/integrations/supabase/client';
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ExpenseTableProps {
   fixedExpenses: FixedExpense[];
@@ -27,35 +27,40 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
   fixedExpenses,
   adHocExpenses,
   expenseShares,
-  participants
+  participants,
 }) => {
   const { user } = useAuth();
-  
+
   // Helper to get participant name from ID
   const getParticipantName = (payerId: string) => {
-    const participant = participants.find(p => p.user_id === payerId);
-    return participant ? participant.full_name : 'Unknown';
+    const participant = participants.find((p) => p.user_id === payerId);
+    return participant ? participant.full_name : "Unknown";
   };
-  
+
   // Get expense share status for the current user
   const getUserShareStatus = (expenseId: string) => {
     if (!user) return null;
-    
+
     const share = expenseShares.find(
-      share => String(share.expense_id) === String(expenseId) && String(share.user_id) === String(user.id)
+      (share) =>
+        String(share.expense_id) === String(expenseId) &&
+        String(share.user_id) === String(user.id),
     );
-    
+
     return share ? share.status : null;
   };
 
   // Action for accepting, disputing, or marking as paid
-  const handleShareAction = async (expenseId: string, action: 'Accepted' | 'Disputed' | 'Paid') => {
+  const handleShareAction = async (
+    expenseId: string,
+    action: "Accepted" | "Disputed" | "Paid",
+  ) => {
     try {
       const { error } = await supabase
-        .from('ad_hoc_expense_shares')
+        .from("ad_hoc_expense_shares")
         .update({ status: action })
-        .eq('expense_id', expenseId)
-        .eq('user_id', user?.id);
+        .eq("expense_id", expenseId)
+        .eq("user_id", user?.id);
       if (error) throw error;
       toast({
         title: `Expense ${action}`,
@@ -64,17 +69,20 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
       // Optionally trigger a refresh if available
       // refreshExpenses && refreshExpenses();
     } catch (e: unknown) {
-      const errorMessage = e instanceof Error ? e.message : 'Failed to update expense status';
+      const errorMessage =
+        e instanceof Error ? e.message : "Failed to update expense status";
       toast({
-        title: 'Error',
+        title: "Error",
         description: errorMessage,
-        variant: 'destructive',
+        variant: "destructive",
       });
     }
   };
 
   // Activity log state
-  const [expandedExpenseId, setExpandedExpenseId] = useState<string | null>(null);
+  const [expandedExpenseId, setExpandedExpenseId] = useState<string | null>(
+    null,
+  );
 
   // Activity log data - currently not implemented in the database
   // This would need to be implemented as a separate table to track expense changes
@@ -88,22 +96,35 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
       {fixedExpenses.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-4">Fixed Expenses</h3>
-          
+
           {/* Mobile Card Layout */}
           <div className="block md:hidden space-y-3">
             {fixedExpenses.map((expense) => (
-              <div key={expense.expense_id} className="border rounded-lg p-4 bg-white shadow-sm">
+              <div
+                key={expense.expense_id}
+                className="border rounded-lg p-4 bg-white shadow-sm"
+              >
                 <div className="flex justify-between items-start mb-2">
-                  <h4 className="font-medium text-sm">{expense.expense_type}</h4>
-                  <span className="font-semibold text-sm">{formatCurrency(expense.amount)}</span>
+                  <h4 className="font-medium text-sm">
+                    {expense.expense_type}
+                  </h4>
+                  <span className="font-semibold text-sm">
+                    {formatCurrency(expense.amount, "INR")}
+                  </span>
                 </div>
-                <p className="text-xs text-muted-foreground">{expense.description || 'No description'}</p>
+                <p className="text-xs text-muted-foreground">
+                  {expense.description || "No description"}
+                </p>
               </div>
             ))}
             <div className="border rounded-lg p-4 bg-gray-50 font-semibold">
               <div className="flex justify-between items-center">
                 <span className="text-sm">Total Fixed Expenses</span>
-                <span className="text-sm">{formatCurrency(fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0))}</span>
+                <span className="text-sm">
+                  {formatCurrency(
+                    fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0),
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -121,15 +142,25 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
               <TableBody>
                 {fixedExpenses.map((expense) => (
                   <TableRow key={expense.expense_id}>
-                    <TableCell className="font-medium">{expense.expense_type}</TableCell>
-                    <TableCell>{expense.description || 'No description'}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(expense.amount)}</TableCell>
+                    <TableCell className="font-medium">
+                      {expense.expense_type}
+                    </TableCell>
+                    <TableCell>
+                      {expense.description || "No description"}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      {formatCurrency(expense.amount, "INR")}
+                    </TableCell>
                   </TableRow>
                 ))}
                 <TableRow>
-                  <TableCell colSpan={2} className="font-semibold">Total Fixed Expenses</TableCell>
+                  <TableCell colSpan={2} className="font-semibold">
+                    Total Fixed Expenses
+                  </TableCell>
                   <TableCell className="text-right font-semibold">
-                    {formatCurrency(fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0))}
+                    {formatCurrency(
+                      fixedExpenses.reduce((sum, exp) => sum + exp.amount, 0),
+                    )}
                   </TableCell>
                 </TableRow>
               </TableBody>
@@ -140,49 +171,70 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
       {adHocExpenses.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-4">Ad-Hoc Expenses</h3>
-          
+
           {/* Mobile Card Layout */}
           <div className="block md:hidden space-y-3">
             {adHocExpenses.map((expense) => {
               const isPayer = user?.id === expense.payer_id;
               const userShare = expenseShares.find(
-                share => String(share.expense_id) === String(expense.expense_id) && String(share.user_id) === String(user?.id)
+                (share) =>
+                  String(share.expense_id) === String(expense.expense_id) &&
+                  String(share.user_id) === String(user?.id),
               );
               return (
-                <div key={expense.expense_id} className="border rounded-lg p-4 bg-white shadow-sm">
+                <div
+                  key={expense.expense_id}
+                  className="border rounded-lg p-4 bg-white shadow-sm"
+                >
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-medium text-sm">{expense.category}</h4>
-                    <span className="font-semibold text-sm">{formatCurrency(expense.amount)}</span>
+                    <span className="font-semibold text-sm">
+                      {formatCurrency(expense.amount, "INR")}
+                    </span>
                   </div>
-                  <p className="text-xs text-muted-foreground mb-3">{expense.description || 'No description'}</p>
-                  
+                  <p className="text-xs text-muted-foreground mb-3">
+                    {expense.description || "No description"}
+                  </p>
+
                   <div className="space-y-2 text-xs">
                     <div className="flex justify-between">
                       <span className="text-muted-foreground">Paid by:</span>
-                      <span>{isPayer ? 'You' : getParticipantName(expense.payer_id)}</span>
+                      <span>
+                        {isPayer ? "You" : getParticipantName(expense.payer_id)}
+                      </span>
                     </div>
-                    
+
                     {user && (
                       <div className="flex justify-between items-center">
-                        <span className="text-muted-foreground">Your status:</span>
+                        <span className="text-muted-foreground">
+                          Your status:
+                        </span>
                         <div>
                           {isPayer ? (
-                            <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200 text-xs">
+                            <Badge
+                              variant="outline"
+                              className="bg-green-50 text-green-700 border-green-200 text-xs"
+                            >
                               You paid
                             </Badge>
                           ) : userShare ? (
-                            <Badge 
+                            <Badge
                               variant={
-                                userShare.status === 'Pending' ? 'secondary' : 
-                                userShare.status === 'Accepted' ? 'default' : 
-                                'destructive'
+                                userShare.status === "Pending"
+                                  ? "secondary"
+                                  : userShare.status === "Accepted"
+                                    ? "default"
+                                    : "destructive"
                               }
                               className="text-xs"
                             >
                               {userShare.status}
                             </Badge>
                           ) : (
-                            <Badge variant="outline" className="bg-gray-50 text-xs">
+                            <Badge
+                              variant="outline"
+                              className="bg-gray-50 text-xs"
+                            >
                               Not shared
                             </Badge>
                           )}
@@ -190,48 +242,100 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                       </div>
                     )}
                   </div>
-                  
-                  {user && !isPayer && userShare && userShare.status === 'Pending' && (
-                    <div className="flex gap-2 mt-3">
-                      <Button size="sm" variant="default" onClick={() => handleShareAction(expense.expense_id, 'Accepted')} className="flex-1 text-xs">
-                        Accept
-                      </Button>
-                      <Button size="sm" variant="destructive" onClick={() => handleShareAction(expense.expense_id, 'Disputed')} className="flex-1 text-xs">
-                        Dispute
-                      </Button>
-                    </div>
-                  )}
-                  
-                  {user && !isPayer && userShare && userShare.status === 'Accepted' && (
-                    <div className="mt-3">
-                      <Button size="sm" variant="outline" onClick={() => handleShareAction(expense.expense_id, 'Paid')} className="w-full text-xs">
-                        Mark as Paid
-                      </Button>
-                    </div>
-                  )}
-                  
+
+                  {user &&
+                    !isPayer &&
+                    userShare &&
+                    userShare.status === "Pending" && (
+                      <div className="flex gap-2 mt-3">
+                        <Button
+                          size="sm"
+                          variant="default"
+                          onClick={() =>
+                            handleShareAction(expense.expense_id, "Accepted")
+                          }
+                          className="flex-1 text-xs"
+                        >
+                          Accept
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() =>
+                            handleShareAction(expense.expense_id, "Disputed")
+                          }
+                          className="flex-1 text-xs"
+                        >
+                          Dispute
+                        </Button>
+                      </div>
+                    )}
+
+                  {user &&
+                    !isPayer &&
+                    userShare &&
+                    userShare.status === "Accepted" && (
+                      <div className="mt-3">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            handleShareAction(expense.expense_id, "Paid")
+                          }
+                          className="w-full text-xs"
+                        >
+                          Mark as Paid
+                        </Button>
+                      </div>
+                    )}
+
                   <div className="mt-3 pt-3 border-t">
-                    <Button 
-                      size="sm" 
-                      variant="ghost" 
-                      onClick={() => setExpandedExpenseId(expandedExpenseId === expense.expense_id ? null : expense.expense_id)}
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      onClick={() =>
+                        setExpandedExpenseId(
+                          expandedExpenseId === expense.expense_id
+                            ? null
+                            : expense.expense_id,
+                        )
+                      }
                       className="w-full text-xs"
                     >
-                      {expandedExpenseId === expense.expense_id ? 'Hide Log' : 'Show Log'}
+                      {expandedExpenseId === expense.expense_id
+                        ? "Hide Log"
+                        : "Show Log"}
                     </Button>
-                    
+
                     {expandedExpenseId === expense.expense_id && (
                       <div className="mt-3 p-3 bg-gray-50 rounded">
-                        <div className="font-semibold mb-2 text-xs">Activity Log</div>
+                        <div className="font-semibold mb-2 text-xs">
+                          Activity Log
+                        </div>
                         <ul className="space-y-1 text-xs">
-                          {getExpenseActivityLog(expense.expense_id).map((log, idx) => (
-                            <li key={idx} className="flex gap-2 items-center">
-                              <span className="text-gray-500">{log.timestamp}</span>
-                              <span className="font-bold">{log.user}</span>
-                              <span>{log.action}</span>
-                              <Badge variant={log.status === 'Paid' ? 'default' : log.status === 'Accepted' ? 'secondary' : 'outline'} className="text-xs">{log.status}</Badge>
-                            </li>
-                          ))}
+                          {getExpenseActivityLog(expense.expense_id).map(
+                            (log, idx) => (
+                              <li key={idx} className="flex gap-2 items-center">
+                                <span className="text-gray-500">
+                                  {log.timestamp}
+                                </span>
+                                <span className="font-bold">{log.user}</span>
+                                <span>{log.action}</span>
+                                <Badge
+                                  variant={
+                                    log.status === "Paid"
+                                      ? "default"
+                                      : log.status === "Accepted"
+                                        ? "secondary"
+                                        : "outline"
+                                  }
+                                  className="text-xs"
+                                >
+                                  {log.status}
+                                </Badge>
+                              </li>
+                            ),
+                          )}
                         </ul>
                       </div>
                     )}
@@ -242,7 +346,11 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
             <div className="border rounded-lg p-4 bg-gray-50 font-semibold">
               <div className="flex justify-between items-center">
                 <span className="text-sm">Total Ad-Hoc Expenses</span>
-                <span className="text-sm">{formatCurrency(adHocExpenses.reduce((sum, exp) => sum + exp.amount, 0))}</span>
+                <span className="text-sm">
+                  {formatCurrency(
+                    adHocExpenses.reduce((sum, exp) => sum + exp.amount, 0),
+                  )}
+                </span>
               </div>
             </div>
           </div>
@@ -256,8 +364,12 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                   <TableHead>Description</TableHead>
                   <TableHead>Paid By</TableHead>
                   <TableHead className="text-right">Amount</TableHead>
-                  {user && <TableHead className="text-right">Your Status</TableHead>}
-                  {user && <TableHead className="text-right">Actions</TableHead>}
+                  {user && (
+                    <TableHead className="text-right">Your Status</TableHead>
+                  )}
+                  {user && (
+                    <TableHead className="text-right">Actions</TableHead>
+                  )}
                   <TableHead className="text-right">Log</TableHead>
                 </TableRow>
               </TableHeader>
@@ -265,29 +377,44 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                 {adHocExpenses.map((expense) => {
                   const isPayer = user?.id === expense.payer_id;
                   const userShare = expenseShares.find(
-                    share => String(share.expense_id) === String(expense.expense_id) && String(share.user_id) === String(user?.id)
+                    (share) =>
+                      String(share.expense_id) === String(expense.expense_id) &&
+                      String(share.user_id) === String(user?.id),
                   );
                   return (
                     <>
                       <TableRow key={expense.expense_id}>
-                        <TableCell className="font-medium">{expense.category}</TableCell>
-                        <TableCell>{expense.description || 'No description'}</TableCell>
-                        <TableCell>
-                          {isPayer ? 'You' : getParticipantName(expense.payer_id)}
+                        <TableCell className="font-medium">
+                          {expense.category}
                         </TableCell>
-                        <TableCell className="text-right">{formatCurrency(expense.amount)}</TableCell>
+                        <TableCell>
+                          {expense.description || "No description"}
+                        </TableCell>
+                        <TableCell>
+                          {isPayer
+                            ? "You"
+                            : getParticipantName(expense.payer_id)}
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {formatCurrency(expense.amount, "INR")}
+                        </TableCell>
                         {user && (
                           <TableCell className="text-right">
                             {isPayer ? (
-                              <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
+                              <Badge
+                                variant="outline"
+                                className="bg-green-50 text-green-700 border-green-200"
+                              >
                                 You paid
                               </Badge>
                             ) : userShare ? (
-                              <Badge 
+                              <Badge
                                 variant={
-                                  userShare.status === 'Pending' ? 'secondary' : 
-                                  userShare.status === 'Accepted' ? 'default' : 
-                                  'destructive'
+                                  userShare.status === "Pending"
+                                    ? "secondary"
+                                    : userShare.status === "Accepted"
+                                      ? "default"
+                                      : "destructive"
                                 }
                               >
                                 {userShare.status}
@@ -301,20 +428,69 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                         )}
                         {user && (
                           <TableCell className="text-right">
-                            {!isPayer && userShare && userShare.status === 'Pending' && (
-                              <div className="flex gap-2 justify-end">
-                                <Button size="sm" variant="default" onClick={() => handleShareAction(expense.expense_id, 'Accepted')}>Accept</Button>
-                                <Button size="sm" variant="destructive" onClick={() => handleShareAction(expense.expense_id, 'Disputed')}>Dispute</Button>
-                              </div>
-                            )}
-                            {!isPayer && userShare && userShare.status === 'Accepted' && (
-                              <Button size="sm" variant="outline" onClick={() => handleShareAction(expense.expense_id, 'Paid')}>Mark as Paid</Button>
-                            )}
+                            {!isPayer &&
+                              userShare &&
+                              userShare.status === "Pending" && (
+                                <div className="flex gap-2 justify-end">
+                                  <Button
+                                    size="sm"
+                                    variant="default"
+                                    onClick={() =>
+                                      handleShareAction(
+                                        expense.expense_id,
+                                        "Accepted",
+                                      )
+                                    }
+                                  >
+                                    Accept
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="destructive"
+                                    onClick={() =>
+                                      handleShareAction(
+                                        expense.expense_id,
+                                        "Disputed",
+                                      )
+                                    }
+                                  >
+                                    Dispute
+                                  </Button>
+                                </div>
+                              )}
+                            {!isPayer &&
+                              userShare &&
+                              userShare.status === "Accepted" && (
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() =>
+                                    handleShareAction(
+                                      expense.expense_id,
+                                      "Paid",
+                                    )
+                                  }
+                                >
+                                  Mark as Paid
+                                </Button>
+                              )}
                           </TableCell>
                         )}
                         <TableCell className="text-right">
-                          <Button size="sm" variant="ghost" onClick={() => setExpandedExpenseId(expandedExpenseId === expense.expense_id ? null : expense.expense_id)}>
-                            {expandedExpenseId === expense.expense_id ? 'Hide Log' : 'Show Log'}
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            onClick={() =>
+                              setExpandedExpenseId(
+                                expandedExpenseId === expense.expense_id
+                                  ? null
+                                  : expense.expense_id,
+                              )
+                            }
+                          >
+                            {expandedExpenseId === expense.expense_id
+                              ? "Hide Log"
+                              : "Show Log"}
                           </Button>
                         </TableCell>
                       </TableRow>
@@ -322,16 +498,37 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                         <TableRow>
                           <TableCell colSpan={8} className="bg-gray-50 p-0">
                             <div className="p-4">
-                              <div className="font-semibold mb-2">Activity Log</div>
+                              <div className="font-semibold mb-2">
+                                Activity Log
+                              </div>
                               <ul className="space-y-1 text-xs">
-                                {getExpenseActivityLog(expense.expense_id).map((log, idx) => (
-                                  <li key={idx} className="flex gap-3 items-center">
-                                    <span className="text-gray-500">{log.timestamp}</span>
-                                    <span className="font-bold">{log.user}</span>
-                                    <span className="">{log.action}</span>
-                                    <Badge variant={log.status === 'Paid' ? 'default' : log.status === 'Accepted' ? 'secondary' : 'outline'}>{log.status}</Badge>
-                                  </li>
-                                ))}
+                                {getExpenseActivityLog(expense.expense_id).map(
+                                  (log, idx) => (
+                                    <li
+                                      key={idx}
+                                      className="flex gap-3 items-center"
+                                    >
+                                      <span className="text-gray-500">
+                                        {log.timestamp}
+                                      </span>
+                                      <span className="font-bold">
+                                        {log.user}
+                                      </span>
+                                      <span className="">{log.action}</span>
+                                      <Badge
+                                        variant={
+                                          log.status === "Paid"
+                                            ? "default"
+                                            : log.status === "Accepted"
+                                              ? "secondary"
+                                              : "outline"
+                                        }
+                                      >
+                                        {log.status}
+                                      </Badge>
+                                    </li>
+                                  ),
+                                )}
                               </ul>
                             </div>
                           </TableCell>
@@ -341,9 +538,16 @@ export const ExpenseTable: React.FC<ExpenseTableProps> = ({
                   );
                 })}
                 <TableRow>
-                  <TableCell colSpan={user ? 6 : 4} className="font-semibold">Total Ad-Hoc Expenses</TableCell>
-                  <TableCell className="text-right font-semibold" colSpan={user ? 2 : 1}>
-                    {formatCurrency(adHocExpenses.reduce((sum, exp) => sum + exp.amount, 0))}
+                  <TableCell colSpan={user ? 6 : 4} className="font-semibold">
+                    Total Ad-Hoc Expenses
+                  </TableCell>
+                  <TableCell
+                    className="text-right font-semibold"
+                    colSpan={user ? 2 : 1}
+                  >
+                    {formatCurrency(
+                      adHocExpenses.reduce((sum, exp) => sum + exp.amount, 0),
+                    )}
                   </TableCell>
                 </TableRow>
               </TableBody>

@@ -1,17 +1,57 @@
-import React, { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { useToast } from '@/components/ui/use-toast';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Plus, Edit, Trash2, Pin, Lock, Users, MessageSquare, Loader2, Settings } from 'lucide-react';
+import React, { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useToast } from "@/components/ui/use-toast";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  Plus,
+  Edit,
+  Trash2,
+  Pin,
+  Lock,
+  Users,
+  MessageSquare,
+  Loader2,
+  Settings,
+} from "lucide-react";
 
 interface ForumCategory {
   id: number;
@@ -46,12 +86,14 @@ export default function ForumAdmin() {
 
   // Category form state
   const [showCategoryDialog, setShowCategoryDialog] = useState(false);
-  const [editingCategory, setEditingCategory] = useState<ForumCategory | null>(null);
+  const [editingCategory, setEditingCategory] = useState<ForumCategory | null>(
+    null,
+  );
   const [categoryForm, setCategoryForm] = useState({
-    name: '',
-    slug: '',
-    description: '',
-    sort_order: 0
+    name: "",
+    slug: "",
+    description: "",
+    sort_order: 0,
   });
 
   // Thread actions state
@@ -70,15 +112,17 @@ export default function ForumAdmin() {
 
       // Fetch categories with thread counts
       const { data: categoriesData, error: categoriesError } = await supabase
-        .from('forum_categories')
-        .select(`
+        .from("forum_categories")
+        .select(
+          `
           *,
           forum_threads(count)
-        `)
-        .order('sort_order');
+        `,
+        )
+        .order("sort_order");
 
       if (categoriesError) {
-        console.error('Error fetching categories:', categoriesError);
+        console.error("Error fetching categories:", categoriesError);
         toast({
           title: "Error",
           description: "Could not load categories.",
@@ -89,8 +133,9 @@ export default function ForumAdmin() {
 
       // Fetch recent threads
       const { data: threadsData, error: threadsError } = await supabase
-        .from('forum_threads')
-        .select(`
+        .from("forum_threads")
+        .select(
+          `
           id,
           category_id,
           author_id,
@@ -105,12 +150,13 @@ export default function ForumAdmin() {
           users!forum_threads_author_id_fkey (
             full_name
           )
-        `)
-        .order('updated_at', { ascending: false })
+        `,
+        )
+        .order("updated_at", { ascending: false })
         .limit(50);
 
       if (threadsError) {
-        console.error('Error fetching threads:', threadsError);
+        console.error("Error fetching threads:", threadsError);
         toast({
           title: "Error",
           description: "Could not load threads.",
@@ -120,21 +166,23 @@ export default function ForumAdmin() {
       }
 
       // Transform data
-      const transformedCategories = categoriesData?.map(cat => ({
-        ...cat,
-        thread_count: cat.forum_threads?.[0]?.count || 0,
-      })) || [];
+      const transformedCategories =
+        categoriesData?.map((cat) => ({
+          ...cat,
+          thread_count: cat.forum_threads?.[0]?.count || 0,
+        })) || [];
 
-      const transformedThreads = threadsData?.map(thread => ({
-        ...thread,
-        category_name: thread.forum_categories?.name || 'Unknown',
-        author_name: thread.users?.full_name || 'Unknown User',
-      })) || [];
+      const transformedThreads =
+        threadsData?.map((thread) => ({
+          ...thread,
+          category_name: thread.forum_categories?.name || "Unknown",
+          author_name: thread.users?.full_name || "Unknown User",
+        })) || [];
 
       setCategories(transformedCategories);
       setThreads(transformedThreads);
     } catch (error) {
-      console.error('Error fetching admin data:', error);
+      console.error("Error fetching admin data:", error);
       toast({
         title: "Error",
         description: "Could not load admin data.",
@@ -147,15 +195,15 @@ export default function ForumAdmin() {
 
   const handleCreateCategory = async () => {
     try {
-      const { data, error } = await supabase.rpc('create_forum_category', {
+      const { data, error } = await supabase.rpc("create_forum_category", {
         p_name: categoryForm.name.trim(),
         p_slug: categoryForm.slug.trim(),
         p_description: categoryForm.description.trim() || null,
-        p_sort_order: categoryForm.sort_order
+        p_sort_order: categoryForm.sort_order,
       });
 
       if (error) {
-        console.error('Error creating category:', error);
+        console.error("Error creating category:", error);
         toast({
           title: "Error",
           description: "Could not create category. Please try again.",
@@ -171,10 +219,10 @@ export default function ForumAdmin() {
       });
 
       setShowCategoryDialog(false);
-      setCategoryForm({ name: '', slug: '', description: '', sort_order: 0 });
+      setCategoryForm({ name: "", slug: "", description: "", sort_order: 0 });
       fetchAdminData();
     } catch (error) {
-      console.error('Error creating category:', error);
+      console.error("Error creating category:", error);
       toast({
         title: "Error",
         description: "Could not create category. Please try again.",
@@ -187,16 +235,16 @@ export default function ForumAdmin() {
     if (!editingCategory) return;
 
     try {
-      const { data, error } = await supabase.rpc('update_forum_category', {
+      const { data, error } = await supabase.rpc("update_forum_category", {
         p_id: editingCategory.id,
         p_name: categoryForm.name.trim() || null,
         p_slug: categoryForm.slug.trim() || null,
         p_description: categoryForm.description.trim() || null,
-        p_sort_order: categoryForm.sort_order || null
+        p_sort_order: categoryForm.sort_order || null,
       });
 
       if (error) {
-        console.error('Error updating category:', error);
+        console.error("Error updating category:", error);
         toast({
           title: "Error",
           description: "Could not update category. Please try again.",
@@ -213,10 +261,10 @@ export default function ForumAdmin() {
 
       setShowCategoryDialog(false);
       setEditingCategory(null);
-      setCategoryForm({ name: '', slug: '', description: '', sort_order: 0 });
+      setCategoryForm({ name: "", slug: "", description: "", sort_order: 0 });
       fetchAdminData();
     } catch (error) {
-      console.error('Error updating category:', error);
+      console.error("Error updating category:", error);
       toast({
         title: "Error",
         description: "Could not update category. Please try again.",
@@ -227,12 +275,12 @@ export default function ForumAdmin() {
 
   const handleDeleteCategory = async (categoryId: number) => {
     try {
-      const { error } = await supabase.rpc('delete_forum_category', {
-        p_id: categoryId
+      const { error } = await supabase.rpc("delete_forum_category", {
+        p_id: categoryId,
       });
 
       if (error) {
-        console.error('Error deleting category:', error);
+        console.error("Error deleting category:", error);
         toast({
           title: "Error",
           description: "Could not delete category. Please try again.",
@@ -249,7 +297,7 @@ export default function ForumAdmin() {
 
       fetchAdminData();
     } catch (error) {
-      console.error('Error deleting category:', error);
+      console.error("Error deleting category:", error);
       toast({
         title: "Error",
         description: "Could not delete category. Please try again.",
@@ -258,16 +306,19 @@ export default function ForumAdmin() {
     }
   };
 
-  const handleTogglePin = async (threadId: number, currentPinState: boolean) => {
+  const handleTogglePin = async (
+    threadId: number,
+    currentPinState: boolean,
+  ) => {
     try {
       setTogglingPin(threadId);
-      const { error } = await supabase.rpc('toggle_thread_pin', {
+      const { error } = await supabase.rpc("toggle_thread_pin", {
         p_thread_id: threadId,
-        p_pin: !currentPinState
+        p_pin: !currentPinState,
       });
 
       if (error) {
-        console.error('Error toggling pin:', error);
+        console.error("Error toggling pin:", error);
         toast({
           title: "Error",
           description: "Could not update thread. Please try again.",
@@ -278,13 +329,13 @@ export default function ForumAdmin() {
 
       toast({
         title: "Thread Updated",
-        description: `Thread has been ${!currentPinState ? 'pinned' : 'unpinned'} successfully!`,
+        description: `Thread has been ${!currentPinState ? "pinned" : "unpinned"} successfully!`,
         variant: "default",
       });
 
       fetchAdminData();
     } catch (error) {
-      console.error('Error toggling pin:', error);
+      console.error("Error toggling pin:", error);
       toast({
         title: "Error",
         description: "Could not update thread. Please try again.",
@@ -295,16 +346,19 @@ export default function ForumAdmin() {
     }
   };
 
-  const handleToggleLock = async (threadId: number, currentLockState: boolean) => {
+  const handleToggleLock = async (
+    threadId: number,
+    currentLockState: boolean,
+  ) => {
     try {
       setTogglingLock(threadId);
-      const { error } = await supabase.rpc('toggle_thread_lock', {
+      const { error } = await supabase.rpc("toggle_thread_lock", {
         p_thread_id: threadId,
-        p_lock: !currentLockState
+        p_lock: !currentLockState,
       });
 
       if (error) {
-        console.error('Error toggling lock:', error);
+        console.error("Error toggling lock:", error);
         toast({
           title: "Error",
           description: "Could not update thread. Please try again.",
@@ -315,13 +369,13 @@ export default function ForumAdmin() {
 
       toast({
         title: "Thread Updated",
-        description: `Thread has been ${!currentLockState ? 'locked' : 'unlocked'} successfully!`,
+        description: `Thread has been ${!currentLockState ? "locked" : "unlocked"} successfully!`,
         variant: "default",
       });
 
       fetchAdminData();
     } catch (error) {
-      console.error('Error toggling lock:', error);
+      console.error("Error toggling lock:", error);
       toast({
         title: "Error",
         description: "Could not update thread. Please try again.",
@@ -335,12 +389,12 @@ export default function ForumAdmin() {
   const handleDeletePost = async (postId: number) => {
     try {
       setDeletingPost(postId);
-      const { error } = await supabase.rpc('admin_delete_post', {
-        p_post_id: postId
+      const { error } = await supabase.rpc("admin_delete_post", {
+        p_post_id: postId,
       });
 
       if (error) {
-        console.error('Error deleting post:', error);
+        console.error("Error deleting post:", error);
         toast({
           title: "Error",
           description: "Could not delete post. Please try again.",
@@ -357,7 +411,7 @@ export default function ForumAdmin() {
 
       fetchAdminData();
     } catch (error) {
-      console.error('Error deleting post:', error);
+      console.error("Error deleting post:", error);
       toast({
         title: "Error",
         description: "Could not delete post. Please try again.",
@@ -371,12 +425,12 @@ export default function ForumAdmin() {
   const handleDeleteThread = async (threadId: number) => {
     try {
       setDeletingThread(threadId);
-      const { error } = await supabase.rpc('admin_delete_thread', {
-        p_thread_id: threadId
+      const { error } = await supabase.rpc("admin_delete_thread", {
+        p_thread_id: threadId,
       });
 
       if (error) {
-        console.error('Error deleting thread:', error);
+        console.error("Error deleting thread:", error);
         toast({
           title: "Error",
           description: "Could not delete thread. Please try again.",
@@ -393,7 +447,7 @@ export default function ForumAdmin() {
 
       fetchAdminData();
     } catch (error) {
-      console.error('Error deleting thread:', error);
+      console.error("Error deleting thread:", error);
       toast({
         title: "Error",
         description: "Could not delete thread. Please try again.",
@@ -410,23 +464,23 @@ export default function ForumAdmin() {
       setCategoryForm({
         name: category.name,
         slug: category.slug,
-        description: category.description || '',
-        sort_order: category.sort_order
+        description: category.description || "",
+        sort_order: category.sort_order,
       });
     } else {
       setEditingCategory(null);
-      setCategoryForm({ name: '', slug: '', description: '', sort_order: 0 });
+      setCategoryForm({ name: "", slug: "", description: "", sort_order: 0 });
     }
     setShowCategoryDialog(true);
   };
 
   const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleDateString('en-IN', {
-      day: 'numeric',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    return new Date(dateString).toLocaleDateString("en-IN", {
+      day: "numeric",
+      month: "short",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
@@ -446,7 +500,9 @@ export default function ForumAdmin() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold">Forum Administration</h1>
-          <p className="text-muted-foreground">Manage forum categories and moderate threads</p>
+          <p className="text-muted-foreground">
+            Manage forum categories and moderate threads
+          </p>
         </div>
       </div>
 
@@ -459,7 +515,10 @@ export default function ForumAdmin() {
         <TabsContent value="categories" className="space-y-6">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-semibold">Forum Categories</h2>
-            <Dialog open={showCategoryDialog} onOpenChange={setShowCategoryDialog}>
+            <Dialog
+              open={showCategoryDialog}
+              onOpenChange={setShowCategoryDialog}
+            >
               <DialogTrigger asChild>
                 <Button onClick={() => openCategoryDialog()}>
                   <Plus className="h-4 w-4 mr-2" />
@@ -469,13 +528,12 @@ export default function ForumAdmin() {
               <DialogContent>
                 <DialogHeader>
                   <DialogTitle>
-                    {editingCategory ? 'Edit Category' : 'Create Category'}
+                    {editingCategory ? "Edit Category" : "Create Category"}
                   </DialogTitle>
                   <DialogDescription>
                     {editingCategory
-                      ? 'Update the forum category details.'
-                      : 'Add a new category to organize forum discussions.'
-                    }
+                      ? "Update the forum category details."
+                      : "Add a new category to organize forum discussions."}
                   </DialogDescription>
                 </DialogHeader>
 
@@ -486,7 +544,12 @@ export default function ForumAdmin() {
                     </label>
                     <Input
                       value={categoryForm.name}
-                      onChange={(e) => setCategoryForm(prev => ({ ...prev, name: e.target.value }))}
+                      onChange={(e) =>
+                        setCategoryForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
                       placeholder="e.g., Trek Planning"
                     />
                   </div>
@@ -497,7 +560,12 @@ export default function ForumAdmin() {
                     </label>
                     <Input
                       value={categoryForm.slug}
-                      onChange={(e) => setCategoryForm(prev => ({ ...prev, slug: e.target.value }))}
+                      onChange={(e) =>
+                        setCategoryForm((prev) => ({
+                          ...prev,
+                          slug: e.target.value,
+                        }))
+                      }
                       placeholder="e.g., trek-planning"
                     />
                   </div>
@@ -508,7 +576,12 @@ export default function ForumAdmin() {
                     </label>
                     <Textarea
                       value={categoryForm.description}
-                      onChange={(e) => setCategoryForm(prev => ({ ...prev, description: e.target.value }))}
+                      onChange={(e) =>
+                        setCategoryForm((prev) => ({
+                          ...prev,
+                          description: e.target.value,
+                        }))
+                      }
                       placeholder="Brief description of this category"
                       rows={3}
                     />
@@ -521,7 +594,12 @@ export default function ForumAdmin() {
                     <Input
                       type="number"
                       value={categoryForm.sort_order}
-                      onChange={(e) => setCategoryForm(prev => ({ ...prev, sort_order: parseInt(e.target.value) || 0 }))}
+                      onChange={(e) =>
+                        setCategoryForm((prev) => ({
+                          ...prev,
+                          sort_order: parseInt(e.target.value) || 0,
+                        }))
+                      }
                       placeholder="0"
                     />
                   </div>
@@ -534,10 +612,16 @@ export default function ForumAdmin() {
                       Cancel
                     </Button>
                     <Button
-                      onClick={editingCategory ? handleUpdateCategory : handleCreateCategory}
-                      disabled={!categoryForm.name.trim() || !categoryForm.slug.trim()}
+                      onClick={
+                        editingCategory
+                          ? handleUpdateCategory
+                          : handleCreateCategory
+                      }
+                      disabled={
+                        !categoryForm.name.trim() || !categoryForm.slug.trim()
+                      }
                     >
-                      {editingCategory ? 'Update' : 'Create'} Category
+                      {editingCategory ? "Update" : "Create"} Category
                     </Button>
                   </div>
                 </div>
@@ -567,10 +651,12 @@ export default function ForumAdmin() {
                 <TableBody>
                   {categories.map((category) => (
                     <TableRow key={category.id}>
-                      <TableCell className="font-medium">{category.name}</TableCell>
+                      <TableCell className="font-medium">
+                        {category.name}
+                      </TableCell>
                       <TableCell>{category.slug}</TableCell>
                       <TableCell className="max-w-xs truncate">
-                        {category.description || '-'}
+                        {category.description || "-"}
                       </TableCell>
                       <TableCell>{category.thread_count || 0}</TableCell>
                       <TableCell>{category.sort_order}</TableCell>
@@ -591,15 +677,22 @@ export default function ForumAdmin() {
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Category</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Delete Category
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete "{category.name}"? This action cannot be undone and will also delete all threads in this category.
+                                  Are you sure you want to delete "
+                                  {category.name}"? This action cannot be undone
+                                  and will also delete all threads in this
+                                  category.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
                                 <AlertDialogCancel>Cancel</AlertDialogCancel>
                                 <AlertDialogAction
-                                  onClick={() => handleDeleteCategory(category.id)}
+                                  onClick={() =>
+                                    handleDeleteCategory(category.id)
+                                  }
                                   className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
                                 >
                                   Delete
@@ -621,7 +714,8 @@ export default function ForumAdmin() {
           <div>
             <h2 className="text-xl font-semibold mb-4">Recent Threads</h2>
             <p className="text-muted-foreground mb-6">
-              Moderate threads by pinning important discussions or locking inappropriate content.
+              Moderate threads by pinning important discussions or locking
+              inappropriate content.
             </p>
           </div>
 
@@ -670,7 +764,9 @@ export default function ForumAdmin() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleTogglePin(thread.id, thread.pinned)}
+                            onClick={() =>
+                              handleTogglePin(thread.id, thread.pinned)
+                            }
                             disabled={togglingPin === thread.id}
                           >
                             {togglingPin === thread.id ? (
@@ -682,7 +778,9 @@ export default function ForumAdmin() {
                           <Button
                             variant="outline"
                             size="sm"
-                            onClick={() => handleToggleLock(thread.id, thread.locked)}
+                            onClick={() =>
+                              handleToggleLock(thread.id, thread.locked)
+                            }
                             disabled={togglingLock === thread.id}
                           >
                             {togglingLock === thread.id ? (
@@ -693,15 +791,23 @@ export default function ForumAdmin() {
                           </Button>
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
-                              <Button variant="outline" size="sm" className="text-destructive hover:text-destructive">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="text-destructive hover:text-destructive"
+                              >
                                 <Trash2 className="h-3 w-3" />
                               </Button>
                             </AlertDialogTrigger>
                             <AlertDialogContent>
                               <AlertDialogHeader>
-                                <AlertDialogTitle>Delete Thread</AlertDialogTitle>
+                                <AlertDialogTitle>
+                                  Delete Thread
+                                </AlertDialogTitle>
                                 <AlertDialogDescription>
-                                  Are you sure you want to delete this thread? This action cannot be undone and will also delete all posts in this thread.
+                                  Are you sure you want to delete this thread?
+                                  This action cannot be undone and will also
+                                  delete all posts in this thread.
                                 </AlertDialogDescription>
                               </AlertDialogHeader>
                               <AlertDialogFooter>
@@ -717,7 +823,7 @@ export default function ForumAdmin() {
                                       Deleting...
                                     </>
                                   ) : (
-                                    'Delete Thread'
+                                    "Delete Thread"
                                   )}
                                 </AlertDialogAction>
                               </AlertDialogFooter>
