@@ -1,3 +1,4 @@
+import React from "react";
 import AuthForm from "@/components/auth/AuthForm";
 import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
