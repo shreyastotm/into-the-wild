@@ -33,7 +33,9 @@ export default defineConfig(({ mode }) => ({
         manualChunks: (id) => {
           // Split vendor chunks
           if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('scheduler') || id.includes('prop-types')) {
+            // Keep React and React-DOM together - CRITICAL for proper functionality
+            if (id.includes('react') || id.includes('react-dom') || 
+                id.includes('scheduler') || id.includes('prop-types')) {
               return 'vendor-react';
             }
             if (id.includes('@supabase')) {
