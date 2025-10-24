@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cache Debug Tool</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        .test { margin: 10px 0; padding: 10px; border: 1px solid #ccc; }
+        .success { border-color: green; background: #e8f5e8; }
+        .error { border-color: red; background: #ffe8e8; }
+        button { padding: 10px 20px; margin: 5px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 10px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>🔍 Cache Debug Tool</h1>
+    <p>This tool helps identify cached files that might be causing issues.</p>
+
+    <div id="results"></div>
+
+    <script>
+        const filesToCheck = [
+            '/assets/entry-index-VCFeUZjL-v7.js',
+            '/assets/asset-index-KuiLXy9w-v7.css',
+            '/assets/asset-leaflet-Dgihpmma-v7.css',
+            // Old cached files that might still exist
+            '/assets/index-lbuY-39t.css',
+            '/assets/entry-index-v6.js',
+            '/assets/chunk-TrekEvents-v6.js'
+        ];
+
+        async function checkFile(url) {
+            try {
+                const response = await fetch(url, { method: 'HEAD' });
+                const contentDisposition = response.headers.get('content-disposition') || 'none';
+
+                return {
+                    url,
+                    status: response.status,
+                    contentType: response.headers.get('content-type') || 'unknown',
+                    contentDisposition,
+                    exists: response.ok
+                };
+            } catch (error) {
+                return {
+                    url,
+                    status: 'ERROR',
+                    error: error.message,
+                    exists: false
+                };
+            }
+        }
+
+        async function runTests() {
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '<h2>🔄 Checking files...</h2>';
+
+            for (const file of filesToCheck) {
+                const result = await checkFile(file);
+                const div = document.createElement('div');
+                div.className = `test ${result.exists ? 'success' : 'error'}`;
+
+                let content = `<h3>${file}</h3>`;
+                content += `<p><strong>Status:</strong> ${result.status}</p>`;
+                content += `<p><strong>Content-Type:</strong> ${result.contentType}</p>`;
+
+                if (result.contentDisposition !== 'none') {
+                    content += `<p><strong>Content-Disposition:</strong> ${result.contentDisposition}</p>`;
+                }
+
+                if (result.error) {
+                    content += `<p><strong>Error:</strong> ${result.error}</p>`;
+                }
+
+                if (result.contentDisposition && result.contentDisposition.includes('index.html') && file.endsWith('.css')) {
+                    content += `<p><strong>⚠️ WARNING:</strong> CSS file served as HTML!</p>`;
+                }
+
+                div.innerHTML = content;
+                resultsDiv.appendChild(div);
+            }
+        }
+
+        function clearCache() {
+            // Force cache refresh
+            window.location.reload(true);
+
+            // Clear local storage and session storage
+            localStorage.clear();
+            sessionStorage.clear();
+
+            alert('Cache cleared! Refresh the page.');
+        }
+
+        function hardRefresh() {
+            // Force hard refresh
+            window.location.href = window.location.href + '?cache=' + Date.now();
+        }
+
+        // Auto-run tests
+        runTests();
+    </script>
+
+    <h2>🛠️ Manual Cache Clearing</h2>
+    <button onclick="clearCache()">Clear Browser Cache</button>
+    <button onclick="hardRefresh()">Hard Refresh</button>
+    <button onclick="window.location.href='https://intothewild.club/?' + Date.now()">Force New Request</button>
+
+    <h2>📋 Manual Steps</h2>
+    <p>If the above doesn't work:</p>
+    <ol>
+        <li><strong>Hard Refresh:</strong> Press <code>Ctrl+Shift+R</code> (Windows/Linux) or <code>Cmd+Shift+R</code> (Mac)</li>
+        <li><strong>Clear Cache:</strong> Press <code>Ctrl+Shift+Delete</code> → Clear browsing data → Cached images and files</li>
+        <li><strong>Incognito Mode:</strong> Test in incognito/private browsing mode</li>
+        <li><strong>Different Browser:</strong> Try a different browser to confirm it's a cache issue</li>
+    </ol>
+
+    <h2>🚨 Key Issues Found</h2>
+    <p>Based on our analysis:</p>
+    <ul>
+        <li>✅ New JavaScript files (v7) are being served correctly</li>
+        <li>✅ New HTML is referencing correct CSS file</li>
+        <li>❌ Browser is still trying to load old CSS file: <code>index-lbuY-39t.css</code></li>
+        <li>❌ Old CSS file exists but is served as HTML instead of CSS</li>
+    </ul>
+
+    <p><strong>This confirms it's a browser caching issue.</strong></p>
+</body>
+</html>
