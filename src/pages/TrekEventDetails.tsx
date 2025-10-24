@@ -1,20 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { TrekEventHeader } from '@/components/trek/TrekEventHeader';
-import { TrekEventDetailsComponent } from '@/components/trek/TrekEventDetails';
-import { RegistrationCard } from '@/components/trek/RegistrationCard';
-import { TravelCoordination } from '@/components/trek/TravelCoordination';
-import { TrekParticipants } from '@/components/trek/TrekParticipants';
-import { TrekDiscussion } from '@/components/trek/TrekDiscussion';
-import { ExpenseSplitting } from '@/components/expenses/ExpenseSplitting';
-import { TrekRatings } from '@/components/trek/TrekRatings';
-import TrekPackingList from '@/components/trek/TrekPackingList';
-import { TentRental } from '@/components/trek/TentRental';
-import { TrekRequirements } from '@/components/trek/TrekRequirements';
-import { useTrekRegistration } from '../hooks/trek/useTrekRegistration';
-import { useTrekCommunity } from '@/hooks/useTrekCommunity';
-import { useTrekCosts } from '@/hooks/trek/useTrekCosts';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import React, { useState, useEffect } from "react";
+import { useParams, Link } from "react-router-dom";
+import { TrekEventHeader } from "@/components/trek/TrekEventHeader";
+import { TrekEventDetailsComponent } from "@/components/trek/TrekEventDetails";
+import { RegistrationCard } from "@/components/trek/RegistrationCard";
+import { TravelCoordination } from "@/components/trek/TravelCoordination";
+import { TrekParticipants } from "@/components/trek/TrekParticipants";
+import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
+import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
+import { TrekRatings } from "@/components/trek/TrekRatings";
+import TrekPackingList from "@/components/trek/TrekPackingList";
+import { TentRental } from "@/components/trek/TentRental";
+import { TrekRequirements } from "@/components/trek/TrekRequirements";
+import { useTrekRegistration } from "../hooks/trek/useTrekRegistration";
+import { useTrekCommunity } from "@/hooks/useTrekCommunity";
+import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ChevronLeft,
   Map,
@@ -28,15 +28,15 @@ import {
   Shield,
   TreePine,
   Mountain,
-  Zap
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { TrekEventStatus, EventType } from '@/types/trek';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardTitle } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
-import { useHaptic } from '@/hooks/useHaptic';
+  Zap,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { TrekEventStatus, EventType } from "@/types/trek";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardTitle } from "@/components/ui/card";
+import { cn } from "@/lib/utils";
+import { useHaptic } from "@/hooks/useHaptic";
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -52,19 +52,19 @@ export default function TrekEventDetails() {
     cancelRegistration,
     uploadPaymentProof,
     uploadIdProof,
-    uploadingIdProof
+    uploadingIdProof,
   } = useTrekRegistration(id);
-  
+
   const { costs, loading: costsLoading } = useTrekCosts(id);
 
   const trekIdNum = id ? parseInt(id, 10) : 0;
 
   // Debug logging (remove this after fixing the issue)
-  console.log('TrekEventDetails Debug:', {
+  console.log("TrekEventDetails Debug:", {
     trekId: trekIdNum,
     governmentIdRequired: trekEvent?.government_id_required,
     userRegistration: !!userRegistration,
-    userRegistrationStatus: userRegistration?.id_verification_status
+    userRegistrationStatus: userRegistration?.id_verification_status,
   });
 
   const {
@@ -73,15 +73,16 @@ export default function TrekEventDetails() {
     comments,
     loading: communityLoading,
     commentsLoading,
-    addComment
+    addComment,
   } = useTrekCommunity(id);
 
-  const isRegistered = !!userRegistration && userRegistration.payment_status !== 'Cancelled';
-  const isAdmin = userProfile?.user_type === 'admin';
+  const isRegistered =
+    !!userRegistration && userRegistration.payment_status !== "Cancelled";
+  const isAdmin = userProfile?.user_type === "admin";
 
-  const formattedParticipants = participants.map(participant => ({
+  const formattedParticipants = participants.map((participant) => ({
     user_id: participant.id,
-    full_name: participant.name || 'Unknown User'
+    full_name: participant.name || "Unknown User",
   }));
 
   if (trekLoading || costsLoading) {
@@ -107,7 +108,9 @@ export default function TrekEventDetails() {
     return (
       <div className="container mx-auto py-8 px-4 text-center">
         <h1 className="text-2xl font-bold mb-4">Trek Not Found</h1>
-        <p className="mb-6">The trek event you're looking for doesn't exist or has been removed.</p>
+        <p className="mb-6">
+          The trek event you're looking for doesn't exist or has been removed.
+        </p>
         <Link to="/events">
           <Button>
             <ChevronLeft className="mr-2 h-4 w-4" />
@@ -121,22 +124,31 @@ export default function TrekEventDetails() {
   const handleRegistration = async (indemnityAccepted: boolean) => {
     if (!user || !trekEvent) return { success: false, registrationId: null };
     const success = await registerForTrek(indemnityAccepted);
-    return { success: success, registrationId: null }; 
+    return { success: success, registrationId: null };
   };
 
-  const handleUploadProof = async (registrationId: number, file: File, registrantName: string, registrantPhone: string): Promise<boolean> => {
+  const handleUploadProof = async (
+    registrationId: number,
+    file: File,
+    registrantName: string,
+    registrantPhone: string,
+  ): Promise<boolean> => {
     if (!trekEvent || !userRegistration) return false;
     setIsUploadingProof(true);
     try {
-      const uploadSuccess = await uploadPaymentProof(file, registrantName, registrantPhone);
+      const uploadSuccess = await uploadPaymentProof(
+        file,
+        registrantName,
+        registrantPhone,
+      );
       if (uploadSuccess) {
         // Payment proof uploaded successfully
       } else {
-        console.error('Payment proof upload failed');
+        console.error("Payment proof upload failed");
       }
       return !!uploadSuccess;
     } catch (error) {
-      console.error('Error uploading payment proof:', error);
+      console.error("Error uploading payment proof:", error);
       return false;
     } finally {
       setIsUploadingProof(false);
@@ -145,7 +157,10 @@ export default function TrekEventDetails() {
 
   return (
     <div className="container mx-auto py-8 px-4">
-      <Link to="/trek-events" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6">
+      <Link
+        to="/trek-events"
+        className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-6"
+      >
         <ChevronLeft className="mr-1 h-4 w-4" />
         Back to Events
       </Link>
@@ -167,46 +182,75 @@ export default function TrekEventDetails() {
         <div className="md:col-span-2">
           <Tabs defaultValue="details" className="w-full">
             <TabsList className="mb-4 flex flex-wrap gap-1 w-full">
-              <TabsTrigger value="details" className="flex-1 min-w-0 text-xs sm:text-sm">
+              <TabsTrigger
+                value="details"
+                className="flex-1 min-w-0 text-xs sm:text-sm"
+              >
                 <Info className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 <span className="hidden sm:inline">Details</span>
               </TabsTrigger>
-              <TabsTrigger value="requirements" className="flex-1 min-w-0 text-xs sm:text-sm">
+              <TabsTrigger
+                value="requirements"
+                className="flex-1 min-w-0 text-xs sm:text-sm relative"
+              >
+                <div className="flex items-center">
                 <Shield className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 <span className="hidden sm:inline">Requirements</span>
+                  {trekEvent.government_id_required && (
+                    <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  )}
+                </div>
               </TabsTrigger>
-              <TabsTrigger value="participants-discussion" className="flex-1 min-w-0 text-xs sm:text-sm">
+              <TabsTrigger
+                value="participants-discussion"
+                className="flex-1 min-w-0 text-xs sm:text-sm"
+              >
                 <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 <span className="hidden sm:inline">Participants</span>
               </TabsTrigger>
-              <TabsTrigger value="packing-list" className="flex-1 min-w-0 text-xs sm:text-sm">
+              <TabsTrigger
+                value="packing-list"
+                className="flex-1 min-w-0 text-xs sm:text-sm"
+              >
                 <ClipboardList className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 <span className="hidden sm:inline">Packing</span>
               </TabsTrigger>
-              <TabsTrigger value="travel" className="flex-1 min-w-0 text-xs sm:text-sm">
+              <TabsTrigger
+                value="travel"
+                className="flex-1 min-w-0 text-xs sm:text-sm"
+              >
                 <Map className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                 <span className="hidden sm:inline">Travel</span>
               </TabsTrigger>
               {trekEvent.event_type === EventType.CAMPING && (
-                <TabsTrigger value="tent-rental" className="flex-1 min-w-0 text-xs sm:text-sm">
+                <TabsTrigger
+                  value="tent-rental"
+                  className="flex-1 min-w-0 text-xs sm:text-sm"
+                >
                   <Tent className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   <span className="hidden sm:inline">Tent</span>
                 </TabsTrigger>
               )}
               {isRegistered && (
-                <TabsTrigger value="expenses" className="flex-1 min-w-0 text-xs sm:text-sm">
+                <TabsTrigger
+                  value="expenses"
+                  className="flex-1 min-w-0 text-xs sm:text-sm"
+                >
                   <Receipt className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   <span className="hidden sm:inline">Expenses</span>
                 </TabsTrigger>
               )}
-              {trekEvent.status === 'completed' && (
-                <TabsTrigger value="ratings" className="flex-1 min-w-0 text-xs sm:text-sm">
+              {trekEvent.status === "completed" && (
+                <TabsTrigger
+                  value="ratings"
+                  className="flex-1 min-w-0 text-xs sm:text-sm"
+                >
                   <Award className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
                   <span className="hidden sm:inline">Ratings</span>
                 </TabsTrigger>
               )}
             </TabsList>
-            
+
             <TabsContent value="details">
               <TrekEventDetailsComponent
                 description={trekEvent.description}
@@ -231,18 +275,22 @@ export default function TrekEventDetails() {
 
             <TabsContent value="participants-discussion" className="space-y-6">
               <div>
-                <h3 className="text-xl font-semibold mb-4">Participants ({participantCount})</h3>
-                 <TrekParticipants 
-                  participants={participants} 
+                <h3 className="text-xl font-semibold mb-4">
+                  Participants ({participantCount})
+                </h3>
+                <TrekParticipants
+                  participants={participants}
                   maxParticipants={trekEvent.max_participants}
-                  currentUser={user?.id} 
+                  currentUser={user?.id}
                 />
               </div>
-              <hr /> 
+              <hr />
               <div>
-                 <h3 className="text-xl font-semibold mb-4">Discussion ({comments.length})</h3>
-                 <TrekDiscussion 
-                  trekId={trekIdNum} 
+                <h3 className="text-xl font-semibold mb-4">
+                  Discussion ({comments.length})
+                </h3>
+                <TrekDiscussion
+                  trekId={trekIdNum}
                   comments={comments}
                   onAddComment={addComment}
                   isRegistered={isRegistered}
@@ -250,11 +298,11 @@ export default function TrekEventDetails() {
                 />
               </div>
             </TabsContent>
-            
+
             <TabsContent value="packing-list">
               <TrekPackingList trekId={id} />
             </TabsContent>
-            
+
             <TabsContent value="travel">
               <TravelCoordination
                 transportMode={trekEvent.transport_mode}
@@ -263,7 +311,7 @@ export default function TrekEventDetails() {
                 isAdmin={isAdmin}
               />
             </TabsContent>
-            
+
             {trekEvent.event_type === EventType.CAMPING && (
               <TabsContent value="tent-rental">
                 <TentRental
@@ -274,29 +322,27 @@ export default function TrekEventDetails() {
                 />
               </TabsContent>
             )}
-            
+
             {isRegistered && (
               <TabsContent value="expenses">
                 <ExpenseSplitting
-                  trekId={id || ''}
+                  trekId={id || ""}
                   isAdmin={isAdmin}
                   fixedCosts={costs}
                 />
               </TabsContent>
             )}
-            
-            {trekEvent.status === 'completed' && (
+
+            {trekEvent.status === "completed" && (
               <TabsContent value="ratings">
-                <TrekRatings
-                  trekId={id || ''}
-                  isCompleted={true}
-                />
+                <TrekRatings trekId={id || ""} isCompleted={true} />
               </TabsContent>
             )}
           </Tabs>
         </div>
 
-        <div>
+        <div className="flex justify-center md:justify-end">
+          <div className="w-full max-w-sm md:max-w-none md:w-auto">
           <RegistrationCard
             trek={{
               trek_id: trekEvent.trek_id,
@@ -314,8 +360,12 @@ export default function TrekEventDetails() {
             isLoading={registering}
             onUploadProof={handleUploadProof}
             isUploadingProof={isUploadingProof}
-            canVolunteerDriver={!!userProfile?.has_car && !!userProfile?.transport_volunteer_opt_in}
+            canVolunteerDriver={
+              !!userProfile?.has_car &&
+              !!userProfile?.transport_volunteer_opt_in
+            }
           />
+          </div>
         </div>
       </div>
     </div>

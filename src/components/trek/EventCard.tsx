@@ -1,7 +1,7 @@
-import React from 'react';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
+import React from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import {
   Calendar,
   MapPin,
@@ -10,9 +10,9 @@ import {
   Mountain,
   IndianRupee,
   TreePine,
-  Zap
-} from 'lucide-react';
-import { format } from 'date-fns';
+  Zap,
+} from "lucide-react";
+import { format } from "date-fns";
 
 interface EventCardProps {
   trek: {
@@ -38,18 +38,24 @@ interface EventCardProps {
 export const EventCard: React.FC<EventCardProps> = ({
   trek,
   onClick,
-  showProgress = true
+  showProgress = true,
 }) => {
   const participantCount = trek.participant_count ?? 0;
 
   // Get image URL - filter out videos
   const getFirstImageUrl = () => {
-    if (trek.image_url && !trek.image_url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !trek.image_url.includes('video')) {
+    if (
+      trek.image_url &&
+      !trek.image_url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) &&
+      !trek.image_url.includes("video")
+    ) {
       return trek.image_url;
     }
     if (trek.images && trek.images.length > 0) {
-      const firstImage = trek.images.find(url =>
-        !url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) && !url.includes('video')
+      const firstImage = trek.images.find(
+        (url) =>
+          !url.match(/\.(mp4|mov|avi|wmv|flv|webm)$/i) &&
+          !url.includes("video"),
       );
       return firstImage || trek.images[0];
     }
@@ -58,31 +64,41 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   const imageUrl = getFirstImageUrl();
 
-
   const maxParticipants = trek.max_participants ?? 0;
   const availableSpots = maxParticipants - participantCount;
-  const spotsFillPercent = maxParticipants > 0 ? (participantCount / maxParticipants) * 100 : 0;
+  const spotsFillPercent =
+    maxParticipants > 0 ? (participantCount / maxParticipants) * 100 : 0;
 
   // Get price
   const price = trek.cost || trek.base_price || 0;
 
   // Format date
   const startDate = new Date(trek.start_datetime);
-  const formattedDate = format(startDate, 'MMM dd, yyyy');
+  const formattedDate = format(startDate, "MMM dd, yyyy");
 
   // Get difficulty icon - matches existing TrekCard.tsx pattern
   const getDifficultyIcon = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
-      case 'easy':
-        return <TreePine className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />;
-      case 'moderate':
-        return <Mountain className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />;
-      case 'hard':
-        return <Zap className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />;
-      case 'expert':
-        return <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />;
+      case "easy":
+        return (
+          <TreePine className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+        );
+      case "moderate":
+        return (
+          <Mountain className="w-4 h-4 text-amber-600 dark:text-amber-400 flex-shrink-0" />
+        );
+      case "hard":
+        return (
+          <Zap className="w-4 h-4 text-red-600 dark:text-red-400 flex-shrink-0" />
+        );
+      case "expert":
+        return (
+          <Zap className="w-4 h-4 text-purple-600 dark:text-purple-400 flex-shrink-0" />
+        );
       default:
-        return <Mountain className="w-4 h-4 text-gray-600 dark:text-gray-400 flex-shrink-0" />;
+        return (
+          <Mountain className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+        );
     }
   };
 
@@ -91,7 +107,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       className="mobile-trek-card"
       data-type="event"
       onClick={() => onClick?.(trek.trek_id)}
-      role={onClick ? 'button' : undefined}
+      role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
       {/* Image Section */}
@@ -104,8 +120,8 @@ export const EventCard: React.FC<EventCardProps> = ({
             className="w-full h-full object-cover"
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 dark:from-gray-700 dark:to-gray-800">
-            <Mountain className="w-12 h-12 text-gray-400 dark:text-gray-600" />
+          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/20 dark:from-primary/5 dark:to-secondary/10">
+            <Mountain className="w-12 h-12 text-muted-foreground" />
           </div>
         )}
 
@@ -118,7 +134,7 @@ export const EventCard: React.FC<EventCardProps> = ({
       {/* Content Section */}
       <div className="mobile-trek-card-content">
         {/* Title - moved below image */}
-        <h3 className="mobile-trek-card-title text-base font-bold text-gray-900 dark:text-white mb-2 truncate">
+        <h3 className="mobile-trek-card-title text-base font-bold text-foreground mb-2 truncate">
           {trek.name}
         </h3>
 
@@ -163,9 +179,7 @@ export const EventCard: React.FC<EventCardProps> = ({
 
         {/* Description */}
         {trek.description && (
-          <p className="mobile-trek-card-description">
-            {trek.description}
-          </p>
+          <p className="mobile-trek-card-description">{trek.description}</p>
         )}
 
         {/* Spots Left Counter - consistently positioned above footer */}
@@ -173,9 +187,11 @@ export const EventCard: React.FC<EventCardProps> = ({
           <div className="flex justify-between items-center text-sm font-medium mb-2">
             <div className="flex items-center gap-1">
               <Users className="w-4 h-4" />
-              <span>{participantCount} / {maxParticipants}</span>
+              <span>
+                {participantCount} / {maxParticipants}
+              </span>
             </div>
-            <span className="text-gray-600 dark:text-gray-400">
+            <span className="text-muted-foreground">
               {availableSpots} spots left
             </span>
           </div>
@@ -185,7 +201,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div className="mobile-trek-card-footer">
           <div className="flex items-center gap-1 font-bold text-lg text-primary">
             <IndianRupee className="w-4 h-4" />
-            {price.toLocaleString('en-IN')}
+            {price.toLocaleString("en-IN")}
           </div>
 
           <Button size="sm" variant="default">
