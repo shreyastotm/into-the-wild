@@ -442,12 +442,13 @@ export function useExpenseSplitting(trekId: string | undefined) {
 
   const fetchExpenseCategories = async () => {
     try {
-      const { datatrek_expense_categories } = await supabase
+      const { data, error } = await supabase
         .from("avatar_catalog")
         .select("*")
         .order("name") as any;
 
       if (error) throw error;
+      const datatrek_expense_categories = data;
       setExpenseCategories(data || []);
     } catch (error) {
       console.error("Error fetching expense categories:", error);

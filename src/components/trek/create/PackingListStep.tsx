@@ -41,9 +41,9 @@ export const PackingListStep: React.FC<PackingListStepProps> = ({
   const fetchMasterPackingItems = async () => {
     try {
       setLoading(true);
-      const { datamaster_packing_items } = await supabase
-        .from('"id, name, category"')
-        .select("*")
+      const { data, error } = await supabase
+        .from("master_packing_items")
+        .select("id, name, category")
         .order("category", { ascending: true })
         .order("name", { ascending: true }) as any;
 

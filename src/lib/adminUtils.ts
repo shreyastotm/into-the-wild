@@ -19,9 +19,9 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
     if (!user) return false;
 
     // Query the users table directly
-    const { datausers } = await supabase
+    const { data, error } = await supabase
         .from("users")
-        .select("*")
+        .select("user_type")
         .eq("user_id", user.id)
         .single() as any;
 
@@ -43,9 +43,9 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
  */
 export async function isUserAdmin(userId: string): Promise<boolean> {
   try {
-    const { datausers } = await supabase
+    const { data, error } = await supabase
         .from("users")
-        .select("*")
+        .select("user_type")
         .eq("user_id", userId)
         .single() as any;
 
