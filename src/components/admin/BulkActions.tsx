@@ -1,3 +1,4 @@
+import React, { Component } from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -7,10 +8,7 @@ import {
   DropdownMenuTrigger,
   DropdownMenuSeparator,
 } from "@/components/ui/dropdown-menu";
-import React, { Component } from "react";
-
-import React, { Component } from "react";
-
+import {
   Checkbox,
   ChevronDown,
   Trash2,

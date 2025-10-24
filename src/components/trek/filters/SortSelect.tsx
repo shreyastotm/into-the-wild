@@ -1,8 +1,6 @@
+import React, { Component } from "react";
 import { ChevronDown } from "lucide-react";
-import React, { Component } from "react";
-
-import React, { Component } from "react";
-
+import {
   Select,
   SelectContent,
   SelectItem,
