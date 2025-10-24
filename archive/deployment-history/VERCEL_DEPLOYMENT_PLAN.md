@@ -53,7 +53,7 @@
 
 - **Output Directory:** `dist/`
 - **Build Command:** `npm run build`
-- **Node Version:** 18.x
+- **Node Version:** 22.x
 - **Package Manager:** npm
 
 ---
@@ -258,7 +258,7 @@ VITE_SUPABASE_ANON_KEY=your_anon_key_here
    - **Build Command:** `npm run build`
    - **Output Directory:** `dist`
    - **Install Command:** `npm install`
-   - **Node Version:** 18.x
+   - **Node Version:** 22.x
 
 4. **DO NOT Deploy Yet** - Click **"Configure Project"** first
 

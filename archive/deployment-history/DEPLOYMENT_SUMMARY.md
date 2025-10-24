@@ -208,7 +208,7 @@ Your application is **ready for production deployment** with minimal optional cl
 
 **Local Tools:**
 
-- ✅ Node.js 18.x
+- ✅ Node.js 22.x
 - ✅ npm or bun
 - ✅ Supabase CLI
 - ✅ Git

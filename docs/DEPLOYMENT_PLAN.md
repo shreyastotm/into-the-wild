@@ -87,7 +87,7 @@ This document outlines the deployment strategy for the "Into the Wild" trek mana
 - **Package Manager**: npm
 - **Testing**: Vitest + React Testing Library
 - **Linting**: ESLint 9.9.0
-- **Node Version**: 18.x
+- **Node Version**: 22.x
 
 ## Environment Configuration
 
@@ -212,7 +212,7 @@ Same as Netlify (see above)
 
 **Requirements**:
 
-- Node.js 18.x or higher
+- Node.js 22.x or higher
 - nginx (for reverse proxy)
 - SSL certificate (Let's Encrypt recommended)
 

@@ -78,7 +78,7 @@ VITE_SUPABASE_ANON_KEY=____________________
 - [ ] Select framework: Vite
 - [ ] Build command: `npm run build`
 - [ ] Output directory: `dist`
-- [ ] Node version: 18.x
+- [ ] Node version: 22.x
 
 ### Add Environment Variables
 

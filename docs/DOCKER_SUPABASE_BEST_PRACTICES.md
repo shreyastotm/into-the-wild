@@ -497,7 +497,7 @@ services:
     restart: unless-stopped
 
   backend:
-    image: node:18-alpine # Smaller base image
+    image: node:22-alpine # Smaller base image
     working_dir: /app
     volumes:
       - ./backend:/app
