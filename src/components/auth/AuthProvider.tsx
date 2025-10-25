@@ -34,11 +34,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
   const [user, setUser] = useState<User | null>(null);
   const [userProfile, setUserProfile] = useState<UserProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isFetchingProfile, setIsFetchingProfile] = useState(false);
   const { toast } = useToast();
 
   const fetchUserProfile = useCallback(async () => {
+    if (isFetchingProfile) {
+      console.log("[AUTH] fetchUserProfile already running, skipping");
+      return;
+    }
+
     console.log("[AUTH] fetchUserProfile called");
+    setIsFetchingProfile(true);
     const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+
+    try {
     const {
       data: { session },
     } = await supabase.auth.getSession();
@@ -72,9 +81,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
       console.log("[AUTH] fetchUserProfile - no session found", { isMobile });
       setLoading(false);
     }
+    } catch (error) {
+      console.error("[AUTH] Error in fetchUserProfile:", error);
+      setLoading(false);
+    } finally {
+      setIsFetchingProfile(false);
+    }
     // Removed toast dependency to prevent circular dependency
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isFetchingProfile]);
 
   useEffect(() => {
     console.log('🔍 AuthProvider: useEffect triggered - START');
@@ -150,7 +165,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
 
         if (session?.user) {
           console.log("[AUTH] User found, fetching profile...");
+          // Only fetch profile if not already fetching
+          if (!isFetchingProfile) {
           fetchUserProfile();
+          }
         } else {
           console.log("[AUTH] No user session found");
           setLoading(false);
@@ -177,7 +195,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
           "[AUTH] Auth state change - fetching profile for user:",
           session.user.id,
         );
+        // Only fetch profile if not already fetching
+        if (!isFetchingProfile) {
         fetchUserProfile();
+        }
       } else {
         console.log("[AUTH] Auth state change - no user session");
         setUserProfile(null);
@@ -187,7 +208,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
 
     return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [fetchUserProfile]); // fetchUserProfile is now stable with no dependencies
+  }, [fetchUserProfile, isFetchingProfile]); // fetchUserProfile is now stable with no dependencies
 
   const signOut = async () => {
     await supabase.auth.signOut();
