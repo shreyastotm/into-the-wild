@@ -3,12 +3,12 @@
 
 -- Insert sample past treks (set dates in the past)
 INSERT INTO public.trek_events (
-    trek_name,
+    name,
     description,
     location,
     start_datetime,
     duration,
-    cost,
+    base_price,
     max_participants,
     difficulty,
     category,
@@ -52,7 +52,7 @@ INSERT INTO public.trek_events (
 ),
 (
     'Everest Base Camp - Ultimate Challenge',
-    'Conquer the mighty Himalayas and reach the base of the world\'s highest peak. This challenging trek offers unparalleled views of Everest, Lhotse, and other 8000m peaks.',
+    'Conquer the mighty Himalayas and reach the base of the world''s highest peak. This challenging trek offers unparalleled views of Everest, Lhotse, and other 8000m peaks.',
     'Everest Region, Nepal',
     NOW() - INTERVAL '90 days', -- 90 days ago
     INTERVAL '14 days',
@@ -81,7 +81,7 @@ INSERT INTO public.trek_event_images (trek_id, image_url, position)
 SELECT
     te.trek_id,
     CASE
-        WHEN te.trek_name LIKE '%Kudremukh%' THEN
+        WHEN te.name LIKE '%Kudremukh%' THEN
             CASE
                 WHEN position = 1 THEN 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
                 WHEN position = 2 THEN 'https://images.unsplash.com/photo-1464822759844-d150baec93d5?w=800&h=600&fit=crop'
@@ -89,7 +89,7 @@ SELECT
                 WHEN position = 4 THEN 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop'
                 WHEN position = 5 THEN 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop'
             END
-        WHEN te.trek_name LIKE '%Valley of Flowers%' THEN
+        WHEN te.name LIKE '%Valley of Flowers%' THEN
             CASE
                 WHEN position = 1 THEN 'https://images.unsplash.com/photo-1464822759844-d150baec93d5?w=800&h=600&fit=crop'
                 WHEN position = 2 THEN 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
@@ -97,14 +97,14 @@ SELECT
                 WHEN position = 4 THEN 'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop'
                 WHEN position = 5 THEN 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&h=600&fit=crop'
             END
-        WHEN te.trek_name LIKE '%Rajasthan%' THEN
+        WHEN te.name LIKE '%Rajasthan%' THEN
             CASE
                 WHEN position = 1 THEN 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&h=600&fit=crop'
                 WHEN position = 2 THEN 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
                 WHEN position = 3 THEN 'https://images.unsplash.com/photo-1464822759844-d150baec93d5?w=800&h=600&fit=crop'
                 WHEN position = 4 THEN 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop'
             END
-        WHEN te.trek_name LIKE '%Everest%' THEN
+        WHEN te.name LIKE '%Everest%' THEN
             CASE
                 WHEN position = 1 THEN 'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop'
                 WHEN position = 2 THEN 'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
@@ -122,7 +122,7 @@ SELECT
     position
 FROM public.trek_events te
 CROSS JOIN (SELECT generate_series(1, 5) as position) positions
-WHERE te.trek_name IN (
+WHERE te.name IN (
     'Kudremukh Trek - Western Ghats Adventure',
     'Valley of Flowers - Himalayan Paradise',
     'Rajasthan Desert Safari Adventure',
@@ -130,11 +130,11 @@ WHERE te.trek_name IN (
     'Kerala Backwaters Kayaking Expedition'
 )
 AND (
-    (te.trek_name LIKE '%Kudremukh%' AND position <= 5) OR
-    (te.trek_name LIKE '%Valley of Flowers%' AND position <= 5) OR
-    (te.trek_name LIKE '%Rajasthan%' AND position <= 4) OR
-    (te.trek_name LIKE '%Everest%' AND position <= 5) OR
-    (te.trek_name LIKE '%Kerala%' AND position <= 3)
+    (te.name LIKE '%Kudremukh%' AND position <= 5) OR
+    (te.name LIKE '%Valley of Flowers%' AND position <= 5) OR
+    (te.name LIKE '%Rajasthan%' AND position <= 4) OR
+    (te.name LIKE '%Everest%' AND position <= 5) OR
+    (te.name LIKE '%Kerala%' AND position <= 3)
 )
 ON CONFLICT DO NOTHING;
 
@@ -144,27 +144,27 @@ SELECT
     te.trek_id,
     '00000000-0000-0000-0000-000000000000'::uuid as uploaded_by, -- Placeholder UUID
     CASE
-        WHEN te.trek_name LIKE '%Kudremukh%' THEN
+        WHEN te.name LIKE '%Kudremukh%' THEN
             'https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&h=600&fit=crop'
-        WHEN te.trek_name LIKE '%Valley of Flowers%' THEN
+        WHEN te.name LIKE '%Valley of Flowers%' THEN
             'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&h=600&fit=crop'
-        WHEN te.trek_name LIKE '%Rajasthan%' THEN
+        WHEN te.name LIKE '%Rajasthan%' THEN
             'https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&h=600&fit=crop'
-        WHEN te.trek_name LIKE '%Everest%' THEN
+        WHEN te.name LIKE '%Everest%' THEN
             'https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&h=600&fit=crop'
         ELSE
             'https://images.unsplash.com/photo-1464822759844-d150baec93d5?w=800&h=600&fit=crop'
-    END as image_url,
+    END as     image_url,
     CASE
-        WHEN te.trek_name LIKE '%Kudremukh%' THEN 'Amazing view from the peak!'
-        WHEN te.trek_name LIKE '%Valley of Flowers%' THEN 'Incredible biodiversity in the valley'
-        WHEN te.trek_name LIKE '%Rajasthan%' THEN 'Beautiful sunset over the dunes'
-        WHEN te.trek_name LIKE '%Everest%' THEN 'Standing at the foot of giants'
+        WHEN te.name LIKE '%Kudremukh%' THEN 'Amazing view from the peak!'
+        WHEN te.name LIKE '%Valley of Flowers%' THEN 'Incredible biodiversity in the valley'
+        WHEN te.name LIKE '%Rajasthan%' THEN 'Beautiful sunset over the dunes'
+        WHEN te.name LIKE '%Everest%' THEN 'Standing at the foot of giants'
         ELSE 'Wonderful trekking experience!'
     END as caption,
     'approved' as status
 FROM public.trek_events te
-WHERE te.trek_name IN (
+WHERE te.name IN (
     'Kudremukh Trek - Western Ghats Adventure',
     'Valley of Flowers - Himalayan Paradise',
     'Rajasthan Desert Safari Adventure',
@@ -183,13 +183,13 @@ SELECT
 FROM public.trek_events te
 JOIN public.trek_event_images tei ON te.trek_id = tei.trek_id
 JOIN public.image_tags it ON (
-    (te.trek_name LIKE '%Kudremukh%' AND it.name IN ('Landscape', 'Nature', 'Adventure')) OR
-    (te.trek_name LIKE '%Valley of Flowers%' AND it.name IN ('Nature', 'Wildlife', 'Adventure')) OR
-    (te.trek_name LIKE '%Rajasthan%' AND it.name IN ('Landscape', 'Cultural', 'Adventure')) OR
-    (te.trek_name LIKE '%Everest%' AND it.name IN ('Summit', 'Adventure', 'Nature')) OR
-    (te.trek_name LIKE '%Kerala%' AND it.name IN ('Nature', 'Water', 'Adventure'))
+    (te.name LIKE '%Kudremukh%' AND it.name IN ('Landscape', 'Nature', 'Adventure')) OR
+    (te.name LIKE '%Valley of Flowers%' AND it.name IN ('Nature', 'Wildlife', 'Adventure')) OR
+    (te.name LIKE '%Rajasthan%' AND it.name IN ('Landscape', 'Cultural', 'Adventure')) OR
+    (te.name LIKE '%Everest%' AND it.name IN ('Summit', 'Adventure', 'Nature')) OR
+    (te.name LIKE '%Kerala%' AND it.name IN ('Nature', 'Water', 'Adventure'))
 )
-WHERE te.trek_name IN (
+WHERE te.name IN (
     'Kudremukh Trek - Western Ghats Adventure',
     'Valley of Flowers - Himalayan Paradise',
     'Rajasthan Desert Safari Adventure',
@@ -207,5 +207,5 @@ SELECT
     30,
     5.2
 FROM public.trek_events te
-WHERE te.trek_name = 'Kudremukh Trek - Western Ghats Adventure'
+WHERE te.name = 'Kudremukh Trek - Western Ghats Adventure'
 ON CONFLICT DO NOTHING;
