@@ -86,7 +86,7 @@ export const AuthProvider: React.FC<
     if (isMobile && typeof window !== "undefined") {
       try {
         const keys = Object.keys(localStorage).filter(
-          (k) => k.includes("supabase") || k.includes("auth"),
+          (k) => k.includes("supabase") || k.includes("auth") || k.includes("itw-auth"),
         );
         console.log("[AUTH] localStorage keys on mobile:", keys);
 
@@ -99,6 +99,36 @@ export const AuthProvider: React.FC<
         }
       } catch (e) {
         console.error("[AUTH] Error accessing localStorage:", e);
+      }
+    }
+
+    // Check for incognito mode or force signout
+    const urlParams = new URLSearchParams(window.location.search);
+    const isIncognito = urlParams.get('incognito') === 'true' ||
+                       urlParams.get('forceSignOut') === 'true' ||
+                       window.location.hash.includes('forceSignOut');
+
+    // In incognito mode, disable session persistence
+    if (isIncognito && typeof window !== "undefined") {
+      console.log("[AUTH] Incognito mode detected, clearing auth tokens");
+      try {
+        // Clear all Supabase auth tokens
+        localStorage.removeItem("itw-auth-token");
+        localStorage.removeItem("supabase.auth.token");
+        sessionStorage.removeItem("supabase.auth.token");
+
+        // Also check for any other auth-related keys
+        const authKeys = Object.keys(localStorage).filter(
+          (k) => k.includes("supabase") || k.includes("auth") || k.includes("itw-auth")
+        );
+        authKeys.forEach(key => {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        });
+
+        console.log("[AUTH] Cleared auth tokens for incognito mode");
+      } catch (e) {
+        console.error("[AUTH] Error clearing auth tokens:", e);
       }
     }
 
@@ -161,6 +191,27 @@ export const AuthProvider: React.FC<
     await supabase.auth.signOut();
     setUser(null);
     setUserProfile(null);
+
+    // Clear auth tokens to ensure complete sign out
+    if (typeof window !== "undefined") {
+      try {
+        localStorage.removeItem("itw-auth-token");
+        localStorage.removeItem("supabase.auth.token");
+        sessionStorage.removeItem("supabase.auth.token");
+
+        const authKeys = Object.keys(localStorage).filter(
+          (k) => k.includes("supabase") || k.includes("auth") || k.includes("itw-auth")
+        );
+        authKeys.forEach(key => {
+          localStorage.removeItem(key);
+          sessionStorage.removeItem(key);
+        });
+
+        console.log("[AUTH] Cleared auth tokens during sign out");
+      } catch (e) {
+        console.error("[AUTH] Error clearing auth tokens during sign out:", e);
+      }
+    }
   };
 
   const value = useMemo(() => {
