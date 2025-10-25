@@ -69,6 +69,9 @@ const TrekEvents = () => {
   const [participantCounts, setParticipantCounts] = useState<
     Record<number, number>
   >({});
+  const [cachedParticipantCounts, setCachedParticipantCounts] = useState<
+    Record<number, number>
+  >({});
   const navigate = useNavigate();
   const { userProfile } = useAuth();
 
@@ -111,19 +114,17 @@ const TrekEvents = () => {
       // Get current filter values to avoid dependency issues
       const currentFilterOptions = filterOptions;
 
-      // Select with aliasing: 'name' as 'trek_name', 'base_price' as 'cost' - include event_type
+      // ✅ OPTIMIZED: Reduced field selection for better performance
       const selectString =
-        "trek_id,name,description,category,difficulty,base_price,start_datetime,max_participants,image_url,image,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type";
+        "trek_id,name,description,category,difficulty,base_price,start_datetime,max_participants,image_url,image,location,status,duration,event_type";
       let query = supabase.from("trek_events").select(selectString);
 
       // Filter out only CANCELLED events - show Draft events for public viewing
       query = query.neq("status", TrekEventStatus.CANCELLED);
 
-      // Apply search filter (uses DB column 'name')
+      // ✅ OPTIMIZED: Simplified search filter for better performance
       if (currentFilterOptions.search) {
-        query = query.or(
-          `name.ilike.%${currentFilterOptions.search}%,description.ilike.%${currentFilterOptions.search}%`,
-        );
+        query = query.ilike("name", `%${currentFilterOptions.search}%`);
       }
 
       // Apply category filter (uses DB column 'category')
@@ -190,6 +191,9 @@ const TrekEvents = () => {
         query = query.order("start_datetime", { ascending: true });
       }
 
+      // ✅ OPTIMIZED: Limit results to improve performance
+      query = query.limit(50);
+
       const { data, error } = await query;
 
       if (error) {
@@ -199,29 +203,56 @@ const TrekEvents = () => {
 
       const fetchedData = (data as FetchedTrekData[]) || []; // data is now raw from DB
 
+      // ✅ OPTIMIZED: Single query for all participant counts instead of multiple RPC calls
       const newParticipantCounts: Record<number, number> = {};
       if (fetchedData && fetchedData.length > 0) {
-        const countsArray = await Promise.all(
-          fetchedData.map(async (trek) => {
-            // Call the RPC function to get participant count
-            const { data: countData, error: countError } = await supabase.rpc(
-              "get_trek_participant_count",
-              { trek_id_param: trek.trek_id },
-            );
+        const trekIds = fetchedData.map(trek => trek.trek_id);
 
-            if (countError) {
-              console.error(
-                `Error fetching participant count for trek ${trek.trek_id} via RPC:`,
-                countError,
-              );
-              return { trek_id: trek.trek_id, count: 0 };
-            }
-            return { trek_id: trek.trek_id, count: countData ?? 0 };
-          }),
-        );
-        countsArray.forEach((item) => {
-          newParticipantCounts[item.trek_id] = item.count;
+        // Check cache first
+        const cachedCounts: Record<number, number> = {};
+        let needsFetch = false;
+
+        trekIds.forEach(trekId => {
+          if (cachedParticipantCounts[trekId] !== undefined) {
+            cachedCounts[trekId] = cachedParticipantCounts[trekId];
+          } else {
+            needsFetch = true;
+          }
         });
+
+        // Only fetch if we don't have cached data
+        if (needsFetch) {
+          const { data: countsData, error: countsError } = await supabase
+            .from("trek_registrations")
+            .select("trek_event_id")
+            .in("trek_event_id", trekIds);
+
+          if (!countsError && countsData) {
+            // Count registrations per trek
+            const freshCounts: Record<number, number> = {};
+            countsData.forEach(reg => {
+              freshCounts[reg.trek_event_id] = (freshCounts[reg.trek_event_id] || 0) + 1;
+            });
+
+            // Merge cached and fresh data
+            trekIds.forEach(trekId => {
+              newParticipantCounts[trekId] = freshCounts[trekId] || 0;
+            });
+
+            // Update cache
+            setCachedParticipantCounts(prev => ({ ...prev, ...freshCounts }));
+          } else {
+            // Fallback: set all to 0 if query fails
+            trekIds.forEach(trekId => {
+              newParticipantCounts[trekId] = 0;
+            });
+          }
+        } else {
+          // All data from cache
+          trekIds.forEach(trekId => {
+            newParticipantCounts[trekId] = cachedCounts[trekId];
+        });
+        }
       }
       setParticipantCounts(newParticipantCounts);
 
@@ -267,8 +298,13 @@ const TrekEvents = () => {
   }, []);
 
   useEffect(() => {
+    // ✅ OPTIMIZED: Debounce filter changes to reduce query frequency
+    const timeoutId = setTimeout(() => {
     fetchEvents();
     fetchCategories();
+    }, 300); // 300ms debounce
+
+    return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     filterOptions.search,

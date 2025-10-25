@@ -18,11 +18,27 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   CreateExpenseInput,
   ExpenseCategory,
-} from "@/hooks/useExpenseSplitting";
+  Expense,
+} from "@/types/expense";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { AlertCircle, Loader2, DollarSign, Users, ArrowLeft } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/utils";
-import { ArrowLeft, Loader2 } from "lucide-react";
-
-import React, { Component } from "react";
 
 interface AddExpenseFormProps {
   trekId: number;

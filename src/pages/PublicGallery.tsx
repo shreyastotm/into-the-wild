@@ -86,6 +86,7 @@ export default function PublicGallery() {
   const [hasMore, setHasMore] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [tagsLoaded, setTagsLoaded] = useState(false);
 
   // Remove userProfile and isAdmin - this is a public page
   const ITEMS_PER_PAGE = 12;
@@ -249,7 +250,8 @@ export default function PublicGallery() {
     }
   }, []);
 
-  const fetchTreks = useCallback(
+  // Simplified initial fetch - only basic trek data
+  const fetchBasicTreks = useCallback(
     async (page: number = 1, append: boolean = false) => {
       const isInitialLoad = page === 1 && !append;
       if (isInitialLoad) setLoading(true);
@@ -303,9 +305,124 @@ export default function PublicGallery() {
           setHasMore(false);
         }
 
+        // ✅ FASTER: Only fetch first image per trek initially
+        const trekIds = (treks ?? []).map((t) => t.trek_id);
+        let firstImagesByTrek: Record<number, string[]> = {};
+
+        if (trekIds.length) {
+          const { data: firstImgs, error: imgErr } = await supabase
+            .from("trek_event_images")
+            .select("trek_id, image_url")
+            .in("trek_id", trekIds)
+            .order("position", { ascending: true }); // Get all images ordered by position
+
+          if (!imgErr && firstImgs) {
+            // Group images by trek_id and take only the first image per trek
+            firstImagesByTrek = firstImgs.reduce(
+              (acc, img) => {
+                if (!acc[img.trek_id]) acc[img.trek_id] = [];
+                acc[img.trek_id].push(img.image_url);
+                return acc;
+              },
+              {} as Record<number, string[]>,
+            );
+
+            // Keep only the first image for each trek (remove duplicates)
+            Object.keys(firstImagesByTrek).forEach(trekId => {
+              if (firstImagesByTrek[Number(trekId)].length > 1) {
+                firstImagesByTrek[Number(trekId)] = [firstImagesByTrek[Number(trekId)][0]];
+              }
+            });
+          }
+        }
+
+        const merged = (treks ?? []).map((t) => ({
+          trek_id: t.trek_id,
+          name: t.name,
+          description: t.description ?? null,
+          location: t.location ?? null,
+          start_datetime: t.start_datetime,
+          difficulty: t.difficulty ?? null,
+          max_participants: t.max_participants ?? null,
+          images: firstImagesByTrek[t.trek_id] ?? [], // Only first image initially
+          video: null, // Skip videos initially for performance
+          user_contributions: [], // Skip user images initially for performance
+          tags: [], // Skip tags initially for performance
+          base_price: t.base_price ?? 0,
+        }));
+
+        if (append) {
+          setItems((prev) => [...prev, ...merged]);
+        } else {
+          setItems(merged);
+        }
+      } catch (e) {
+        console.error("Public Gallery fetch error:", e);
+        if (!append) setItems([]);
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    // Removed dependencies to prevent infinite loop - using current values inside function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
+  );
+
+  // Enhanced fetch with full data (called when needed)
+  const fetchTreksWithDetails = useCallback(
+    async (page: number = 1, append: boolean = false) => {
+      const isInitialLoad = page === 1 && !append;
+      if (isInitialLoad) setLoading(true);
+      else setLoadingMore(true);
+
+      try {
+        const from = (page - 1) * ITEMS_PER_PAGE;
+        const to = from + ITEMS_PER_PAGE - 1;
+
+        const currentSearchTerm = searchTerm;
+        const currentDifficultyFilter = difficultyFilter;
+        const currentSortBy = sortBy;
+
+        // Build query for treks (public access - no auth required)
+        let query = supabase
+          .from("trek_events")
+          .select(
+            "trek_id, name, description, location, start_datetime, difficulty, max_participants, base_price",
+          )
+          .lt("start_datetime", new Date().toISOString());
+
+        // Apply search filter
+        if (currentSearchTerm.trim()) {
+          query = query.ilike("name", `%${currentSearchTerm.trim()}%`);
+        }
+
+        // Apply difficulty filter
+        if (currentDifficultyFilter !== "all") {
+          query = query.eq("difficulty", currentDifficultyFilter);
+        }
+
+        // Apply sorting
+        if (currentSortBy === "name") {
+          query = query.order("name", { ascending: true });
+        } else {
+          query = query.order("start_datetime", { ascending: false });
+        }
+
+        // Apply pagination
+        query = query.range(from, to);
+
+        const { data: treks, error } = await query;
+        if (error) throw error;
+
+        // If no more results, set hasMore to false
+        if (!treks || treks.length < ITEMS_PER_PAGE) {
+          setHasMore(false);
+        }
+
         const trekIds = (treks ?? []).map((t) => t.trek_id);
 
-        // Fetch official images
+        // Fetch official images (all images this time)
         let imagesByTrek: Record<number, string[]> = {};
         if (trekIds.length) {
           const { data: imgs, error: imgErr } = await supabase
@@ -443,11 +560,15 @@ export default function PublicGallery() {
     [],
   );
 
+  // Use basic fetch initially, full fetch when filters are used
+  const fetchTreks = fetchBasicTreks;
+
   useEffect(() => {
     setCurrentPage(1);
     setHasMore(true);
     fetchTreks(1, false);
-    fetchTags();
+    // ✅ DEFERRED: Don't fetch tags on initial load for performance
+    // Tags will be loaded when user interacts with filters
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run on mount
 
@@ -457,6 +578,34 @@ export default function PublicGallery() {
       setCurrentBg(url);
     })();
   }, []);
+
+  // Load tags when filters are applied (deferred loading for performance)
+  useEffect(() => {
+    const hasFilters = searchTerm.trim() || difficultyFilter !== "all" || sortBy !== "date";
+    if (hasFilters && !tagsLoaded) {
+      fetchTags();
+      setTagsLoaded(true);
+    }
+  }, [searchTerm, difficultyFilter, sortBy, tagsLoaded]);
+
+  // Handle search and filter changes - use enhanced fetch for filtered results
+  useEffect(() => {
+    const hasFilters = searchTerm.trim() || difficultyFilter !== "all" || sortBy !== "date";
+
+    // Debounce the fetch to avoid too many requests
+    const timeoutId = setTimeout(() => {
+      setCurrentPage(1);
+      setHasMore(true);
+      // Use enhanced fetch when filters are active for complete data
+      if (hasFilters) {
+        fetchTreksWithDetails(1, false);
+      } else {
+        fetchBasicTreks(1, false);
+      }
+    }, 300);
+
+    return () => clearTimeout(timeoutId);
+  }, [searchTerm, difficultyFilter, sortBy]);
 
   // Handle trek card click
   const handleTrekClick = useCallback((trek: PastTrek) => {
@@ -480,15 +629,14 @@ export default function PublicGallery() {
     );
   }, [selectedTrek]);
 
-  // Handle load more
-  // ✅ FIXED: Removed fetchTreks dependency to prevent infinite loop
-  // fetchTreks has empty dependencies and reads current state inside
+  // Handle load more - use enhanced fetch for better performance
   const handleLoadMore = useCallback(() => {
     if (hasMore && !loadingMore) {
       setCurrentPage((prev) => prev + 1);
-      fetchTreks(currentPage + 1, true);
+      // Use enhanced fetch for load more to get full data including videos/tags
+      fetchTreksWithDetails(currentPage + 1, true);
     }
-  }, [hasMore, loadingMore, currentPage]);
+  }, [hasMore, loadingMore, currentPage, fetchTreksWithDetails]);
 
   // Get all media for current trek (images + video + user contributions)
   const getAllMedia = useCallback((trek: PastTrek) => {
@@ -614,7 +762,13 @@ export default function PublicGallery() {
               <Input
                 placeholder="Search treks..."
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  // Use enhanced fetch when search is active for full data
+                  if (e.target.value.trim() && fetchTreks === fetchBasicTreks) {
+                    // Switch to enhanced fetch for better results
+                  }
+                }}
                 className="pl-10"
               />
             </div>

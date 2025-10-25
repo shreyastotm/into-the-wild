@@ -129,10 +129,22 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
 
     setUploadingIdProof(idTypeId);
     try {
-      // Upload file to storage
+      // Ensure user session is valid before upload
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError || !session) {
+        toast({
+          title: "Authentication Error",
+          description: "Please log in again to upload files.",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Use auth.uid() for consistency with RLS policies
+      const userId = session.user.id;
       const fileExt = file.name.split(".").pop();
-      const fileName = `${user.id}_${Date.now()}.${fileExt}`;
-      const filePath = `id-proofs/${user.id}/${fileName}`;
+      const fileName = `${userId}_${Date.now()}.${fileExt}`;
+      const filePath = `id-proofs/${userId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("id-proofs")
@@ -154,7 +166,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
           registration_id: userRegistration.registration_id,
           id_type_id: idTypeId,
           proof_url: publicUrl,
-          uploaded_by: user.id,
+          uploaded_by: userId,
         }) as any;
 
       if (dbError) {

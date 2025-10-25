@@ -14,8 +14,6 @@ import { toast } from "@/components/ui/use-toast";
 import { TentType, TentInventory, TentRequest } from "@/types/trek";
 import { useCallback } from "react";
 
-import React, { Component } from "react";
-
 interface TentRentalProps {
   eventId: number;
   eventStartDate: string;

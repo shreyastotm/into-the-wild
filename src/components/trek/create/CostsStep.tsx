@@ -15,8 +15,6 @@ import {
 import { PlusCircle, Trash2, IndianRupee } from "lucide-react";
 import { StepProps } from "./types";
 
-import React, { Component } from "react";
-
 interface TrekCost {
   id?: number;
   cost_type: string;
