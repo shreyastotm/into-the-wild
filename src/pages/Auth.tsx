@@ -1,10 +1,18 @@
 import React from "react";
 import AuthForm from "@/components/auth/AuthForm";
 import { useMemo } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Navigate } from "react-router-dom";
+import { useAuth } from "@/components/auth/AuthProvider";
 
 export default function Auth() {
   const location = useLocation();
+  const { user } = useAuth();
+
+  // Redirect signed-in users away from auth page
+  if (user) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   const params = useMemo(
     () => new URLSearchParams(location.search),
     [location.search],
