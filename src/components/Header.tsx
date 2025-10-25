@@ -28,7 +28,7 @@ const Header = () => {
   // TODO: Implement actual notification fetching logic
   const handleNotificationClick = () => {
     // TODO: Open notifications panel or navigate to notifications page
-    console.log("Notifications clicked");
+    // TODO: Implement actual notification functionality
   };
   // Removed empty useEffect that was causing unnecessary re-renders
   // useEffect(() => {

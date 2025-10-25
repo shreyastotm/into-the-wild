@@ -258,7 +258,10 @@ export const UserBulkActions: BulkAction[] = [
     label: "Verify Selected",
     icon: <CheckCircle className="h-4 w-4" />,
     variant: "default",
-    onClick: (users) => console.log("Verify users:", users),
+    onClick: (users) => {
+      // TODO: Implement bulk user verification
+      console.warn("Bulk verification not yet implemented");
+    },
     confirmMessage: "Are you sure you want to verify the selected users?",
   },
   {
@@ -266,7 +269,10 @@ export const UserBulkActions: BulkAction[] = [
     label: "Reject Selected",
     icon: <XCircle className="h-4 w-4" />,
     variant: "destructive",
-    onClick: (users) => console.log("Reject users:", users),
+    onClick: (users) => {
+      // TODO: Implement bulk user rejection
+      console.warn("Bulk rejection not yet implemented");
+    },
     confirmMessage: "Are you sure you want to reject the selected users?",
   },
   {
@@ -274,21 +280,30 @@ export const UserBulkActions: BulkAction[] = [
     label: "Export Data",
     icon: <Download className="h-4 w-4" />,
     variant: "outline",
-    onClick: (users) => console.log("Export users:", users),
+    onClick: (users) => {
+      // TODO: Implement bulk user export
+      console.warn("Bulk export not yet implemented");
+    },
   },
   {
     id: "email",
     label: "Send Email",
     icon: <Mail className="h-4 w-4" />,
     variant: "outline",
-    onClick: (users) => console.log("Email users:", users),
+    onClick: (users) => {
+      // TODO: Implement bulk email functionality
+      console.warn("Bulk email not yet implemented");
+    },
   },
   {
     id: "delete",
     label: "Delete Selected",
     icon: <Trash2 className="h-4 w-4" />,
     variant: "destructive",
-    onClick: (users) => console.log("Delete users:", users),
+    onClick: (users) => {
+      // TODO: Implement bulk user deletion
+      console.warn("Bulk deletion not yet implemented");
+    },
     confirmMessage:
       "Are you sure you want to delete the selected users? This action cannot be undone.",
   },
@@ -300,8 +315,10 @@ export const RegistrationBulkActions: BulkAction[] = [
     label: "Approve Selected",
     icon: <CheckCircle className="h-4 w-4" />,
     variant: "default",
-    onClick: (registrations) =>
-      console.log("Approve registrations:", registrations),
+    onClick: (registrations) => {
+      // TODO: Implement bulk registration approval
+      console.warn("Bulk approval not yet implemented");
+    },
     confirmMessage:
       "Are you sure you want to approve the selected registrations?",
   },

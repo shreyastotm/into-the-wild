@@ -11,8 +11,6 @@ import { format, formatRelative } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { useCallback } from "react";
 
-import React, { Component } from "react";
-
 interface Trek {
   trek_id: number;
   name: string;
@@ -170,18 +168,21 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
       );
       setParticipantCounts(zeroCounts);
     }
-  }, [treks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Remove treks dependency to prevent infinite loop
 
   useEffect(() => {
     fetchUpcomingTreks();
-  }, [limit, fetchUpcomingTreks]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [limit]); // Remove fetchUpcomingTreks dependency to prevent infinite loop
 
   // Fetch counts only after treks are loaded
   useEffect(() => {
     if (treks.length > 0) {
       fetchAllParticipantCounts();
     }
-  }, [treks, fetchAllParticipantCounts]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [treks.length]); // Depend on treks.length instead of treks array and function
 
   const toIndianTime = (utcDateString: string) => {
     try {

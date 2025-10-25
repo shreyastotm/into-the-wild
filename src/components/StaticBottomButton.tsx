@@ -171,7 +171,7 @@ export const StaticBottomButton = ({
               console.error('Dark image failed to load:', e.currentTarget.src);
             }}
             onLoad={(e) => {
-              console.log('Dark image loaded successfully');
+              // Dark image loaded successfully
             }}
           />
 
@@ -194,7 +194,7 @@ export const StaticBottomButton = ({
               console.error('Lit image failed to load:', e.currentTarget.src);
             }}
             onLoad={(e) => {
-              console.log('Lit image loaded successfully');
+              // Lit image loaded successfully
             }}
           />
         </div>

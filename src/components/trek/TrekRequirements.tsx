@@ -89,8 +89,8 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   ];
 
   useEffect(() => {
-    console.log('TrekRequirements: Loading requirements for trek', trekId);
     loadRequirements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [trekId]);
 
   const loadRequirements = async () => {
@@ -98,28 +98,17 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
       setLoading(true);
 
       // Load required ID types for this trek
-      console.log('Loading ID requirements for trek:', trekId);
-
       // ID verification tables may not exist yet, return empty array for now
-      console.log('ID verification system not yet implemented, returning empty requirements');
-
-      // RPC function may not be available yet
-      console.log('RPC function not available yet');
 
       setRequiredIdTypes([]);
 
       // Load user's ID proofs for this trek (if registered)
       // Tables may not exist yet, set empty array for now
-      console.log('ID proofs table not available yet');
-          setUserIdProofs([]);
+      setUserIdProofs([]);
 
       // Load user's previously approved ID proofs (for reuse)
       // Tables may not exist yet, set empty array for now
-      console.log('Approved proofs table not available yet');
-              setApprovedProofs([]);
-
-      console.log('TrekRequirements: Loaded requirements for trek', trekId);
-      setRequiredIdTypes([]);
+      setApprovedProofs([]);
     } catch (error) {
       console.error('Error loading requirements:', error);
     } finally {
@@ -346,10 +335,7 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
                     <label className="text-sm font-medium">
                       Select ID Type
                     </label>
-                    <Select value={selectedIdType} onValueChange={(value) => {
-                      console.log('Select changed:', value);
-                      setSelectedIdType(value);
-                    }}>
+                    <Select value={selectedIdType} onValueChange={setSelectedIdType}>
                       <SelectTrigger className="w-full cursor-pointer hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20">
                         <SelectValue placeholder="Choose an ID type to upload" />
                       </SelectTrigger>
