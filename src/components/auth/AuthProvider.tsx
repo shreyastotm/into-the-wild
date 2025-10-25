@@ -182,7 +182,8 @@ export const AuthProvider: React.FC<
     });
 
     return authValue;
-  }, [user, userProfile, loading, fetchUserProfile]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, userProfile, loading]); // Removed fetchUserProfile from dependencies to prevent infinite loop
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
