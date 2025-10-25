@@ -19,6 +19,8 @@ export default defineConfig(({ mode }) => ({
     alias: {
       "@": path.resolve(__dirname, "./src"),
     },
+    // Prevent duplicate React copies across chunks/deps (fixes invalid hook call)
+    dedupe: ["react", "react-dom"],
   },
   build: {
     // TEMP: enable sourcemaps in production to debug stack overflows
