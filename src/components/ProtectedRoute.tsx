@@ -7,9 +7,8 @@ interface ProtectedRouteProps {
   isAdminRoute?: boolean;
 }
 
-export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({
-  isAdminRoute = false,
-}) => {
+export const ProtectedRoute: React.FC<ProtectedRouteProps> = (props) => {
+  const { isAdminRoute = false } = props || {};
   const { user, userProfile, loading } = useAuth();
 
   console.log("[PROTECTED_ROUTE]", {

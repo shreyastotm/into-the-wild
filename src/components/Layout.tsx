@@ -9,7 +9,8 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
-const Layout = ({ children }: LayoutProps) => {
+const Layout: React.FC<LayoutProps> = (props) => {
+  const { children } = props || {};
   const location = useLocation();
 
   // Page type checks for conditional rendering
