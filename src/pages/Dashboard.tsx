@@ -58,16 +58,12 @@ const Dashboard = () => {
 
   // ✅ Early return if loading
   if (loading) {
-    console.log('🔍 Dashboard: Loading state, showing LoadingScreen');
     return <LoadingScreen />;
   }
 
-  // ✅ Log user state
-  console.log('🔍 Dashboard: Rendering', { hasUser: !!user, userId: user?.id });
-
   // ✅ Add defensive check for user data
   if (!user?.id) {
-    console.error('🔥 Dashboard: User object is malformed!', { user });
+    console.error('Dashboard: User object is malformed!', { user });
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
@@ -83,7 +79,6 @@ const Dashboard = () => {
 
   // Pre-sign-in view
   if (!user) {
-    console.log('🔍 Dashboard: No user, showing pre-signin view');
     return (
       <div className="min-h-screen relative overflow-hidden">
         {/* Panning Background Image */}
@@ -190,7 +185,6 @@ const Dashboard = () => {
   }
 
   // Signed-in view - Base Camp Dashboard
-  console.log('🔍 Dashboard: User signed in, showing dashboard');
   return (
     <div className="min-h-screen relative">
       {/* Panning Background Image */}

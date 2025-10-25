@@ -45,22 +45,17 @@ export const UserTreks = () => {
   const isFetchingRef = useRef(false);
 
   const fetchUserTrekRegistrations = useCallback(async (currentUser: typeof user) => {
-    console.log('🔍 UserTreks: fetchUserTrekRegistrations called', { user: currentUser?.id });
-
     // ✅ Prevent concurrent calls
     if (isFetchingRef.current) {
-      console.log('🔍 UserTreks: Already fetching, skipping');
       return;
     }
 
     if (!currentUser) {
-      console.log('🔍 UserTreks: No user, returning early');
       setLoading(false);
       return;
     }
     try {
       isFetchingRef.current = true;
-      console.log('🔍 UserTreks: fetchUserTrekRegistrations - STARTING QUERY');
       setLoading(true);
 
       const userId = currentUser.id
@@ -69,7 +64,6 @@ export const UserTreks = () => {
           : String(currentUser.id)
         : "";
 
-      console.log('🔍 UserTreks: About to query trek_registrations', { userId });
       const { data, error } = await supabase
         .from("trek_registrations")
         .select("*")
@@ -156,18 +150,12 @@ export const UserTreks = () => {
   }, []); // ✅ CRITICAL: EMPTY DEPENDENCIES - NO RE-CREATION!
 
   useEffect(() => {
-    console.log('🔍 UserTreks: useEffect triggered', {
-      hasUser: !!user,
-      userId: user?.id
-    });
     if (user) {
-      console.log('🔍 UserTreks: Calling fetchUserTrekRegistrations');
       // ✅ Only call if not already fetching
       if (!isFetchingRef.current) {
         fetchUserTrekRegistrations(user);
     }
     } else {
-      console.log('🔍 UserTreks: No user, skipping fetch');
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -180,14 +168,6 @@ export const UserTreks = () => {
   // Separate upcoming and past treks
   const upcomingTreks = trekRegistrations.filter((reg) => !reg.isPast);
   const pastTreks = trekRegistrations.filter((reg) => reg.isPast);
-
-  console.log('🔍 UserTreks: Render state', {
-    loading,
-    totalRegistrations: trekRegistrations.length,
-    upcomingCount: upcomingTreks.length,
-    pastCount: pastTreks.length,
-    hasData: trekRegistrations.length > 0
-  });
 
   if (loading) {
     return (
@@ -232,7 +212,6 @@ export const UserTreks = () => {
       startDate = toZonedTime(new Date(trek.start_datetime), "Asia/Kolkata");
       if (isNaN(startDate.getTime())) throw new Error("Invalid date");
     } catch {
-      // Debug: Log the problematic trek and its start_datetime
       console.error("Invalid trek start_datetime:", trek);
       // Fallback: show 'Invalid date' in UI instead of crashing
       return (
@@ -330,12 +309,7 @@ export const UserTreks = () => {
       </TabsList>
 
       <TabsContent value="upcoming">
-      {(() => {
-        console.log('🔍 UserTreks: Rendering upcoming treks', {
-          count: upcomingTreks.length,
-          treks: upcomingTreks.map(t => ({ id: t.trek_id, name: t.trek_name, isPast: t.isPast }))
-        });
-        return upcomingTreks.length > 0 ? (
+        {upcomingTreks.length > 0 ? (
           <div data-testid="usertreks">{upcomingTreks.map(renderTrekCard)}</div>
         ) : (
           <div className="text-center py-6" data-testid="usertreks">
@@ -347,8 +321,7 @@ export const UserTreks = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
-        );
-      })()}
+        )}
       </TabsContent>
 
       <TabsContent value="past">
