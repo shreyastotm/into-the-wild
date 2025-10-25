@@ -1,5 +1,5 @@
 import { formatIndianDate } from '@/utils/indianStandards';
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -19,7 +19,6 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useCallback } from "react";
 
 
 interface TrekRegistration {
@@ -43,14 +42,24 @@ export const UserTreks = () => {
   const [loading, setLoading] = useState(true);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const isFetchingRef = useRef(false);
 
   const fetchUserTrekRegistrations = useCallback(async () => {
     console.log('🔍 UserTreks: fetchUserTrekRegistrations called', { user: user?.id });
+    
+    // ✅ Prevent concurrent calls
+    if (isFetchingRef.current) {
+      console.log('🔍 UserTreks: Already fetching, skipping');
+      return;
+    }
+    
     if (!user) {
       console.log('🔍 UserTreks: No user, returning early');
+      setLoading(false);
       return;
     }
     try {
+      isFetchingRef.current = true;
       console.log('🔍 UserTreks: fetchUserTrekRegistrations - STARTING QUERY');
       setLoading(true);
 
@@ -142,8 +151,9 @@ export const UserTreks = () => {
       console.error("Error fetching user registrations:", error);
     } finally {
       setLoading(false);
+      isFetchingRef.current = false;
     }
-  }, [user]);
+  }, []); // ✅ CRITICAL: EMPTY DEPENDENCIES - NO RE-CREATION!
 
   useEffect(() => {
     console.log('🔍 UserTreks: useEffect triggered', {
@@ -152,13 +162,16 @@ export const UserTreks = () => {
     });
     if (user) {
       console.log('🔍 UserTreks: Calling fetchUserTrekRegistrations');
+      // ✅ Only call if not already fetching
+      if (!isFetchingRef.current) {
       fetchUserTrekRegistrations();
+      }
     } else {
       console.log('🔍 UserTreks: No user, skipping fetch');
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user]);
+  }, [user?.id]); // ✅ ONLY DEPEND ON user.id, NOT user object or fetchUserTrekRegistrations
 
   const goToTrekDetails = (trekId: number) => {
     navigate(`/trek-events/${trekId}`);
