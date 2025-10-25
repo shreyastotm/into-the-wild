@@ -13,6 +13,7 @@ export const usePageStyle = (config: {
   // Memoize the config object to prevent unnecessary re-renders
   const memoizedConfig = useMemo(() => config, [config.overflow, config.height, config.minHeight]);
 
+  // ✅ FIXED: Add memoizedConfig dependency to prevent stale closure issues
   useEffect(() => {
     const originalHtmlOverflow = document.documentElement.style.overflow;
     const originalBodyOverflow = document.body.style.overflow;

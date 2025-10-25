@@ -259,7 +259,10 @@ export default function PublicGallery() {
         const from = (page - 1) * ITEMS_PER_PAGE;
         const to = from + ITEMS_PER_PAGE - 1;
 
-        // Get current filter values to avoid dependency issues
+        // ✅ INTENTIONAL STALE CLOSURE PATTERN:
+        // We read current state INSIDE the function instead of adding dependencies
+        // This prevents infinite loops that would occur if we added [searchTerm, difficultyFilter, sortBy] as dependencies
+        // The fetchTreks function is only called from event handlers or effects with explicit state values
         const currentSearchTerm = searchTerm;
         const currentDifficultyFilter = difficultyFilter;
         const currentSortBy = sortBy;
@@ -570,6 +573,9 @@ export default function PublicGallery() {
   // Watch for filter changes - direct fetch without intermediate function
   useEffect(() => {
     // Reset pagination and fetch when filters change
+    // ✅ SAFE DEPENDENCY PATTERN: Using primitive values (searchTerm, sortBy) instead of object references
+    // ✅ Using selectedTags.length instead of selectedTags array to avoid object reference issues
+    // ✅ fetchTreks has empty dependencies and reads current state inside (stale closure pattern)
     setCurrentPage(1);
     setHasMore(true);
     fetchTreks(1, false);

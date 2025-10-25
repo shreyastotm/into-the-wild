@@ -225,7 +225,9 @@ const TrekEventsAdmin = () => {
     } finally {
       setLoading(false);
     }
-  }, [fetchTrekMedia]);
+    // ✅ FIXED: Remove unnecessary fetchTrekMedia dependency
+    // fetchTrekMedia already has empty dependencies and doesn't change
+  }, []);
 
   // Enhanced fetchEvents with image fetching
 

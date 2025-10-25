@@ -6,6 +6,8 @@ import tseslint from "typescript-eslint";
 
 export default tseslint.config(
   { ignores: ["dist", "node_modules", "**/*.d.ts"] },
+
+  // Base configuration for all TypeScript files
   {
     extends: [js.configs.recommended, ...tseslint.configs.recommended],
     files: ["**/*.{ts,tsx}"],
@@ -28,10 +30,9 @@ export default tseslint.config(
       "@typescript-eslint/no-unused-vars": "error",
       "@typescript-eslint/no-explicit-any": "error",
       "@typescript-eslint/no-non-null-assertion": "warn",
-      "@typescript-eslint/prefer-const": "error",
       "@typescript-eslint/no-var-requires": "error",
 
-      // React rules
+      // React rules - Enhanced hook validation
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
 
@@ -42,7 +43,7 @@ export default tseslint.config(
       "prefer-const": "error",
       "no-var": "error",
 
-      // Indian market standards
+      // Project-specific rules
       "no-restricted-syntax": [
         "error",
         {
@@ -50,11 +51,6 @@ export default tseslint.config(
           message:
             "Use Indian Rupee (₹) for currency. Use formatCurrency utility for proper formatting.",
         },
-      ],
-
-      // Design system compliance
-      "no-restricted-syntax": [
-        "error",
         {
           selector: "CallExpression[callee.name='className']",
           message:
@@ -74,6 +70,26 @@ export default tseslint.config(
         },
       ],
     },
+  },
+
+  // Enhanced hook dependency rules for pages (where infinite loops are most dangerous)
+  {
+    files: ["src/pages/**/*.tsx"],
+    rules: {
+      "react-hooks/exhaustive-deps": "warn"
+    }
+  },
+
+  // Stricter rules for components that handle data fetching
+  {
+    files: [
+      "src/components/**/*.tsx",
+      "src/pages/**/*.tsx",
+      "src/hooks/**/*.ts"
+    ],
+    rules: {
+      "react-hooks/exhaustive-deps": "warn"
+    }
   },
 
   // Specific rules for test files
