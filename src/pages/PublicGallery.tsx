@@ -592,7 +592,7 @@ export default function PublicGallery() {
 
   const onToggleBackground = async (url: string, checked: boolean) => {
     // Remove admin-only functionality for public gallery
-    console.log("Background toggle not available in public gallery");
+    // Background toggle not available in public gallery
   };
 
   return (

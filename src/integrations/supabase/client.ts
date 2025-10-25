@@ -29,11 +29,7 @@ export const supabase = createClient<Database>(
       storage: typeof window !== "undefined" ? window.localStorage : undefined,
       storageKey: "itw-auth-token",
     },
-    global: {
-      headers: {
-        "X-Client-Info": "into-the-wild",
-      },
-    },
+    // Removed custom headers that might cause 406 errors
   },
 );
 
