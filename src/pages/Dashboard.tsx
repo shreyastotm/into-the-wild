@@ -65,6 +65,22 @@ const Dashboard = () => {
   // ✅ Log user state
   console.log('🔍 Dashboard: Rendering', { hasUser: !!user, userId: user?.id });
 
+  // ✅ Add defensive check for user data
+  if (!user?.id) {
+    console.error('🔥 Dashboard: User object is malformed!', { user });
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <h2 className="text-xl font-bold mb-4">Session Error</h2>
+          <p className="mb-4">Please sign out and sign in again.</p>
+          <Button onClick={() => navigate('/auth?mode=signin')} className="mt-4">
+            Sign In Again
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   // Pre-sign-in view
   if (!user) {
     console.log('🔍 Dashboard: No user, showing pre-signin view');

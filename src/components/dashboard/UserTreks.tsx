@@ -44,16 +44,16 @@ export const UserTreks = () => {
   const navigate = useNavigate();
   const isFetchingRef = useRef(false);
 
-  const fetchUserTrekRegistrations = useCallback(async () => {
-    console.log('🔍 UserTreks: fetchUserTrekRegistrations called', { user: user?.id });
-    
+  const fetchUserTrekRegistrations = useCallback(async (currentUser: typeof user) => {
+    console.log('🔍 UserTreks: fetchUserTrekRegistrations called', { user: currentUser?.id });
+
     // ✅ Prevent concurrent calls
     if (isFetchingRef.current) {
       console.log('🔍 UserTreks: Already fetching, skipping');
       return;
     }
-    
-    if (!user) {
+
+    if (!currentUser) {
       console.log('🔍 UserTreks: No user, returning early');
       setLoading(false);
       return;
@@ -63,10 +63,10 @@ export const UserTreks = () => {
       console.log('🔍 UserTreks: fetchUserTrekRegistrations - STARTING QUERY');
       setLoading(true);
 
-      const userId = user.id
-        ? typeof user.id === "string"
-          ? user.id
-          : String(user.id)
+      const userId = currentUser.id
+        ? typeof currentUser.id === "string"
+          ? currentUser.id
+          : String(currentUser.id)
         : "";
 
       console.log('🔍 UserTreks: About to query trek_registrations', { userId });
@@ -164,8 +164,8 @@ export const UserTreks = () => {
       console.log('🔍 UserTreks: Calling fetchUserTrekRegistrations');
       // ✅ Only call if not already fetching
       if (!isFetchingRef.current) {
-      fetchUserTrekRegistrations();
-      }
+        fetchUserTrekRegistrations(user);
+    }
     } else {
       console.log('🔍 UserTreks: No user, skipping fetch');
       setLoading(false);
@@ -180,6 +180,14 @@ export const UserTreks = () => {
   // Separate upcoming and past treks
   const upcomingTreks = trekRegistrations.filter((reg) => !reg.isPast);
   const pastTreks = trekRegistrations.filter((reg) => reg.isPast);
+
+  console.log('🔍 UserTreks: Render state', {
+    loading,
+    totalRegistrations: trekRegistrations.length,
+    upcomingCount: upcomingTreks.length,
+    pastCount: pastTreks.length,
+    hasData: trekRegistrations.length > 0
+  });
 
   if (loading) {
     return (
@@ -322,7 +330,12 @@ export const UserTreks = () => {
       </TabsList>
 
       <TabsContent value="upcoming">
-        {upcomingTreks.length > 0 ? (
+      {(() => {
+        console.log('🔍 UserTreks: Rendering upcoming treks', {
+          count: upcomingTreks.length,
+          treks: upcomingTreks.map(t => ({ id: t.trek_id, name: t.trek_name, isPast: t.isPast }))
+        });
+        return upcomingTreks.length > 0 ? (
           <div data-testid="usertreks">{upcomingTreks.map(renderTrekCard)}</div>
         ) : (
           <div className="text-center py-6" data-testid="usertreks">
@@ -334,7 +347,8 @@ export const UserTreks = () => {
               <ArrowRight className="ml-2 h-4 w-4" />
             </Button>
           </div>
-        )}
+        );
+      })()}
       </TabsContent>
 
       <TabsContent value="past">
