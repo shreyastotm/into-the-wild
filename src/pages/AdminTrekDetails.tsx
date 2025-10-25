@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useParams, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -27,7 +27,8 @@ import { formatCurrency } from "@/lib/utils";
 import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
 import TrekCostsManager from "@/components/trek/TrekCostsManager";
 import { TentRequestsAdmin } from "@/components/admin/TentRequestsAdmin";
-import { TravelCoordination } from "@/components/trek/TravelCoordination";
+// Lazy load TravelCoordination to prevent Leaflet side effects during module loading
+const TravelCoordination = React.lazy(() => import("@/components/trek/TravelCoordination"));
 
 // Define a more flexible interface to handle field name variations
 interface TrekEvent {
@@ -517,12 +518,14 @@ export default function AdminTrekDetails() {
             </TabsContent>
 
             <TabsContent value="transport">
+              <Suspense fallback={<div className="p-4 text-center">Loading transport coordination...</div>}>
               <TravelCoordination
                 transportMode={trek.transport_mode}
                 pickupTimeWindow={trek.pickup_time_window}
                 vendorContacts={trek.vendor_contacts}
                 isAdmin={true}
               />
+              </Suspense>
             </TabsContent>
 
             <TabsContent value="expenses">

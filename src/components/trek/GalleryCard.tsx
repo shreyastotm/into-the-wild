@@ -23,6 +23,10 @@ interface GalleryCardProps {
 }
 
 export const GalleryCard: React.FC<GalleryCardProps> = ({ trek, onClick }) => {
+  // Safety check for undefined trek
+  if (!trek) {
+    return null;
+  }
   // Get image URL - filter out videos
   const getFirstImageUrl = () => {
     if (

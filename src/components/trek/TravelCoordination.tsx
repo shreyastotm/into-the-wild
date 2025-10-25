@@ -10,8 +10,51 @@ import {
   Users,
   AlertCircle,
 } from "lucide-react";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+
+// Lazy load Leaflet components to prevent side effects during module loading
+let LeafletComponents: any = null;
+let LeafletCSS: any = null;
+
+// Load Leaflet components dynamically when needed
+const loadLeafletComponents = async () => {
+  if (LeafletComponents && LeafletCSS) {
+    return { MapContainer: LeafletComponents.MapContainer, TileLayer: LeafletComponents.TileLayer, Marker: LeafletComponents.Marker, useMapEvents: LeafletComponents.useMapEvents };
+  }
+
+  try {
+    // Load CSS first
+    await import("leaflet/dist/leaflet.css");
+
+    // Load React Leaflet components
+    const reactLeaflet = await import("react-leaflet");
+    LeafletComponents = reactLeaflet;
+
+    // Load and configure Leaflet core
+    const L = await import("leaflet");
+
+    // Fix default Leaflet icon issue with bundlers
+    // @ts-expect-error - This is a known workaround for a Leaflet-bundler issue
+    delete L.default.Icon.Default.prototype._getIconUrl;
+    L.default.Icon.Default.mergeOptions({
+      iconRetinaUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
+      iconUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
+      shadowUrl:
+        "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
+    });
+
+    return {
+      MapContainer: reactLeaflet.MapContainer,
+      TileLayer: reactLeaflet.TileLayer,
+      Marker: reactLeaflet.Marker,
+      useMapEvents: reactLeaflet.useMapEvents
+    };
+  } catch (error) {
+    console.error("Failed to load Leaflet components:", error);
+    return null;
+  }
+};
 import {
   Card,
   CardContent,
@@ -37,20 +80,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/components/ui/use-toast";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
-
-// Fix default Leaflet icon issue with bundlers
-// @ts-expect-error - This is a known workaround for a Leaflet-bundler issue
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png",
-  iconUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png",
-  shadowUrl:
-    "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
-});
 import { useAuth } from "@/components/auth/AuthProvider";
 import {
   useTransportCoordination,
@@ -158,6 +187,21 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     );
   };
 
+  // Lazy-loaded Leaflet components
+  const [leafletLoaded, setLeafletLoaded] = useState(false);
+  const [LeafletComponents, setLeafletComponents] = useState<any>(null);
+
+  useEffect(() => {
+    if (!leafletLoaded) {
+      loadLeafletComponents().then((components) => {
+        if (components) {
+          setLeafletComponents(components);
+          setLeafletLoaded(true);
+        }
+      });
+    }
+  }, [leafletLoaded]);
+
   // Component to handle map interaction for pickup location creation
   function LocationMarker({
     position,
@@ -166,11 +210,14 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     position: L.LatLngTuple;
     onPositionChange: (pos: L.LatLngTuple) => void;
   }) {
+    if (!leafletLoaded || !LeafletComponents) return null;
+
+    const { useMapEvents } = LeafletComponents;
     const [markerPosition, setMarkerPosition] =
       useState<L.LatLngTuple>(position);
 
     const map = useMapEvents({
-      click(e) {
+      click(e: any) {
         const newPos: L.LatLngTuple = [e.latlng.lat, e.latlng.lng];
         setMarkerPosition(newPos);
         onPositionChange(newPos);
@@ -183,6 +230,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
       setMarkerPosition(position);
     }, [position]);
 
+    const { Marker } = LeafletComponents;
     return markerPosition ? <Marker position={markerPosition}></Marker> : null;
   }
 
@@ -832,8 +880,9 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                             <span>Lat: {location.coordinates.latitude}, </span>
                             <span>Long: {location.coordinates.longitude}</span>
                           </div>
+                          {leafletLoaded && LeafletComponents ? (
                           <div className="h-40 w-full rounded-md overflow-hidden mt-3">
-                            <MapContainer
+                              <LeafletComponents.MapContainer
                               center={[
                                 location.coordinates.latitude,
                                 location.coordinates.longitude,
@@ -841,18 +890,23 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                               zoom={13}
                               style={{ height: "100%", width: "100%" }}
                             >
-                              <TileLayer
+                                <LeafletComponents.TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                               />
-                              <Marker
+                                <LeafletComponents.Marker
                                 position={[
                                   location.coordinates.latitude,
                                   location.coordinates.longitude,
                                 ]}
                               />
-                            </MapContainer>
+                              </LeafletComponents.MapContainer>
                           </div>
+                          ) : (
+                            <div className="h-40 w-full rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center mt-3">
+                              <p className="text-gray-500">Loading map...</p>
+                            </div>
+                          )}
                           <div className="flex gap-2 mt-3">
                             <Button
                               size="sm"
@@ -966,14 +1020,15 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                           <div className="text-sm font-medium mb-2">
                             Click on the map to set coordinates
                           </div>
+                          {leafletLoaded && LeafletComponents ? (
                           <div className="h-48 w-full">
-                            <MapContainer
+                              <LeafletComponents.MapContainer
                               center={mapCenter}
                               zoom={12}
                               style={{ height: "100%", width: "100%" }}
                               key={JSON.stringify(mapCenter)}
                             >
-                              <TileLayer
+                                <LeafletComponents.TileLayer
                                 attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
                                 url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                               />
@@ -993,9 +1048,15 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                                     longitude: latlng[1].toString(),
                                   }));
                                 }}
+                                  useMapEvents={LeafletComponents.useMapEvents}
                               />
-                            </MapContainer>
+                              </LeafletComponents.MapContainer>
                           </div>
+                          ) : (
+                            <div className="h-48 w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
+                              <p className="text-gray-500">Loading map...</p>
+                            </div>
+                          )}
                           <div className="text-xs text-muted-foreground mt-1">
                             Selected: {newLocation.latitude || "N/A"},{" "}
                             {newLocation.longitude || "N/A"}

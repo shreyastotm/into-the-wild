@@ -529,13 +529,13 @@ export default function PublicGallery() {
 
   // Filter and sort items for display
   const filteredItems = useMemo(() => {
-    let filtered = items;
+    let filtered = items.filter(Boolean); // Remove undefined/null items first
 
     // Apply search filter
     if (searchTerm.trim()) {
       filtered = filtered.filter(
         (item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          item.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           item.location?.toLowerCase().includes(searchTerm.toLowerCase()),
       );
     }
@@ -556,12 +556,12 @@ export default function PublicGallery() {
 
     // Apply sorting
     if (sortBy === "name") {
-      filtered = [...filtered].sort((a, b) => a.name.localeCompare(b.name));
+      filtered = [...filtered].sort((a, b) => a.name?.localeCompare(b.name || "") || 0);
     } else {
       filtered = [...filtered].sort(
         (a, b) =>
-          new Date(b.start_datetime).getTime() -
-          new Date(a.start_datetime).getTime(),
+          new Date(b.start_datetime || "").getTime() -
+          new Date(a.start_datetime || "").getTime(),
       );
     }
 
