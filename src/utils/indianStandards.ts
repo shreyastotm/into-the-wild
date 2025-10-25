@@ -1,4 +1,3 @@
-import { formatIndianDate } from '@/utils/indianStandards';
 /**
  * Indian Market Standards Utilities
  *
@@ -87,11 +86,20 @@ export function formatIndianDate(
 ): string {
   const dateObj = typeof date === "string" ? new Date(date) : date;
 
+  // Format as DD/MM/YYYY
+  const day = String(dateObj.getDate()).padStart(2, '0');
+  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const year = dateObj.getFullYear();
+  
+  const dateString = `${day}/${month}/${year}`;
+  
   if (includeTime) {
-    return formatIndianDate(dateObj);
+    const hours = String(dateObj.getHours()).padStart(2, '0');
+    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    return `${dateString} ${hours}:${minutes}`;
   }
 
-  return formatIndianDate(dateObj);
+  return dateString;
 }
 
 /**
