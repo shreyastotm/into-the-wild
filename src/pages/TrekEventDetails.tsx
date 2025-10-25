@@ -60,13 +60,7 @@ export default function TrekEventDetails() {
 
   const trekIdNum = id ? parseInt(id, 10) : 0;
 
-  // Debug logging (remove this after fixing the issue)
-  console.log("TrekEventDetails Debug:", {
-    trekId: trekIdNum,
-    governmentIdRequired: trekEvent?.government_id_required,
-    userRegistration: !!userRegistration,
-    userRegistrationStatus: userRegistration?.id_verification_status,
-  });
+  // Debug logging temporarily disabled to prevent console flood
 
   const {
     participants,

@@ -288,7 +288,8 @@ export const useTrekCommunity = (trekId: string | undefined) => {
     if (trekId) {
       fetchCommunityData();
     }
-  }, [trekId, fetchCommunityData]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trekId]); // Remove fetchCommunityData dependency to prevent circular dependency
 
   return {
     participants,

@@ -40,11 +40,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
 
   const fetchUserProfile = useCallback(async () => {
     if (isFetchingProfileRef.current) {
-      console.log("[AUTH] fetchUserProfile already running, skipping");
       return;
     }
 
-    console.log("[AUTH] fetchUserProfile called");
     isFetchingProfileRef.current = true;
     const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
 
@@ -54,11 +52,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     } = await supabase.auth.getSession();
 
     if (session?.user) {
-      console.log(
-        "[AUTH] fetchUserProfile - session exists, fetching profile for user:",
-        session.user.id,
-        { isMobile },
-      );
       const { data: profile, error } = await supabase
         .from("users")
         .select("*")
@@ -70,16 +63,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
         // Don't show toast during auth flow to avoid circular dependency
         setLoading(false); // Set loading to false on error
       } else {
-        console.log(
-          "[AUTH] Profile fetched successfully:",
-          profile ? { id: profile.user_id, type: profile.user_type } : null,
-          { isMobile },
-        );
         setUserProfile(profile);
         setLoading(false); // Set loading to false on success
       }
     } else {
-      console.log("[AUTH] fetchUserProfile - no session found", { isMobile });
       setLoading(false);
     }
     } catch (error) {
@@ -93,28 +80,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
   }, []); // ✅ EMPTY DEPENDENCIES - NO RE-CREATION!
 
   useEffect(() => {
-    console.log('🔍 AuthProvider: useEffect triggered - START');
     setLoading(true);
-    console.log("[AUTH] AuthProvider mounted, checking session...");
 
     // Check localStorage for session data (mobile browsers might clear it)
     const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
-    console.log('🔍 AuthProvider: Is mobile?', isMobile);
 
     if (isMobile && typeof window !== "undefined") {
       try {
         const keys = Object.keys(localStorage).filter(
           (k) => k.includes("supabase") || k.includes("auth") || k.includes("itw-auth"),
         );
-        console.log("[AUTH] localStorage keys on mobile:", keys);
 
         // If no auth keys found on mobile, try to restore from session
-        if (keys.length === 0) {
-          console.log(
-            "[AUTH] No auth keys found on mobile, checking if we need to restore session",
-          );
-          // The session check below will handle this
-        }
+        // The session check below will handle this
       } catch (e) {
         console.error("[AUTH] Error accessing localStorage:", e);
       }
@@ -128,7 +106,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
 
     // In incognito mode, disable session persistence
     if (isIncognito && typeof window !== "undefined") {
-      console.log("[AUTH] Incognito mode detected, clearing auth tokens");
       try {
         // Clear all Supabase auth tokens
         localStorage.removeItem("itw-auth-token");
@@ -144,34 +121,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
           sessionStorage.removeItem(key);
         });
 
-        console.log("[AUTH] Cleared auth tokens for incognito mode");
       } catch (e) {
         console.error("[AUTH] Error clearing auth tokens:", e);
       }
     }
 
-    console.log('🔍 AuthProvider: About to call getSession()');
     supabase.auth
       .getSession()
       .then(({ data: { session } }) => {
-        console.log("[AUTH] Session check result:", {
-          hasSession: !!session,
-          hasUser: !!session?.user,
-          userId: session?.user?.id,
-          expiresAt: session?.expires_at,
-          isMobile,
-        });
-
         setUser(session?.user ?? null);
 
         if (session?.user) {
-          console.log("[AUTH] User found, fetching profile...");
           // Only fetch profile if not already fetching
           if (!isFetchingProfileRef.current) {
           fetchUserProfile();
           }
         } else {
-          console.log("[AUTH] No user session found");
           setLoading(false);
         }
       })
@@ -183,25 +148,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("[AUTH] Auth state change:", event, {
-        hasSession: !!session,
-        hasUser: !!session?.user,
-        userId: session?.user?.id,
-        isMobile,
-      });
-
       setUser(session?.user ?? null);
       if (session?.user) {
-        console.log(
-          "[AUTH] Auth state change - fetching profile for user:",
-          session.user.id,
-        );
         // Only fetch profile if not already fetching
         if (!isFetchingProfileRef.current) {
         fetchUserProfile();
         }
       } else {
-        console.log("[AUTH] Auth state change - no user session");
         setUserProfile(null);
         setLoading(false); // Set loading to false when no user session
       }
@@ -231,7 +184,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
           sessionStorage.removeItem(key);
         });
 
-        console.log("[AUTH] Cleared auth tokens during sign out");
       } catch (e) {
         console.error("[AUTH] Error clearing auth tokens during sign out:", e);
       }
@@ -247,15 +199,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
       signOut,
       fetchUserProfile,
     };
-
-    console.log("[AUTH] Auth context value updated:", {
-      hasUser: !!user,
-      hasProfile: !!userProfile,
-      loading,
-      userId: user?.id,
-      profileType: userProfile?.user_type,
-      isMobile,
-    });
 
     return authValue;
     // eslint-disable-next-line react-hooks/exhaustive-deps

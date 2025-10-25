@@ -105,7 +105,8 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
         );
       }
     }
-  }, [trek_id, user, checkUserRegistration]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trek_id, user?.id]); // Depend only on user.id, not the function
 
   async function uploadIdProof(idTypeId: number, file: File): Promise<boolean> {
     if (!user || !userRegistration || !trekEvent) {

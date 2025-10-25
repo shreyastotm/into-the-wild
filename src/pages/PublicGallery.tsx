@@ -441,7 +441,6 @@ export default function PublicGallery() {
   );
 
   useEffect(() => {
-    console.log('🔍 PublicGallery: Initial load useEffect triggered');
     setCurrentPage(1);
     setHasMore(true);
     fetchTreks(1, false);
