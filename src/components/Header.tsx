@@ -30,9 +30,10 @@ const Header = () => {
     // TODO: Open notifications panel or navigate to notifications page
     console.log("Notifications clicked");
   };
-  useEffect(() => {
-    // Auth state monitoring
-  }, [loading, user]);
+  // Removed empty useEffect that was causing unnecessary re-renders
+  // useEffect(() => {
+  //   // Auth state monitoring
+  // }, [loading, user]);
 
   const navLinks = [
     { to: "/", label: "Home" },
