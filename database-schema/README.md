@@ -141,3 +141,5 @@ npx supabase migration new your_migration_name
 - Functions are secured with proper permissions
 - The schema supports both local development and production deployment
 
+
+

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { UserTreks } from "@/components/dashboard/UserTreks";
@@ -35,24 +35,41 @@ const Dashboard = () => {
     setIsVisible(true);
   }, []);
 
-  // Panning background effect
+  // Panning background effect with throttling to prevent performance issues
   useEffect(() => {
+    let mouseTimeout: NodeJS.Timeout;
+    let scrollTimeout: NodeJS.Timeout;
+
     const handleMouseMove = (e: MouseEvent) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 40;
-      const y = (e.clientY / window.innerHeight - 0.5) * 40;
-      setMousePosition({ x, y });
+      // Clear previous timeout
+      if (mouseTimeout) clearTimeout(mouseTimeout);
+
+      // Throttle mouse movement updates to max 30fps (33ms)
+      mouseTimeout = setTimeout(() => {
+        const x = (e.clientX / window.innerWidth - 0.5) * 40;
+        const y = (e.clientY / window.innerHeight - 0.5) * 40;
+        setMousePosition({ x, y });
+      }, 33);
     };
 
     const handleScroll = () => {
-      setScrollY(window.scrollY);
+      // Clear previous timeout
+      if (scrollTimeout) clearTimeout(scrollTimeout);
+
+      // Throttle scroll updates to max 60fps (16ms)
+      scrollTimeout = setTimeout(() => {
+        setScrollY(window.scrollY);
+      }, 16);
     };
 
-    window.addEventListener("mousemove", handleMouseMove);
+    window.addEventListener("mousemove", handleMouseMove, { passive: true });
     window.addEventListener("scroll", handleScroll, { passive: true });
 
     return () => {
       window.removeEventListener("mousemove", handleMouseMove);
       window.removeEventListener("scroll", handleScroll);
+      if (mouseTimeout) clearTimeout(mouseTimeout);
+      if (scrollTimeout) clearTimeout(scrollTimeout);
     };
   }, []);
 

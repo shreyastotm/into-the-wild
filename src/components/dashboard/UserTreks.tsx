@@ -1,5 +1,5 @@
 import { formatIndianDate } from '@/utils/indianStandards';
-import React, { useEffect, useState, useCallback, useRef } from "react";
+import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -16,6 +16,8 @@ import {
   Users,
   ArrowRight,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -40,11 +42,14 @@ export const UserTreks = () => {
     TrekRegistration[]
   >([]);
   const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
   const { user } = useAuth();
   const navigate = useNavigate();
   const isFetchingRef = useRef(false);
+  const itemsPerPage = 10; // Show 10 treks per page
 
-  const fetchUserTrekRegistrations = useCallback(async (currentUser: typeof user) => {
+  const fetchUserTrekRegistrations = useCallback(async (currentUser: typeof user, page: number = 1) => {
     // ✅ Prevent concurrent calls
     if (isFetchingRef.current) {
       return;
@@ -64,10 +69,16 @@ export const UserTreks = () => {
           : String(currentUser.id)
         : "";
 
-      const { data, error } = await supabase
+      // ✅ PAGINATED: Get user's trek registrations with pagination
+      const from = (page - 1) * itemsPerPage;
+      const to = from + itemsPerPage - 1;
+
+      const { data, error, count } = await supabase
         .from("trek_registrations")
-        .select("*")
-        .eq("user_id", userId) as any;
+        .select("*", { count: 'exact' })
+        .eq("user_id", userId)
+        .range(from, to)
+        .order("created_at", { ascending: false }) as any;
       if (error) throw error;
       if (data && data.length > 0) {
         // Fetch trek event details for all trek_ids
@@ -85,12 +96,17 @@ export const UserTreks = () => {
         };
 
         const trekIds = data.map((reg: RawRegistration) => reg.trek_id);
+
+        // ✅ OPTIMIZED: Add LIMIT and better filtering to prevent 144kB payload
+        // Only fetch treks that are relevant to the user and limit results
         const { data: trekEvents, error: trekEventsError } = await supabase
         .from("trek_events")
         .select(
             "trek_id, name, start_datetime, base_price, category, location, max_participants, image_url, status",
           )
-        .in("trek_id", trekIds) as any;
+        .in("trek_id", trekIds)
+        .limit(50) // ✅ LIMIT to prevent massive data loads
+        .order("start_datetime", { ascending: false }) as any;
         if (trekEventsError) throw trekEventsError;
         const trekMap = (trekEvents || []).reduce(
           (acc, trek) => {
@@ -128,9 +144,16 @@ export const UserTreks = () => {
           })
           .filter(Boolean) as TrekRegistration[]; // Filter out the nulls
 
+        // ✅ PAGINATION: Update total pages based on count
+        const totalPages = Math.ceil((count || 0) / itemsPerPage);
+        setTotalPages(totalPages);
+        setCurrentPage(page);
+
         setTrekRegistrations(transformedData);
       } else {
         setTrekRegistrations([]);
+        setTotalPages(1);
+        setCurrentPage(1);
       }
     } catch (error: unknown) {
       const errorMessage =
@@ -147,66 +170,44 @@ export const UserTreks = () => {
       setLoading(false);
       isFetchingRef.current = false;
     }
-  }, []); // ✅ CRITICAL: EMPTY DEPENDENCIES - NO RE-CREATION!
+  }, [itemsPerPage]); // ✅ DEPEND ON itemsPerPage for pagination
 
   useEffect(() => {
     if (user) {
       // ✅ Only call if not already fetching
       if (!isFetchingRef.current) {
-        fetchUserTrekRegistrations(user);
+        fetchUserTrekRegistrations(user, currentPage);
     }
     } else {
       setLoading(false);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user?.id]); // ✅ ONLY DEPEND ON user.id, NOT user object or fetchUserTrekRegistrations
+  }, [user?.id, currentPage]); // ✅ DEPEND ON user.id and currentPage
 
-  const goToTrekDetails = (trekId: number) => {
+  const goToTrekDetails = useCallback((trekId: number) => {
     navigate(`/trek-events/${trekId}`);
-  };
+  }, [navigate]);
 
-  // Separate upcoming and past treks
-  const upcomingTreks = trekRegistrations.filter((reg) => !reg.isPast);
-  const pastTreks = trekRegistrations.filter((reg) => reg.isPast);
+  // ✅ MEMOIZE: Separate upcoming and past treks to prevent unnecessary recalculations
+  const upcomingTreks = useMemo(() =>
+    trekRegistrations.filter((reg) => !reg.isPast),
+    [trekRegistrations]
+  );
 
-  if (loading) {
-    return (
-      <div className="space-y-4" data-testid="usertreks">
-        {[...Array(3)].map((_, index) => (
-          <Card key={index} className="w-full">
-            <CardHeader>
-              <Skeleton className="h-6 w-3/4" />
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-3" data-testid="usertreks">
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-full" />
-                <Skeleton className="h-4 w-2/3" />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-    );
-  }
+  const pastTreks = useMemo(() =>
+    trekRegistrations.filter((reg) => reg.isPast),
+    [trekRegistrations]
+  );
 
-  if (trekRegistrations.length === 0) {
-    return (
-      <Card>
-        <CardContent className="pt-6 text-center">
-          <p className="mb-4 text-muted-foreground">
-            You haven't registered for any treks yet
-          </p>
-          <Button onClick={() => navigate("/trek-events")}>
-            Find Treks to Join
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </CardContent>
-      </Card>
-    );
-  }
+  // ✅ PAGINATION: Handle page changes
+  const handlePageChange = useCallback((newPage: number) => {
+    if (newPage >= 1 && newPage <= totalPages) {
+      setCurrentPage(newPage);
+    }
+  }, [totalPages]);
 
-  const renderTrekCard = (trek: TrekRegistration) => {
+  // ✅ MEMOIZE: Render function to prevent unnecessary re-renders (MOVED TO TOP!)
+  const renderTrekCard = useCallback((trek: TrekRegistration) => {
     let startDate: Date;
     try {
       startDate = toZonedTime(new Date(trek.start_datetime), "Asia/Kolkata");
@@ -297,42 +298,152 @@ export const UserTreks = () => {
         </CardContent>
       </Card>
     );
-  };
+  }, [goToTrekDetails]);
+
+  if (loading) {
+    return (
+      <div className="space-y-4" data-testid="usertreks">
+        {[...Array(3)].map((_, index) => (
+          <Card key={index} className="w-full">
+            <CardHeader>
+              <Skeleton className="h-6 w-3/4" />
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3" data-testid="usertreks">
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    );
+  }
+
+  if (trekRegistrations.length === 0) {
+    return (
+      <Card>
+        <CardContent className="pt-6 text-center">
+          <p className="mb-4 text-muted-foreground">
+            You haven't registered for any treks yet
+          </p>
+          <Button onClick={() => navigate("/trek-events")}>
+            Find Treks to Join
+            <ArrowRight className="ml-2 h-4 w-4" />
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
-    <Tabs defaultValue="upcoming" className="w-full">
-      <TabsList className="mb-4">
-        <TabsTrigger value="upcoming">
-          Upcoming Treks ({upcomingTreks.length})
-        </TabsTrigger>
-        <TabsTrigger value="past">Past Treks ({pastTreks.length})</TabsTrigger>
-      </TabsList>
+    <div className="w-full">
+      <Tabs defaultValue="upcoming" className="w-full">
+        <TabsList className="mb-4">
+          <TabsTrigger value="upcoming">
+            Upcoming Treks ({upcomingTreks.length})
+          </TabsTrigger>
+          <TabsTrigger value="past">Past Treks ({pastTreks.length})</TabsTrigger>
+        </TabsList>
 
-      <TabsContent value="upcoming">
-        {upcomingTreks.length > 0 ? (
-          <div data-testid="usertreks">{upcomingTreks.map(renderTrekCard)}</div>
-        ) : (
-          <div className="text-center py-6" data-testid="usertreks">
-            <p className="text-muted-foreground mb-4">
-              You have no upcoming treks
-            </p>
-            <Button onClick={() => navigate("/trek-events")}>
-              Find Treks to Join
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-          </div>
-        )}
-      </TabsContent>
+        <TabsContent value="upcoming">
+          {upcomingTreks.length > 0 ? (
+            <div data-testid="usertreks">{upcomingTreks.map(renderTrekCard)}</div>
+          ) : (
+            <div className="text-center py-6" data-testid="usertreks">
+              <p className="text-muted-foreground mb-4">
+                You have no upcoming treks
+              </p>
+              <Button onClick={() => navigate("/trek-events")}>
+                Find Treks to Join
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </TabsContent>
 
-      <TabsContent value="past">
-        {pastTreks.length > 0 ? (
-          <div data-testid="usertreks">{pastTreks.map(renderTrekCard)}</div>
-        ) : (
-          <div className="text-center py-6" data-testid="usertreks">
-            <p className="text-muted-foreground">You have no past treks</p>
+        <TabsContent value="past">
+          {pastTreks.length > 0 ? (
+            <div data-testid="usertreks">{pastTreks.map(renderTrekCard)}</div>
+          ) : (
+            <div className="text-center py-6" data-testid="usertreks">
+              <p className="text-muted-foreground">You have no past treks</p>
+            </div>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* ✅ PAGINATION: Add pagination controls */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-center gap-2 mt-6">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage - 1)}
+            disabled={currentPage === 1}
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Previous
+          </Button>
+
+          <div className="flex items-center gap-1">
+            {/* Show first page, current page area, and last page */}
+            {currentPage > 3 && (
+              <>
+                <Button
+                  variant={1 === currentPage ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(1)}
+                >
+                  1
+                </Button>
+                {currentPage > 4 && <span className="px-2">...</span>}
+              </>
+            )}
+
+            {/* Show pages around current page */}
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              const pageNum = Math.max(1, Math.min(totalPages, currentPage - 2 + i));
+              if (pageNum < 1 || pageNum > totalPages) return null;
+
+              return (
+                <Button
+                  key={pageNum}
+                  variant={pageNum === currentPage ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(pageNum)}
+                >
+                  {pageNum}
+                </Button>
+              );
+            })}
+
+            {currentPage < totalPages - 2 && (
+              <>
+                {currentPage < totalPages - 3 && <span className="px-2">...</span>}
+                <Button
+                  variant={totalPages === currentPage ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => handlePageChange(totalPages)}
+                >
+                  {totalPages}
+                </Button>
+              </>
+            )}
           </div>
-        )}
-      </TabsContent>
-    </Tabs>
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handlePageChange(currentPage + 1)}
+            disabled={currentPage === totalPages}
+          >
+            Next
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+      )}
+    </div>
   );
 };

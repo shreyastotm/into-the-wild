@@ -1,14 +1,18 @@
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 
 /**
  * Custom hook to manage page-specific body/html styles
  * Automatically cleans up when component unmounts
+ * Optimized to prevent unnecessary re-renders by memoizing config
  */
 export const usePageStyle = (config: {
   overflow?: "hidden" | "auto" | "scroll";
   height?: string;
   minHeight?: string;
 }) => {
+  // Memoize the config object to prevent unnecessary re-renders
+  const memoizedConfig = useMemo(() => config, [config.overflow, config.height, config.minHeight]);
+
   useEffect(() => {
     const originalHtmlOverflow = document.documentElement.style.overflow;
     const originalBodyOverflow = document.body.style.overflow;
@@ -17,16 +21,16 @@ export const usePageStyle = (config: {
     const originalBodyMinHeight = document.body.style.minHeight;
 
     // Apply styles
-    if (config.overflow) {
-      document.documentElement.style.overflow = config.overflow;
-      document.body.style.overflow = config.overflow;
+    if (memoizedConfig.overflow) {
+      document.documentElement.style.overflow = memoizedConfig.overflow;
+      document.body.style.overflow = memoizedConfig.overflow;
     }
-    if (config.height) {
-      document.documentElement.style.height = config.height;
-      document.body.style.height = config.height;
+    if (memoizedConfig.height) {
+      document.documentElement.style.height = memoizedConfig.height;
+      document.body.style.height = memoizedConfig.height;
     }
-    if (config.minHeight) {
-      document.body.style.minHeight = config.minHeight;
+    if (memoizedConfig.minHeight) {
+      document.body.style.minHeight = memoizedConfig.minHeight;
     }
 
     // Cleanup function - restore original styles
@@ -37,5 +41,5 @@ export const usePageStyle = (config: {
       document.body.style.height = originalBodyHeight;
       document.body.style.minHeight = originalBodyMinHeight;
     };
-  }, [config.overflow, config.height, config.minHeight]);
+  }, [memoizedConfig]);
 };
