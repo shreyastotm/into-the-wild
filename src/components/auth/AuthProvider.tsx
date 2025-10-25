@@ -154,7 +154,8 @@ export const AuthProvider: React.FC<
     });
 
     return () => subscription.unsubscribe();
-  }, [fetchUserProfile, toast]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [toast]); // Removed fetchUserProfile from dependencies to prevent infinite loop
 
   const signOut = async () => {
     await supabase.auth.signOut();
