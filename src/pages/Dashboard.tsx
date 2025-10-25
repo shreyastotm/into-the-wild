@@ -46,9 +46,9 @@ const Dashboard = () => {
 
       // Throttle mouse movement updates to max 30fps (33ms)
       mouseTimeout = setTimeout(() => {
-        const x = (e.clientX / window.innerWidth - 0.5) * 40;
-        const y = (e.clientY / window.innerHeight - 0.5) * 40;
-        setMousePosition({ x, y });
+      const x = (e.clientX / window.innerWidth - 0.5) * 40;
+      const y = (e.clientY / window.innerHeight - 0.5) * 40;
+      setMousePosition({ x, y });
       }, 33);
     };
 
@@ -58,7 +58,7 @@ const Dashboard = () => {
 
       // Throttle scroll updates to max 60fps (16ms)
       scrollTimeout = setTimeout(() => {
-        setScrollY(window.scrollY);
+      setScrollY(window.scrollY);
       }, 16);
     };
 

@@ -339,40 +339,40 @@ export const UserTreks = () => {
 
   return (
     <div className="w-full">
-      <Tabs defaultValue="upcoming" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="upcoming">
-            Upcoming Treks ({upcomingTreks.length})
-          </TabsTrigger>
-          <TabsTrigger value="past">Past Treks ({pastTreks.length})</TabsTrigger>
-        </TabsList>
+    <Tabs defaultValue="upcoming" className="w-full">
+      <TabsList className="mb-4">
+        <TabsTrigger value="upcoming">
+          Upcoming Treks ({upcomingTreks.length})
+        </TabsTrigger>
+        <TabsTrigger value="past">Past Treks ({pastTreks.length})</TabsTrigger>
+      </TabsList>
 
-        <TabsContent value="upcoming">
-          {upcomingTreks.length > 0 ? (
-            <div data-testid="usertreks">{upcomingTreks.map(renderTrekCard)}</div>
-          ) : (
-            <div className="text-center py-6" data-testid="usertreks">
-              <p className="text-muted-foreground mb-4">
-                You have no upcoming treks
-              </p>
-              <Button onClick={() => navigate("/trek-events")}>
-                Find Treks to Join
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </TabsContent>
+      <TabsContent value="upcoming">
+        {upcomingTreks.length > 0 ? (
+          <div data-testid="usertreks">{upcomingTreks.map(renderTrekCard)}</div>
+        ) : (
+          <div className="text-center py-6" data-testid="usertreks">
+            <p className="text-muted-foreground mb-4">
+              You have no upcoming treks
+            </p>
+            <Button onClick={() => navigate("/trek-events")}>
+              Find Treks to Join
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+          </div>
+        )}
+      </TabsContent>
 
-        <TabsContent value="past">
-          {pastTreks.length > 0 ? (
-            <div data-testid="usertreks">{pastTreks.map(renderTrekCard)}</div>
-          ) : (
-            <div className="text-center py-6" data-testid="usertreks">
-              <p className="text-muted-foreground">You have no past treks</p>
-            </div>
-          )}
-        </TabsContent>
-      </Tabs>
+      <TabsContent value="past">
+        {pastTreks.length > 0 ? (
+          <div data-testid="usertreks">{pastTreks.map(renderTrekCard)}</div>
+        ) : (
+          <div className="text-center py-6" data-testid="usertreks">
+            <p className="text-muted-foreground">You have no past treks</p>
+          </div>
+        )}
+      </TabsContent>
+    </Tabs>
 
       {/* ✅ PAGINATION: Add pagination controls */}
       {totalPages > 1 && (

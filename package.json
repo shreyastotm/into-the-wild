@@ -70,7 +70,7 @@
     "// Maintenance": "🧹 System maintenance and cleanup",
     "clean": "powershell -Command \"Remove-Item -Recurse -Force dist, coverage, logs, reports -ErrorAction SilentlyContinue; Write-Host 'Cleaned build artifacts'\"",
     "clean:all": "npm run clean && powershell -Command \"Remove-Item -Recurse -Force node_modules/.cache -ErrorAction SilentlyContinue; Write-Host 'Deep clean completed'\"",
-    "prepare": "husky"
+    "prepare": "husky install"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
