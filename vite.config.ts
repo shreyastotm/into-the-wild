@@ -21,7 +21,8 @@ export default defineConfig(({ mode }) => ({
     },
   },
   build: {
-    sourcemap: mode === 'development',
+    // TEMP: enable sourcemaps in production to debug stack overflows
+    sourcemap: true,
     minify: 'terser',
     terserOptions: {
       compress: {
