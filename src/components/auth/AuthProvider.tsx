@@ -75,11 +75,14 @@ export const AuthProvider: React.FC<
   }, [toast]);
 
   useEffect(() => {
+    console.log('🔍 AuthProvider: useEffect triggered - START');
     setLoading(true);
     console.log("[AUTH] AuthProvider mounted, checking session...");
 
     // Check localStorage for session data (mobile browsers might clear it)
     const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
+    console.log('🔍 AuthProvider: Is mobile?', isMobile);
+
     if (isMobile && typeof window !== "undefined") {
       try {
         const keys = Object.keys(localStorage).filter(
@@ -99,6 +102,7 @@ export const AuthProvider: React.FC<
       }
     }
 
+    console.log('🔍 AuthProvider: About to call getSession()');
     supabase.auth
       .getSession()
       .then(({ data: { session } }) => {

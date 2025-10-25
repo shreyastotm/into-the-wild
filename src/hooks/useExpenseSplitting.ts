@@ -257,15 +257,19 @@ export function useExpenseSplitting(trekId: string | undefined) {
   }, [user, myExpenses, expensesSharedWithMe]);
 
   useEffect(() => {
+    console.log('🔍 useExpenseSplitting: useEffect triggered', { trekId, hasUser: !!user });
     if (trekId && user) {
       fetchExpenseCategories();
       fetchExpenses();
     }
-  }, [trekId, user, fetchExpenses]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [trekId, user]);
 
   useEffect(() => {
+    console.log('🔍 useExpenseSplitting: calculateSummary triggered');
     calculateSummary();
-  }, [myExpenses, expensesSharedWithMe, calculateSummary]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [myExpenses, expensesSharedWithMe]);
 
   const createExpense = async (
     expenseData: CreateExpenseInput,

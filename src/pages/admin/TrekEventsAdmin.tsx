@@ -230,8 +230,10 @@ const TrekEventsAdmin = () => {
   // Enhanced fetchEvents with image fetching
 
   useEffect(() => {
+    console.log('🔍 TrekEventsAdmin: useEffect triggered');
     fetchEvents();
-  }, [fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Image management functions
   const handleManageImages = (trek: TrekEvent) => {

@@ -262,9 +262,11 @@ const TrekEvents = () => {
   }, [filterOptions]);
 
   useEffect(() => {
+    console.log('🔍 TrekEvents: useEffect triggered', { filterOptions });
     fetchEvents();
     fetchCategories();
-  }, [filterOptions, fetchEvents]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filterOptions]);
 
   const handleFilterChange = (key: keyof FilterOptions, value: string) => {
     setFilterOptions((prev) => ({ ...prev, [key]: value }));

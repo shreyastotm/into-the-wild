@@ -44,3 +44,4 @@ echo 📁 Files generated in: %OUTPUT_DIR%/
 echo    - %SCHEMA_FILE% (Complete schema)
 echo    - migration_history.txt (Migration list)
 echo    - README.md (Summary)
+

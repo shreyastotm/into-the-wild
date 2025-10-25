@@ -45,8 +45,13 @@ export const UserTreks = () => {
   const navigate = useNavigate();
 
   const fetchUserTrekRegistrations = useCallback(async () => {
-    if (!user) return;
+    console.log('🔍 UserTreks: fetchUserTrekRegistrations called', { user: user?.id });
+    if (!user) {
+      console.log('🔍 UserTreks: No user, returning early');
+      return;
+    }
     try {
+      console.log('🔍 UserTreks: fetchUserTrekRegistrations - STARTING QUERY');
       setLoading(true);
 
       const userId = user.id
@@ -55,6 +60,7 @@ export const UserTreks = () => {
           : String(user.id)
         : "";
 
+      console.log('🔍 UserTreks: About to query trek_registrations', { userId });
       const { data, error } = await supabase
         .from("trek_registrations")
         .select("*")
@@ -140,10 +146,19 @@ export const UserTreks = () => {
   }, [user]);
 
   useEffect(() => {
+    console.log('🔍 UserTreks: useEffect triggered', {
+      hasUser: !!user,
+      userId: user?.id
+    });
     if (user) {
+      console.log('🔍 UserTreks: Calling fetchUserTrekRegistrations');
       fetchUserTrekRegistrations();
+    } else {
+      console.log('🔍 UserTreks: No user, skipping fetch');
+      setLoading(false);
     }
-  }, [user, fetchUserTrekRegistrations]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user]);
 
   const goToTrekDetails = (trekId: number) => {
     navigate(`/trek-events/${trekId}`);

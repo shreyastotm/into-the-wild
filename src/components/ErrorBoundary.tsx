@@ -21,6 +21,19 @@ export class ErrorBoundary extends React.Component<
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
     // Log error to monitoring service if needed
     console.error("ErrorBoundary caught an error:", error, errorInfo);
+
+    // Add detailed debugging for stack overflow issues
+    if (error.message.includes("Maximum call stack size exceeded") ||
+        error.stack?.includes("Maximum call stack size exceeded")) {
+      console.error("🔥 MAXIMUM CALL STACK DETECTED!");
+      console.error("Error:", error.message);
+      console.error("Stack trace:", error.stack);
+      console.error("Error info:", errorInfo);
+      console.error("Component stack:", errorInfo.componentStack);
+
+      // Log to external service for debugging
+      console.error("🔍 DEBUG INFO - Check network tab and console for module loading issues");
+    }
   }
 
   render() {

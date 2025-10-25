@@ -140,3 +140,4 @@ npx supabase migration new your_migration_name
 - Indexes are created for performance optimization
 - Functions are secured with proper permissions
 - The schema supports both local development and production deployment
+
