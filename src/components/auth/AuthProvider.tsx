@@ -54,11 +54,7 @@ export const AuthProvider: React.FC<
 
       if (error && error.code !== "PGRST116") {
         console.error("[AUTH] Error fetching profile:", error, { isMobile });
-        toast({
-          title: "Error",
-          description: "Could not fetch user profile.",
-          variant: "destructive",
-        });
+        // Don't show toast during auth flow to avoid circular dependency
         setLoading(false); // Set loading to false on error
       } else {
         console.log(
@@ -71,8 +67,11 @@ export const AuthProvider: React.FC<
       }
     } else {
       console.log("[AUTH] fetchUserProfile - no session found", { isMobile });
+      setLoading(false);
     }
-  }, [toast]);
+    // Removed toast dependency to prevent circular dependency
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     console.log('🔍 AuthProvider: useEffect triggered - START');
@@ -185,7 +184,7 @@ export const AuthProvider: React.FC<
 
     return () => subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [toast]); // Removed fetchUserProfile from dependencies to prevent infinite loop
+  }, [fetchUserProfile]); // fetchUserProfile is now stable with no dependencies
 
   const signOut = async () => {
     await supabase.auth.signOut();
@@ -235,7 +234,7 @@ export const AuthProvider: React.FC<
 
     return authValue;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [user, userProfile, loading]); // Removed fetchUserProfile from dependencies to prevent infinite loop
+  }, [user, userProfile, loading, fetchUserProfile]); // Added fetchUserProfile back since it's now stable
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
