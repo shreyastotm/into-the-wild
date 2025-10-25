@@ -481,12 +481,14 @@ export default function PublicGallery() {
   }, [selectedTrek]);
 
   // Handle load more
+  // ✅ FIXED: Removed fetchTreks dependency to prevent infinite loop
+  // fetchTreks has empty dependencies and reads current state inside
   const handleLoadMore = useCallback(() => {
     if (hasMore && !loadingMore) {
       setCurrentPage((prev) => prev + 1);
       fetchTreks(currentPage + 1, true);
     }
-  }, [hasMore, loadingMore, currentPage, fetchTreks]);
+  }, [hasMore, loadingMore, currentPage]);
 
   // Get all media for current trek (images + video + user contributions)
   const getAllMedia = useCallback((trek: PastTrek) => {
