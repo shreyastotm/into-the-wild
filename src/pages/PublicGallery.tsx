@@ -568,24 +568,14 @@ export default function PublicGallery() {
     return filtered;
   }, [items, searchTerm, difficultyFilter, selectedTags, sortBy]);
 
-  // Handle filter changes (reset pagination)
-  const handleFiltersChange = useCallback(() => {
+  // Watch for filter changes - direct fetch without intermediate function
+  useEffect(() => {
+    // Reset pagination and fetch when filters change
     setCurrentPage(1);
     setHasMore(true);
     fetchTreks(1, false);
-  }, [fetchTreks]);
-
-  // Watch for filter changes
-  useEffect(() => {
-    console.log('🔍 PublicGallery: Filter change useEffect triggered', {
-      searchTerm,
-      difficultyFilter,
-      selectedTags: selectedTags.length,
-      sortBy
-    });
-    handleFiltersChange();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchTerm, difficultyFilter, selectedTags, sortBy]); // Removed handleFiltersChange from dependencies
+  }, [searchTerm, difficultyFilter, selectedTags.length, sortBy]); // Use selectedTags.length instead of array
 
   // Toggle tag filter
   const toggleTagFilter = useCallback((tagId: number) => {
