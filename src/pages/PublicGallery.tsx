@@ -434,11 +434,13 @@ export default function PublicGallery() {
   );
 
   useEffect(() => {
+    console.log('🔍 PublicGallery: Initial load useEffect triggered');
     setCurrentPage(1);
     setHasMore(true);
     fetchTreks(1, false);
     fetchTags();
-  }, [fetchTreks, fetchTags]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run on mount
 
   useEffect(() => {
     (async () => {
@@ -568,8 +570,15 @@ export default function PublicGallery() {
 
   // Watch for filter changes
   useEffect(() => {
+    console.log('🔍 PublicGallery: Filter change useEffect triggered', {
+      searchTerm,
+      difficultyFilter,
+      selectedTags: selectedTags.length,
+      sortBy
+    });
     handleFiltersChange();
-  }, [searchTerm, difficultyFilter, selectedTags, sortBy, handleFiltersChange]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchTerm, difficultyFilter, selectedTags, sortBy]); // Removed handleFiltersChange from dependencies
 
   // Toggle tag filter
   const toggleTagFilter = useCallback((tagId: number) => {
