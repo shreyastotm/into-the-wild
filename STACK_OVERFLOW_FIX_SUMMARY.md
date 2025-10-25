@@ -133,6 +133,7 @@ componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
 2. `src/pages/TrekEvents.tsx` - Fixed useEffect dependencies
 3. `src/pages/admin/TrekEventsAdmin.tsx` - Fixed useEffect dependencies
 4. `src/hooks/useExpenseSplitting.ts` - Fixed dual useEffect dependencies
+5. **`src/pages/PublicGallery.tsx` - Fixed infinite loop (GALLERY PAGE)** ⭐
 
 ### **Debug Infrastructure**
 5. `src/components/ErrorBoundary.tsx` - Enhanced error detection
@@ -303,8 +304,38 @@ This fix was implemented following a systematic debugging approach:
 
 ---
 
+## 🔥 **CRITICAL UPDATE - Gallery Page Fix**
+
+**Issue Found:** The `/gallery` page had TWO circular dependencies causing 200+ console logs in 5 seconds:
+
+1. **Line 436-441:** `useEffect` with `[fetchTreks, fetchTags]` dependencies
+2. **Line 570-572:** `useEffect` with `handleFiltersChange` dependency
+
+**Fix Applied:**
+```typescript
+// BEFORE (Infinite Loop)
+useEffect(() => {
+  setCurrentPage(1);
+  setHasMore(true);
+  fetchTreks(1, false);
+  fetchTags();
+}, [fetchTreks, fetchTags]); // ❌ Both functions recreated every render
+
+// AFTER (Fixed)
+useEffect(() => {
+  console.log('🔍 PublicGallery: Initial load useEffect triggered');
+  setCurrentPage(1);
+  setHasMore(true);
+  fetchTreks(1, false);
+  fetchTags();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+}, []); // ✅ Only run on mount
+```
+
+---
+
 **Status:** ✅ **DEPLOYED TO PRODUCTION**
-**Deployment Time:** January 25, 2025
-**Commit Hash:** `19edd7e`
+**Initial Deployment:** January 25, 2025 - Commit `19edd7e`
+**Gallery Fix:** January 25, 2025 - Commit `be303e8` ⭐
 **Expected Resolution:** Immediate (once Vercel deployment completes)
 
