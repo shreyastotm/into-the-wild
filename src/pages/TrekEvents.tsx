@@ -108,6 +108,9 @@ const TrekEvents = () => {
     try {
       setLoading(true);
 
+      // Get current filter values to avoid dependency issues
+      const currentFilterOptions = filterOptions;
+
       // Select with aliasing: 'name' as 'trek_name', 'base_price' as 'cost' - include event_type
       const selectString =
         "trek_id,name,description,category,difficulty,base_price,start_datetime,max_participants,image_url,image,location,status,duration,cancellation_policy,event_creator_type,transport_mode,event_type";
@@ -117,32 +120,32 @@ const TrekEvents = () => {
       query = query.neq("status", TrekEventStatus.CANCELLED);
 
       // Apply search filter (uses DB column 'name')
-      if (filterOptions.search) {
+      if (currentFilterOptions.search) {
         query = query.or(
-          `name.ilike.%${filterOptions.search}%,description.ilike.%${filterOptions.search}%`,
+          `name.ilike.%${currentFilterOptions.search}%,description.ilike.%${currentFilterOptions.search}%`,
         );
       }
 
       // Apply category filter (uses DB column 'category')
-      if (filterOptions.category) {
-        query = query.eq("category", filterOptions.category);
+      if (currentFilterOptions.category) {
+        query = query.eq("category", currentFilterOptions.category);
       }
 
       // Apply event type filter
-      if (filterOptions.eventType) {
-        query = query.eq("event_type", filterOptions.eventType);
+      if (currentFilterOptions.eventType) {
+        query = query.eq("event_type", currentFilterOptions.eventType);
       }
 
       // Apply price range filter (uses DB column 'base_price')
-      if (filterOptions.priceRange) {
-        const [min, max] = filterOptions.priceRange.split("-").map(Number);
+      if (currentFilterOptions.priceRange) {
+        const [min, max] = currentFilterOptions.priceRange.split("-").map(Number);
         query = query.gte("base_price", min).lte("base_price", max);
       }
 
       // Apply time frame filter (uses DB column 'start_datetime')
-      if (filterOptions.timeFrame) {
+      if (currentFilterOptions.timeFrame) {
         const now = new Date();
-        switch (filterOptions.timeFrame) {
+        switch (currentFilterOptions.timeFrame) {
           case "this-week":
             query = query
               .gte("start_datetime", startOfWeek(now).toISOString())
@@ -165,8 +168,8 @@ const TrekEvents = () => {
       }
 
       // Apply sorting (uses DB columns 'start_datetime', 'base_price', 'name')
-      if (filterOptions.sortBy) {
-        const [field, direction] = filterOptions.sortBy.split("-");
+      if (currentFilterOptions.sortBy) {
+        const [field, direction] = currentFilterOptions.sortBy.split("-");
         switch (field) {
           case "date":
             query = query.order("start_datetime", {
@@ -259,7 +262,9 @@ const TrekEvents = () => {
     } finally {
       setLoading(false);
     }
-  }, [filterOptions]);
+    // Removed filterOptions dependency to prevent infinite loop
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     console.log('🔍 TrekEvents: useEffect triggered', { filterOptions });

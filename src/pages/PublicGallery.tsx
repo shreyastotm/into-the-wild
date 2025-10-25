@@ -259,6 +259,11 @@ export default function PublicGallery() {
         const from = (page - 1) * ITEMS_PER_PAGE;
         const to = from + ITEMS_PER_PAGE - 1;
 
+        // Get current filter values to avoid dependency issues
+        const currentSearchTerm = searchTerm;
+        const currentDifficultyFilter = difficultyFilter;
+        const currentSortBy = sortBy;
+
         // Build query for treks (public access - no auth required)
         let query = supabase
           .from("trek_events")
@@ -268,17 +273,17 @@ export default function PublicGallery() {
           .lt("start_datetime", new Date().toISOString());
 
         // Apply search filter
-        if (searchTerm.trim()) {
-          query = query.ilike("name", `%${searchTerm.trim()}%`);
+        if (currentSearchTerm.trim()) {
+          query = query.ilike("name", `%${currentSearchTerm.trim()}%`);
         }
 
         // Apply difficulty filter
-        if (difficultyFilter !== "all") {
-          query = query.eq("difficulty", difficultyFilter);
+        if (currentDifficultyFilter !== "all") {
+          query = query.eq("difficulty", currentDifficultyFilter);
         }
 
         // Apply sorting
-        if (sortBy === "name") {
+        if (currentSortBy === "name") {
           query = query.order("name", { ascending: true });
         } else {
           query = query.order("start_datetime", { ascending: false });
@@ -430,7 +435,9 @@ export default function PublicGallery() {
         setLoadingMore(false);
       }
     },
-    [searchTerm, difficultyFilter, sortBy],
+    // Removed dependencies to prevent infinite loop - using current values inside function
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [],
   );
 
   useEffect(() => {
