@@ -1,5 +1,23 @@
 
 
+## [2025-10-26] v0.5.1 - Critical React Context Error Fix
+
+### 🚨 **CRITICAL BUG FIX - DEPLOY v0.5.1**
+**Resolved React context error #306 preventing Transport Tab access**
+
+✅ **Root Cause Identified**: React Leaflet components require internal contexts that are lost during lazy loading
+✅ **Fixed TravelCoordination**: Removed lazy loading and changed to direct import in both TrekEventDetails.tsx and AdminTrekDetails.tsx
+✅ **Removed Suspense wrappers**: No longer needed since components are directly imported
+✅ **Build tested**: Production build successful (47.45s, all assets generated correctly)
+
+**Impact**: Transport Tab in events details page now works without React context errors. Users can access:
+- Transport coordination and pickup location management
+- Interactive maps with proper React Leaflet integration
+- Driver assignment and passenger coordination
+- Admin transport management tools
+
+---
+
 ## [2025-10-26] v0.5.0 - React Context Error Fix & Production Deployment
 
 ### 🚀 **DEPLOY v0.5.0**
