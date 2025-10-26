@@ -46,6 +46,7 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
       options: [
         { value: "trek", label: "Trek Events" },
         { value: "camping", label: "Camping Events" },
+        { value: "jam_yard", label: "Jam Yard Events" },
       ],
     },
     {

@@ -380,6 +380,7 @@ const TrekEvents = () => {
                       participant_count: event.participant_count,
                       image_url: event.image_url,
                       category: event.category,
+                      event_type: event.event_type || null,
                     }}
                     onClick={() => navigate(`/trek-events/${event.trek_id}`)}
                     showProgress

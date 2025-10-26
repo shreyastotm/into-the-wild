@@ -5,6 +5,7 @@ import { BasicDetailsStep } from "./BasicDetailsStep";
 import { CampingDetailsStep } from "./CampingDetailsStep";
 import { CostsStep } from "./CostsStep";
 import { EventTypeStep } from "./EventTypeStep";
+import { JamYardDetailsStep } from "./JamYardDetailsStep";
 import { PackingListStep } from "./PackingListStep";
 import { ReviewStep } from "./ReviewStep";
 import { AdminTrekEvent, FormSubmissionData } from "./types";
@@ -145,18 +146,30 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
 
   // Calculate total steps based on event type
   const getTotalSteps = () => {
-    return formData.event_type === EventType.CAMPING ? 6 : 5;
+    if (formData.event_type === EventType.CAMPING || 
+        formData.event_type === EventType.JAM_YARD) {
+      return 6;
+    }
+    return 5;
   };
 
   // Get step names for progress indication
   const getStepName = (stepNumber: number) => {
+    let step5Name = "Review";
+    if (formData.event_type === EventType.CAMPING) {
+      step5Name = "Camping Details";
+    } else if (formData.event_type === EventType.JAM_YARD) {
+      step5Name = "Jam Yard Details";
+    }
+
     const steps = [
       "Event Type",
       "Basic Details",
       "Packing List",
       "Fixed Costs",
-      formData.event_type === EventType.CAMPING ? "Camping Details" : "Review",
-      formData.event_type === EventType.CAMPING ? "Review" : "",
+      step5Name,
+      (formData.event_type === EventType.CAMPING || 
+       formData.event_type === EventType.JAM_YARD) ? "Review" : "",
     ].filter(Boolean);
 
     return steps[stepNumber - 1] || "";
@@ -286,10 +299,19 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
         );
 
       case 5:
-        // For Trek: Review Step, For Camping: Camping Details Step
+        // For Trek: Review Step
+        // For Camping: Camping Details Step
+        // For Jam Yard: Jam Yard Details Step
         if (formData.event_type === EventType.CAMPING) {
           return (
             <CampingDetailsStep
+              {...stepProps}
+              isLoadingExistingData={isLoadingExistingData}
+            />
+          );
+        } else if (formData.event_type === EventType.JAM_YARD) {
+          return (
+            <JamYardDetailsStep
               {...stepProps}
               isLoadingExistingData={isLoadingExistingData}
             />
@@ -309,7 +331,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
         }
 
       case 6:
-        // Only for Camping: Review Step
+        // Only for Camping and Jam Yard: Review Step
         return (
           <ReviewStep
             {...stepProps}

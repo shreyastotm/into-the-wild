@@ -1,0 +1,38 @@
+---
+description: "PostGIS and spatial_ref_sys isolation rules"
+globs: ["**/*.{sql,ts,tsx}", "supabase/migrations/*"]
+alwaysApply: true
+---
+
+# 🗺️ POSTGIS & SPATIAL DATA ISOLATION RULES
+
+## 8.1 PostGIS System Table Isolation
+✅ **REQUIRED:** Keep spatial_ref_sys completely isolated from application schema
+❌ **FORBIDDEN:** Any modifications to spatial_ref_sys table in migrations
+❌ **FORBIDDEN:** Creating RLS policies on spatial_ref_sys in migrations  
+❌ **FORBIDDEN:** Granting privileges on spatial_ref_sys to anon/authenticated roles
+✅ **REQUIRED:** Use REVOKE ALL ON TABLE public.spatial_ref_sys FROM PUBLIC, anon, authenticated if needed
+✅ **REQUIRED:** Never reference spatial_ref_sys in application code
+
+## 8.2 Spatial Data Storage Standards
+✅ **REQUIRED:** Use DOUBLE PRECISION for latitude/longitude columns
+❌ **FORBIDDEN:** Using PostGIS GEOMETRY/GEOGRAPHY types in user tables
+✅ **REQUIRED:** Store coordinates as DECIMAL(10,6) or DOUBLE PRECISION
+✅ **REQUIRED:** Calculate distances in application layer if needed (not in database)
+
+## 8.3 System Table Protection
+✅ **REQUIRED:** Treat spatial_ref_sys as system-only, not application data
+✅ **REQUIRED:** Ignore PostGIS system tables in RLS policy creation
+❌ **FORBIDDEN:** Adding views/functions that expose spatial_ref_sys to REST API
+❌ **FORBIDDEN:** Creating triggers on PostGIS system tables
+
+## 8.4 Security Linter Handling
+✅ **REQUIRED:** Accept security linter warnings about spatial_ref_sys (system table)
+✅ **REQUIRED:** If warning appears, use REVOKE statement in Supabase SQL Editor manually
+❌ **FORBIDDEN:** Attempting to automate RLS enablement on system tables via migrations
+
+## 8.5 PostGIS Extension Policy
+✅ **REQUIRED:** PostGIS extension may exist on Supabase but application does NOT use it
+✅ **REQUIRED:** All coordinates stored as numeric types, NOT spatial types
+❌ **FORBIDDEN:** Installing or enabling PostGIS in migrations
+❌ **FORBIDDEN:** Using ST_MakePoint, ST_Distance, or other PostGIS functions

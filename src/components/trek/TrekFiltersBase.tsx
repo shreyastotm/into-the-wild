@@ -292,6 +292,7 @@ const TrekFiltersBase: React.FC<TrekFiltersBaseProps> = ({
                   <SelectItem value="">All Types</SelectItem>
                   <SelectItem value="trek">Trek</SelectItem>
                   <SelectItem value="camping">Camping</SelectItem>
+                  <SelectItem value="jam_yard">Jam Yard</SelectItem>
                   <SelectItem value="hiking">Hiking</SelectItem>
                   <SelectItem value="adventure">Adventure</SelectItem>
                 </SelectContent>

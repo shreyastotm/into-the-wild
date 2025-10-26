@@ -5,10 +5,11 @@
 1. [Project Structure](#1-project-structure)
 2. [Frontend Architecture](#2-frontend-architecture)
 3. [Backend & Database Architecture](#3-backend--database-architecture)
-4. [Development Standards & Quality](#4-development-standards--quality)
-5. [Performance & Optimization](#5-performance--optimization)
-6. [Security & Database](#6-security--database)
-7. [Testing & Quality Assurance](#7-testing--quality-assurance)
+4. [Database Management System](#4-database-management-system)
+5. [Development Standards & Quality](#5-development-standards--quality)
+6. [Performance & Optimization](#6-performance--optimization)
+7. [Security & Database](#7-security--database)
+8. [Testing & Quality Assurance](#8-testing--quality-assurance)
 
 ---
 
@@ -419,7 +420,264 @@ supabase db push   # Push specific migrations
 - **Testing**: Test migrations on development before production
 - **Documentation**: Comment complex migration logic
 
-### 3.3 Edge Functions Architecture
+### 3.3 Database Management System {#database-management-system}
+
+#### Overview
+
+The project implements a comprehensive **Database Schema Management System** that provides automated schema management, migration consolidation, health checks, and synchronization between local and remote databases. This system ensures reliable, secure, and performant database operations throughout the development lifecycle.
+
+#### Architecture
+
+##### Core Components
+
+1. **DatabaseSchemaAgent** (`scripts/db-schema-agent.ts`) - Main automation agent
+2. **Consolidated Migration** (`supabase/migrations/20260101000000_comprehensive_schema_consolidation.sql`) - Single source of truth
+3. **Schema Extraction** (`scripts/extract_latest_schema.js`) - Current state capture
+4. **Validation System** - Comprehensive health checks
+
+##### Key Features
+
+- ✅ **Automatic Migration Management** - Detects and applies pending migrations
+- ✅ **Conflict Resolution** - Automatically resolves local/remote disparities
+- ✅ **Schema Validation** - Comprehensive RLS and integrity checks
+- ✅ **Backup & Recovery** - Automated backup before major operations
+- ✅ **Health Monitoring** - Real-time database health assessment
+- ✅ **Consolidation** - Converts complex migration history into clean schema
+
+#### Quick Start
+
+##### Initial Setup
+
+```bash
+# Start local Supabase instance
+npm run supabase:start
+
+# Run full database setup (consolidates and syncs everything)
+npm run db:full-setup
+
+# Validate the setup
+npm run db:validate
+```
+
+##### Development Workflow
+
+```bash
+# Check database health
+npm run db:health
+
+# Sync with remote (if needed)
+npm run db:sync
+
+# Extract current schema for documentation
+npm run db:extract-schema
+```
+
+##### Production Deployment
+
+```bash
+# Create backup before deployment
+npm run db:backup
+
+# Sync local and remote databases
+npm run db:prod-sync
+
+# Validate production readiness
+npm run db:validate
+```
+
+#### Available Commands
+
+##### Database Management Agents
+
+| Command | Description | Usage |
+|---------|-------------|-------|
+| `npm run db:sync` | Synchronize local and remote databases | Full sync including conflict resolution |
+| `npm run db:validate` | Validate schema health and RLS policies | Health check with detailed reporting |
+| `npm run db:consolidate` | Consolidate migrations into clean schema | Creates single consolidated migration |
+| `npm run db:backup` | Create timestamped database backup | Backup current state |
+| `npm run db:health` | Run comprehensive health checks | Quick health assessment |
+
+##### Complete Workflows
+
+| Command | Description | When to Use |
+|---------|-------------|-------------|
+| `npm run db:dev` | Start development with validation | Daily development |
+| `npm run db:dev:reset` | Reset and sync development | After major changes |
+| `npm run db:prod-sync` | Production synchronization | Before deployment |
+| `npm run db:full-setup` | Complete setup from scratch | Initial setup or recovery |
+
+#### Database Schema
+
+##### Core Tables
+
+| Table | Purpose | Key Features |
+|-------|---------|--------------|
+| `users` | User profiles and authentication | Extended profile fields, RLS policies |
+| `trek_events` | Trek event definitions | Complete lifecycle management |
+| `trek_registrations` | User registrations for treks | Multi-step registration process |
+| `trek_expenses` | Expense tracking | Fair sharing system |
+| `notifications` | User notifications | Real-time and scheduled |
+| `forum_*` | Community forum system | Categories, threads, posts, voting |
+
+##### Security Features
+
+- **Row Level Security (RLS)** enabled on all tables
+- **Admin-only access** for sensitive operations
+- **User isolation** - users only see their own data
+- **Secure functions** with proper permissions
+
+##### Performance Features
+
+- **Strategic indexes** on all foreign keys and search columns
+- **Optimized queries** for common operations
+- **Connection pooling** configuration
+- **Efficient RLS policies**
+
+#### Migration Strategy
+
+##### Consolidation Process
+
+1. **Archive Old Migrations** - Move conflicting migrations to archive
+2. **Extract Current State** - Get actual database schema
+3. **Create Consolidated Migration** - Single migration with all fixes
+4. **Validate and Test** - Ensure everything works correctly
+5. **Deploy** - Apply to production with confidence
+
+##### Conflict Resolution
+
+The system automatically detects and resolves:
+- **Local/Remote Drift** - Synchronizes migration status
+- **Policy Conflicts** - Removes duplicate RLS policies
+- **Schema Inconsistencies** - Standardizes table structures
+- **Permission Issues** - Fixes access control problems
+
+#### Health Checks
+
+The validation system checks:
+
+##### Schema Integrity
+- All tables have RLS enabled
+- Required indexes exist
+- Foreign key constraints valid
+- Data types consistent
+
+##### Security Validation
+- RLS policies working correctly
+- Admin functions accessible
+- User permissions appropriate
+- Storage policies configured
+
+##### Performance Metrics
+- Query performance acceptable
+- Indexes properly utilized
+- Connection limits not exceeded
+- Functions executing efficiently
+
+#### Troubleshooting
+
+##### Common Issues
+
+###### Database Connection Issues
+```bash
+# Check Supabase status
+npm run supabase:status
+
+# Restart if needed
+npm run supabase:stop && npm run supabase:start
+```
+
+###### Migration Conflicts
+```bash
+# Consolidate and start fresh
+npm run db:consolidate
+npm run db:dev:reset
+```
+
+###### RLS Policy Errors
+```bash
+# Validate and fix policies
+npm run db:validate
+npm run db:sync
+```
+
+###### Schema Drift
+```bash
+# Sync with remote
+npm run db:sync
+npm run db:extract-schema
+```
+
+##### Recovery Procedures
+
+###### Emergency Reset
+```bash
+# Complete reset and rebuild
+npm run supabase:stop
+npm run supabase:start
+npm run db:full-setup
+```
+
+###### Production Recovery
+```bash
+# Backup, sync, validate
+npm run db:backup
+npm run db:prod-sync
+npm run db:validate
+```
+
+#### Monitoring
+
+##### Logs and Reports
+
+- **Migration logs** stored in `database-schema/backups/`
+- **Health reports** generated by validation commands
+- **Schema extracts** in `database-schema/latest_schema.sql`
+- **Backup files** timestamped and archived
+
+##### Performance Monitoring
+
+- **Query performance** tracked in function execution
+- **Connection usage** monitored via Supabase dashboard
+- **Storage utilization** tracked for file uploads
+- **RLS policy efficiency** validated automatically
+
+#### Best Practices
+
+##### Development
+1. **Always validate** after schema changes
+2. **Create backups** before major operations
+3. **Test locally** before deploying to remote
+4. **Use consolidated migrations** for complex changes
+
+##### Deployment
+1. **Validate production** before deployment
+2. **Create backups** of production data
+3. **Test deployment** in staging first
+4. **Monitor** after deployment completion
+
+##### Maintenance
+1. **Regular health checks** with `npm run db:health`
+2. **Schema extraction** after major changes
+3. **Migration consolidation** when conflicts arise
+4. **Backup verification** for critical data
+
+#### Integration with CI/CD
+
+The system integrates with deployment pipelines:
+
+```yaml
+# Example GitHub Actions
+- name: Database Health Check
+  run: npm run db:health
+
+- name: Schema Validation
+  run: npm run db:validate
+
+- name: Production Sync
+  run: npm run db:prod-sync
+```
+
+### 3.4 Edge Functions Architecture
 
 #### Function Structure
 ```
@@ -451,9 +709,9 @@ serve(async (req) => {
 
 ---
 
-## 4. Development Standards & Quality
+## 5. Development Standards & Quality
 
-### 4.1 Code Quality Agents System
+### 5.1 Code Quality Agents System
 
 #### Overview
 The project implements a comprehensive automated code quality system with 8 specialized agents:
@@ -494,7 +752,7 @@ npm run bug-detect         # Issue detection
 npm run auto-fix           # Intelligent fixes
 ```
 
-### 4.2 Indian Market Compliance
+### 5.2 Indian Market Compliance
 
 #### Currency Formatting
 ```typescript
@@ -548,7 +806,7 @@ export function calculateGST(amount: number, gstRate: number = 18): {
 }
 ```
 
-### 4.3 Error Handling Patterns
+### 5.3 Error Handling Patterns
 
 #### Global Error Boundary
 ```typescript
@@ -615,9 +873,9 @@ export function handleAPIError(error: any): APIError {
 
 ---
 
-## 5. Performance & Optimization
+## 6. Performance & Optimization
 
-### 5.1 Bundle Optimization
+### 6.1 Bundle Optimization
 
 #### Code Splitting Strategy
 ```javascript
@@ -670,7 +928,7 @@ export default defineConfig({
 | index | 58.93 | Main application code |
 | admin | 54.10 | Admin components |
 
-### 5.2 Lazy Loading Implementation
+### 6.2 Lazy Loading Implementation
 
 #### Route-Based Lazy Loading
 ```jsx
@@ -708,7 +966,7 @@ const [showHeavyComponent, setShowHeavyComponent] = useState(false);
 )}
 ```
 
-### 5.3 Loading State Management
+### 6.3 Loading State Management
 
 #### Consistent Loading Experience
 ```jsx
@@ -762,7 +1020,7 @@ export function LoadingSpinner({
 )}
 ```
 
-### 5.4 Performance Metrics
+### 6.4 Performance Metrics
 
 #### Core Web Vitals Targets
 | Metric | Target | Current Status |
@@ -786,9 +1044,9 @@ npm run analyze:bundle
 
 ---
 
-## 6. Security & Database
+## 7. Security & Database
 
-### 6.1 Row Level Security (RLS) Policies
+### 7.1 Row Level Security (RLS) Policies
 
 #### User Data Access
 ```sql
@@ -820,7 +1078,7 @@ CREATE POLICY "Users can upload own ID proofs" ON storage.objects
   );
 ```
 
-### 6.2 Authentication & Authorization
+### 7.2 Authentication & Authorization
 
 #### User Roles & Permissions
 ```sql
@@ -923,7 +1181,7 @@ Use incognito/private browsing or add `?incognito=true` to disable session persi
 - Better session management in AuthProvider
 - Clear session utilities for debugging
 
-### 6.3 Data Validation & Sanitization
+### 7.3 Data Validation & Sanitization
 
 #### Input Validation
 ```typescript
@@ -964,9 +1222,9 @@ $$;
 
 ---
 
-## 7. Testing & Quality Assurance
+## 8. Testing & Quality Assurance
 
-### 7.1 Testing Strategy
+### 8.1 Testing Strategy
 
 #### Test Structure
 ```
@@ -998,7 +1256,7 @@ export default defineConfig({
 });
 ```
 
-### 7.2 Testing Patterns
+### 8.2 Testing Patterns
 
 #### Component Testing
 ```typescript
@@ -1053,7 +1311,7 @@ describe('useTrekRegistration', () => {
 });
 ```
 
-### 7.3 Quality Gates Implementation
+### 8.3 Quality Gates Implementation
 
 #### Pre-commit Quality Checks
 ```bash
@@ -1111,5 +1369,6 @@ git push origin feature/new-trek-filtering
 
 **For detailed implementation examples, see:**
 - [Project Overview Guide](PROJECT_OVERVIEW.md)
+- [Technical Architecture Guide](TECHNICAL_ARCHITECTURE.md#database-management-system)
 - [Design System Reference](DESIGN_SYSTEM.md)
 - [Communication System Guide](COMMUNICATION_SYSTEM.md)

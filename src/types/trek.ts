@@ -11,6 +11,7 @@ export enum TrekEventStatus {
 export enum EventType {
   TREK = "trek",
   CAMPING = "camping",
+  JAM_YARD = "jam_yard",
 }
 
 // Camping event specific types
@@ -115,8 +116,31 @@ export interface CampingEvent extends BaseEvent {
   // Camping-specific fields
 }
 
+// Jam Yard specific types
+export interface JamYardDetails {
+  activity_focus: string;           // Yoga, Parkour, Dance, etc.
+  instructor_name: string;
+  instructor_bio?: string;
+  instructor_image?: string;
+  venue_type?: "outdoor_beach" | "outdoor_park" | "outdoor_campsite" | "outdoor_mountain" | "indoor_studio" | "hybrid";
+  venue_details?: string;
+  target_audience?: string;
+  session_duration?: number;         // Minutes
+  equipment_provided?: string[];
+  skill_level?: "beginner" | "intermediate" | "advanced" | "all";
+  weather_dependency?: boolean;
+  can_complement_camping?: boolean;
+  can_complement_trek?: boolean;
+}
+
+// Jam Yard event interface
+export interface JamYardEvent extends BaseEvent {
+  event_type: EventType.JAM_YARD;
+  jam_yard_details?: JamYardDetails | null;
+}
+
 // Union type for any event
-export type Event = TrekEvent | CampingEvent;
+export type Event = TrekEvent | CampingEvent | JamYardEvent;
 
 // Legacy compatibility - keep existing interface for now
 // eslint-disable-next-line @typescript-eslint/no-empty-object-type

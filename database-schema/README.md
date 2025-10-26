@@ -2,6 +2,8 @@
 
 Generated on: 2025-01-25
 
+> **Note**: For comprehensive database management documentation including automated schema management, migration workflows, health checks, and troubleshooting, see [TECHNICAL_ARCHITECTURE.md](../../docs/TECHNICAL_ARCHITECTURE.md#database-management-system)
+
 ## Files Generated:
 - `latest_schema.sql` - Complete schema dump with all tables, types, functions, and policies
 - `migration_history.txt` - List of applied migrations

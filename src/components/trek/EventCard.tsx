@@ -32,6 +32,7 @@ interface EventCardProps {
     image_url?: string | null;
     images?: string[];
     category?: string | null;
+    event_type?: string | null;
   };
   onClick?: (trekId: number) => void;
   showProgress?: boolean;
@@ -127,9 +128,27 @@ export const EventCard: React.FC<EventCardProps> = ({
           </div>
         )}
 
-        {/* Badges overlay - only past adventure for events */}
+        {/* Badges overlay */}
         <div className="absolute top-2 right-2 flex flex-col gap-1">
-          {/* Past adventure indicator for gallery type - not used in events */}
+          {/* Event Type Badge */}
+          {trek.event_type && (
+            <Badge 
+              variant={
+                trek.event_type === 'jam_yard' ? 'secondary' : 
+                trek.event_type === 'camping' ? 'default' : 
+                'outline'
+              }
+              className={
+                trek.event_type === 'jam_yard' 
+                  ? 'bg-orange-500 text-white hover:bg-orange-600' 
+                  : ''
+              }
+            >
+              {trek.event_type === 'jam_yard' && '🏃 Jam Yard'}
+              {trek.event_type === 'camping' && '🏕️ Camping'}
+              {trek.event_type === 'trek' && '🥾 Trek'}
+            </Badge>
+          )}
         </div>
       </div>
 

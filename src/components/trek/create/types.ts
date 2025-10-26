@@ -32,6 +32,21 @@ export interface AdminTrekEvent {
       spots_needed: number;
     }>;
   };
+  jam_yard_details?: {
+    activity_focus?: string;
+    instructor_name?: string;
+    instructor_bio?: string;
+    instructor_image?: string;
+    venue_type?: string;
+    venue_details?: string;
+    target_audience?: string;
+    session_duration?: number;
+    equipment_provided?: string[];
+    skill_level?: string;
+    weather_dependency?: boolean;
+    can_complement_camping?: boolean;
+    can_complement_trek?: boolean;
+  };
 }
 
 // Step component props interface

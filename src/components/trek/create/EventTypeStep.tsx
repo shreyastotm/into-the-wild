@@ -1,10 +1,11 @@
-import React, { Component } from "react";
+import React from "react";
 
 import { StepProps } from "./types";
 
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { useAuth } from "@/hooks/useAuth";
 import { EventType } from "@/types/trek";
 
 export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
@@ -13,6 +14,9 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
   errors,
   isEdit,
 }) => {
+  const { userProfile } = useAuth();
+  const isPartnerOrAdmin = userProfile?.user_type === "micro_community" || 
+                          userProfile?.user_type === "admin";
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -81,6 +85,40 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
             </div>
           </div>
         </Card>
+
+        {/* Jam Yard card - only shown for partners and admins */}
+        {isPartnerOrAdmin && (
+          <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-orange-200">
+            <div className="flex items-start space-x-3">
+              <RadioGroupItem
+                value={EventType.JAM_YARD}
+                id="jam_yard"
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <Label
+                  htmlFor="jam_yard"
+                  className="text-base font-medium cursor-pointer"
+                >
+                  🏃 Jam Yard Event
+                </Label>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Partner-led outdoor activities: yoga, parkour, dance, fitness 
+                  workshops. Can complement treks and camping events.
+                </p>
+                <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                  <li>• Outdoor/indoor partner collaboration activities</li>
+                  <li>• Can complement treks and camping events</li>
+                  <li>• Instructor-led sessions with specialized activities</li>
+                  <li>• Single or recurring session formats</li>
+                </ul>
+                <div className="mt-2 px-2 py-1 bg-orange-100 dark:bg-orange-900 rounded-md text-xs text-orange-800 dark:text-orange-200">
+                  Partner or Admin Only
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
       </RadioGroup>
 
       {errors.event_type && (

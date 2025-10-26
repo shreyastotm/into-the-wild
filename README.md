@@ -47,14 +47,14 @@ All project documentation is organized in the `/docs/` folder:
 | Document | Purpose | Key Topics |
 |----------|---------|------------|
 | **[📖 PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)** | Complete project setup & fundamentals | Tech stack, dependencies, setup, deployment |
-| **[🏗️ TECHNICAL_ARCHITECTURE.md](docs/TECHNICAL_ARCHITECTURE.md)** | Technical implementation details | Code organization, performance, quality, security |
+| **[🏗️ TECHNICAL_ARCHITECTURE.md](docs/TECHNICAL_ARCHITECTURE.md)** | Technical implementation details | Code organization, database management, performance, quality, security |
 | **[🎨 DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)** | UI/UX design system & components | Colors, typography, accessibility, mobile design |
 | **[💬 COMMUNICATION_SYSTEM.md](docs/COMMUNICATION_SYSTEM.md)** | Messaging & notification system | WhatsApp integration, automated reminders, admin tools |
 
 ### 🔍 **Quick Navigation**
 
 **New to the project?** → Start with [PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)  
-**Need technical details?** → Check [TECHNICAL_ARCHITECTURE.md](docs/TECHNICAL_ARCHITECTURE.md)  
+**Need technical details?** → Check [TECHNICAL_ARCHITECTURE.md](docs/TECHNICAL_ARCHITECTURE.md#database-management-system)  
 **Working on UI/UX?** → See [DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)  
 **Building communication features?** → Review [COMMUNICATION_SYSTEM.md](docs/COMMUNICATION_SYSTEM.md)
 

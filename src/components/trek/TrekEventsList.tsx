@@ -22,6 +22,7 @@ export interface TrekEvent {
   image_url?: string | null;
   event_creator_type: string;
   status?: TrekEventStatus | string | null;
+  event_type?: string | null;
 }
 
 interface TrekEventsListProps {

@@ -7,11 +7,13 @@ import {
 } from "@/components/trek/create/types";
 import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
 import { toast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
-import { TentInventory } from "@/types/trek";
+import { EventType, TentInventory } from "@/types/trek";
 
 export default function CreateTrekEvent() {
   const navigate = useNavigate();
+  const { userProfile } = useAuth();
   const [tentInventory, setTentInventory] = useState<TentInventory[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -44,6 +46,24 @@ export default function CreateTrekEvent() {
     try {
       const { trekData, packingList, costs, tentInventory: tentData } = data;
 
+      // ✅ VALIDATION: Restrict Jam Yard creation to partners/admins
+      if (trekData.event_type === EventType.JAM_YARD) {
+        if (!userProfile) {
+          throw new Error("You must be logged in to create Jam Yard events");
+        }
+        
+        // Allow if user is admin OR micro_community (partner)
+        const isPartner = userProfile.user_type === "micro_community";
+        const isAdmin = userProfile.user_type === "admin";
+        
+        if (!isPartner && !isAdmin) {
+          throw new Error(
+            "Only partners and admins can create Jam Yard events. " +
+            "Please contact support to become a partner."
+          );
+        }
+      }
+
       // Validate required fields
       if (
         !trekData.name ||
@@ -53,6 +73,10 @@ export default function CreateTrekEvent() {
       ) {
         throw new Error("Please fill in all required fields.");
       }
+
+      // Determine event creator type and partner ID
+      const isPartner = userProfile?.user_type === "micro_community";
+      const isAdmin = userProfile?.user_type === "admin";
 
       // Sanitize trek data
       const sanitizedTrekData = {
@@ -67,7 +91,14 @@ export default function CreateTrekEvent() {
         base_price: Number(trekData.base_price),
         max_participants: Number(trekData.max_participants),
         location: trekData.location,
+        event_type: trekData.event_type,
+        event_creator_type: isPartner ? "external" : "internal",
+        partner_id: isPartner ? userProfile.user_id : null,
+        created_by: userProfile?.user_id || null,
         status: "Draft" as const,
+        jam_yard_details: trekData.event_type === EventType.JAM_YARD
+          ? trekData.jam_yard_details
+          : undefined,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
@@ -145,10 +176,15 @@ export default function CreateTrekEvent() {
         }
       }
 
+      const eventTypeDisplay = trekData.event_type === EventType.JAM_YARD
+        ? "Jam Yard event"
+        : trekData.event_type === EventType.CAMPING
+        ? "camping event"
+        : "trek event";
+
       toast({
         title: "Event Created Successfully",
-        description:
-          "Your trek event has been created and is now in draft status.",
+        description: `Your ${eventTypeDisplay} has been created and is now in draft status.`,
         variant: "default",
       });
 
