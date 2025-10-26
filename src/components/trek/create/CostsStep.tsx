@@ -15,7 +15,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { calculateGSTPrice } from '@/utils/indianStandards';
+// Temporarily disabled GST calculations - calculating base amount only
+// import { calculateGSTPrice } from '@/utils/indianStandards';
 
 interface TrekCost {
   id?: number;
@@ -91,7 +92,8 @@ export const CostsStep: React.FC<CostsStepProps> = ({
     onCostsChange(updatedCosts);
   };
 
-  const totalAmount = calculateGSTPrice((costs || []).reduce((sum, cost) => sum + cost.amount, 0));
+  // GST disabled temporarily - calculating base cost only
+  const totalAmount = (costs || []).reduce((sum, cost) => sum + cost.amount, 0);
 
   if (isLoadingExistingData) {
     return (

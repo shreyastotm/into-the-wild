@@ -23,14 +23,14 @@ import {
 describe("Indian Standards Utilities", () => {
   describe("formatCurrency", () => {
     it("should format currency in Indian format", () => {
-      expect(formatCurrency(1000, "INR")).toBe("₹1,000");
-      expect(formatCurrency(1000000, "INR")).toBe("₹10,00,000");
-      expect(formatCurrency(1000.5, "INR")).toBe("₹1,001"); // Rounds to nearest rupee
+      expect(formatCurrency(1000)).toBe("₹1,000");
+      expect(formatCurrency(1000000)).toBe("₹10,00,000");
+      expect(formatCurrency(1000.5)).toBe("₹1,001"); // Rounds to nearest rupee
     });
 
     it("should handle decimal amounts correctly", () => {
-      expect(formatCurrency(1000.4, "INR")).toBe("₹1,000"); // Rounds down
-      expect(formatCurrency(1000.6, "INR")).toBe("₹1,001"); // Rounds up
+      expect(formatCurrency(1000.4)).toBe("₹1,000"); // Rounds down
+      expect(formatCurrency(1000.6)).toBe("₹1,001"); // Rounds up
     });
 
     it("should include GST when requested", () => {

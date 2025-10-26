@@ -146,7 +146,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       const userId = session.user.id;
       const fileExt = file.name.split(".").pop();
       const fileName = `${userId}_${Date.now()}.${fileExt}`;
-      const filePath = `id-proofs/${userId}/${fileName}`;
+      const filePath = `${userId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("id-proofs")

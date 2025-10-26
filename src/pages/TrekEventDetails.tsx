@@ -21,7 +21,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
-import { useHaptic } from "@/hooks/useHaptic";
 import { useTrekCommunity } from "@/hooks/useTrekCommunity";
 
 import {

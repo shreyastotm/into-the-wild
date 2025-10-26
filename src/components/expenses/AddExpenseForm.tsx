@@ -39,7 +39,8 @@ import {
   Expense,
   ExpenseCategory,
 } from "@/types/expense";
-import { calculateGSTPrice } from '@/utils/indianStandards';
+// Temporarily disabled GST calculations
+// import { calculateGSTPrice } from '@/utils/indianStandards';
 
 interface AddExpenseFormProps {
   trekId: number;
@@ -100,11 +101,12 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     }
 
     setSubmitting(true);
-    const totalAmount = calculateGSTPrice(parseFloat(amount));
+    // GST disabled temporarily - using base amount only
+    const totalAmount = parseFloat(amount);
     let shares: { userId: string; amount: number }[] = [];
 
     if (splitType === "equally") {
-      const shareAmount = calculateGSTPrice(totalAmount) / selectedParticipants.length;
+      const shareAmount = totalAmount / selectedParticipants.length;
       shares = selectedParticipants.map((userId) => ({
         userId,
         amount: shareAmount,

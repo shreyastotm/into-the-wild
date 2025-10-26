@@ -12,7 +12,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TentInventory, TentRequest, TentType } from "@/types/trek";
-import { calculateGSTPrice } from '@/utils/indianStandards';
+// Temporarily disabled GST calculations
+// import { calculateGSTPrice } from '@/utils/indianStandards';
 
 interface TentRentalProps {
   eventId: number;
@@ -184,7 +185,8 @@ export const TentRental: React.FC<TentRentalProps> = ({
     try {
       setSubmitting(true);
 
-      const totalCost = calculateGSTPrice(calculateCost(tentType, selection.quantity, selection.nights));
+      // GST disabled temporarily - calculating base cost only
+      const totalCost = calculateCost(tentType, selection.quantity, selection.nights);
 
       const { error } = await supabase.from("tent_requests").upsert(
         {

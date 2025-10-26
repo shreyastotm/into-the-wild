@@ -56,13 +56,17 @@ export default function CreateTrekEvent() {
 
       // Sanitize trek data
       const sanitizedTrekData = {
-        ...trekData,
+        name: trekData.name,
+        description: trekData.description,
+        category: trekData.category,
+        difficulty: trekData.difficulty,
         start_datetime: new Date(trekData.start_datetime).toISOString(),
         end_datetime: trekData.end_datetime
           ? new Date(trekData.end_datetime).toISOString()
           : null,
         base_price: Number(trekData.base_price),
         max_participants: Number(trekData.max_participants),
+        location: trekData.location,
         status: "Draft" as const,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
@@ -86,7 +90,7 @@ export default function CreateTrekEvent() {
         const assignments = packingList.map((item) => ({
           trek_id: trekId,
           master_item_id: item.master_item_id,
-          mandatory: item.is_mandatory,
+          mandatory: item.mandatory,
         }));
 
         const { error: assignmentError } = await supabase
@@ -107,7 +111,6 @@ export default function CreateTrekEvent() {
           cost_type: cost.cost_type,
           amount: Number(cost.amount),
           description: cost.description || null,
-          is_mandatory: cost.is_mandatory || false,
         }));
 
         const { error: costError } = await supabase
@@ -127,9 +130,8 @@ export default function CreateTrekEvent() {
       ) {
         const tentAssignments = tentData.map((tent) => ({
           trek_id: trekId,
-          tent_type: tent.tent_type,
-          quantity_available: Number(tent.quantity_available),
-          price_per_night: Number(tent.price_per_night) || 0,
+          tent_type_id: tent.tent_type_id,
+          total_available: Number(tent.total_available),
         }));
 
         const { error: tentError } = await supabase

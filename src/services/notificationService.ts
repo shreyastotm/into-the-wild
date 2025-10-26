@@ -282,7 +282,6 @@ export class NotificationService {
         status: "unread",
         type: notification.type,
         trek_id: notification.trek_id,
-        created_at: new Date().toISOString(),
       });
 
       if (error) {
@@ -414,7 +413,7 @@ Your ${trek.name} trek starts tomorrow!
 • Emergency contact: ${this.getEmergencyContact()}
 • Weather: ${trek.weather_forecast || "Check WhatsApp group for latest updates"}
 
-*Cost Reminder:* ${formatCurrency(trek.cost, "INR")} (Payment verified ✅)
+*Cost Reminder:* ${formatCurrency(trek.cost, { currency: "INR" })} (Payment verified ✅)
 
 Have an amazing trek! 🏔️
 
@@ -438,7 +437,7 @@ Your spot on *${trek.name}* is secured!
 • Registration ID: ${registration.registration_id}
 • Trek: ${trek.name}
 • Date: ${formatIndianDate(trek.start_datetime)}
-• Cost: ${formatCurrency(trek.cost, "INR")}
+• Cost: ${formatCurrency(trek.cost, { currency: "INR" })}
 • Status: Confirmed
 
 📝 *Next Steps:*

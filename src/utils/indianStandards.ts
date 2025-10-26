@@ -30,21 +30,27 @@ export interface CurrencyOptions {
  * Format currency in Indian format with ₹ symbol
  *
  * @param amount - Amount in rupees
- * @param options - Currency formatting options
+ * @param options - Currency formatting options or currency code for backward compatibility
  * @returns Formatted currency string
  *
  * @example
  * ```typescript
- * formatCurrency(1000, "INR") // "₹1,000"
+ * formatCurrency(1000) // "₹1,000"
  * formatCurrency(1000, { includeGST: true }) // "₹1,000 (₹1,180 with GST)"
  * formatCurrency(1000, { showBreakdown: true }) // "₹1,000 + ₹180 GST = ₹1,180"
  * ```
  */
+
+// Overloaded function for backward compatibility
+export function formatCurrency(amount: number): string;
+export function formatCurrency(amount: number, options: CurrencyOptions): string;
 export function formatCurrency(
   amount: number,
-  options: CurrencyOptions = {},
+  options: CurrencyOptions | string = {},
 ): string {
-  const { includeGST = false, gstRate = 18, showBreakdown = false } = options;
+  // Handle backward compatibility with string parameter
+  const opts = typeof options === 'string' ? {} : options;
+  const { includeGST = false, gstRate = 18, showBreakdown = false } = opts;
 
   // Format base amount
   const formattedAmount = new Intl.NumberFormat("en-IN", {
@@ -61,10 +67,10 @@ export function formatCurrency(
   const totalAmount = amount + gstAmount;
 
   if (showBreakdown) {
-    return `${formattedAmount} + ${formatCurrency(gstAmount, "INR")} GST = ${formatCurrency(totalAmount, "INR")}`;
+    return `${formattedAmount} + ${formatCurrency(gstAmount)} GST = ${formatCurrency(totalAmount)}`;
   }
 
-  return `${formattedAmount} (${formatCurrency(totalAmount, "INR")} with GST)`;
+  return `${formattedAmount} (${formatCurrency(totalAmount)} with GST)`;
 }
 
 /**
@@ -296,9 +302,9 @@ export function getCostBreakdown(
   const gstAmount = calculateGST(baseCost, gstRate);
 
   return {
-    baseCost: formatCurrency(baseCost, "INR"),
-    gstAmount: formatCurrency(gstAmount, "INR"),
-    totalCost: formatCurrency(baseCost + gstAmount, "INR"),
+    baseCost: formatCurrency(baseCost),
+    gstAmount: formatCurrency(gstAmount),
+    totalCost: formatCurrency(baseCost + gstAmount),
     gstRate,
   };
 }
