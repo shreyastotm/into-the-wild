@@ -296,7 +296,10 @@ export const useAuthForm = () => {
 
   // Handle Google OAuth
   const handleGoogleSignIn = useCallback(async (): Promise<AuthResponse> => {
+    console.log("[AUTH] Google sign-in initiated");
+
     if (!checkRateLimit("google_signin")) {
+      console.log("[AUTH] Rate limit exceeded for Google sign-in");
       return { success: false, error: "Rate limit exceeded" };
     }
 
@@ -307,22 +310,35 @@ export const useAuthForm = () => {
     startAuthenticating();
 
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
+      console.log("[AUTH] Calling Supabase signInWithOAuth");
+      console.log("[AUTH] Redirect URL:", `${window.location.origin}/`);
+      console.log("[AUTH] Current origin:", window.location.origin);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/auth/callback`,
+          redirectTo: `${window.location.origin}/`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         },
       });
 
+      console.log("[AUTH] Supabase OAuth response:", { data, error });
+
       if (error) {
+        console.error("[AUTH] Supabase OAuth error:", error);
         const appError = handleSupabaseError(error);
         setErrors({ general: appError.userMessage });
         logError(appError, "google_signin");
         return { success: false, error: appError.userMessage };
       }
 
+      console.log("[AUTH] OAuth initiated successfully, redirecting to Google");
       return { success: true, message: "Redirecting to Google..." };
     } catch (error) {
+      console.error("[AUTH] Google sign-in exception:", error);
       const errorMessage = "Google sign in failed";
       setErrors({ general: errorMessage });
       logError(error, "google_signin");
