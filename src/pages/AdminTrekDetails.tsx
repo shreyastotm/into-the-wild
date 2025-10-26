@@ -9,7 +9,7 @@ import {
   Tent,
   Users,
 } from "lucide-react";
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { TentRequestsAdmin } from "@/components/admin/TentRequestsAdmin";
@@ -28,8 +28,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/utils";
-// Lazy load TravelCoordination to prevent Leaflet side effects during module loading
-const TravelCoordination = React.lazy(() => import("@/components/trek/TravelCoordination"));
+// Import TravelCoordination directly - React Leaflet requires direct import for context access
+import { TravelCoordination } from "@/components/trek/TravelCoordination";
 
 // Define a more flexible interface to handle field name variations
 interface TrekEvent {
@@ -519,14 +519,12 @@ export default function AdminTrekDetails() {
             </TabsContent>
 
             <TabsContent value="transport">
-              <Suspense fallback={<div className="p-4 text-center">Loading transport coordination...</div>}>
               <TravelCoordination
                 transportMode={trek.transport_mode}
                 pickupTimeWindow={trek.pickup_time_window}
                 vendorContacts={trek.vendor_contacts}
                 isAdmin
               />
-              </Suspense>
             </TabsContent>
 
             <TabsContent value="expenses">

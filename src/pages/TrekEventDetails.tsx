@@ -1,4 +1,4 @@
-import React, { Suspense, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 
 import { useTrekRegistration } from "../hooks/trek/useTrekRegistration";
@@ -10,8 +10,8 @@ import { TentRental } from "@/components/trek/TentRental";
 import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
 import { TrekEventDetailsComponent } from "@/components/trek/TrekEventDetails";
 import { TrekEventHeader } from "@/components/trek/TrekEventHeader";
-// Lazy load TravelCoordination to prevent Leaflet side effects during module loading
-const TravelCoordination = React.lazy(() => import("@/components/trek/TravelCoordination"));
+// Import TravelCoordination directly - React Leaflet requires direct import for context access
+import { TravelCoordination } from "@/components/trek/TravelCoordination";
 import TrekPackingList from "@/components/trek/TrekPackingList";
 import { TrekParticipants } from "@/components/trek/TrekParticipants";
 import { TrekRatings } from "@/components/trek/TrekRatings";
@@ -302,14 +302,12 @@ export default function TrekEventDetails() {
             </TabsContent>
 
             <TabsContent value="travel">
-              <Suspense fallback={<div className="p-4 text-center">Loading transport coordination...</div>}>
               <TravelCoordination
                 transportMode={trekEvent.transport_mode}
                 pickupTimeWindow={trekEvent.pickup_time_window}
                 vendorContacts={trekEvent.vendor_contacts}
                 isAdmin={isAdmin}
               />
-              </Suspense>
             </TabsContent>
 
             {trekEvent.event_type === EventType.CAMPING && (
