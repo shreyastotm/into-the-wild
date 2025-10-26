@@ -5,7 +5,7 @@ import { StepProps } from "./types";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { EventType } from "@/types/trek";
 
 export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({

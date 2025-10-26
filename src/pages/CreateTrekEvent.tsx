@@ -7,7 +7,7 @@ import {
 } from "@/components/trek/create/types";
 import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/hooks/useAuth";
+import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { EventType, TentInventory } from "@/types/trek";
 
