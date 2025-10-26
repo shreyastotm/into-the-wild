@@ -1,23 +1,15 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import Header from '../Header';
 
-
-
-
-
-
-
 describe('Header', () => {
-  
 
   it('renders without crashing', () => {
     render(<Header  />);
     expect(screen.getByText(/Header|Submit|Save|Login|Register|Sign/i)).toBeInTheDocument();
   });
-
-  
 
   it('handles user interactions', () => {
     const handleClick = vi.fn();
@@ -33,6 +25,5 @@ describe('Header', () => {
       expect(screen.getByTestId('header')).toHaveTextContent(/updated|changed|new/i);
     });
   });
-
   
 });

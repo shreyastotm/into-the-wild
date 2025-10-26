@@ -1,21 +1,21 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import {
-  MapPin,
   Calendar,
-  Users,
   Clock,
-  Star,
   Compass,
+  MapPin,
   Mountain,
-  Zap,
+  Star,
   TreePine,
+  Users,
+  Zap,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useHaptic } from "@/hooks/use-haptic";
-import { Badge } from "@/components/ui/badge";
-
 import React, { Component } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { useHaptic } from "@/hooks/use-haptic";
+import { cn } from "@/lib/utils";
 
 interface TrekCardProps {
   trek: {

@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
 import {
+  AlertCircle,
   Car,
-  MapPin,
-  LocateFixed,
   Clock,
   Info,
+  LocateFixed,
+  MapPin,
   User,
   Users,
-  AlertCircle,
 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 
 // Lazy load Leaflet components to prevent side effects during module loading
 let LeafletComponents: any = null;
-let LeafletCSS: any = null;
+const LeafletCSS: any = null;
 
 // Load Leaflet components dynamically when needed
 const loadLeafletComponents = async () => {
@@ -55,6 +55,11 @@ const loadLeafletComponents = async () => {
     return null;
   }
 };
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -63,11 +68,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -76,16 +77,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/components/auth/AuthProvider";
-import {
-  useTransportCoordination,
-  PickupStatus,
-} from "@/hooks/trek/useTransportCoordination";
 import { useRouting } from "@/hooks/trek/useRouting";
+import {
+  PickupStatus,
+  useTransportCoordination,
+} from "@/hooks/trek/useTransportCoordination";
 
 interface TravelCoordinationProps {
   transportMode?: "cars" | "mini_van" | "bus" | "self_drive" | null;
@@ -171,7 +171,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
 
   // Route planning for carpooling
   const handleShowRoute = async (pickupLocation: any) => {
-    if (!pickupLocation || !pickupLocation.coordinates) return;
+    if (!pickupLocation?.coordinates) return;
 
     // For now, use Bangalore coordinates as destination placeholder
     // In a real implementation, you'd get the trek destination coordinates
@@ -231,7 +231,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     }, [position]);
 
     const { Marker } = LeafletComponents;
-    return markerPosition ? <Marker position={markerPosition}></Marker> : null;
+    return markerPosition ? <Marker position={markerPosition} /> : null;
   }
 
   // Search for locations using Nominatim (OpenStreetMap)
@@ -242,7 +242,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
-          `q=${encodeURIComponent(searchQuery + ", India")}&` +
+          `q=${encodeURIComponent(`${searchQuery  }, India`)}&` +
           `format=json&limit=5&addressdetails=1`,
       );
       const data = await response.json();
@@ -301,9 +301,9 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-        <div className="h-32 bg-gray-200 rounded"></div>
-        <div className="h-64 bg-gray-200 rounded"></div>
+        <div className="h-8 bg-gray-200 rounded w-1/4" />
+        <div className="h-32 bg-gray-200 rounded" />
+        <div className="h-64 bg-gray-200 rounded" />
       </div>
     );
   }

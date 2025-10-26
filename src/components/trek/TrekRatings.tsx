@@ -1,18 +1,22 @@
-import React, { useState } from "react";
-import { useParams } from "react-router-dom";
 import {
   Award,
-  Mountain,
-  Heart,
   Camera,
-  Star,
-  StarHalf,
-  Clock,
-  Users,
-  Clipboard,
   ChevronDown,
   ChevronUp,
+  Clipboard,
+  Clock,
+  Heart,
+  Mountain,
+  Star,
+  StarHalf,
+  Users,
 } from "lucide-react";
+import React, { useState } from "react";
+import { useParams } from "react-router-dom";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -21,7 +25,11 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import {
   Dialog,
   DialogContent,
@@ -31,17 +39,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
 import { useTrekRatings } from "@/hooks/trek/useTrekRatings";
 
 // Interface for our props
@@ -202,8 +203,8 @@ export const TrekRatings: React.FC<TrekRatingsProps> = ({
       <div className="space-y-4">
         <h3 className="text-xl font-semibold">Trek Ratings</h3>
         <div className="animate-pulse space-y-4">
-          <div className="h-20 bg-gray-200 rounded"></div>
-          <div className="h-40 bg-gray-200 rounded"></div>
+          <div className="h-20 bg-gray-200 rounded" />
+          <div className="h-40 bg-gray-200 rounded" />
         </div>
       </div>
     );

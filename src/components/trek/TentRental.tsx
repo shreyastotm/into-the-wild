@@ -1,18 +1,18 @@
-import { calculateGSTPrice } from '@/utils/indianStandards';
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AlertCircle, Calendar, Tent, Users } from "lucide-react";
+import React, { useCallback, useEffect , useState } from "react";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { AlertCircle, Tent, Users, Calendar } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "@/components/ui/use-toast";
-import { TentType, TentInventory, TentRequest } from "@/types/trek";
-import { useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { TentInventory, TentRequest, TentType } from "@/types/trek";
+import { calculateGSTPrice } from '@/utils/indianStandards';
 
 interface TentRentalProps {
   eventId: number;
@@ -184,11 +184,7 @@ export const TentRental: React.FC<TentRentalProps> = ({
     try {
       setSubmitting(true);
 
-      const totalCost = calculateGSTPrice(calculateCost)(
-        tentType,
-        selection.quantity,
-        selection.nights,
-      );
+      const totalCost = calculateGSTPrice(calculateCost(tentType, selection.quantity, selection.nights));
 
       const { error } = await supabase.from("tent_requests").upsert(
         {

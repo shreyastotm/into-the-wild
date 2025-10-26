@@ -1,4 +1,20 @@
+import {
+  Calendar,
+  HelpCircle,
+  Home,
+  LogIn,
+  LogOut,
+  MapPin,
+  Menu,
+  MessageSquare,
+  User,
+  UserCircle,
+} from "lucide-react";
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { ThemeToggleCompact } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -7,21 +23,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useAuth } from "@/components/auth/AuthProvider";
-import {
-  User,
-  MapPin,
-  Home,
-  Calendar,
-  UserCircle,
-  LogOut,
-  LogIn,
-  MessageSquare,
-  Menu,
-  HelpCircle,
-} from "lucide-react";
-import { Link } from "react-router-dom";
-import { ThemeToggleCompact } from "@/components/ThemeToggle";
 
 export function MobileHamburger() {
   const { user, userProfile, loading, signOut } = useAuth();

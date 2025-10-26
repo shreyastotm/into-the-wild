@@ -1,9 +1,9 @@
-import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import TrekEventDetails from '../TrekEventDetails';
 import { createClient } from '@supabase/supabase-js';
+import { render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import TrekEventDetails from '../TrekEventDetails';
 
 // Mock Supabase client
 vi.mock('@supabase/supabase-js', () => ({
@@ -33,8 +33,6 @@ vi.mock('@supabase/supabase-js', () => ({
   })),
 }));
 
-
-
 describe('TrekEventDetails', () => {
   beforeEach(() => {
     vi.clearAllMocks();
@@ -49,8 +47,6 @@ describe('TrekEventDetails', () => {
     render(<TrekEventDetails title="Test Title" data-testid="trekeventdetails" />);
     expect(screen.getByTestId('trekeventdetails')).toHaveTextContent('Test Title');
   });
-
-  
 
   it('updates state correctly', async () => {
     render(<TrekEventDetails data-testid="trekeventdetails" />);

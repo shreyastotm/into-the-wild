@@ -1,7 +1,8 @@
+import { AlertTriangle, ArrowLeft, Heart, Shield, Users } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Shield, AlertTriangle, Heart, Users } from "lucide-react";
 
 const SafetyTips = () => {
   return (

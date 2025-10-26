@@ -1,6 +1,6 @@
-import TrekFiltersBase from "./TrekFiltersBase";
-
 import React, { Component } from "react";
+
+import TrekFiltersBase from "./TrekFiltersBase";
 
 export interface FilterOptions {
   search: string;

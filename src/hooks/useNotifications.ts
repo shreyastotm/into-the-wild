@@ -1,5 +1,6 @@
-import { useState, useEffect, useCallback } from "react";
 import { useSupabaseClient, useUser } from "@supabase/auth-helpers-react";
+import { useCallback, useEffect, useState } from "react";
+
 import type { Database, Enums } from "../integrations/supabase/types"; // Corrected path
 
 export type NotificationStatus = Enums<"notification_status_enum">;

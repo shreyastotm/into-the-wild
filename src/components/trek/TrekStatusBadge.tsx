@@ -1,26 +1,27 @@
-import React, { Component } from "react";
-import { Badge } from "@/components/ui/badge";
 import {
+  AlertTriangle,
+  Bus,
   Calendar,
   CalendarCheck,
   CalendarX,
-  Clock,
-  Play,
-  Pause,
+  Car,
   CheckCircle,
-  XCircle,
-  AlertTriangle,
-  Users,
-  UserCheck,
-  UserX,
-  DollarSign,
+  Clock,
   CreditCard,
+  DollarSign,
   FileText,
   Mountain,
-  Car,
-  Bus,
+  Pause,
+  Play,
   Train,
+  UserCheck,
+  Users,
+  UserX,
+  XCircle,
 } from "lucide-react";
+import React, { Component } from "react";
+
+import { Badge } from "@/components/ui/badge";
 
 export interface TrekStatusBadgeProps {
   status: string;

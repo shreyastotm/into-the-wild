@@ -1,10 +1,11 @@
+import { CalendarDays, MapPin, Plus } from "lucide-react";
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { UserTreks } from "@/components/dashboard/UserTreks";
-import { Button } from "@/components/ui/button";
 import LoadingScreen from "@/components/LoadingScreen";
-import { MapPin, CalendarDays, Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const Dashboard = () => {
   const { user, loading } = useAuth();

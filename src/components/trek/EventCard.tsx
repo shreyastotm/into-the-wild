@@ -1,20 +1,20 @@
-import { formatIndianDate } from '@/utils/indianStandards';
+import { format } from "date-fns";
+import {
+  Calendar,
+  Clock,
+  IndianRupee,
+  MapPin,
+  Mountain,
+  TreePine,
+  Users,
+  Zap,
+} from "lucide-react";
+import React, { Component } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Clock,
-  Mountain,
-  IndianRupee,
-  TreePine,
-  Zap,
-} from "lucide-react";
-import { format } from "date-fns";
-
-import React, { Component } from "react";
+import { formatIndianDate } from '@/utils/indianStandards';
 
 interface EventCardProps {
   trek: {

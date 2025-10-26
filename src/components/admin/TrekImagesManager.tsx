@@ -1,45 +1,45 @@
-import React, { useState, useCallback, useMemo } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core";
+import {
+  arrayMove,
+  rectSortingStrategy,
+  SortableContext,
+  sortableKeyboardCoordinates,
+ useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import {
+  Check,
+  ChevronDown,
+  GripVertical,
+  Loader2,
+  Plus,
+  Tag,
+  Trash2,
+  Upload,
+  Video,
+  X,
+} from "lucide-react";
+import React, { useCallback, useMemo, useState } from "react";
+
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { toast } from "@/components/ui/use-toast";
-import {
-  Upload,
-  Trash2,
-  Plus,
-  Loader2,
-  Video,
-  Tag,
-  X,
-  Check,
-  ChevronDown,
-  GripVertical,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
-import {
-  DndContext,
-  closestCenter,
-  KeyboardSensor,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragEndEvent,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  rectSortingStrategy,
-} from "@dnd-kit/sortable";
-import { useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ExistingImage {
   id: number;
@@ -324,7 +324,7 @@ export function TrekImagesManager({
                   variant="secondary"
                   className="cursor-pointer hover:opacity-80 transition-opacity px-3 py-1"
                   style={{
-                    backgroundColor: tag.color + "30",
+                    backgroundColor: `${tag.color  }30`,
                     color: tag.color,
                     borderColor: tag.color,
                   }}
@@ -668,7 +668,7 @@ export function TrekImagesManager({
             await supabase.from("trek_event_images").insert({
               trek_id: trekId,
               image_url: url,
-              position: position,
+              position,
             });
           }
         }

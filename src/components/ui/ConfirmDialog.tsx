@@ -1,3 +1,6 @@
+import { LucideIcon } from "lucide-react";
+import React, { Component } from "react";
+
 import {
   AlertDialog,
   AlertDialogAction,
@@ -10,9 +13,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
-import { LucideIcon } from "lucide-react";
-
-import React, { Component } from "react";
 
 export interface ConfirmDialogProps {
   title: string;
@@ -119,7 +119,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
         >
           {loading ? (
             <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
               Processing...
             </>
           ) : (

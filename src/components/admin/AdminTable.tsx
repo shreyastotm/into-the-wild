@@ -1,26 +1,26 @@
-import { formatIndianDate } from '@/utils/indianStandards';
-import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
+import {
+  AlertTriangle,
+  CheckCircle,
+  Edit,
+  Eye,
+  MoreHorizontal,
+  Trash2,
+  XCircle,
+} from "lucide-react";
+import React, { Component } from "react";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import DataTable, { Column } from "@/components/ui/DataTable";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  MoreHorizontal,
-  Edit,
-  Trash2,
-  Eye,
-  CheckCircle,
-  XCircle,
-  AlertTriangle,
-} from "lucide-react";
-import DataTable, { Column } from "@/components/ui/DataTable";
-import { format } from "date-fns";
-
-import React, { Component } from "react";
+import { formatIndianDate } from '@/utils/indianStandards';
 
 export interface AdminTableAction {
   label: string;
@@ -112,7 +112,7 @@ const AdminTable = <T extends Record<string, any>>({
 
   const renderActions = (row: T) => {
     const visibleActions = actions.filter(
-      (action) => !action.hidden || !action.hidden(row),
+      (action) => !action.hidden?.(row),
     );
 
     if (visibleActions.length === 0) return null;

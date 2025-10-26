@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useCallback, useEffect , useState } from "react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "@/components/ui/use-toast";
-import { useCallback } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export interface Driver {
   user_id: string;

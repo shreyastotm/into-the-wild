@@ -1,16 +1,10 @@
+import { fireEvent, render, screen } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import CampingDetailsStep from '../CampingDetailsStep';
 
-
-
-
-
-
-
 describe('CampingDetailsStep', () => {
-  
 
   it('renders without crashing', () => {
     render(<CampingDetailsStep data-testid="campingdetailsstep" />);
@@ -28,8 +22,5 @@ describe('CampingDetailsStep', () => {
     fireEvent.click(screen.getByTestId('campingdetailsstep'));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
-
-  
-
   
 });

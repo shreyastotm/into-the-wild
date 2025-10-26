@@ -1,21 +1,10 @@
+import { CheckCircle, Clock, Shield, Upload } from "lucide-react";
 import { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Card, CardHeader, CardContent } from "@/components/ui/card";
-import {
-  Table,
-  TableHeader,
-  TableBody,
-  TableRow,
-  TableCell,
-  TableFooter,
-  TableHead,
-  TableCaption,
-} from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { toast } from "@/components/ui/use-toast";
+
 import { UserProfile } from "@/components/auth/AuthProvider";
-import { UserVerificationStatus } from "@/integrations/supabase/types";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -23,7 +12,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, Upload, Shield, Clock } from "lucide-react";
+import {
+  Table,
+  TableBody,
+  TableCaption,
+  TableCell,
+  TableFooter,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { UserVerificationStatus } from "@/integrations/supabase/types";
 
 // Helper function to determine user's verification level
 const getUserVerificationLevel = (

@@ -1,6 +1,8 @@
-import { useState, useCallback } from "react";
-import { EventType } from "@/types/trek";
+import { useCallback, useState } from "react";
+
 import { AdminTrekEvent, FormValidationResult } from "./types";
+
+import { EventType } from "@/types/trek";
 
 export const useTrekForm = (initialData?: AdminTrekEvent) => {
   // Format dates for datetime-local input

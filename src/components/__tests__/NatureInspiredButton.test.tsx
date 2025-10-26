@@ -1,16 +1,10 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import NatureInspiredButton from '../NatureInspiredButton';
 
-
-
-
-
-
-
 describe('NatureInspiredButton', () => {
-  
 
   it('renders without crashing', () => {
     render(<NatureInspiredButton data-testid="natureinspiredbutton" />);
@@ -36,6 +30,5 @@ describe('NatureInspiredButton', () => {
       expect(screen.getByTestId('natureinspiredbutton')).toHaveTextContent(/updated|changed|new/i);
     });
   });
-
   
 });

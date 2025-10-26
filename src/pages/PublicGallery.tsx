@@ -1,8 +1,33 @@
-import React, { useEffect, useMemo, useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-// Remove useAuth import - this is a public page
-import { setHomeBackground, getHomeBackground } from "@/lib/siteSettings";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  Loader2,
+  MapPin,
+  Mountain,
+  Play,
+  Search,
+  Tag,
+  Users,
+  X,
+} from "lucide-react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
+
+import {
+  MobileGrid,
+  MobilePage,
+  MobileSection,
+} from "@/components/mobile/MobilePage";
+import { GalleryCard } from "@/components/trek";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -11,33 +36,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
-import {
-  MobilePage,
-  MobileSection,
-  MobileGrid,
-} from "@/components/mobile/MobilePage";
-import { GalleryCard } from "@/components/trek";
-import {
-  ChevronLeft,
-  ChevronRight,
-  MapPin,
-  Calendar,
-  Users,
-  Mountain,
-  Search,
-  Filter,
-  X,
-  Play,
-  Loader2,
-  Tag,
-} from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+// Remove useAuth import - this is a public page
+import { getHomeBackground, setHomeBackground } from "@/lib/siteSettings";
 
 type PastTrek = {
   trek_id: number;
@@ -849,7 +850,7 @@ export default function PublicGallery() {
                     }`}
                     style={{
                       backgroundColor: selectedTags.includes(tag.id)
-                        ? tag.color + "20"
+                        ? `${tag.color  }20`
                         : undefined,
                       borderColor: tag.color,
                       color: tag.color,
@@ -1112,7 +1113,7 @@ export default function PublicGallery() {
                             style={{
                               borderColor: tag.color,
                               color: tag.color,
-                              backgroundColor: tag.color + "10",
+                              backgroundColor: `${tag.color  }10`,
                             }}
                           >
                             {tag.name}

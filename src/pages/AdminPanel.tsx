@@ -1,14 +1,15 @@
+import { endOfMonth, startOfMonth } from "date-fns";
 import React, { useEffect, useState } from "react";
+
+import { useAuth } from "@/components/auth/AuthProvider";
 import {
   Card,
+  CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
-  CardContent,
 } from "@/components/ui/card";
-import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { startOfMonth, endOfMonth } from "date-fns";
 
 export default function AdminPanel() {
   const { userProfile } = useAuth();

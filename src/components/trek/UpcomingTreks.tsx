@@ -1,15 +1,15 @@
-import { formatIndianDate } from '@/utils/indianStandards';
-import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
-import { MapPin, Calendar, Users, Navigation } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { getUniqueParticipantCount, formatCurrency } from "@/lib/utils";
 import { format, formatRelative } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { useCallback } from "react";
+import { Calendar, MapPin, Navigation, Users } from "lucide-react";
+import React, { useCallback, useEffect , useState } from "react";
+import { useNavigate } from "react-router-dom";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency, getUniqueParticipantCount } from "@/lib/utils";
+import { formatIndianDate } from '@/utils/indianStandards';
 
 interface Trek {
   trek_id: number;
@@ -285,7 +285,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
               )}
 
               {/* Gradient Overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
               {/* Category Badge */}
               {trek.category && (

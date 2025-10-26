@@ -1,10 +1,10 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/utils";
-import { AdHocExpense, FixedExpense } from "@/hooks/useExpenses";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { Wallet, ArrowDownRight, ArrowUpRight } from "lucide-react";
-
+import { ArrowDownRight, ArrowUpRight, Wallet } from "lucide-react";
 import React, { Component } from "react";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { AdHocExpense, FixedExpense } from "@/hooks/useExpenses";
+import { formatCurrency } from "@/lib/utils";
 
 interface ExpenseSummaryProps {
   fixedExpenses: FixedExpense[];

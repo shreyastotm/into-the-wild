@@ -1,11 +1,12 @@
-import { useState, useEffect, useCallback } from "react";
-import {
-  supabase,
-  WithStringId,
-  convertDbRecordToStringIds,
-} from "@/integrations/supabase/client";
+import { useCallback, useEffect, useState } from "react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "@/components/ui/use-toast";
+import {
+  convertDbRecordToStringIds,
+  supabase,
+  WithStringId,
+} from "@/integrations/supabase/client";
 import { getUniqueParticipantCount } from "@/lib/utils";
 
 interface Participant {

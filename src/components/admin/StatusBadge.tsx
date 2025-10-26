@@ -1,26 +1,27 @@
-import React, { Component } from "react";
-import { Badge } from "@/components/ui/badge";
 import {
-  CheckCircle,
-  XCircle,
   AlertTriangle,
-  Clock,
-  Pause,
-  Play,
   Ban,
-  Shield,
-  User,
-  UserCheck,
-  UserX,
   Calendar,
   CalendarCheck,
   CalendarX,
+  CheckCircle,
+  Clock,
   CreditCard,
+  Download,
   FileText,
   Image,
+  Pause,
+  Play,
+  Shield,
   Upload,
-  Download,
+  User,
+  UserCheck,
+  UserX,
+  XCircle,
 } from "lucide-react";
+import React, { Component } from "react";
+
+import { Badge } from "@/components/ui/badge";
 
 export interface StatusBadgeProps {
   status: string;

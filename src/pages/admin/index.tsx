@@ -1,12 +1,15 @@
-import { Routes, Route } from "react-router-dom";
+import { Route, Routes } from "react-router-dom";
+
 import AdminLayout from "../AdminLayout";
 import AdminPanel from "../AdminPanel";
-import TrekEventsAdmin from "./TrekEventsAdmin";
+
+import CarouselImagesAdmin from "./CarouselImagesAdmin";
 import CreatePastEvent from "./CreatePastEvent";
-import UserVerificationPanel from "@/components/admin/UserVerificationPanel";
 import EventRegistrations from "./EventRegistrations";
 import ForumAdmin from "./ForumAdmin";
-import CarouselImagesAdmin from "./CarouselImagesAdmin";
+import TrekEventsAdmin from "./TrekEventsAdmin";
+
+import UserVerificationPanel from "@/components/admin/UserVerificationPanel";
 
 export default function AdminHome() {
   return (

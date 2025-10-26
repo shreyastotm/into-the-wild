@@ -1,12 +1,14 @@
-import { useState, useEffect, useCallback } from "react";
-import {
-  supabase,
-  WithStringId,
-  convertDbRecordToStringIds,
-} from "@/integrations/supabase/client";
+import { useCallback, useEffect, useState } from "react";
+
+import { TrekEvent, useTrekEventDetails } from "./useTrekEventDetails";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "@/components/ui/use-toast";
-import { useTrekEventDetails, TrekEvent } from "./useTrekEventDetails";
+import {
+  convertDbRecordToStringIds,
+  supabase,
+  WithStringId,
+} from "@/integrations/supabase/client";
 
 interface DbRegistration {
   registration_id: number;

@@ -1,10 +1,9 @@
+import React, { Component } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthFormErrors } from "@/types/auth";
-
-import React, { Component } from "react";
-
 
 interface SignInFormProps {
   email: string;
@@ -107,7 +106,7 @@ export const SignInForm: React.FC<SignInFormProps> = ({
       >
         {loading ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="signinform"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="signinform" />
             Signing in...
           </>
         ) : (

@@ -1,16 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, expect, it } from 'vitest';
+
 import calendar from '../calendar';
 
-
-
-
-
-
-
 describe('calendar', () => {
-  
 
   it('renders without crashing', () => {
     render(<calendar data-testid="calendar" />);
@@ -21,10 +15,5 @@ describe('calendar', () => {
     render(<calendar title="Test Title" data-testid="calendar" />);
     expect(screen.getByTestId('calendar')).toHaveTextContent('Test Title');
   });
-
-  
-
-  
-
   
 });

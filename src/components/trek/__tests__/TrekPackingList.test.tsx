@@ -1,9 +1,10 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import TrekPackingList from '../TrekPackingList';
 import { createClient } from '@supabase/supabase-js';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 import { BrowserRouter } from 'react-router-dom';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import TrekPackingList from '../TrekPackingList';
 
 // Mock Supabase client
 vi.mock('@supabase/supabase-js', () => ({

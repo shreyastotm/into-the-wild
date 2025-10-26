@@ -1,10 +1,12 @@
-import { calculateGSTPrice } from '@/utils/indianStandards';
+import { IndianRupee, PlusCircle, Trash2 } from "lucide-react";
 import React, { useState } from "react";
+
+import { StepProps } from "./types";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
@@ -12,8 +14,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { PlusCircle, Trash2, IndianRupee } from "lucide-react";
-import { StepProps } from "./types";
+import { Textarea } from "@/components/ui/textarea";
+import { calculateGSTPrice } from '@/utils/indianStandards';
 
 interface TrekCost {
   id?: number;
@@ -89,12 +91,12 @@ export const CostsStep: React.FC<CostsStepProps> = ({
     onCostsChange(updatedCosts);
   };
 
-  const totalAmount = calculateGSTPrice(costs.reduce)((sum, cost) => sum + cost.amount, 0);
+  const totalAmount = calculateGSTPrice((costs || []).reduce((sum, cost) => sum + cost.amount, 0));
 
   if (isLoadingExistingData) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
         <span className="ml-2">Loading existing costs...</span>
       </div>
     );

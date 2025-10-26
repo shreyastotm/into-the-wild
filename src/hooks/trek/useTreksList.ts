@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
+
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { EventType } from "@/types/trek";
 
 interface TrekEvent {

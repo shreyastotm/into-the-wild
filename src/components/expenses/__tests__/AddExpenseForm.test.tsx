@@ -1,6 +1,8 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+
 import "@testing-library/jest-dom";
 import { AddExpenseForm } from "../AddExpenseForm";
+
 import { ExpenseCategory } from "@/hooks/useExpenseSplitting";
 
 // Mock dependencies

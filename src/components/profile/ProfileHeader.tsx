@@ -1,6 +1,7 @@
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/auth/AuthProvider";
 import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Button } from "@/components/ui/button";
 
 export default function ProfileHeader() {
   const { signOut } = useAuth();

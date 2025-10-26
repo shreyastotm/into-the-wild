@@ -1,9 +1,9 @@
+import React, { Component } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AuthFormErrors } from "@/types/auth";
-
-import React, { Component } from "react";
 
 interface PasswordResetFormProps {
   email: string;
@@ -67,7 +67,7 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
       >
         {loading ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="passwordresetform"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="passwordresetform" />
             Sending reset link...
           </>
         ) : (

@@ -1,10 +1,14 @@
+import { Filter } from "lucide-react";
+import React, { Component } from "react";
+
+import { FilterOptions } from "../TrekFilters";
+
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Button } from "@/components/ui/button";
-import { Filter } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -13,9 +17,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import { FilterOptions } from "../TrekFilters";
-
-import React, { Component } from "react";
 
 interface FilterPopoverProps {
   options: FilterOptions;

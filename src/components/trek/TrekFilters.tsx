@@ -1,6 +1,6 @@
-import { FilterBar, FilterOption, SortOption } from "@/components/ui/FilterBar";
-
 import React, { Component } from "react";
+
+import { FilterBar, FilterOption, SortOption } from "@/components/ui/FilterBar";
 
 export interface FilterOptions {
   search: string;
@@ -98,8 +98,8 @@ export const TrekFilters: React.FC<TrekFiltersProps> = ({
       onSortChange={(value) => onFilterChange("sortBy", value)}
       sortOptions={sortOptions}
       onReset={onReset}
-      showResetButton={true}
-      showSortInBar={true}
+      showResetButton
+      showSortInBar
     />
   );
 };

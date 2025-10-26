@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { AlertTriangle, CheckCircle, FileText, Upload } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+
+import { useAuth } from '@/components/auth/AuthProvider';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { CheckCircle, AlertTriangle, Upload, FileText } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Select,
   SelectContent,
@@ -11,9 +13,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { useAuth } from '@/components/auth/AuthProvider';
 import { toast } from '@/components/ui/use-toast';
-import { WithStringId } from '@/integrations/supabase/client';
+import { supabase, WithStringId } from '@/integrations/supabase/client';
 
 interface DbRegistration {
   registration_id: number;
@@ -91,26 +92,66 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   useEffect(() => {
     loadRequirements();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [trekId]);
+  }, [trekId, userRegistration?.registration_id, user?.id]);
 
   const loadRequirements = async () => {
     try {
       setLoading(true);
 
+      if (!userRegistration) {
+        setRequiredIdTypes([]);
+        setUserIdProofs([]);
+        setApprovedProofs([]);
+        return;
+      }
+
       // Load required ID types for this trek
-      // ID verification tables may not exist yet, return empty array for now
+      const { data: requiredTypes, error: typesError } = await supabase
+        .rpc("get_trek_required_id_types", { trek_id_param: trekId }) as any;
 
-      setRequiredIdTypes([]);
+      if (typesError) {
+        console.error("Error loading required ID types:", typesError);
+        setRequiredIdTypes(defaultIdTypes); // Fallback to defaults
+      } else {
+        setRequiredIdTypes(requiredTypes || defaultIdTypes);
+      }
 
-      // Load user's ID proofs for this trek (if registered)
-      // Tables may not exist yet, set empty array for now
-      setUserIdProofs([]);
+      // Load user's ID proofs for this registration
+      const { data: proofs, error: proofsError } = await supabase
+        .from("registration_id_proofs")
+        .select("*")
+        .eq("registration_id", userRegistration.registration_id) as any;
+
+      if (proofsError) {
+        console.error("Error loading ID proofs:", proofsError);
+        setUserIdProofs([]);
+      } else {
+        setUserIdProofs(proofs || []);
+      }
 
       // Load user's previously approved ID proofs (for reuse)
-      // Tables may not exist yet, set empty array for now
-      setApprovedProofs([]);
+      // Check if user has any approved proofs from other treks
+      const { data: approvedProofsData, error: approvedError } = await supabase
+        .from("registration_id_proofs")
+        .select(`
+          *,
+          id_types!inner(*)
+        `)
+        .eq("uploaded_by", user?.id)
+        .eq("verification_status", "approved") as any;
+
+      if (approvedError) {
+        console.error("Error loading approved proofs:", approvedError);
+        setApprovedProofs([]);
+      } else {
+        setApprovedProofs(approvedProofsData || []);
+      }
+
     } catch (error) {
-      console.error('Error loading requirements:', error);
+      console.error("Error loading requirements:", error);
+      setRequiredIdTypes(defaultIdTypes);
+      setUserIdProofs([]);
+      setApprovedProofs([]);
     } finally {
       setLoading(false);
     }
@@ -193,9 +234,9 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-4 bg-muted rounded w-3/4"></div>
-        <div className="h-4 bg-muted rounded w-1/2"></div>
-        <div className="h-32 bg-muted rounded"></div>
+        <div className="h-4 bg-muted rounded w-3/4" />
+        <div className="h-4 bg-muted rounded w-1/2" />
+        <div className="h-32 bg-muted rounded" />
       </div>
     );
   }

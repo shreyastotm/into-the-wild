@@ -1,16 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, expect, it } from 'vitest';
+
 import menubar from '../menubar';
 
-
-
-
-
-
-
 describe('menubar', () => {
-  
 
   it('renders without crashing', () => {
     render(<menubar data-testid="menubar" />);
@@ -21,10 +15,5 @@ describe('menubar', () => {
     render(<menubar title="Test Title" data-testid="menubar" />);
     expect(screen.getByTestId('menubar')).toHaveTextContent('Test Title');
   });
-
-  
-
-  
-
   
 });

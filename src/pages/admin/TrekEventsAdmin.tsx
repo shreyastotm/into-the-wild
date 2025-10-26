@@ -1,27 +1,17 @@
-import { formatIndianDate } from '@/utils/indianStandards';
-import React, { useState, useEffect, useCallback } from "react";
-import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Calendar } from "@/components/ui/calendar";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { CalendarIcon ,
+  CheckSquare,
+  Copy,
+  Download,
+  Eye,
+  Filter,
+  Image,
+  Search,
+  Square,
+  Trash2,
+} from "lucide-react";
 
 // Dialog imports removed - CreateTrekMultiStepFormNew handles its own dialog
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -42,17 +32,8 @@ import {
 import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
 import { TrekEventStatus, EventType } from "@/types/trek";
 import { toast } from "@/components/ui/use-toast";
-import {
-  Trash2,
-  Eye,
-  Copy,
-  Search,
-  Filter,
-  Download,
-  CheckSquare,
-  Square,
-  Image,
-} from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+
 import { TrekImagesManager } from "@/components/admin/TrekImagesManager";
 import {
   AlertDialog,
@@ -64,6 +45,25 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Textarea } from "@/components/ui/textarea";
+import { cn } from "@/lib/utils";
+import { formatIndianDate } from '@/utils/indianStandards';
 
 interface TrekEvent {
   trek_id: number;
@@ -151,8 +151,7 @@ const TrekEventsAdmin = () => {
       // Add main trek images to the imagesByTrek if they don't already exist in trek_event_images
       (trekImages || []).forEach((trek) => {
         if (
-          trek.image_url &&
-          trek.image_url.trim() &&
+          trek.image_url?.trim() &&
           !imagesByTrek[trek.trek_id]?.some(
             (img) => img.image_url === trek.image_url,
           )
@@ -666,7 +665,7 @@ const TrekEventsAdmin = () => {
       await supabase.from("trek_costs").delete().eq("trek_id", trekIdToUpdate);
       if (costs && costs.length > 0) {
         const costsToInsert = costs
-          .filter((cost) => cost && cost.amount && cost.amount > 0) // Filter out invalid costs
+          .filter((cost) => cost?.amount && cost.amount > 0) // Filter out invalid costs
           .map((cost) => ({
             trek_id: trekIdToUpdate,
             cost_type: cost.cost_type || "OTHER", // Ensure cost_type is never null

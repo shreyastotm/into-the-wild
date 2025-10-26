@@ -1,25 +1,27 @@
-import { Link } from "react-router-dom";
-import { useAuth } from "./auth/AuthProvider";
 import {
-  User,
-  MapPin,
-  Home,
   Calendar,
-  UserCircle,
-  LogOut,
+  Home,
   LogIn,
+  LogOut,
+  MapPin,
   MessageSquare,
+  User,
+  UserCircle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
+
+import { useAuth } from "./auth/AuthProvider";
+
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
+import { NotificationBell } from "@/components/ui/NotificationBell";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { NotificationBell } from "@/components/ui/NotificationBell";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
 const Header = () => {
   const { user, userProfile, loading, signOut } = useAuth();

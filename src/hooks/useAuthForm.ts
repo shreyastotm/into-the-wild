@@ -1,25 +1,28 @@
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+
+import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { handleSupabaseError, logError } from "@/lib/errorHandling";
+import { rateLimiter } from "@/lib/security";
 import {
-  AuthMode,
-  SignInFormData,
-  SignUpFormData,
-  PasswordResetFormData,
-  AuthFormErrors,
-  AuthResponse,
-} from "@/types/auth";
-import {
-  validateForm,
   authValidationSchema,
   sanitizeFormData,
+  validateForm,
 } from "@/lib/validation";
-import { rateLimiter } from "@/lib/security";
-import { handleSupabaseError, logError } from "@/lib/errorHandling";
+import {
+  AuthFormErrors,
+  AuthMode,
+  AuthResponse,
+  PasswordResetFormData,
+  SignInFormData,
+  SignUpFormData,
+} from "@/types/auth";
 
 export const useAuthForm = () => {
   const navigate = useNavigate();
+  const { startAuthenticating, stopAuthenticating } = useAuth();
   const [mode, setMode] = useState<AuthMode>("signin");
   const [loading, setLoading] = useState(false);
   const [showReset, setShowReset] = useState(false);
@@ -51,6 +54,9 @@ export const useAuthForm = () => {
 
       setLoading(true);
       setErrors({});
+
+      // Start authentication process to prevent redirects
+      startAuthenticating();
 
       try {
         // Validate input
@@ -93,9 +99,11 @@ export const useAuthForm = () => {
         return { success: false, error: errorMessage };
       } finally {
         setLoading(false);
+        // Stop authentication process
+        stopAuthenticating();
       }
     },
-    [navigate, checkRateLimit],
+    [navigate, checkRateLimit, startAuthenticating, stopAuthenticating],
   );
 
   // Handle sign up
@@ -282,6 +290,9 @@ export const useAuthForm = () => {
     setLoading(true);
     setErrors({});
 
+    // Start authentication process for OAuth
+    startAuthenticating();
+
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
@@ -302,11 +313,14 @@ export const useAuthForm = () => {
       const errorMessage = "Google sign in failed";
       setErrors({ general: errorMessage });
       logError(error, "google_signin");
+      // Stop authentication on error
+      stopAuthenticating();
       return { success: false, error: errorMessage };
     } finally {
       setLoading(false);
+      // Don't stop authenticating here - OAuth flow will handle it via callback
     }
-  }, [checkRateLimit]);
+  }, [checkRateLimit, startAuthenticating, stopAuthenticating]);
 
   // Field-level validation
   const validateField = useCallback(

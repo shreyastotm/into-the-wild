@@ -1,10 +1,21 @@
-import React, { useState, useEffect } from "react";
-import { useParams, Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+import { formatDistanceToNow } from "date-fns";
+import {
+  ArrowLeft,
+  Edit,
+  Loader2,
+  Lock,
+  MessageSquare,
+  Pin,
+  Send,
+  Trash2,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Link, useNavigate, useParams } from "react-router-dom";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useToast } from "@/components/ui/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Card,
   CardContent,
@@ -12,20 +23,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
-import {
-  ArrowLeft,
-  MessageSquare,
-  Pin,
-  Lock,
-  Send,
-  Loader2,
-  Edit,
-  Trash2,
-} from "lucide-react";
-import { formatDistanceToNow } from "date-fns";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ForumThread {
   id: number;

@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+
+import { StepProps } from "./types";
+
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -9,8 +11,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
 import { EventType } from "@/types/trek";
-import { StepProps } from "./types";
 
 interface BasicDetailsStepProps extends StepProps {
   imagePreview: string | null;

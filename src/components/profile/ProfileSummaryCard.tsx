@@ -1,11 +1,13 @@
+import { CheckCircle, Sparkles } from "lucide-react";
 import React, { useState } from "react";
+
+import { AvatarPicker } from "./AvatarPicker";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { AvatarPicker } from "./AvatarPicker";
-import { CheckCircle, Sparkles } from "lucide-react";
+import { Card } from "@/components/ui/card";
 
 export default function ProfileSummaryCard() {
   const { user, userProfile } = useAuth();

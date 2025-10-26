@@ -1,7 +1,7 @@
 import {
+  MobileCard,
   MobilePage,
   MobileSection,
-  MobileCard,
 } from "@/components/mobile/MobilePage";
 
 export default function FAQPage() {

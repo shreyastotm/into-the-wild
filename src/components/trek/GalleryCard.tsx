@@ -1,10 +1,10 @@
-import { formatIndianDate } from '@/utils/indianStandards';
+import { format } from "date-fns";
+import { Calendar, Clock, MapPin, Mountain } from "lucide-react";
+import React, { Component } from "react";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Calendar, MapPin, Clock, Mountain } from "lucide-react";
-import { format } from "date-fns";
-
-import React, { Component } from "react";
+import { formatIndianDate } from '@/utils/indianStandards';
 
 interface GalleryCardProps {
   trek: {

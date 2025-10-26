@@ -1,14 +1,15 @@
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client"; // Corrected path
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, AlertCircle, Loader2 } from "lucide-react";
-import { useAuth } from "@/components/auth/AuthProvider";
+import { AlertCircle, ClipboardList, Loader2 } from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+import { supabase } from "@/integrations/supabase/client"; // Corrected path
 
 interface PackingListItem {
   item_id: number; // This will be master_item_id
@@ -106,8 +107,8 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
   if (loading) {
     return (
       <div className="animate-pulse space-y-4">
-        <div className="h-4 bg-muted rounded w-3/4"></div>
-        <div className="h-32 bg-muted rounded"></div>
+        <div className="h-4 bg-muted rounded w-3/4" />
+        <div className="h-32 bg-muted rounded" />
       </div>
     );
   }
@@ -163,7 +164,7 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
                   key={item.item_id}
                   className="flex items-center gap-3 p-3 bg-card rounded-lg border"
                 >
-                  <div className="w-5 h-5 bg-muted rounded"></div>
+                  <div className="w-5 h-5 bg-muted rounded" />
                   <span className="text-sm">{item.name}</span>
                   {item.mandatory && (
                     <Badge variant="destructive" className="text-xs">
@@ -192,7 +193,7 @@ export default function TrekPackingList({ trekId }: TrekPackingListProps) {
                 key={item.item_id}
                 className="flex items-center gap-3 p-3 bg-card rounded-lg border hover:bg-muted/50 transition-colors"
               >
-                <div className="w-5 h-5 bg-muted rounded"></div>
+                <div className="w-5 h-5 bg-muted rounded" />
                 <span className="text-sm flex-1">{item.name}</span>
                 {item.mandatory && (
                   <Badge variant="destructive" className="text-xs">

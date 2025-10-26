@@ -1,19 +1,20 @@
+import { Loader2 } from "lucide-react";
+import React, { Component } from "react";
+
+import { AddExpenseForm } from "./AddExpenseForm";
+
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from "@/components/ui/dialog";
-import { AddExpenseForm } from "./AddExpenseForm";
-import { useTrekCommunity } from "@/hooks/useTrekCommunity";
 import {
   CreateExpenseInput,
   ExpenseCategory,
 } from "@/hooks/useExpenseSplitting";
-import { Loader2 } from "lucide-react";
-
-import React, { Component } from "react";
+import { useTrekCommunity } from "@/hooks/useTrekCommunity";
 
 interface AddExpenseModalProps {
   open: boolean;

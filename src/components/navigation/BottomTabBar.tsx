@@ -1,5 +1,6 @@
+import { Home, MessageSquare, Mountain, User } from "lucide-react";
 import { NavLink } from "react-router-dom";
-import { Home, Mountain, MessageSquare, User } from "lucide-react";
+
 import { useHaptic } from "@/hooks/use-haptic";
 import { cn } from "@/lib/utils";
 

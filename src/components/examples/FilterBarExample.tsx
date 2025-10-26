@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+
 import { FilterBar, FilterOption, SortOption } from "@/components/ui/FilterBar";
 
 // Example: User Management Filter
@@ -94,8 +95,8 @@ export const UserFilterExample: React.FC = () => {
         onSortChange={setSortValue}
         sortOptions={sortOptions}
         onReset={handleReset}
-        showResetButton={true}
-        showSortInBar={true}
+        showResetButton
+        showSortInBar
       />
     </div>
   );
@@ -197,7 +198,7 @@ export const ProductFilterExample: React.FC = () => {
         onSortChange={setSortValue}
         sortOptions={sortOptions}
         onReset={handleReset}
-        showResetButton={true}
+        showResetButton
         showSortInBar={false} // Sort only in popup for this example
       />
     </div>

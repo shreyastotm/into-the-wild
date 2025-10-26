@@ -1,18 +1,18 @@
+import { AlertCircle, CheckCircle, Clock, Shield, Upload } from "lucide-react";
 import React, { useState } from "react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { supabase } from "@/integrations/supabase/client";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
-import { Badge } from "@/components/ui/badge";
 import {
   Select,
   SelectContent,
@@ -21,11 +21,12 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
   UserVerificationStatus,
   VerificationDocs,
 } from "@/integrations/supabase/types";
-import { CheckCircle, Upload, Shield, Clock, AlertCircle } from "lucide-react";
 
 interface VerificationTier {
   id: "auto" | "quick" | "full";

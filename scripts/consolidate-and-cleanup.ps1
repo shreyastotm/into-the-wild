@@ -77,12 +77,17 @@ foreach ($script in $shellScriptsToArchive) {
 # Update OPTIMIZATION_SUMMARY.md to include information from archived docs
 Write-Host "Updating OPTIMIZATION_SUMMARY.md with consolidated information..." -ForegroundColor Green
 
-# Create consolidated documentation
-Write-Host "Creating consolidated documentation..." -ForegroundColor Green
+# Create consolidated documentation (following temporary documentation rules)
+Write-Host "Creating temporary documentation for consolidation..." -ForegroundColor Green
 
-# Create a new DEPLOYMENT_GUIDE.md that combines information from START_HERE.md
-$deploymentGuideContent = @"
-# Into The Wild - Comprehensive Deployment Guide
+# Create TEMPORARY documentation that follows our rules
+$tempDeploymentContent = @"
+# TEMPORARY: Deployment Guide Consolidation
+
+**Consolidate into:** PROJECT_OVERVIEW.md (Section 4: Deployment & Production)
+**Consolidation Timeline:** Immediate (within 7 days)
+**Created by:** Consolidate and Cleanup Script
+**Purpose:** Consolidate deployment information from various sources
 
 ## Overview
 This guide provides a complete deployment process for the Into The Wild application, including pre-deployment preparation, database setup, frontend deployment, and post-deployment verification.
@@ -127,74 +132,122 @@ This guide provides a complete deployment process for the Into The Wild applicat
 ### Supabase Setup
 \`\`\`bash
 # Test migrations on local Docker
-docker-compose up -d postgres
-npx supabase db reset
-
-# Verify all migrations work
-npx supabase db push
-
-# Generate fresh types
-npx supabase gen types typescript --local > src/integrations/supabase/types.ts
-\`\`\`
-
-### Vercel Deployment
-\`\`\`bash
-# Clean build
-npm run clean:all
-npm install
-
-# Production build
-npm run build
-
-# Verify build
-npm run preview
-
-# Deploy to Vercel
-vercel --prod
-\`\`\`
-
-## Environment Variables
-\`\`\`
-VITE_SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-VITE_SUPABASE_ANON_KEY=your_anon_key_here
-VITE_APP_ENV=production
-\`\`\`
-
-## Post-Deployment Verification
-- Monitor error logs
-- Check performance metrics
-- Verify user flows
-- Monitor database performance
-
-## Rollback Plan
-If deployment fails:
-1. Revert frontend deployment
-2. Restore database from backup
-3. Alert users of maintenance
-4. Review error logs
-5. Apply hotfix
-6. Redeploy after verification
-
-## Maintenance Schedule
-### Daily
-- Monitor error logs
-- Check performance metrics
-- Review user feedback
-
-### Weekly
-- Run full test suite
-- Update dependencies
-- Review security alerts
-- Backup database
-
-### Monthly
-- Performance audit
-- Security audit
-- Code quality review
-- Documentation update
 "@
 
-Set-Content -Path ".\docs\DEPLOYMENT_GUIDE.md" -Value $deploymentGuideContent
-Write-Host "Created: .\docs\DEPLOYMENT_GUIDE.md" -ForegroundColor Green
+# Create temporary documentation file following our rules
+$tempDeploymentContent | Out-File -FilePath "TEMPORARY_DEPLOYMENT_CONSOLIDATION.md" -Encoding UTF8
 
-Write-Host "Cleanup and consolidation complete!" -ForegroundColor Green
+Write-Host "✅ Created TEMPORARY_DEPLOYMENT_CONSOLIDATION.md (following documentation rules)" -ForegroundColor Green
+Write-Host "📝 This file will be automatically detected and consolidated by the Documentation Agent" -ForegroundColor Yellow
+
+# Instead of creating a separate file, update the master document directly
+Write-Host "Updating PROJECT_OVERVIEW.md with deployment information..." -ForegroundColor Green
+
+# Read current PROJECT_OVERVIEW.md content
+$projectOverviewPath = ".\docs\PROJECT_OVERVIEW.md"
+if (Test-Path $projectOverviewPath) {
+    $currentContent = Get-Content $projectOverviewPath -Raw
+
+    # Check if deployment section already exists
+    if ($currentContent -match "## 4\. Deployment & Production") {
+        Write-Host "Deployment section already exists in PROJECT_OVERVIEW.md" -ForegroundColor Yellow
+    } else {
+        # Add deployment section to PROJECT_OVERVIEW.md
+        $deploymentSection = @"
+
+## 4. Deployment & Production
+
+### 4.1 Build Configuration
+
+#### Production Build
+\`\`\`bash
+# Standard production build
+npm run build
+
+# Development build with type checking
+npm run build:dev
+\`\`\`
+
+#### Build Optimizations
+- **Code Splitting**: Automatic chunk splitting by route and vendor
+- **Minification**: Terser for production builds
+- **Source Maps**: Enabled for debugging (can be disabled in production)
+- **Bundle Analysis**: Built-in Vite bundle analyzer
+
+### 4.2 Deployment Platform
+
+#### Vercel Deployment (Recommended)
+- **Automatic deployments** from main branch
+- **Node.js 22.x** runtime (specified in package.json engines)
+- **Environment variables** configured in Vercel dashboard
+- **Build command**: \`npm run build\`
+- **Output directory**: \`dist\`
+
+#### Manual Deployment
+\`\`\`bash
+# Build for production
+npm run build
+
+# Preview production build locally
+npm run preview
+
+# Deploy dist/ folder to hosting platform
+\`\`\`
+
+### 4.3 Environment Variables (Production)
+
+Configure in your deployment platform:
+\`\`\`env
+# Supabase Production
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-production-anon-key
+
+# Add other production variables as needed
+\`\`\`
+
+### 4.4 Health Checks & Monitoring
+
+#### Production Health Checks
+\`\`\`bash
+# Check if app is responding
+curl https://your-domain.com
+
+# Monitor console for errors
+# Check Vercel deployment logs
+# Monitor Supabase dashboard
+\`\`\`
+
+#### Performance Monitoring
+\`\`\`bash
+# Run Lighthouse audit
+npm run analyze:performance
+
+# Check bundle size
+npm run analyze:bundle
+
+# Accessibility audit
+npm run analyze:accessibility
+\`\`\`
+
+"@
+
+        # Add deployment section before the "Quick Reference" section
+        $updatedContent = $currentContent -replace "(### 5\.4 Key Directories)", "$deploymentSection`n`n### 5.4 Key Directories"
+        $updatedContent | Out-File -FilePath $projectOverviewPath -Encoding UTF8
+
+        Write-Host "✅ Updated PROJECT_OVERVIEW.md with deployment section" -ForegroundColor Green
+    }
+} else {
+    Write-Host "❌ PROJECT_OVERVIEW.md not found" -ForegroundColor Red
+}
+# Deployment information has been consolidated into PROJECT_OVERVIEW.md
+Write-Host "📝 Deployment documentation consolidated into PROJECT_OVERVIEW.md master document" -ForegroundColor Blue
+
+# Remove old deployment guide creation (now handled by Documentation Agent)
+Write-Host "🗑️  Skipping old DEPLOYMENT_GUIDE.md creation (consolidated into master docs)" -ForegroundColor Yellow
+
+Write-Host "✅ Documentation consolidation complete!" -ForegroundColor Green
+Write-Host "📚 Use the Documentation Agent for any future documentation changes:" -ForegroundColor Cyan
+Write-Host "   npm run docs:validate    - Validate master documents" -ForegroundColor Cyan
+Write-Host "   npm run docs:consolidate - Consolidate temporary docs" -ForegroundColor Cyan
+Write-Host "   npm run docs:full-check  - Complete documentation workflow" -ForegroundColor Cyan

@@ -1,11 +1,12 @@
-import { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { useEffect, useState } from "react";
+
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import {
+  ActivitySchedule,
+  CampingItinerary,
   Event,
   EventType,
-  CampingItinerary,
-  ActivitySchedule,
   VolunteerRoles,
 } from "@/types/trek";
 

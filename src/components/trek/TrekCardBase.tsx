@@ -1,41 +1,41 @@
-import { formatIndianDate } from '@/utils/indianStandards';
+import {
+  format,
+  formatDistanceToNow,
+  isPast,
+  isToday,
+  isTomorrow,
+} from "date-fns";
+import {
+  Bookmark,
+  BookmarkCheck,
+  Bus,
+  Calendar,
+  Camera,
+  Car,
+  Clock,
+  Heart,
+  MapPin,
+  Mountain,
+  Share2,
+  Train,
+  Users,
+  Wifi,
+} from "lucide-react";
+import React, { Component } from "react";
+
+import StatusBadge from "@/components/admin/StatusBadge";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Clock,
-  Wifi,
-  Car,
-  Bus,
-  Train,
-  Mountain,
-  Camera,
-  Heart,
-  Share2,
-  Bookmark,
-  BookmarkCheck,
-} from "lucide-react";
-import {
-  formatDistanceToNow,
-  isPast,
-  isToday,
-  isTomorrow,
-  format,
-} from "date-fns";
+import { formatCurrency, getTrekStatusBadgeProps } from "@/lib/utils";
 import { TrekEventStatus } from "@/types/trek";
-import { getTrekStatusBadgeProps, formatCurrency } from "@/lib/utils";
-import StatusBadge from "@/components/admin/StatusBadge";
-
-import React, { Component } from "react";
+import { formatIndianDate } from '@/utils/indianStandards';
 
 export interface TrekCardBaseProps {
   trek: {

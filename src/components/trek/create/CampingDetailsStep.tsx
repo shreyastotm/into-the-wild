@@ -1,13 +1,13 @@
+import { Clock, PlusCircle, Tent, Trash2, Users } from "lucide-react";
+import React, { useCallback , useEffect, useState } from "react";
+
+import { StepProps } from "./types";
+
+import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { PlusCircle, Trash2, Clock, Users, Tent } from "lucide-react";
-import { StepProps } from "./types";
-import { useCallback } from "react";
-
-import React, { useState, useEffect } from "react";
 
 interface CampingDetailsStepProps extends StepProps {
   isLoadingExistingData?: boolean;
@@ -218,7 +218,7 @@ export const CampingDetailsStep: React.FC<CampingDetailsStepProps> = ({
   if (isLoadingExistingData) {
     return (
       <div className="flex items-center justify-center py-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
         <span className="ml-2">Loading existing camping details...</span>
       </div>
     );

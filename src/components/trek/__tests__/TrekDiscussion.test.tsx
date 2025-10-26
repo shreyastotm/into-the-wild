@@ -1,16 +1,10 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import TrekDiscussion from '../TrekDiscussion';
 
-
-
-
-
-
-
 describe('TrekDiscussion', () => {
-  
 
   it('renders without crashing', () => {
     render(<TrekDiscussion data-testid="trekdiscussion" />);
@@ -36,6 +30,5 @@ describe('TrekDiscussion', () => {
       expect(screen.getByTestId('trekdiscussion')).toHaveTextContent(/updated|changed|new/i);
     });
   });
-
   
 });

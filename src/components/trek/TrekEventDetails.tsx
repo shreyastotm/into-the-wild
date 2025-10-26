@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
 import { MapPin } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { TrekCost } from "@/types/trek";
-import { formatCurrency } from "@/lib/utils";
+import React, { useEffect, useState } from "react";
+
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/lib/utils";
+import { TrekCost } from "@/types/trek";
 
 interface TrekEventDetailsProps {
   trek_id?: number;

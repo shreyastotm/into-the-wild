@@ -1,8 +1,8 @@
+import { LucideIcon } from "lucide-react";
+import React, { Component } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { LucideIcon } from "lucide-react";
-
-import React, { Component } from "react";
 
 export interface EmptyStateProps {
   title: string;
@@ -73,7 +73,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           />
         )}
         {variant === "default" && (
-          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent" />
         )}
       </div>
 

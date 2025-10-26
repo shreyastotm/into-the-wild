@@ -1,16 +1,10 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import HorizontalTrekScroll from '../HorizontalTrekScroll';
 
-
-
-
-
-
-
 describe('HorizontalTrekScroll', () => {
-  
 
   it('renders without crashing', () => {
     render(<HorizontalTrekScroll data-testid="horizontaltrekscroll" />);
@@ -36,6 +30,5 @@ describe('HorizontalTrekScroll', () => {
       expect(screen.getByTestId('horizontaltrekscroll')).toHaveTextContent(/updated|changed|new/i);
     });
   });
-
   
 });

@@ -1,18 +1,19 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import {
   Calendar,
-  MapPin,
-  Users,
-  IndianRupee,
-  Package,
   Clock,
+  IndianRupee,
+  MapPin,
+  Package,
   Tent,
+  Users,
 } from "lucide-react";
-import { EventType } from "@/types/trek";
+import React, { Component } from "react";
+
 import { StepProps } from "./types";
 
-import React, { Component } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { EventType } from "@/types/trek";
 
 interface ReviewStepProps extends StepProps {
   costs: Array<{ description: string; amount: number }>;

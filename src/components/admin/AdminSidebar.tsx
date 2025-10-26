@@ -1,5 +1,19 @@
+import {
+  CalendarClock,
+  Image,
+  ImagePlus,
+  LayoutDashboard,
+  Menu,
+  MessageSquare,
+  ShieldCheck,
+  Ticket,
+  X,
+} from "lucide-react";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
+import { useAuth } from "../auth/AuthProvider";
+
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -8,18 +22,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-  LayoutDashboard,
-  CalendarClock,
-  ShieldCheck,
-  Ticket,
-  ImagePlus,
-  MessageSquare,
-  Image,
-  Menu,
-  X,
-} from "lucide-react";
-import { useAuth } from "../auth/AuthProvider";
 
 export default function AdminSidebar() {
   const navigate = useNavigate();

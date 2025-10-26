@@ -16,9 +16,9 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
           className="h-32 md:h-40 w-auto mx-auto mb-6 animate-pulse-scale"
         />
         <div className="flex items-center justify-center gap-2 mb-4">
-          <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]"></div>
-          <div className="w-2 h-2 bg-secondary rounded-full animate-bounce [animation-delay:-0.15s]"></div>
-          <div className="w-2 h-2 bg-accent rounded-full animate-bounce"></div>
+          <div className="w-2 h-2 bg-primary rounded-full animate-bounce [animation-delay:-0.3s]" />
+          <div className="w-2 h-2 bg-secondary rounded-full animate-bounce [animation-delay:-0.15s]" />
+          <div className="w-2 h-2 bg-accent rounded-full animate-bounce" />
         </div>
         <p className="text-gray-600 font-medium">{message}</p>
       </div>

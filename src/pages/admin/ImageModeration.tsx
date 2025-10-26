@@ -1,23 +1,24 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { toast } from "@/components/ui/use-toast";
 import {
-  CheckCircle,
-  XCircle,
-  Clock,
-  User,
   Calendar,
-  Eye,
-  Loader2,
+  CheckCircle,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  Eye,
+  Loader2,
+  User,
+  XCircle,
 } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserImage {
   id: number;
@@ -336,9 +337,9 @@ export default function ImageModeration() {
               {[...Array(8)].map((_, i) => (
                 <Card key={i} className="animate-pulse">
                   <CardContent className="p-4">
-                    <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg mb-3"></div>
-                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2"></div>
-                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3"></div>
+                    <div className="aspect-video bg-gray-200 dark:bg-gray-700 rounded-lg mb-3" />
+                    <div className="h-4 bg-gray-200 dark:bg-gray-700 rounded mb-2" />
+                    <div className="h-3 bg-gray-200 dark:bg-gray-700 rounded w-2/3" />
                   </CardContent>
                 </Card>
               ))}

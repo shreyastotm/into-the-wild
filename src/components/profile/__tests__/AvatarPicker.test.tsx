@@ -1,9 +1,9 @@
-import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import AvatarPicker from '../AvatarPicker';
 import { createClient } from '@supabase/supabase-js';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
+import AvatarPicker from '../AvatarPicker';
 
 // Mock Supabase client
 vi.mock('@supabase/supabase-js', () => ({
@@ -32,8 +32,6 @@ vi.mock('@supabase/supabase-js', () => ({
     },
   })),
 }));
-
-
 
 describe('AvatarPicker', () => {
   beforeEach(() => {

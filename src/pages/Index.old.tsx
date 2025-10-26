@@ -1,10 +1,11 @@
-import { useEffect, useState, useRef } from "react";
+import { Camera, ChevronDown, Compass, Mountain, Users } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Mountain, Users, Camera, Compass } from "lucide-react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useHaptic } from "@/hooks/use-haptic";
 import { StaticBottomButton } from "@/components/StaticBottomButton";
+import { Button } from "@/components/ui/button";
+import { useHaptic } from "@/hooks/use-haptic";
 import { cn } from "@/lib/utils";
 
 const Index = () => {

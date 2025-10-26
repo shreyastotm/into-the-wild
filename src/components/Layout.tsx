@@ -1,6 +1,8 @@
 import { useLocation } from "react-router-dom";
-import Header from "./Header";
+
 import Footer from "./Footer";
+import Header from "./Header";
+
 import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MobileHamburger } from "@/components/navigation/MobileHamburger";
 import { cn } from "@/lib/utils";

@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
-import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
+
 import {
   AdminTrekEvent,
   FormSubmissionData,
 } from "@/components/trek/create/types";
+import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { TentInventory } from "@/types/trek";
 
 export default function CreateTrekEvent() {
@@ -171,8 +172,8 @@ export default function CreateTrekEvent() {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="animate-pulse">
-          <div className="h-12 bg-gray-200 rounded mb-6"></div>
-          <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="h-12 bg-gray-200 rounded mb-6" />
+          <div className="h-64 bg-gray-200 rounded" />
         </div>
       </div>
     );

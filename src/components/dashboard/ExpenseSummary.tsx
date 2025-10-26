@@ -6,7 +6,7 @@ export const ExpenseSummary = () => {
       <CardHeader>
         <CardTitle className="text-lg flex items-center">Summary</CardTitle>
       </CardHeader>
-      <CardContent></CardContent>
+      <CardContent />
     </Card>
   );
 };

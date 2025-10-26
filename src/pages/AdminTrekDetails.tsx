@@ -1,32 +1,33 @@
-import React, { useState, useEffect, Suspense } from "react";
-import { useParams, Link } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { format } from "date-fns";
 import {
   ArrowLeft,
   CalendarCheck,
-  Users,
-  DollarSign,
   Car,
-  Star,
+  DollarSign,
   Package,
+  Star,
   Tent,
+  Users,
 } from "lucide-react";
-import { format } from "date-fns";
-import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { formatCurrency } from "@/lib/utils";
-import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
-import TrekCostsManager from "@/components/trek/TrekCostsManager";
+import React, { Suspense, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+
 import { TentRequestsAdmin } from "@/components/admin/TentRequestsAdmin";
+import { useAuth } from "@/components/auth/AuthProvider";
+import TrekCostsManager from "@/components/trek/TrekCostsManager";
+import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/lib/utils";
 // Lazy load TravelCoordination to prevent Leaflet side effects during module loading
 const TravelCoordination = React.lazy(() => import("@/components/trek/TravelCoordination"));
 
@@ -285,7 +286,7 @@ export default function AdminTrekDetails() {
           </Button>
         </Link>
         <h1 className="text-3xl font-bold">Trek Management</h1>
-        <div className="w-24"></div> {/* Spacer for balance */}
+        <div className="w-24" /> {/* Spacer for balance */}
       </div>
 
       {loading ? (
@@ -523,7 +524,7 @@ export default function AdminTrekDetails() {
                 transportMode={trek.transport_mode}
                 pickupTimeWindow={trek.pickup_time_window}
                 vendorContacts={trek.vendor_contacts}
-                isAdmin={true}
+                isAdmin
               />
               </Suspense>
             </TabsContent>
@@ -539,7 +540,7 @@ export default function AdminTrekDetails() {
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <TrekCostsManager trekId={parseInt(trekId)} isAdmin={true} />
+                  <TrekCostsManager trekId={parseInt(trekId)} isAdmin />
                 </CardContent>
               </Card>
             </TabsContent>

@@ -1,18 +1,20 @@
-import { Suspense, lazy } from "react";
+import { lazy, Suspense } from "react";
 import {
-  BrowserRouter as Router,
-  Route,
-  Routes,
-  Outlet,
   Navigate,
+  Outlet,
+  Route,
+  BrowserRouter as Router,
+  Routes,
   useParams,
 } from "react-router-dom";
-import Layout from "./components/Layout";
+
 import { AuthProvider } from "./components/auth/AuthProvider";
-import { Toaster } from "./components/ui/toaster";
+import Layout from "./components/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import { LoadingSpinner } from "./components/ui/LoadingSpinner";
+import { Toaster } from "./components/ui/toaster";
+
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 // Lazy load all pages for better performance
 const Index = lazy(() => import("./pages/Index"));

@@ -1,17 +1,18 @@
-import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import {
+  Camera,
   ChevronDown,
+  Compass,
   Mountain,
   Users,
-  Camera,
-  Compass,
   Wind,
 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useHaptic } from "@/hooks/use-haptic";
 import { StaticBottomButton } from "@/components/StaticBottomButton";
+import { Button } from "@/components/ui/button";
+import { useHaptic } from "@/hooks/use-haptic";
 import { cn } from "@/lib/utils";
 
 // Floating particle component

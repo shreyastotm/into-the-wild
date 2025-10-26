@@ -1,13 +1,14 @@
-import React from "react";
-import { Link } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 import {
   ArrowLeft,
   Backpack,
   CheckSquare,
-  Thermometer,
   Sun,
+  Thermometer,
 } from "lucide-react";
+import React from "react";
+import { Link } from "react-router-dom";
+
+import { Button } from "@/components/ui/button";
 
 const PackingList = () => {
   return (

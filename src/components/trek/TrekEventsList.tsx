@@ -1,8 +1,9 @@
+import React, { Component } from "react";
 import { useNavigate } from "react-router-dom";
-import { TrekEventStatus } from "@/types/trek";
+
 import TrekCardBase from "./TrekCardBase";
 
-import React, { Component } from "react";
+import { TrekEventStatus } from "@/types/trek";
 
 // Define type for Trek Events
 export interface TrekEvent {
@@ -110,7 +111,7 @@ export const TrekEventsList: React.FC<TrekEventsListProps> = ({
           key={trek.trek_id}
           trek={trek}
           variant={variant}
-          showImage={true}
+          showImage
           showActions={showActions}
           showProgress={showProgress}
           showStatus={showStatus}

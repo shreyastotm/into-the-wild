@@ -1,19 +1,20 @@
-import React, { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
-  CheckCircle,
-  XCircle,
   AlertTriangle,
-  Eye,
+  CheckCircle,
   Download,
+  Eye,
+  XCircle,
 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import React, { useEffect, useState } from "react";
+
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface IdType {
   id_type_id: number;
@@ -198,8 +199,8 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
   if (loading) {
     return (
       <div className="animate-pulse space-y-4" data-testid="idproofverification">
-        <div className="h-4 bg-muted rounded w-3/4" data-testid="idproofverification"></div>
-        <div className="h-32 bg-muted rounded" data-testid="idproofverification"></div>
+        <div className="h-4 bg-muted rounded w-3/4" data-testid="idproofverification" />
+        <div className="h-32 bg-muted rounded" data-testid="idproofverification" />
       </div>
     );
   }

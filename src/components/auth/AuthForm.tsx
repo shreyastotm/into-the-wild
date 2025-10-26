@@ -1,4 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
+
+import { PasswordResetForm } from "./PasswordResetForm";
+import { SignInForm } from "./SignInForm";
+import { SignUpForm } from "./SignUpForm";
+
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -9,16 +14,15 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { useAuthForm } from "@/hooks/useAuthForm";
-import { SignInForm } from "./SignInForm";
-import { SignUpForm } from "./SignUpForm";
-import { PasswordResetForm } from "./PasswordResetForm";
-import { UserType, SubscriptionType } from "@/types/auth";
+import { SubscriptionType, UserType } from "@/types/auth";
 
 interface AuthFormProps {
   initialMode?: "signin" | "signup";
+  onSignInStart?: () => void;
+  onSignInEnd?: () => void;
 }
 
-export default function AuthForm({ initialMode }: AuthFormProps) {
+export default function AuthForm({ initialMode, onSignInStart, onSignInEnd }: AuthFormProps) {
   // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -64,7 +68,12 @@ export default function AuthForm({ initialMode }: AuthFormProps) {
   // Event handlers
   const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleSignIn({ email, password });
+    onSignInStart?.();
+    try {
+      await handleSignIn({ email, password });
+    } finally {
+      onSignInEnd?.();
+    }
   };
 
   const handleSignUpSubmit = async (e: React.FormEvent) => {
@@ -190,7 +199,7 @@ export default function AuthForm({ initialMode }: AuthFormProps) {
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" data-testid="authform"></div>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" data-testid="authform" />
                 Connecting...
               </>
             ) : (

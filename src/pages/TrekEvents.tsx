@@ -1,31 +1,32 @@
-import React, { useState, useEffect, useCallback } from "react";
-import {
-  TrekEventsList,
-  TrekEvent as TrekEventListItem,
-} from "@/components/trek/TrekEventsList";
-import { TrekFilters, FilterOptions } from "@/components/trek/TrekFilters";
-import { NoTreksFound } from "@/components/trek/NoTreksFound";
-import { EventCard } from "@/components/trek/EventCard";
-import { supabase } from "@/integrations/supabase/client";
 import {
   addMonths,
-  startOfWeek,
+  endOfMonth,
   endOfWeek,
   startOfMonth,
-  endOfMonth,
+  startOfWeek,
 } from "date-fns";
-import { toast } from "@/components/ui/use-toast";
-import { Button } from "@/components/ui/button";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useMediaQuery } from "@/hooks/useMediaQuery";
-import { getUniqueParticipantCount } from "@/lib/utils";
-import { TrekEventStatus, EventType } from "@/types/trek";
 import {
+  MobileGrid,
   MobilePage,
   MobileSection,
-  MobileGrid,
 } from "@/components/mobile/MobilePage";
+import { EventCard } from "@/components/trek/EventCard";
+import { NoTreksFound } from "@/components/trek/NoTreksFound";
+import {
+  TrekEvent as TrekEventListItem,
+  TrekEventsList,
+} from "@/components/trek/TrekEventsList";
+import { FilterOptions, TrekFilters } from "@/components/trek/TrekFilters";
+import { Button } from "@/components/ui/button";
+import { toast } from "@/components/ui/use-toast";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { supabase } from "@/integrations/supabase/client";
+import { getUniqueParticipantCount } from "@/lib/utils";
+import { EventType, TrekEventStatus } from "@/types/trek";
 
 // This interface should match the shape of data AFTER aliasing in the select query
 export interface FetchedTrekData {
@@ -381,7 +382,7 @@ const TrekEvents = () => {
                       category: event.category,
                     }}
                     onClick={() => navigate(`/trek-events/${event.trek_id}`)}
-                    showProgress={true}
+                    showProgress
                   />
                 ))}
               </MobileGrid>

@@ -1,8 +1,9 @@
-import React, { useState } from "react";
-import { formatCurrency } from "@/lib/utils";
 import { format } from "date-fns";
-import { AdHocExpense, ExpenseShare, FixedExpense } from "@/hooks/useExpenses";
+import React, { useState } from "react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -11,10 +12,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
+import { AdHocExpense, ExpenseShare, FixedExpense } from "@/hooks/useExpenses";
 import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/lib/utils";
 
 interface ExpenseTableProps {
   fixedExpenses: FixedExpense[];

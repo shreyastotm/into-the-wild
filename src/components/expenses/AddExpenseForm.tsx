@@ -1,25 +1,9 @@
-import { calculateGSTPrice } from '@/utils/indianStandards';
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { toast } from "@/components/ui/use-toast";
+import { AlertCircle, ArrowLeft, DollarSign, Loader2, Users } from "lucide-react";
+import React, { useEffect, useState } from "react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import {
-  CreateExpenseInput,
-  ExpenseCategory,
-  Expense,
-} from "@/types/expense";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -27,8 +11,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { AlertCircle, Loader2, DollarSign, Users, ArrowLeft } from "lucide-react";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -37,8 +20,26 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/utils";
+import {
+  CreateExpenseInput,
+  Expense,
+  ExpenseCategory,
+} from "@/types/expense";
+import { calculateGSTPrice } from '@/utils/indianStandards';
 
 interface AddExpenseFormProps {
   trekId: number;
@@ -99,7 +100,7 @@ export const AddExpenseForm: React.FC<AddExpenseFormProps> = ({
     }
 
     setSubmitting(true);
-    const totalAmount = calculateGSTPrice(parseFloat)(amount);
+    const totalAmount = calculateGSTPrice(parseFloat(amount));
     let shares: { userId: string; amount: number }[] = [];
 
     if (splitType === "equally") {

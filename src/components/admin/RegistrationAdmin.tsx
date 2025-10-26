@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { toast } from "@/components/ui/use-toast";
 import { format } from "date-fns";
-import { Check, X, AlertTriangle } from "lucide-react";
+import { AlertTriangle, Check, X } from "lucide-react";
+import React, { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 // Interface for the User object (adjust based on your actual users table)
 interface UserInfo {
@@ -132,7 +133,7 @@ export default function RegistrationAdmin() {
   // Find duplicate registrations (same user, same trek)
   const duplicates = registrations.reduce(
     (acc, reg) => {
-      const key = reg.user_id + "_" + reg.trek_id;
+      const key = `${reg.user_id  }_${  reg.trek_id}`;
       acc[key] = acc[key] ? [...acc[key], reg] : [reg];
       return acc;
     },

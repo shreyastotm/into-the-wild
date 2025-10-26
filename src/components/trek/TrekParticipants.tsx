@@ -1,5 +1,6 @@
-import React, { Component } from "react";
 import { User } from "lucide-react";
+import React, { Component } from "react";
+
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Tooltip,

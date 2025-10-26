@@ -1,43 +1,47 @@
-import React, { useState, useEffect, Suspense } from "react";
-import { useParams, Link } from "react-router-dom";
-import { TrekEventHeader } from "@/components/trek/TrekEventHeader";
-import { TrekEventDetailsComponent } from "@/components/trek/TrekEventDetails";
+import React, { Suspense, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+
+import { useTrekRegistration } from "../hooks/trek/useTrekRegistration";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
 import { RegistrationCard } from "@/components/trek/RegistrationCard";
+import { TentRental } from "@/components/trek/TentRental";
+import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
+import { TrekEventDetailsComponent } from "@/components/trek/TrekEventDetails";
+import { TrekEventHeader } from "@/components/trek/TrekEventHeader";
 // Lazy load TravelCoordination to prevent Leaflet side effects during module loading
 const TravelCoordination = React.lazy(() => import("@/components/trek/TravelCoordination"));
-import { TrekParticipants } from "@/components/trek/TrekParticipants";
-import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
-import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
-import { TrekRatings } from "@/components/trek/TrekRatings";
 import TrekPackingList from "@/components/trek/TrekPackingList";
-import { TentRental } from "@/components/trek/TentRental";
+import { TrekParticipants } from "@/components/trek/TrekParticipants";
+import { TrekRatings } from "@/components/trek/TrekRatings";
 import { TrekRequirements } from "@/components/trek/TrekRequirements";
-import { useTrekRegistration } from "../hooks/trek/useTrekRegistration";
-import { useTrekCommunity } from "@/hooks/useTrekCommunity";
-import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
+import { useHaptic } from "@/hooks/useHaptic";
+import { useTrekCommunity } from "@/hooks/useTrekCommunity";
+
 import {
-  ChevronLeft,
-  Map,
-  MessageSquare,
-  Users,
-  Receipt,
   Award,
+  ChevronLeft,
   ClipboardList,
   Info,
-  Tent,
-  Shield,
-  TreePine,
+  Map,
+  MessageSquare,
   Mountain,
+  Receipt,
+  Shield,
+  Tent,
+  TreePine,
+  Users,
   Zap,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { TrekEventStatus, EventType } from "@/types/trek";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardTitle } from "@/components/ui/card";
+
 import { cn } from "@/lib/utils";
-import { useHaptic } from "@/hooks/useHaptic";
+import { EventType, TrekEventStatus } from "@/types/trek";
 
 export default function TrekEventDetails() {
   const { id } = useParams<{ id: string }>();
@@ -84,14 +88,14 @@ export default function TrekEventDetails() {
     return (
       <div className="container mx-auto py-8 px-4">
         <div className="animate-pulse">
-          <div className="h-12 bg-muted rounded mb-6"></div>
-          <div className="h-64 bg-muted rounded mb-6"></div>
+          <div className="h-12 bg-muted rounded mb-6" />
+          <div className="h-64 bg-muted rounded mb-6" />
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="md:col-span-2">
-              <div className="h-96 bg-muted rounded"></div>
+              <div className="h-96 bg-muted rounded" />
             </div>
             <div>
-              <div className="h-64 bg-muted rounded"></div>
+              <div className="h-64 bg-muted rounded" />
             </div>
           </div>
         </div>
@@ -119,7 +123,7 @@ export default function TrekEventDetails() {
   const handleRegistration = async (indemnityAccepted: boolean) => {
     if (!user || !trekEvent) return { success: false, registrationId: null };
     const success = await registerForTrek(indemnityAccepted);
-    return { success: success, registrationId: null };
+    return { success, registrationId: null };
   };
 
   const handleUploadProof = async (
@@ -332,7 +336,7 @@ export default function TrekEventDetails() {
 
             {trekEvent.status === "completed" && (
               <TabsContent value="ratings">
-                <TrekRatings trekId={id || ""} isCompleted={true} />
+                <TrekRatings trekId={id || ""} isCompleted />
               </TabsContent>
             )}
           </Tabs>

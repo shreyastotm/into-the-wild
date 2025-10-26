@@ -14,8 +14,8 @@
  */
 
 import { supabase } from "@/integrations/supabase/client";
-import { formatIndianDate, formatCurrency } from "@/utils/indianStandards";
-import { logError, createAppError, ErrorCodes } from "@/lib/errorHandling";
+import { createAppError, ErrorCodes, logError } from "@/lib/errorHandling";
+import { formatCurrency, formatIndianDate } from "@/utils/indianStandards";
 
 export interface TrekEvent {
   trek_id: number;

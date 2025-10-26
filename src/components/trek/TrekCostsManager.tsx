@@ -1,7 +1,14 @@
-import { calculateGSTPrice } from '@/utils/indianStandards';
-import React, { useState, useEffect } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { Loader2, Plus, Trash2 } from "lucide-react";
+import React, { useCallback, useEffect , useState } from "react";
+
 import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -11,19 +18,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
-import { formatCurrency } from "@/lib/utils";
-import { Loader2, Plus, Trash2 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { TrekCost, TrekCostType } from "@/integrations/supabase/types";
-import { useCallback } from "react";
-
+import { formatCurrency } from "@/lib/utils";
+import { calculateGSTPrice } from '@/utils/indianStandards';
 
 interface TrekCostsManagerProps {
   trekId: number;

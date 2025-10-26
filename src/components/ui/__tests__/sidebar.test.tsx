@@ -1,16 +1,10 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import { describe, expect, it } from 'vitest';
+
 import sidebar from '../sidebar';
 
-
-
-
-
-
-
 describe('sidebar', () => {
-  
 
   it('renders without crashing', () => {
     render(<sidebar data-testid="sidebar" />);
@@ -36,6 +30,5 @@ describe('sidebar', () => {
       expect(screen.getByTestId('sidebar')).toHaveTextContent(/updated|changed|new/i);
     });
   });
-
   
 });

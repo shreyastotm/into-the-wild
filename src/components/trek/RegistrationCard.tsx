@@ -1,34 +1,35 @@
-import React, { useState, useEffect } from "react";
+import {
+  AlertCircle,
+  AlertTriangle,
+  Calendar,
+  CheckCircle,
+  FileText,
+  Phone,
+  UploadCloud,
+  User,
+  Users,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import FormActions from "@/components/forms/FormActions";
+import FormField from "@/components/forms/FormField";
+import FormSection from "@/components/forms/FormSection";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import {
-  CheckCircle,
-  Calendar,
-  Users,
-  AlertCircle,
-  UploadCloud,
-  User,
-  Phone,
-  FileText,
-  AlertTriangle,
-} from "lucide-react";
 import { WithStringId } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/utils";
-import { TrekEventStatus } from "@/types/trek";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import FormField from "@/components/forms/FormField";
-import FormSection from "@/components/forms/FormSection";
-import FormActions from "@/components/forms/FormActions";
 import { validateField } from "@/lib/validation";
+import { TrekEventStatus } from "@/types/trek";
 
 interface DbRegistration {
   registration_id: number;

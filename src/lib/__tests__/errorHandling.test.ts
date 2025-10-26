@@ -4,24 +4,25 @@
  * @author Into The Wild Development Team
  */
 
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
+
 import {
-  EnhancedAppError,
-  ErrorCodes,
-  ValidationError,
   AuthenticationError,
   AuthorizationError,
-  NetworkError,
+  createAppError,
   DatabaseError,
-  PaymentError,
-  TrekError,
+  EnhancedAppError,
+  ErrorCodes,
   ErrorLogger,
   ErrorMessageTranslator,
-  withRetry,
-  safeAsync,
   handleSupabaseError,
-  createAppError,
   logError,
+  NetworkError,
+  PaymentError,
+  safeAsync,
+  TrekError,
+  ValidationError,
+  withRetry,
 } from "../errorHandling";
 
 // Mock console.error for testing

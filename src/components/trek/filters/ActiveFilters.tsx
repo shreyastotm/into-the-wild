@@ -1,9 +1,10 @@
+import React, { Component } from "react";
+
+import { FilterOptions } from "../TrekFilters";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { FilterOptions } from "../TrekFilters";
-
-import React, { Component } from "react";
 
 interface ActiveFiltersProps {
   options: FilterOptions;

@@ -1,27 +1,27 @@
-import { formatIndianDate } from '@/utils/indianStandards';
-import React, { useEffect, useState, useCallback, useRef, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { formatCurrency } from "@/lib/utils";
-import { toast } from "@/components/ui/use-toast";
 import {
-  CalendarDays,
-  MapPin,
-  Clock,
-  Users,
   ArrowRight,
+  CalendarDays,
   CheckCircle2,
   ChevronLeft,
   ChevronRight,
+  Clock,
+  MapPin,
+  Users,
 } from "lucide-react";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { Skeleton } from "@/components/ui/skeleton";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { formatCurrency } from "@/lib/utils";
+import { formatIndianDate } from '@/utils/indianStandards';
 
 interface TrekRegistration {
   trek_id: number;

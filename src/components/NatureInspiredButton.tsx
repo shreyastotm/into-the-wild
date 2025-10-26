@@ -1,7 +1,8 @@
-import React, { useState, useRef } from "react";
+import React, { useRef, useState } from "react";
+
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
 import { useHaptic } from "@/hooks/use-haptic";
+import { cn } from "@/lib/utils";
 
 interface NatureInspiredButtonProps {
   children: React.ReactNode;

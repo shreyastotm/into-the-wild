@@ -1,26 +1,28 @@
+import { format } from "date-fns";
+import { Check, Plus, Receipt, Trash2, X } from "lucide-react";
 import React, { useState } from "react";
 import { useParams } from "react-router-dom";
-import { format } from "date-fns";
-import { Receipt, Plus, Trash2, X, Check } from "lucide-react";
+
+import { AddExpenseModal } from "./AddExpenseModal";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
+  CardDescription,
   CardFooter,
   CardHeader,
   CardTitle,
-  CardDescription,
 } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { useExpenseSplitting, Expense } from "@/hooks/useExpenseSplitting";
+import { Expense, useExpenseSplitting } from "@/hooks/useExpenseSplitting";
 import { formatCurrency } from "@/lib/utils";
 import { TrekCost } from "@/types/trek";
-import { AddExpenseModal } from "./AddExpenseModal";
-import { Skeleton } from "@/components/ui/skeleton";
 
 // --- INTERFACES ---
 interface ExpenseSplittingProps {

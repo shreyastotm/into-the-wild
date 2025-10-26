@@ -1,18 +1,19 @@
-import React, { useState } from "react";
+import { formatDistanceToNow } from "date-fns";
 import { MessageSquare, Send, Smile, User } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
+import React, { useState } from "react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { Separator } from "@/components/ui/separator"; // Keep if used, otherwise remove
-import { toast } from "@/components/ui/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { formatDistanceToNow } from "date-fns";
-import { Badge } from "@/components/ui/badge";
+import { Separator } from "@/components/ui/separator"; // Keep if used, otherwise remove
+import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 
 // Updated interface to match useTrekCommunity hook
 export interface Comment {
@@ -180,7 +181,7 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
                 className="gap-2"
               >
                 {isSubmitting ? (
-                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white" />
                 ) : (
                   <Send className="h-4 w-4" />
                 )}
@@ -213,10 +214,10 @@ export const TrekDiscussion: React.FC<TrekDiscussionProps> = ({
           {/* Simple loading skeleton for comments */}
           {[...Array(3)].map((_, i) => (
             <div key={i} className="flex gap-3 items-start mb-4 animate-pulse">
-              <div className="h-10 w-10 rounded-full bg-muted"></div>
+              <div className="h-10 w-10 rounded-full bg-muted" />
               <div className="flex-1 space-y-2">
-                <div className="h-4 bg-muted rounded w-1/4"></div>
-                <div className="h-4 bg-muted rounded w-3/4"></div>
+                <div className="h-4 bg-muted rounded w-1/4" />
+                <div className="h-4 bg-muted rounded w-3/4" />
               </div>
             </div>
           ))}

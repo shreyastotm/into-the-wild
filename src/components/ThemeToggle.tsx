@@ -1,6 +1,7 @@
 import { Moon, Sun } from "lucide-react";
-import { useTheme } from "@/hooks/use-theme";
+
 import { useHaptic } from "@/hooks/use-haptic";
+import { useTheme } from "@/hooks/use-theme";
 import { cn } from "@/lib/utils";
 
 /**

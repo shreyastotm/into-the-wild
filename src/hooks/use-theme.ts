@@ -27,7 +27,7 @@ export const useTheme = () => {
     root.classList.remove("light", "dark");
 
     // Determine which theme to apply
-    let effectiveTheme: "light" | "dark" =
+    const effectiveTheme: "light" | "dark" =
       theme === "system"
         ? window.matchMedia("(prefers-color-scheme: dark)").matches
           ? "dark"

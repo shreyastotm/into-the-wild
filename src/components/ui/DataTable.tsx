@@ -1,3 +1,9 @@
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -6,12 +12,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Skeleton } from "@/components/ui/skeleton";
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
 export interface Column<T> {
   key: keyof T | string;

@@ -1,9 +1,15 @@
-import React, { useState, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import {
+  AlertCircle,
+  Camera,
+  CheckCircle,
+  Loader2,
+  Upload,
+} from "lucide-react";
+import React, { useCallback, useState } from "react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -11,15 +17,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
-import {
-  Upload,
-  Camera,
-  Loader2,
-  CheckCircle,
-  AlertCircle,
-} from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { supabase } from "@/integrations/supabase/client";
 
 interface UserImageUploadProps {
   trekId: number;

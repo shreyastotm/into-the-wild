@@ -1,12 +1,12 @@
-import { Link } from "react-router-dom";
 import {
-  MapPin,
-  Mail,
-  Phone,
-  Instagram,
   Facebook,
+  Instagram,
+  Mail,
+  MapPin,
+  Phone,
   Twitter,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();

@@ -1,17 +1,18 @@
 import React, { useEffect, useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
-  PieChart,
-  Pie,
   Cell,
-  ResponsiveContainer,
   Legend,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
   Tooltip,
   TooltipProps,
 } from "recharts";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/components/ui/use-toast";
+
 import { useAuth } from "@/components/auth/AuthProvider";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { toast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 
 interface ExpenseData {
@@ -82,7 +83,7 @@ export const ExpenseChart = () => {
           const trekId = parseInt(trekIdStr, 10);
           return {
             name: trekIdToName[trekId] || `Trek #${trekId}`, // Use fetched name or fallback
-            total: total,
+            total,
           };
         },
       );
@@ -120,7 +121,7 @@ export const ExpenseChart = () => {
     return (
       <Card className="w-full h-[320px] flex items-center justify-center">
         <div className="animate-pulse" data-testid="expensechart">
-          <div className="h-48 w-48 bg-gray-200 rounded-full" data-testid="expensechart"></div>
+          <div className="h-48 w-48 bg-gray-200 rounded-full" data-testid="expensechart" />
         </div>
       </Card>
     );

@@ -1,28 +1,30 @@
-import React, { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { useToast } from "@/components/ui/use-toast";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
 import {
-  Loader2,
-  CheckCircle,
-  XCircle,
-  MapPin,
-  Car,
-  PawPrint,
-  User,
-  Mail,
-  Phone,
   Calendar,
+  Car,
+  CheckCircle,
   Home,
+  Loader2,
+  Mail,
+  MapPin,
+  PawPrint,
+  Phone,
   Settings,
+  User,
+  XCircle,
 } from "lucide-react";
+import React, { useCallback, useEffect, useState } from "react";
+import { MapContainer, Marker, TileLayer, useMapEvents } from "react-leaflet";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import FormActions from "@/components/forms/FormActions";
 import FormField from "@/components/forms/FormField";
 import FormSection from "@/components/forms/FormSection";
-import FormActions from "@/components/forms/FormActions";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { validateField } from "@/lib/validation";
-import { MapContainer, TileLayer, Marker, useMapEvents } from "react-leaflet";
+
 import "leaflet/dist/leaflet.css";
 import L from "leaflet";
 
@@ -79,7 +81,7 @@ function LocationMarker({
     setMarkerPosition(position);
   }, [position]);
 
-  return markerPosition ? <Marker position={markerPosition}></Marker> : null;
+  return markerPosition ? <Marker position={markerPosition} /> : null;
 }
 
 export const ProfileForm: React.FC = () => {
@@ -285,7 +287,7 @@ export const ProfileForm: React.FC = () => {
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
-          `q=${encodeURIComponent(searchQuery + ", India")}&` +
+          `q=${encodeURIComponent(`${searchQuery  }, India`)}&` +
           `format=json&limit=5&addressdetails=1`,
       );
       const data = await response.json();

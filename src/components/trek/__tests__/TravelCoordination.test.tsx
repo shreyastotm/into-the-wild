@@ -1,11 +1,9 @@
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import React from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import TravelCoordination from '../TravelCoordination';
-
 import { BrowserRouter } from 'react-router-dom';
+import { describe, expect, it } from 'vitest';
 
-
+import TravelCoordination from '../TravelCoordination';
 
 // Wrapper for Router
 const renderWithRouter = (ui) => {
@@ -17,7 +15,6 @@ const renderWithRouter = (ui) => {
 };
 
 describe('TravelCoordination', () => {
-  
 
   it('renders without crashing', () => {
     renderWithRouter(<TravelCoordination data-testid="travelcoordination" />);
@@ -43,6 +40,5 @@ describe('TravelCoordination', () => {
       expect(screen.getByTestId('travelcoordination')).toHaveTextContent(/updated|changed|new/i);
     });
   });
-
   
 });

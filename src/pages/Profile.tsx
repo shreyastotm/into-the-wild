@@ -1,11 +1,12 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/components/auth/AuthProvider";
+import { MobilePage, MobileSection } from "@/components/mobile/MobilePage";
+import IdVerification from "@/components/profile/IdVerification";
 import { ProfileForm } from "@/components/profile/ProfileForm";
 import ProfileHeader from "@/components/profile/ProfileHeader";
 import ProfileSummaryCard from "@/components/profile/ProfileSummaryCard";
-import IdVerification from "@/components/profile/IdVerification";
-import { MobilePage, MobileSection } from "@/components/mobile/MobilePage";
 
 export default function Profile() {
   const { user, userProfile, loading } = useAuth();

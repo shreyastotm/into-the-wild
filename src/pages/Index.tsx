@@ -1,14 +1,13 @@
-import React from "react";
-import { useEffect, useState, useRef } from "react";
+import { Camera, ChevronDown, Mountain, Users, Wind } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { ChevronDown, Mountain, Users, Camera, Wind } from "lucide-react";
+
 import { useAuth } from "@/components/auth/AuthProvider";
+import { StaticBottomButton } from "@/components/StaticBottomButton";
+import { Button } from "@/components/ui/button";
 import { useHaptic } from "@/hooks/use-haptic";
 import { usePageStyle } from "@/hooks/usePageStyle";
 import { cn } from "@/lib/utils";
-import { StaticBottomButton } from "@/components/StaticBottomButton";
-
 
 // Floating particle component
 const FloatingParticle = ({

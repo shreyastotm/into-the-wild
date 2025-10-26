@@ -29,3 +29,33 @@ alwaysApply: true
 ✅ **REQUIRED:** Feature branches for new development
 ✅ **REQUIRED:** Pull request reviews before merging
 ✅ **REQUIRED:** Database migrations committed with schema changes
+
+## 6.5 Documentation Standards & Master Document System
+
+### 6.5.1 Master Document References
+✅ **REQUIRED:** All new documentation must reference the 5 master documents:
+   - **README.md** (root) - Project entry point and navigation guide
+   - **docs/PROJECT_OVERVIEW.md** - Complete project setup, tech stack, dependencies, deployment procedures
+   - **docs/TECHNICAL_ARCHITECTURE.md** - Code organization, quality standards, performance optimization
+   - **docs/DESIGN_SYSTEM.md** - UI/UX design system, accessibility compliance, component standards
+   - **docs/COMMUNICATION_SYSTEM.md** - Messaging, notifications, WhatsApp integration, admin tools
+✅ **REQUIRED:** Update relevant master document when implementing new features
+✅ **REQUIRED:** Include bidirectional links between master documents and related code
+✅ **REQUIRED:** Add navigation links to master documents in all technical documentation
+
+### 6.5.2 Temporary Documentation Policy
+✅ **REQUIRED:** Create only temporary documentation for immediate development needs
+✅ **REQUIRED:** All temporary docs must be clearly marked with "TEMPORARY:" prefix in filename
+✅ **REQUIRED:** Temporary docs must include consolidation timeline in header comments
+✅ **REQUIRED:** Temporary docs must reference which master document they will be consolidated into
+✅ **REQUIRED:** Archive temporary docs to `/archive/deprecated-docs/` after consolidation
+✅ **REQUIRED:** Maximum 7-day lifecycle for temporary documentation
+❌ **FORBIDDEN:** Permanent documentation outside of 5 master documents
+❌ **FORBIDDEN:** Feature-specific documentation without consolidation timeline
+❌ **FORBIDDEN:** Temporary docs older than 7 days without consolidation plan
+
+### 6.5.3 Documentation Quality Gates
+✅ **REQUIRED:** All documentation changes must pass quality checks
+✅ **REQUIRED:** Master documents must be updated before feature deployment
+✅ **REQUIRED:** Documentation must include code examples and implementation details
+✅ **REQUIRED:** All links in documentation must be verified and functional

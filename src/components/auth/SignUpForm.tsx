@@ -1,8 +1,9 @@
 import React, { Component } from "react";
+
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Select,
   SelectContent,
@@ -11,11 +12,11 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import {
-  UserType,
-  SubscriptionType,
   AuthFormErrors,
   SUBSCRIPTION_PRICING,
+  SubscriptionType,
   USER_TYPE_DESCRIPTIONS,
+  UserType,
 } from "@/types/auth";
 
 interface SignUpFormProps {
@@ -267,7 +268,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
                       <span
                         key={i}
                         className={`h-1.5 w-8 rounded ${i < score ? colors[score - 1] : "bg-gray-200"}`}
-                      ></span>
+                       />
                     ))}
                   </div>
                   <span className="text-xs text-gray-600">
@@ -386,7 +387,7 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       >
         {loading ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="signupform"></div>
+            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="signupform" />
             Creating account...
           </>
         ) : (

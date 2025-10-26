@@ -1,6 +1,7 @@
 import { useState } from "react";
-import { otpService } from "@/services/otpService";
+
 import { toast } from "@/components/ui/use-toast";
+import { otpService } from "@/services/otpService";
 
 interface Coordinates {
   lat: number;

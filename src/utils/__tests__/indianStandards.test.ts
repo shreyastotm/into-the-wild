@@ -4,19 +4,20 @@
  * @author Into The Wild Development Team
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+
 import {
-  formatCurrency,
-  formatIndianDate,
-  parseIndianDate,
-  formatIndianNumber,
-  validateIndianMobile,
   calculateGST,
   calculateTotalWithGST,
-  validateAadhar,
+  formatCurrency,
   formatDistance,
+  formatIndianDate,
+  formatIndianNumber,
   getCostBreakdown,
+  parseIndianDate,
+  validateAadhar,
   validateGSTNumber,
+  validateIndianMobile,
 } from "../indianStandards";
 
 describe("Indian Standards Utilities", () => {

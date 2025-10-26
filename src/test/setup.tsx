@@ -1,8 +1,8 @@
 
-import React from 'react';
-import { render } from '@testing-library/react';
-import { BrowserRouter } from 'react-router-dom';
 import { createClient } from '@supabase/supabase-js';
+import { render } from '@testing-library/react';
+import React from 'react';
+import { BrowserRouter } from 'react-router-dom';
 
 // Mock Supabase client
 const mockSupabaseClient = {

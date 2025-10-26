@@ -1,7 +1,8 @@
+import { ArrowLeft, BookOpen, Calendar, Users } from "lucide-react";
 import React from "react";
 import { Link } from "react-router-dom";
+
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen, Calendar, Users } from "lucide-react";
 
 const TrekkingGuide = () => {
   return (

@@ -1,6 +1,6 @@
-import { Button } from "@/components/ui/button";
-
 import React, { Component } from "react";
+
+import { Button } from "@/components/ui/button";
 
 interface EmptyStateProps {
   title: string;
@@ -23,7 +23,7 @@ const EmptyState: React.FC<EmptyStateProps> = ({
           alt=""
           className="h-32 w-auto opacity-15 grayscale"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent" data-testid="emptystate"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-white via-transparent" data-testid="emptystate" />
       </div>
       <h3 className="text-xl font-semibold text-gray-900 mb-2">{title}</h3>
       <p className="text-gray-600 mb-6 max-w-md mx-auto">{description}</p>

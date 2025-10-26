@@ -1,24 +1,25 @@
+import {
+  AlertTriangle,
+  Checkbox,
+  CheckCircle,
+  ChevronDown,
+  Download,
+  Mail,
+  Settings,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 import React, { Component } from "react";
-import { Button } from "@/components/ui/button";
+
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuTrigger,
   DropdownMenuSeparator,
+  DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Checkbox,
-  ChevronDown,
-  Trash2,
-  CheckCircle,
-  XCircle,
-  Download,
-  Mail,
-  Settings,
-  AlertTriangle,
-} from "lucide-react";
 
 export interface BulkAction {
   id: string;
@@ -54,7 +55,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({
   position = "top",
 }) => {
   const visibleActions = actions.filter(
-    (action) => !action.hidden || !action.hidden([]),
+    (action) => !action.hidden?.([]),
   );
   const hasSelection = selectedCount > 0;
   const isAllSelected = selectedCount === totalCount && totalCount > 0;

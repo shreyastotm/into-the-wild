@@ -1,8 +1,9 @@
+import React from "react";
+
 import { TrekFormWizard } from "./create/TrekFormWizard";
 import { AdminTrekEvent, FormSubmissionData } from "./create/types";
-import { TentInventory } from "@/types/trek";
 
-import React, { Component } from "react";
+import { TentInventory } from "@/types/trek";
 
 interface CreateTrekMultiStepFormProps {
   trekToEdit?: AdminTrekEvent;
@@ -24,8 +25,26 @@ interface CreateTrekMultiStepFormProps {
  */
 export const CreateTrekMultiStepFormNew: React.FC<
   CreateTrekMultiStepFormProps
-> = (props) => {
-  return <TrekFormWizard {...props} />;
+> = ({
+  trekToEdit,
+  onFormSubmit,
+  onCancel,
+  tentInventory = []
+}) => {
+  // Validate required props
+  if (!onFormSubmit || !onCancel) {
+    console.error("CreateTrekMultiStepFormNew: Missing required props");
+    return null;
+  }
+
+  return (
+    <TrekFormWizard
+      trekToEdit={trekToEdit}
+      onFormSubmit={onFormSubmit}
+      onCancel={onCancel}
+      tentInventory={tentInventory}
+    />
+  );
 };
 
 // Export the component as default for backward compatibility

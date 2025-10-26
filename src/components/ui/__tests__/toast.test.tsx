@@ -1,16 +1,10 @@
-import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
+import React from 'react';
+import { describe, expect, it } from 'vitest';
+
 import toast from '../toast';
 
-
-
-
-
-
-
 describe('toast', () => {
-  
 
   it('renders without crashing', () => {
     render(<toast data-testid="toast" />);
@@ -21,10 +15,5 @@ describe('toast', () => {
     render(<toast title="Test Title" data-testid="toast" />);
     expect(screen.getByTestId('toast')).toHaveTextContent('Test Title');
   });
-
-  
-
-  
-
   
 });

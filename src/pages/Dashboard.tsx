@@ -1,18 +1,19 @@
-import React, { useEffect, useState, useRef, useCallback } from "react";
+import {
+  Award,
+  Camera,
+  Compass,
+  MapPin,
+  Mountain,
+  Tent,
+  TrendingUp,
+} from "lucide-react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/components/auth/AuthProvider";
 import { UserTreks } from "@/components/dashboard/UserTreks";
 import { Button } from "@/components/ui/button";
 import { LoadingScreen } from "@/components/ui/LoadingCard";
-import {
-  Mountain,
-  Camera,
-  MapPin,
-  Tent,
-  Compass,
-  Award,
-  TrendingUp,
-} from "lucide-react";
 import { useHaptic } from "@/hooks/use-haptic";
 import { usePageStyle } from "@/hooks/usePageStyle";
 import { cn } from "@/lib/utils";

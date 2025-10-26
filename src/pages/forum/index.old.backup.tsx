@@ -1,8 +1,20 @@
-import React, { useState, useEffect } from "react";
+import {
+  Clock,
+  Loader2,
+  Lock,
+  MessageSquare,
+  Pin,
+  Plus,
+  Tag as TagIcon,
+  Users,
+  X,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { supabase } from "@/integrations/supabase/client";
+
 import { useAuth } from "@/components/auth/AuthProvider";
-import { useToast } from "@/components/ui/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,8 +23,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -22,7 +32,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -31,17 +40,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  MessageSquare,
-  Users,
-  Clock,
-  Pin,
-  Lock,
-  Plus,
-  Loader2,
-  Tag as TagIcon,
-  X,
-} from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { useToast } from "@/components/ui/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 
 interface ForumCategory {
   id: number;
@@ -315,8 +316,8 @@ export default function ForumHome() {
     return (
       <div className="max-w-6xl mx-auto px-0 sm:px-4 py-8">
         <div className="mb-8">
-          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2 animate-pulse"></div>
-          <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse"></div>
+          <div className="h-8 bg-gray-200 rounded w-1/3 mb-2 animate-pulse" />
+          <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse" />
         </div>
         <div className="space-y-4">
           {[1, 2, 3, 4, 5].map((n) => (
@@ -324,8 +325,8 @@ export default function ForumHome() {
               key={n}
               className="bg-white rounded-lg shadow-sm p-4 animate-pulse"
             >
-              <div className="h-6 bg-gray-200 rounded w-3/4 mb-3"></div>
-              <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+              <div className="h-6 bg-gray-200 rounded w-3/4 mb-3" />
+              <div className="h-4 bg-gray-200 rounded w-1/2" />
             </div>
           ))}
         </div>

@@ -1,10 +1,11 @@
+import React, { Component } from "react";
+
+import { StepProps } from "./types";
+
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { EventType } from "@/types/trek";
-import { StepProps } from "./types";
-
-import React, { Component } from "react";
 
 export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
   formData,

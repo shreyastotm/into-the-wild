@@ -1,12 +1,12 @@
-import { CardTitle, CardDescription } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
-import { MapPin, CalendarDays, Users, IndianRupee } from "lucide-react";
+import { CalendarDays, IndianRupee, MapPin, Users } from "lucide-react";
+import React, { Component } from "react";
+
+import { Badge } from "@/components/ui/badge";
+import { CardDescription, CardTitle } from "@/components/ui/card";
 import { formatCurrency, getTrekStatusBadgeProps } from "@/lib/utils";
 import { TrekEventStatus } from "@/types/trek";
-
-import React, { Component } from "react";
 
 interface TrekEventHeaderProps {
   trekName: string;

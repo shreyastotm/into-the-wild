@@ -1,0 +1,134 @@
+AUTO-FIX AGENT REPORT
+====================
+Date: 2025-10-26T13:36:33.895Z
+Project: Into The Wild
+
+EXECUTIVE SUMMARY:
+✅ Total Issues Found: 944
+❌ Errors: 0
+⚠️ Warnings: 115
+ℹ️ Info: 829
+🔧 Auto-Applied Fixes: 0
+
+CATEGORY BREAKDOWN:
+🔷 Syntax Issues: 0
+💅 Style Issues: 0
+⚡ Performance Issues: 543
+♿ Accessibility Issues: 400
+🔒 Security Issues: 0
+🇮🇳 Indian Compliance Issues: 1
+
+TOP ISSUES TO FIX:
+1. src\utils\indianStandards.ts:113 [INDIAN-COMPLIANCE] WARNING
+   Issue: Non-Indian date format detected
+   Fix: Use DD/MM/YYYY format and formatIndianDate utility
+   Confidence: medium | Auto-fix: No
+
+2. src\components\admin\AdminSidebar.tsx:86 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+3. src\components\admin\AdminSidebar.tsx:99 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+4. src\components\admin\AdminSidebar.tsx:130 [ACCESSIBILITY] WARNING
+   Issue: Image missing alt attribute
+   Fix: Add descriptive alt text for accessibility
+   Confidence: high | Auto-fix: No
+
+5. src\components\admin\AdminTable.tsx:28 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+6. src\components\admin\AdminTable.tsx:126 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+7. src\components\admin\AdminTable.tsx:146 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+8. src\components\admin\AdminTable.tsx:174 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+9. src\components\admin\AdminTable.tsx:323 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+10. src\components\admin\AdminTable.tsx:332 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+11. src\components\admin\AdminTable.tsx:343 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+12. src\components\admin\AdminTable.tsx:354 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+13. src\components\admin\AdminTable.tsx:430 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+14. src\components\admin\AdminTable.tsx:439 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+15. src\components\admin\AdminTable.tsx:450 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+16. src\components\admin\BulkActions.tsx:29 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+17. src\components\admin\BulkActions.tsx:63 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+18. src\components\admin\BulkActions.tsx:70 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+19. src\components\admin\BulkActions.tsx:86 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+20. src\components\admin\BulkActions.tsx:109 [ACCESSIBILITY] INFO
+   Issue: Interactive element may need focus management
+   Fix: Consider adding tabIndex or using proper interactive elements
+   Confidence: low | Auto-fix: No
+
+NEXT STEPS:
+1. Review the suggestions above and apply manual fixes
+2. Run 'npm run refactor' for automatic improvements
+3. Run 'npm run bug-detect' for comprehensive analysis
+4. Run 'npm run quality-check' to verify all improvements
+
+RECOMMENDATIONS:
+🇮🇳 PRIORITY: Fix Indian market compliance issues (currency, dates, GST)
+♿ IMPORTANT: Improve accessibility for WCAG 2.1 AA compliance
+⚡ RECOMMENDED: Implement performance optimizations
+
+Report saved to: reports/fix-suggestions.json
+Log files in: logs/

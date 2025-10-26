@@ -1,18 +1,18 @@
+import {
+  ArrowLeft,
+  ArrowRight,
+  Check,
+  Loader2,
+  RotateCcw,
+  Save,
+  X,
+} from "lucide-react";
+import React, { Component } from "react";
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import {
-  Loader2,
-  Save,
-  X,
-  RotateCcw,
-  Check,
-  ArrowLeft,
-  ArrowRight,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
-
-import React, { Component } from "react";
 
 export interface FormAction {
   label: string;
@@ -318,8 +318,8 @@ export const SaveCancelActions: React.FC<
     onCancel={onCancel}
     saveLabel={saveLabel}
     cancelLabel={cancelLabel}
-    showSave={true}
-    showCancel={true}
+    showSave
+    showCancel
   />
 );
 
@@ -342,9 +342,9 @@ export const WizardActions: React.FC<
     nextLabel={nextLabel}
     previousLabel={previousLabel}
     saveLabel={saveLabel}
-    showNext={true}
-    showPrevious={true}
-    showSave={true}
+    showNext
+    showPrevious
+    showSave
   />
 );
 
@@ -363,8 +363,8 @@ export const DeleteActions: React.FC<
     onCancel={onCancel}
     saveLabel={saveLabel}
     cancelLabel={cancelLabel}
-    showSave={true}
-    showCancel={true}
+    showSave
+    showCancel
     primaryAction={{
       label: saveLabel,
       onClick: onSave!,
