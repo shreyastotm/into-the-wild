@@ -62,14 +62,14 @@ function LocationMarker({
   position,
   onPositionChange,
 }: {
-  position: L.LatLngTuple;
-  onPositionChange: (pos: L.LatLngTuple) => void;
+  position: [number, number];
+  onPositionChange: (pos: [number, number]) => void;
 }) {
-  const [markerPosition, setMarkerPosition] = useState<L.LatLngTuple>(position);
+  const [markerPosition, setMarkerPosition] = useState<[number, number]>(position);
 
   const map = useMapEvents({
     click(e) {
-      const newPos: L.LatLngTuple = [e.latlng.lat, e.latlng.lng];
+      const newPos: [number, number] = [e.latlng.lat, e.latlng.lng];
       setMarkerPosition(newPos);
       onPositionChange(newPos);
       map.flyTo(e.latlng, map.getZoom());
@@ -111,7 +111,7 @@ export const ProfileForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
   // Default map center to Bangalore, India
-  const [mapCenter, setMapCenter] = useState<L.LatLngTuple>([12.9716, 77.5946]);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([12.9716, 77.5946]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
     Array<{ display_name: string; lat: string; lon: string }>
@@ -153,7 +153,7 @@ export const ProfileForm: React.FC = () => {
     }
   };
 
-  const handleMapPositionChange = useCallback((pos: L.LatLngTuple) => {
+  const handleMapPositionChange = useCallback((pos: [number, number]) => {
     setFormData((prev) => ({ ...prev, latitude: pos[0], longitude: pos[1] }));
   }, []);
 

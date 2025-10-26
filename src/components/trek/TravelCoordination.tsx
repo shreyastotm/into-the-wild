@@ -207,18 +207,17 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     position,
     onPositionChange,
   }: {
-    position: L.LatLngTuple;
-    onPositionChange: (pos: L.LatLngTuple) => void;
+    position: [number, number];
+    onPositionChange: (pos: [number, number]) => void;
   }) {
     if (!leafletLoaded || !LeafletComponents) return null;
 
     const { useMapEvents } = LeafletComponents;
-    const [markerPosition, setMarkerPosition] =
-      useState<L.LatLngTuple>(position);
+    const [markerPosition, setMarkerPosition] = useState<[number, number]>(position);
 
     const map = useMapEvents({
       click(e: any) {
-        const newPos: L.LatLngTuple = [e.latlng.lat, e.latlng.lng];
+        const newPos: [number, number] = [e.latlng.lat, e.latlng.lng];
         setMarkerPosition(newPos);
         onPositionChange(newPos);
         map.flyTo(e.latlng, map.getZoom());
@@ -1048,7 +1047,6 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                                     longitude: latlng[1].toString(),
                                   }));
                                 }}
-                                  useMapEvents={LeafletComponents.useMapEvents}
                               />
                               </LeafletComponents.MapContainer>
                           </div>
