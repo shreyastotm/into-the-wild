@@ -48,7 +48,10 @@ export const useAuthForm = () => {
   // Handle sign in
   const handleSignIn = useCallback(
     async (formData: SignInFormData): Promise<AuthResponse> => {
+      console.log("[AUTH] Sign-in attempt started with email:", formData.email);
+      
       if (!checkRateLimit("signin")) {
+        console.log("[AUTH] Rate limit exceeded");
         return { success: false, error: "Rate limit exceeded" };
       }
 
@@ -60,31 +63,40 @@ export const useAuthForm = () => {
 
       try {
         // Validate input
+        console.log("[AUTH] Validating form data");
         const validation = validateForm(formData, {
           email: authValidationSchema.email,
           password: { required: true, minLength: 1 }, // Less strict for signin
         });
 
         if (!validation.isValid) {
+          console.log("[AUTH] Validation failed:", validation.errors);
           setErrors(validation.errors);
           return { success: false, error: "Validation failed" };
         }
 
         // Sanitize input
+        console.log("[AUTH] Sanitizing form data");
         const sanitizedData = sanitizeFormData(formData) as SignInFormData;
 
+        console.log("[AUTH] Calling Supabase signInWithPassword with email:", sanitizedData.email);
         const { error } = await supabase.auth.signInWithPassword({
           email: sanitizedData.email,
           password: sanitizedData.password,
         });
 
+        console.log("[AUTH] Supabase response received. Error:", error);
+
         if (error) {
+          console.error("[AUTH] Sign-in error from Supabase:", error);
           const appError = handleSupabaseError(error);
+          console.log("[AUTH] App error message:", appError.userMessage);
           setErrors({ general: appError.userMessage });
           logError(appError, "signin");
           return { success: false, error: appError.userMessage };
         }
 
+        console.log("[AUTH] Sign-in successful, showing toast and navigating");
         toast({
           title: "Welcome back!",
           description: "You have been signed in successfully.",
@@ -93,6 +105,7 @@ export const useAuthForm = () => {
         navigate("/dashboard");
         return { success: true, message: "Signed in successfully" };
       } catch (error) {
+        console.error("[AUTH] Unexpected error during sign-in:", error);
         const errorMessage = "An unexpected error occurred during sign in";
         setErrors({ general: errorMessage });
         logError(error, "signin");

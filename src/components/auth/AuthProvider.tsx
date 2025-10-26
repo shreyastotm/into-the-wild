@@ -92,6 +92,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     setIsAuthenticating(false);
   }, []);
 
+  // Handle OAuth callback manually if needed
+  useEffect(() => {
+    const handleAuthCallback = async () => {
+      const hashParams = new URLSearchParams(window.location.hash.substring(1));
+      const accessToken = hashParams.get('access_token');
+      const refreshToken = hashParams.get('refresh_token');
+
+      if (accessToken && refreshToken) {
+        console.log('[AUTH] Manual OAuth callback detected');
+
+        // Set the session manually
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (error) {
+          console.error('[AUTH] Manual session setup failed:', error);
+        } else {
+          console.log('[AUTH] Manual session setup successful');
+          // Clear the URL hash to prevent issues
+          window.history.replaceState({}, document.title, window.location.pathname);
+        }
+      }
+    };
+
+    handleAuthCallback();
+  }, []);
+
   useEffect(() => {
     setLoading(true);
 
@@ -140,9 +169,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
       }
     }
 
+    console.log("[AUTH] Checking session on mount, isAuthenticating:", isAuthenticating);
     supabase.auth
       .getSession()
       .then(({ data: { session } }) => {
+        console.log("[AUTH] getSession response:", { hasSession: !!session, userId: session?.user?.id });
         // Only set user if not currently authenticating (to prevent race conditions)
         if (!isAuthenticating) {
           setUser(session?.user ?? null);
@@ -169,6 +200,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("[AUTH] onAuthStateChange event:", event, { hasSession: !!session, userId: session?.user?.id });
       // Only update user state if not currently authenticating (to prevent race conditions)
       if (!isAuthenticating) {
         setUser(session?.user ?? null);

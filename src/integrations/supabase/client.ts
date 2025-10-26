@@ -7,6 +7,8 @@ import type { Database } from "./types";
 const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+console.log("[SUPABASE] Initializing with URL:", SUPABASE_URL ? "✓ Set" : "✗ Missing", "Key:", SUPABASE_PUBLISHABLE_KEY ? "✓ Set" : "✗ Missing");
+
 // Validate that required environment variables are present
 if (!SUPABASE_URL) {
   throw new Error("Missing VITE_SUPABASE_URL environment variable");
@@ -26,15 +28,18 @@ export const supabase = createClient<Database>(
     auth: {
       autoRefreshToken: true,
       persistSession: true,
-      detectSessionInUrl: false, // Disable automatic URL session detection to prevent unwanted redirects
+      detectSessionInUrl: true, // ✅ Enable this for OAuth callbacks
       storage: typeof window !== "undefined" ? window.localStorage : undefined,
       storageKey: "itw-auth-token",
       // Add session timeout - sessions expire after 7 days of inactivity
       sessionTimeout: 7 * 24 * 60 * 60 * 1000, // 7 days in milliseconds
+      flowType: 'pkce', // More secure for mobile
     },
     // Removed custom headers that might cause 406 errors
   },
 );
+
+console.log("[SUPABASE] Client initialized successfully");
 
 /**
  * Helper type that converts numeric IDs to string in Supabase responses

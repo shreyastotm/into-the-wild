@@ -48,36 +48,90 @@ BEGIN
     public.users.user_type IS DISTINCT FROM 'admin';
 
   RETURN NEW;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+END $$
+LANGUAGE plpgsql
+SECURITY DEFINER;
 
--- 3. Consolidate and re-apply all necessary permissions and policies.
--- Grant permissions for the trigger to bypass RLS.
-GRANT ALL ON TABLE public.users TO postgres;
-GRANT ALL ON TABLE public.users TO service_role;
+-- 3. Create update_user_profile function
+CREATE OR REPLACE FUNCTION public.update_user_profile()
+RETURNS TRIGGER AS $$
+BEGIN
+  -- Placeholder trigger function for any user profile updates
+  RETURN NEW;
+END $$
+LANGUAGE plpgsql;
 
--- RLS policies for users to manage their own profiles.
-ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
+-- 4. CRITICAL FIX: Ensure RLS is properly configured on users table
+-- First, disable RLS temporarily to set up policies cleanly
+ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
+
+-- Drop ALL existing policies on users table to avoid conflicts
+DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
+DROP POLICY IF EXISTS "Authenticated users can view basic info" ON public.users;
+DROP POLICY IF EXISTS "Admins can manage all users" ON public.users;
 DROP POLICY IF EXISTS "Allow individual user read access" ON public.users;
-CREATE POLICY "Allow individual user read access" ON public.users FOR SELECT USING (auth.uid() = user_id);
-
 DROP POLICY IF EXISTS "Allow individual user update access" ON public.users;
-CREATE POLICY "Allow individual user update access" ON public.users FOR UPDATE USING (auth.uid() = user_id);
+DROP POLICY IF EXISTS "Users can read profiles" ON public.users;
+DROP POLICY IF EXISTS "Users can update their profile" ON public.users;
+DROP POLICY IF EXISTS "Allow user signup" ON public.users;
+DROP POLICY IF EXISTS "Allow users to view their own profile" ON public.users;
+DROP POLICY IF EXISTS "Allow users to update their own profile" ON public.users;
+DROP POLICY IF EXISTS "Allow authenticated users to view basic user info" ON public.users;
+DROP POLICY IF EXISTS "Allow admin full access to users" ON public.users;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.users;
+DROP POLICY IF EXISTS "Enable read access for all authenticated users" ON public.users;
+DROP POLICY IF EXISTS "user_own_profile_read" ON public.users;
+DROP POLICY IF EXISTS "user_own_profile_update" ON public.users;
+DROP POLICY IF EXISTS "user_own_profile_insert" ON public.users;
+DROP POLICY IF EXISTS "authenticated_users_read_basic_info" ON public.users;
+DROP POLICY IF EXISTS "admin_full_access" ON public.users;
 
--- 4. Fix Trek Creation visibility by adding RLS policies to 'trek_events'.
-ALTER TABLE public.trek_events ENABLE ROW LEVEL SECURITY;
-DROP POLICY IF EXISTS "Allow authenticated users to create treks" ON public.trek_events;
-CREATE POLICY "Allow authenticated users to create treks" ON public.trek_events FOR INSERT TO authenticated WITH CHECK (auth.role() = 'authenticated');
+-- Re-enable RLS
+ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
-DROP POLICY IF EXISTS "Allow all users to view treks" ON public.trek_events;
-CREATE POLICY "Allow all users to view treks" ON public.trek_events FOR SELECT USING (true);
+-- Create correct, non-recursive RLS policies
+-- Policy 1: Allow users to read their own profile
+CREATE POLICY "Allow users read own profile" ON public.users
+    FOR SELECT 
+    USING (auth.uid() = user_id);
 
+-- Policy 2: Allow users to update their own profile
+CREATE POLICY "Allow users update own profile" ON public.users
+    FOR UPDATE 
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
 
--- 5. Ensure the 'trek-assets' storage bucket and its policies are correct.
-INSERT INTO storage.buckets (id, name, public) VALUES ('trek-assets', 'trek-assets', true) ON CONFLICT (id) DO NOTHING;
-DROP POLICY IF EXISTS "Public Read Access for Trek Assets" ON storage.objects;
-CREATE POLICY "Public Read Access for Trek Assets" ON storage.objects FOR SELECT USING ( bucket_id = 'trek-assets' );
-DROP POLICY IF EXISTS "Authenticated Upload for Trek Assets" ON storage.objects;
-CREATE POLICY "Authenticated Upload for Trek Assets" ON storage.objects FOR INSERT TO authenticated WITH CHECK ( bucket_id = 'trek-assets' );
+-- Policy 3: Allow users to insert their own profile (for signup via trigger)
+CREATE POLICY "Allow users insert own profile" ON public.users
+    FOR INSERT 
+    WITH CHECK (auth.uid() = user_id);
+
+-- Policy 4: Allow authenticated users to read basic info of other users
+CREATE POLICY "Allow authenticated read basic info" ON public.users
+    FOR SELECT 
+    TO authenticated
+    USING (true);
+
+-- 5. Ensure is_admin function exists and works correctly
+DROP FUNCTION IF EXISTS public.is_admin(UUID) CASCADE;
+
+CREATE OR REPLACE FUNCTION public.is_admin(user_id_param UUID DEFAULT auth.uid())
+RETURNS boolean
+LANGUAGE sql
+SECURITY DEFINER
+AS $$
+    SELECT EXISTS (
+        SELECT 1 FROM public.users 
+        WHERE public.users.user_id = user_id_param 
+        AND public.users.user_type = 'admin'
+    );
+$$;
+
+-- Policy 5: Admin full access (if user is an admin)
+CREATE POLICY "Allow admin full access" ON public.users
+    FOR ALL 
+    USING (public.is_admin(auth.uid()));
 
 COMMIT; 
