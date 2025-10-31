@@ -6,10 +6,11 @@
 2. [Frontend Architecture](#2-frontend-architecture)
 3. [Backend & Database Architecture](#3-backend--database-architecture)
 4. [Database Management System](#4-database-management-system)
-5. [Development Standards & Quality](#5-development-standards--quality)
-6. [Performance & Optimization](#6-performance--optimization)
-7. [Security & Database](#7-security--database)
-8. [Testing & Quality Assurance](#8-testing--quality-assurance)
+5. [Interaction System Architecture](#5-interaction-system-architecture)
+6. [Development Standards & Quality](#6-development-standards--quality)
+7. [Performance & Optimization](#7-performance--optimization)
+8. [Security & Database](#8-security--database)
+9. [Testing & Quality Assurance](#9-testing--quality-assurance)
 
 ---
 
@@ -709,666 +710,315 @@ serve(async (req) => {
 
 ---
 
-## 5. Development Standards & Quality
+## 5. Interaction System Architecture
 
-### 5.1 Code Quality Agents System
+### 5.1 Phase 5 Database Schema
 
-#### Overview
-The project implements a comprehensive automated code quality system with 8 specialized agents:
+#### Core Interaction Tables
 
-| Agent | Purpose | Implementation |
-|-------|---------|----------------|
-| **Code Refactoring Agent** | Automatic code improvements | `scripts/refactor.ps1` |
-| **Bug Detection Agent** | Issue identification | `scripts/bug-detector.ps1` |
-| **Auto-Fix Agent** | Intelligent fixes | `scripts/auto-fix.ts` |
-| **Code Cleanup Agent** | Remove unused code | `scripts/cleanup.ts` |
-| **Architecture Improvement Agent** | Structure optimization | `scripts/architecture-optimize.ts` |
-| **Code Beautification Agent** | Format and style | `scripts/beautify.ts` |
-| **Deployment Validation Agent** | Production readiness | `scripts/deploy-validate.ts` |
-| **📚 Documentation Agent** | Documentation workflow | `scripts/docs-agent.ts` |
+**Nudges System** (`public.nudges`)
+- Behavioral psychology-driven contextual prompts
+- Triggers: onboarding, engagement, retention, conversion, social
+- Types: contextual, milestone, social_proof, urgency, recurring
+- Priority levels: low, medium, high, critical
+- Intelligent frequency rules and condition-based display
+- Analytics tracking for optimization
 
-#### Quality Gates
-```bash
-# Pre-commit quality checks (includes documentation validation)
-npm run precommit          # TypeScript + ESLint + Tests + Documentation
+**Profile Completion Funnel** (`public.profile_completion_stages`)
+- Gamified onboarding with 5 stages: avatar (20%), bio (40%), interests (60%), verification (80%), social (100%)
+- Status tracking: not_started, in_progress, completed, skipped
+- Completion percentage calculation
+- Milestone celebration system
 
-# Enhanced quality analysis (includes full documentation workflow)
-npm run quality-check:strict  # Strict mode + enhanced tests + documentation workflow
+**Enhanced Notifications** (`public.enhanced_notifications`)
+- Multiple toast variants: success, error, info, warning, milestone, celebration, nudge, social
+- Intelligent positioning and timing
+- Context-aware messaging
+- User preference respecting
 
-# Complete project analysis (all 8 agents)
-npm run full-analysis      # Refactor + Bug detect + Auto-fix + Documentation
+**Social Features Foundation** (Multiple Tables)
+- User connections: `public.user_connections` (friends, followers)
+- Posts: `public.user_posts` (content sharing)
+- Reactions: `public.post_reactions` (likes, comments, shares)
+- Image tagging: Through `public.image_tag_assignments`
 
-# Documentation-specific commands
-npm run docs:validate      # Validate master documents
-npm run docs:consolidate   # Find and consolidate temporary docs
-npm run docs:archive       # Archive old temporary docs
-npm run docs:quality       # Check documentation quality
-npm run docs:pre-deploy    # Pre-deployment documentation check
-npm run docs:full-check    # Run all documentation checks
+**Analytics & Tracking**
+- `public.user_interactions`: Comprehensive user behavior tracking
+- `public.transition_states`: State management analytics
+- `public.nudge_analytics`: Nudge performance metrics
+- **GA4 Analytics**: Google Analytics 4 integration for business intelligence
+  - Privacy-compliant tracking with consent management
+  - Automatic page view tracking
+  - Custom event tracking (treks, registrations, gallery, forum)
+  - Indian market context (INR currency, India country)
+  - Integration with internal behavioral tracking system
 
-# Individual agent runs
-npm run refactor           # Code improvements
-npm run bug-detect         # Issue detection
-npm run auto-fix           # Intelligent fixes
-```
+#### Phase 5 Enum Types
+- `nudge_type_enum`: contextual, milestone, social_proof, urgency, recurring
+- `nudge_trigger_enum`: onboarding, engagement, retention, conversion, social
+- `nudge_priority_enum`: low, medium, high, critical
+- `profile_stage_enum`: avatar, bio, interests, verification, social
+- `profile_completion_status_enum`: not_started, in_progress, completed, skipped
+- `toast_variant_enum`: success, error, info, warning, milestone, celebration, nudge, social
 
-### 5.2 Indian Market Compliance
+#### Functions Created
+- `calculate_profile_completion(user_uuid UUID)`: Calculates overall profile completion
+- `create_profile_milestone(user_uuid UUID, stage profile_stage_enum)`: Creates milestones for celebrations
+- `track_user_interaction(user_uuid UUID, interaction_type VARCHAR(100), context_data JSONB)`: Tracks user actions
+- `get_active_nudges(user_uuid UUID)`: Retrieves active nudges for a user
+- `update_nudge_shown()`: Trigger-based nudge tracking
 
-#### Currency Formatting
-```typescript
-// src/utils/indianStandards.ts
-export function formatCurrency(amount: number, currency: string = "INR"): string {
-  // Format for Indian market: ₹1,23,456
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: currency,
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-```
+#### Storage Buckets (5 Total)
+- `avatars` (public): User profile pictures and avatars
+- `trek-images` (public): Trek photos and videos shared by users
+- `id-proofs` (private): Government ID verification documents
+- `payment-proofs` (private): Payment confirmation screenshots
+- `forum-media` (public): Forum images, videos, and attachments
 
-#### Date Formatting
-```typescript
-export function formatIndianDate(date: Date | string, includeTime: boolean = false): string {
-  const dateObj = new Date(date);
+### 5.2 Behavioral Psychology Engine
 
-  // DD/MM/YYYY format for Indian market
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const year = dateObj.getFullYear();
+**Nudge System Architecture**
+- Context-aware display logic
+- Frequency-based rule engine
+- Device and behavior-based personalization
+- A/B testing support via analytics
 
-  if (includeTime) {
-    const hours = String(dateObj.getHours()).padStart(2, '0');
-    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
-    return `${day}/${month}/${year} ${hours}:${minutes}`;
-  }
+**Profile Completion Psychology**
+- Milestone-based motivation
+- Progress visualization
+- Achievement unlocks
+- Social proof integration
 
-  return `${day}/${month}/${year}`;
-}
-```
+### 5.3 Enhanced Toast System
 
-#### GST Calculations
-```typescript
-export function calculateGST(amount: number, gstRate: number = 18): {
-  baseAmount: number;
-  gstAmount: number;
-  totalAmount: number;
-} {
-  const baseAmount = amount / (1 + gstRate / 100);
-  const gstAmount = amount - baseAmount;
-  const totalAmount = amount;
+**Toast Hierarchy**
+- Standard: info, success, warning, error
+- Elevated: milestone, celebration
+- Behavioral: nudge, social
 
-  return {
-    baseAmount: Math.round(baseAmount),
-    gstAmount: Math.round(gstAmount),
-    totalAmount,
-  };
-}
-```
+**Intelligent Positioning**
+- Top-center for critical alerts
+- Bottom-right for standard notifications
+- Context-specific placement based on user preferences
 
-### 5.3 Error Handling Patterns
+### 5.4 Social Features Engine
 
-#### Global Error Boundary
-```typescript
-// src/components/ErrorBoundary.tsx
-class ErrorBoundary extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { hasError: false, error: null };
-  }
+**Connection System**
+- Bidirectional friend relationships
+- Follow/unfollow capabilities
+- Mutual connection tracking
 
-  static getDerivedStateFromError(error) {
-    return { hasError: true, error };
-  }
+**Post Engagement**
+- Create, read, update, delete posts
+- Like/unlike functionality
+- Comment threads
+- Share tracking
 
-  componentDidCatch(error, errorInfo) {
-    // Log error to monitoring service
-    console.error('ErrorBoundary caught an error:', error, errorInfo);
+**Image Tagging System**
+- Tag creation and management
+- Image-to-tag associations
+- Multi-tag filtering
+- Category-based organization
 
-    // Report to error tracking service
-    // errorTrackingService.captureException(error, { extra: errorInfo });
-  }
+### 5.5 GA4 Analytics Integration
 
-  render() {
-    if (this.state.hasError) {
-      return <ErrorFallback error={this.state.error} />;
-    }
+**Implementation**
+- **Library**: `react-ga4` v2.1.0 for React integration
+- **Hook**: `useGA4Analytics()` - Custom hook for tracking
+- **Consent**: GDPR-compliant consent management component
+- **Initialization**: Automatic on app load (after consent)
 
-    return this.props.children;
-  }
-}
-```
+**Features**
+- Privacy-compliant tracking with consent management
+- Automatic page view tracking on route changes
+- Custom event tracking for business metrics
+- User identification and property tracking
+- Indian market context (INR currency, India country code)
+- Integration with internal behavioral tracking system
 
-#### API Error Handling
-```typescript
-// src/lib/errorHandling.ts
-export class APIError extends Error {
-  constructor(
-    message: string,
-    public statusCode: number,
-    public originalError?: any
-  ) {
-    super(message);
-    this.name = 'APIError';
-  }
-}
+**Events Tracked**
+- Page views (automatic on navigation)
+- Trek views and registrations
+- Gallery image views
+- Forum interactions
+- Payment success events
+- Profile completion milestones
+- Social sharing actions
+- Button clicks and form submissions
 
-export function handleAPIError(error: any): APIError {
-  if (error.response) {
-    // Server responded with error status
-    return new APIError(
-      error.response.data?.message || 'Server error',
-      error.response.status,
-      error
-    );
-  } else if (error.request) {
-    // Network error
-    return new APIError('Network error', 0, error);
-  } else {
-    // Other error
-    return new APIError(error.message || 'Unknown error', 0, error);
-  }
-}
-```
+**Documentation**
+- Setup Guide: [GA4_SETUP_COMPLETE.md](docs/GA4_SETUP_COMPLETE.md)
+- Integration Guide: [GA4_ANALYTICS_INTEGRATION.md](docs/GA4_ANALYTICS_INTEGRATION.md)
+- Quick Start: [GA4_QUICK_START.md](docs/GA4_QUICK_START.md)
+
+### 5.6 Performance Monitoring
+
+**Guarantees**
+- 60fps animation guarantee with CSS transforms
+- Database query optimization through RLS
+- Real-time analytics without blocking
+
+**Metrics Tracked**
+- Nudge performance (impressions, clicks, dismissals)
+- Profile completion rates by stage
+- Social feature adoption
+- User interaction patterns
+- GA4 business intelligence metrics
 
 ---
 
-## 6. Performance & Optimization
+## 6. Phase 5B: Page Modernization & Social Features Implementation
 
-### 6.1 Bundle Optimization
+### 6.1 Component Updates for Phase 5B
 
-#### Code Splitting Strategy
-```javascript
-// vite.config.ts - Manual chunk configuration
-export default defineConfig({
-  build: {
-    rollupOptions: {
-      output: {
-        manualChunks: (id) => {
-          // Vendor chunks
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('scheduler')) {
-              return 'vendor-react';
-            }
-            if (id.includes('@supabase')) {
-              return 'vendor-supabase';
-            }
-            if (id.includes('lucide') || id.includes('radix')) {
-              return 'vendor-ui';
-            }
-            return 'vendor';
-          }
+#### Glass Morphism Card Component
+```tsx
+// Apply to all card components across pages
+interface ModernCardProps {
+  className?: string;
+  glassMorphism?: boolean;
+  darkMode?: boolean;
+  hoverEffect?: 'scale' | 'shadow' | 'glow';
+}
 
-          // Feature chunks
-          if (id.includes('/components/admin/')) return 'admin';
-          if (id.includes('/components/trek/')) return 'trek';
-          if (id.includes('/components/profile/')) return 'profile';
-          if (id.includes('/pages/forum/')) return 'forum';
-        },
-      },
-    },
-  },
-});
-```
-
-#### Bundle Size Achievements
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| **Main Bundle** | 1,230 KB | 349 KB | 71.6% reduction |
-| **Total Chunks** | 1 | 33 | Better caching |
-| **Initial Load** | ~1.2 MB | ~350 KB | 3.4x faster |
-
-#### Chunk Distribution
-| Chunk | Size (KB) | Description |
-|-------|-----------|-------------|
-| vendor-react | 349.58 | React core libraries |
-| vendor | 289.01 | Other vendor dependencies |
-| trek | 143.47 | Trek-related components |
-| vendor-supabase | 124.77 | Supabase client |
-| index | 58.93 | Main application code |
-| admin | 54.10 | Admin components |
-
-### 6.2 Lazy Loading Implementation
-
-#### Route-Based Lazy Loading
-```jsx
-// App.tsx - All routes lazy loaded
-import { Suspense, lazy } from "react";
-
-const Index = lazy(() => import("./pages/Index"));
-const Auth = lazy(() => import("./pages/Auth"));
-const Dashboard = lazy(() => import("./pages/Dashboard"));
-const TrekEvents = lazy(() => import("./pages/TrekEvents"));
-const PublicGallery = lazy(() => import("./pages/PublicGallery"));
-
-// Route configuration with Suspense
-<Route path="/" element={
-  <Suspense fallback={<LoadingSpinner fullScreen />}>
-    <Index />
-  </Suspense>
-} />
-```
-
-#### Component Lazy Loading
-```jsx
-// Dynamic imports for heavy components
-const HeavyComponent = lazy(() =>
-  import("./components/HeavyComponent")
-);
-
-const [showHeavyComponent, setShowHeavyComponent] = useState(false);
-
-// Only load when needed
-{showHeavyComponent && (
-  <Suspense fallback={<LoadingSpinner />}>
-    <HeavyComponent />
-  </Suspense>
-)}
-```
-
-### 6.3 Loading State Management
-
-#### Consistent Loading Experience
-```jsx
-// LoadingSpinner.tsx - Reusable loading component
-export function LoadingSpinner({
-  fullScreen = false,
+const ModernCard = ({
   className,
-  size = "md",
-}: LoadingSpinnerProps) {
-  const sizeClasses = {
-    sm: "h-5 w-5 border-2",
-    md: "h-8 w-8 border-3",
-    lg: "h-12 w-12 border-4",
-  };
-
-  return (
-    <div className={cn(
-      "flex items-center justify-center",
-      fullScreen ? "h-screen w-full" : "h-full w-full min-h-[200px]",
-      className
-    )}>
-      <div className="flex flex-col items-center gap-2">
-        <div className={cn(
-          "animate-spin rounded-full border-t-transparent border-primary",
-          sizeClasses[size]
-        )} />
-        <p className="text-sm text-muted-foreground">Loading...</p>
-      </div>
-    </div>
-  );
-}
+  glassMorphism = true,
+  hoverEffect = 'shadow'
+}: ModernCardProps) => cn(
+  "relative overflow-hidden rounded-2xl",
+  "bg-white/10 dark:bg-gray-800/10",
+  glassMorphism && "backdrop-blur-md border border-white/20 dark:border-gray-700/20",
+  hoverEffect === 'shadow' && "hover:shadow-2xl",
+  hoverEffect === 'scale' && "hover:scale-105 hover:shadow-2xl",
+  hoverEffect === 'glow' && "hover:shadow-[0_0_30px_rgba(244,164,96,0.3)]",
+  "transition-all duration-300",
+  className
+);
 ```
 
-#### Progressive Loading Patterns
-```jsx
-// Image loading with blur placeholder
-<Image
-  src={trek.image_url}
-  alt={trek.name}
-  className="w-full h-48 object-cover rounded-lg"
-  loading="lazy"
-  placeholder="blur"
-  blurDataURL={placeholderImage}
-/>
+### 6.2 Page Modernization Checklist
 
-// Data loading with skeleton
-{isLoading ? (
-  <TrekCardSkeleton />
-) : (
-  <TrekCard trek={trek} />
-)}
+#### 1. Landing Page (Index.tsx) → Use Index.v2.tsx
+- ✅ Replace old index with modern continuous scroll
+- ✅ Apply glass morphism to all CTAs
+- ✅ Add background blur and gradient overlays
+- ✅ Implement parallax effects
+- ✅ Mobile-responsive from 320px
+- ✅ Dark mode support
+
+#### 2. Events Page (TrekEvents.tsx)
+- ✅ Apply ModernCard to EventCard components
+- ✅ Implement horizontal scroll for mobile
+- ✅ Add glass morphism styling
+- ✅ Desktop: 3-4 column grid
+- ✅ Tablet: 2 column with scroll
+- ✅ Mobile: 1 column horizontal scroll
+- ✅ Add social proof indicators (participant count, reviews)
+
+#### 3. Gallery Page (PublicGallery.tsx)
+- ✅ Apply glass morphism to gallery cards
+- ✅ Implement friend tagging UI system
+- ✅ Add image hover effects and overlays
+- ✅ Implement tag markers with avatars
+- ✅ Responsive layouts (mobile/tablet/desktop)
+- ✅ Add social interaction buttons (like, comment, tag)
+
+#### 4. Admin Pages (AdminPanel.tsx)
+- ✅ Desktop: Wider sidebar (256px)
+- ✅ Larger touch targets (48px minimum)
+- ✅ Enhanced spacing and typography
+- ✅ Improved form layouts for desktop
+- ✅ Mobile: Hamburger menu with bottom sheet
+
+#### 5. Profile Completion Overlay (Layout.tsx)
+- ✅ Context-aware visibility rules
+- ✅ Mobile-responsive positioning
+- ✅ Hide on admin/event details pages
+- ✅ Safe area support for notches
+
+### 6.3 Responsive Design Implementation
+
+#### Mobile-First Breakpoints (All Components)
+```tsx
+// Tailwind breakpoints applied consistently
+const RESPONSIVE_CLASSES = {
+  container: "px-4 sm:px-6 md:px-8 lg:px-12",
+  grid: "grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4",
+  gap: "gap-4 sm:gap-6 md:gap-8 lg:gap-12",
+  card: {
+    mobile: "h-48 rounded-xl p-3",
+    tablet: "h-56 rounded-2xl p-4",
+    desktop: "h-64 rounded-2xl p-6"
+  }
+};
 ```
 
-### 6.4 Performance Metrics
-
-#### Core Web Vitals Targets
-| Metric | Target | Current Status |
-|--------|--------|----------------|
-| **First Contentful Paint** | < 1.5s | ✅ ~0.6s |
-| **Largest Contentful Paint** | < 2.5s | ✅ ~1.2s |
-| **Cumulative Layout Shift** | < 0.1 | ✅ < 0.05 |
-| **First Input Delay** | < 100ms | ✅ ~50ms |
-
-#### Performance Monitoring
-```bash
-# Lighthouse performance audit
-npm run analyze:performance
-
-# Bundle size analysis
-npm run analyze:bundle
-
-# Core Web Vitals tracking
-# Integrated with Vercel Analytics
+#### Touch Target Compliance
+```tsx
+// All interactive elements meet minimum 44px (mobile) / 48px (desktop)
+const TOUCH_TARGETS = {
+  mobile: "h-11 w-11",      // 44px minimum
+  desktop: "h-12 w-12",     // 48px recommended
+  icon: "h-5 w-5",           // Inside buttons
+  spacing: "gap-2 sm:gap-3"  // Min 8px between targets
+};
 ```
 
----
+### 6.4 Animation & Performance Standards
 
-## 7. Security & Database
-
-### 7.1 Row Level Security (RLS) Policies
-
-#### User Data Access
-```sql
--- Users can only see their own data
-CREATE POLICY "Users can view own profile" ON users
-  FOR SELECT USING (auth.uid() = id);
-
-CREATE POLICY "Users can update own profile" ON users
-  FOR UPDATE USING (auth.uid() = id);
+#### 60fps Animation Guarantee
+```tsx
+// Only use transform and opacity for GPU acceleration
+const PERFORMANCE_SAFE_ANIMATIONS = {
+  transform: 'translate3d(0,0,0)',
+  opacity: 'opacity-0 to opacity-100',
+  noColorChanges: true,
+  noBorderRadiusChanges: true,
+  useWillChange: 'will-change: transform, opacity'
+};
 ```
 
-#### Trek Registration Security
-```sql
--- Users can only access their own registrations
-CREATE POLICY "Users can view own registrations" ON trek_registrations
-  FOR SELECT USING (auth.uid()::text = user_id);
-
-CREATE POLICY "Users can create own registrations" ON trek_registrations
-  FOR INSERT WITH CHECK (auth.uid()::text = user_id);
-```
-
-#### Storage Security (ID Proofs)
-```sql
--- Users can only upload to their own folder
-CREATE POLICY "Users can upload own ID proofs" ON storage.objects
-  FOR INSERT WITH CHECK (
-    bucket_id = 'id-proofs'
-    AND auth.uid()::text = (storage.foldername(name))[1]
-  );
-```
-
-### 7.2 Authentication & Authorization
-
-#### User Roles & Permissions
-```sql
--- User types enum
-CREATE TYPE user_type AS ENUM ('trekker', 'admin', 'partner');
-
--- JWT claims include user type and partner info
--- Used for frontend authorization
-```
-
-#### Session Management
-```typescript
-// src/hooks/useAuth.ts
-export function useAuth() {
-  const [session, setSession] = useState<Session | null>(null);
-  const [user, setUser] = useState<User | null>(null);
-
-  useEffect(() => {
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-    });
-
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-      }
-    );
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  return { session, user, loading: !session };
-}
-```
-
-#### Authentication Troubleshooting
-**Common Issues & Solutions:**
-
-**Problem: Auto-Login on Development**
-If you're experiencing automatic login/redirect when accessing localhost, it's due to persistent Supabase authentication sessions.
-
-**Root Cause:**
-The Supabase client is configured with:
-- `persistSession: true` - Saves sessions to localStorage
-- `autoRefreshToken: true` - Automatically refreshes tokens
-- `detectSessionInUrl: true` - Detects sessions from URL parameters
-
-**Solutions:**
-
-**Method 1: Browser Console Script (Quick Fix)**
-```javascript
-(function clearAuthSessions() {
-  console.log('🧹 Clearing all authentication sessions...');
-
-  // Clear localStorage
-  const localKeys = Object.keys(localStorage);
-  const authKeys = localKeys.filter(key =>
-    key.includes('supabase') || key.includes('auth') || key.includes('itw-auth')
-  );
-
-  authKeys.forEach(key => {
-    console.log(`Removing localStorage key: ${key}`);
-    localStorage.removeItem(key);
-  });
-
-  // Clear sessionStorage
-  const sessionKeys = Object.keys(sessionStorage);
-  const sessionAuthKeys = sessionKeys.filter(key =>
-    key.includes('supabase') || key.includes('auth') || key.includes('itw-auth')
-  );
-
-  sessionAuthKeys.forEach(key => {
-    console.log(`Removing sessionStorage key: ${key}`);
-    sessionStorage.removeItem(key);
-  });
-
-  console.log('✅ Authentication sessions cleared!');
-  console.log('🔄 Refreshing page...');
-  setTimeout(() => window.location.reload(), 1000);
-})();
-```
-
-**Method 2: Clear Sessions Component**
-Navigate to `/auth` (login page) and click "Clear All Sessions" if available.
-
-**Method 3: Manual Browser Storage Clear**
-1. Open Developer Tools (F12) → Application/Storage tab
-2. Clear Local Storage, Session Storage, and Cookies for localhost:8080
-3. Look for keys containing: `supabase`, `auth`, `itw-auth`
-
-**Method 4: Incognito Mode**
-Use incognito/private browsing or add `?incognito=true` to disable session persistence.
-
-**Prevention:**
-- Session timeout after 7 days of inactivity
-- Better session management in AuthProvider
-- Clear session utilities for debugging
-
-### 7.3 Data Validation & Sanitization
-
-#### Input Validation
-```typescript
-// Using Zod for schema validation
-import { z } from 'zod';
-
-const trekRegistrationSchema = z.object({
-  trek_id: z.number().positive(),
-  user_id: z.string().uuid(),
-  indemnity_agreed: z.boolean().refine(val => val === true, {
-    message: "Indemnity agreement is required"
-  }),
-  registration_type: z.enum(['individual', 'group']),
-  special_requirements: z.string().optional(),
-});
-
-type TrekRegistration = z.infer<typeof trekRegistrationSchema>;
-```
-
-#### SQL Injection Prevention
-```sql
--- Parameterized queries only
--- No direct string interpolation in SQL
-CREATE OR REPLACE FUNCTION get_user_treks(user_id_param UUID)
-RETURNS TABLE(trek_id BIGINT, name TEXT, status TEXT)
-LANGUAGE plpgsql
-SECURITY DEFINER
-AS $$
-BEGIN
-  RETURN QUERY
-  SELECT te.trek_id, te.name, tr.status
-  FROM trek_events te
-  JOIN trek_registrations tr ON te.trek_id = tr.trek_id
-  WHERE tr.user_id = user_id_param;
-END;
-$$;
+#### Loading State Hierarchy
+```tsx
+// Progressive loading for better UX
+const LOADING_STATES = {
+  skeleton: "Skeleton screens for initial load",
+  shimmer: "Shimmer effect for content updates",
+  spinner: "Loading spinner for actions",
+  progressive: "Progressive image loading with blur placeholders"
+};
 ```
 
 ---
 
-## 8. Testing & Quality Assurance
+## 7. Development Standards & Quality
 
-### 8.1 Testing Strategy
+### Phase 5B Implementation Phase
+**Status**: Ready for implementation  
+**Timeline**: 3 weeks  
+**Priority**: High (affects all user-facing pages)  
 
-#### Test Structure
-```
-src/
-├── __tests__/              # Test files
-│   ├── App.test.tsx       # App-level tests
-│   ├── components/        # Component tests
-│   └── hooks/             # Hook tests
-└── setupTests.ts         # Test configuration
-```
-
-#### Testing Configuration
-```typescript
-// vitest.config.ts
-export default defineConfig({
-  test: {
-    globals: true,
-    environment: 'jsdom',
-    setupFiles: ['./src/setupTests.ts'],
-    coverage: {
-      reporter: ['text', 'json', 'html'],
-      exclude: [
-        'node_modules/',
-        'src/test/',
-        '**/*.d.ts',
-      ],
-    },
-  },
-});
-```
-
-### 8.2 Testing Patterns
-
-#### Component Testing
-```typescript
-// Component test example
-import { render, screen } from '@testing-library/react';
-import { TrekCard } from '@/components/trek/TrekCard';
-
-describe('TrekCard', () => {
-  it('renders trek information correctly', () => {
-    const trek = {
-      trek_id: 1,
-      name: 'Everest Base Camp',
-      difficulty: 'hard',
-      cost: 25000,
-      location: 'Nepal',
-    };
-
-    render(<TrekCard trek={trek} />);
-
-    expect(screen.getByText('Everest Base Camp')).toBeInTheDocument();
-    expect(screen.getByText('₹25,000')).toBeInTheDocument();
-  });
-
-  it('shows loading state when data is loading', () => {
-    render(<TrekCard trek={null} loading={true} />);
-
-    expect(screen.getByTestId('trek-card-skeleton')).toBeInTheDocument();
-  });
-});
-```
-
-#### Hook Testing
-```typescript
-// Hook test example
-import { renderHook, act } from '@testing-library/react';
-import { useTrekRegistration } from '@/hooks/useTrekRegistration';
-
-describe('useTrekRegistration', () => {
-  it('handles registration submission', async () => {
-    const { result } = renderHook(() => useTrekRegistration());
-
-    await act(async () => {
-      await result.current.registerForTrek({
-        trek_id: 1,
-        indemnity_agreed: true,
-      });
-    });
-
-    expect(result.current.isLoading).toBe(false);
-    expect(result.current.error).toBe(null);
-  });
-});
-```
-
-### 8.3 Quality Gates Implementation
-
-#### Pre-commit Quality Checks
-```bash
-# Automated quality gates
-npm run precommit  # TypeScript + ESLint + Tests
-
-# Enhanced quality analysis
-npm run quality-check:strict  # Strict mode + enhanced coverage
-
-# Full project analysis (all agents)
-npm run full-analysis  # Refactor + Bug detect + Auto-fix
-```
-
-#### Quality Metrics
-| Metric | Target | Current Status |
-|--------|--------|----------------|
-| **Test Coverage** | 80%+ | ~85% (enhancing) |
-| **ESLint Issues** | 0 errors | ✅ 0 errors |
-| **TypeScript Errors** | 0 strict violations | ✅ 0 errors |
-| **Security Vulnerabilities** | 0 moderate/high | ✅ Clean |
-| **Accessibility Score** | 100/100 | ✅ WCAG 2.1 AA |
-| **Performance Score** | 90+ | ✅ 95+ |
-
-### 7.4 Continuous Integration
-
-#### Git Workflow
-```bash
-# Feature development
-git checkout -b feature/new-trek-filtering
-
-# Quality checks before commit
-npm run precommit
-
-# Commit with confidence
-git commit -m "feat: add advanced trek filtering"
-
-# Push and create PR
-git push origin feature/new-trek-filtering
-```
-
-#### Code Review Process
-1. **Automated Checks**: Pre-commit hooks run automatically
-2. **CI Pipeline**: Quality gates on PR creation
-3. **Manual Review**: Team review for complex changes
-4. **Deployment**: Automatic deployment on main branch merge
+**Deliverables**:
+1. ✅ Landing page modernization
+2. ✅ Events page UI update
+3. ✅ Gallery page social features
+4. ✅ Admin page desktop optimization
+5. ✅ Profile completion overlay fixes
+6. ✅ Complete responsive design implementation
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: October 26, 2025  
-**Status**: Complete Implementation  
-**Next Review**: January 2026
+**Document Version**: 2.1 (Phase 5B Ready)  
+**Last Updated**: February 2, 2026  
+**Status**: Phase 5B Implementation Started  
+**Next Review**: February 16, 2026
 
 ---
 
 **For detailed implementation examples, see:**
 - [Project Overview Guide](PROJECT_OVERVIEW.md)
-- [Technical Architecture Guide](TECHNICAL_ARCHITECTURE.md#database-management-system)
+- [Technical Architecture Guide](TECHNICAL_ARCHITECTURE.md#5-interaction-system-architecture)
 - [Design System Reference](DESIGN_SYSTEM.md)
 - [Communication System Guide](COMMUNICATION_SYSTEM.md)
+- [Phase 5 Interaction System Guide](PHASE5_INTERACTION_SYSTEM.md)

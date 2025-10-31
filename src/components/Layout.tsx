@@ -7,6 +7,16 @@ import { BottomTabBar } from "@/components/navigation/BottomTabBar";
 import { MobileHamburger } from "@/components/navigation/MobileHamburger";
 import { cn } from "@/lib/utils";
 
+// Phase 5 Interaction System Components
+import { NudgeSystem } from "@/components/interactions/NudgeSystem";
+import { ProfileCompletionFunnel } from "@/components/interactions/ProfileCompletionFunnel";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { useProfileCompletion } from "@/hooks/useProfileCompletion";
+
+// GA4 Analytics
+import { useGA4Analytics } from "@/hooks/useGA4Analytics";
+import { AnalyticsConsent } from "@/components/AnalyticsConsent";
+
 interface LayoutProps {
   children: React.ReactNode;
 }
@@ -14,11 +24,24 @@ interface LayoutProps {
 const Layout: React.FC<LayoutProps> = (props) => {
   const { children } = props || {};
   const location = useLocation();
+  const { user } = useAuth();
+
+  // Initialize GA4 Analytics (automatically tracks page views)
+  const { isEnabled: ga4Enabled } = useGA4Analytics();
+
+  // Always call hooks - never conditionally (React Rules of Hooks requirement)
+  // Pass empty string if no user - the hook handles this gracefully
+  const profileCompletion = useProfileCompletion(user?.id || '');
+  const { overallPercentage: completionPercentage = 0, currentStage } = profileCompletion;
 
   // Page type checks for conditional rendering
   const isHomePage = location.pathname === "/";
   const isDashboard = location.pathname === "/dashboard";
-  const isFullScreenPage = isHomePage || isDashboard; // Hide BottomTabBar on these pages
+  const isGlassPage = location.pathname === "/glass-landing" ||
+                     location.pathname === "/glass-gallery" || 
+                     location.pathname === "/glass-events" || 
+                     location.pathname.startsWith("/glass-event-details/");
+  const isFullScreenPage = isHomePage || isDashboard || isGlassPage; // Hide BottomTabBar on these pages
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative overflow-x-hidden">
@@ -38,9 +61,13 @@ const Layout: React.FC<LayoutProps> = (props) => {
       {/* Header - Desktop navigation */}
       <Header />
 
-      {/* Mobile Floating Hamburger - Only on mobile */}
+      {/* Mobile Floating Hamburger - Only on mobile, or Origami for glass pages */}
       <div className="md:hidden">
-      <MobileHamburger />
+        {isGlassPage ? (
+          <div /> /* OrigamiHamburger is rendered within glass pages */
+        ) : (
+          <MobileHamburger />
+        )}
       </div>
 
       {/* Main Content - Pages handle their own padding for mobile native feel */}
@@ -72,6 +99,36 @@ const Layout: React.FC<LayoutProps> = (props) => {
 
       {/* Bottom Navigation - Hidden on full-screen pages (home & dashboard) */}
       {!isFullScreenPage && <BottomTabBar />}
+
+      {/* Phase 5 Interaction System Components */}
+      {user && profileCompletion && (
+        <>
+          {/* Nudge System - Behavioral psychology-driven prompts */}
+          <NudgeSystem
+            userId={user.id}
+            currentPage={location.pathname}
+            profileCompletion={completionPercentage}
+            className="fixed bottom-20 right-4 z-50"
+          />
+
+          {/* Profile Completion Funnel - Only show as compact widget outside profile page */}
+          {location.pathname !== '/profile' && !isFullScreenPage && completionPercentage < 100 && (
+            <div className="fixed top-4 right-4 z-40 max-w-xs">
+              {/* Compact widget will be rendered by Profile page, not here */}
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Analytics Consent Banner - Shows if analytics enabled and consent not given */}
+      <AnalyticsConsent />
+
+      {/* GA4 Analytics Status Indicator (Development Only) */}
+      {import.meta.env.DEV && ga4Enabled && (
+        <div className="fixed bottom-4 right-4 z-50 text-xs bg-muted/80 backdrop-blur-sm px-2 py-1 rounded border text-muted-foreground">
+          GA4: ✅ Active
+        </div>
+      )}
     </div>
   );
 };

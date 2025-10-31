@@ -89,6 +89,7 @@
 | **Styling** | Tailwind CSS | ^3.4.11 | Utility-first CSS |
 | **UI Components** | shadcn/ui | Latest | Pre-built components |
 | **Icons** | Lucide React | ^0.462.0 | Icon library |
+| **Analytics** | react-ga4 | ^2.1.0 | Google Analytics 4 integration |
 
 ### 2.2 Backend & Database
 
@@ -124,6 +125,7 @@
   "@tanstack/react-query": "^5.56.2",  // Data fetching & caching
   "leaflet": "^1.9.4",                 // Interactive maps
   "lucide-react": "^0.462.0",          // Icon system
+  "react-ga4": "^2.1.0",               // Google Analytics 4 integration
   "react-hook-form": "^7.53.0",        // Form management
   "zod": "^3.24.2"                     // Schema validation
 }
@@ -234,8 +236,15 @@ Create `.env.local` in project root:
 VITE_SUPABASE_URL=http://127.0.0.1:54321
 VITE_SUPABASE_ANON_KEY=<your-local-anon-key>
 
+# Google Analytics 4 (GA4) Configuration
+# Get your Measurement ID from Google Analytics Dashboard (Format: G-XXXXXXXXXX)
+VITE_ENABLE_ANALYTICS=true
+VITE_GA4_MEASUREMENT_ID=G-NW4MTHFT60
+
 # Add other environment variables as needed
 ```
+
+**Note:** See [GA4 Analytics Integration Guide](docs/GA4_ANALYTICS_INTEGRATION.md) for complete setup instructions.
 
 #### Restart Development Server
 After updating `.env.local`:
