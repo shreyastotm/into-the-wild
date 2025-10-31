@@ -351,6 +351,64 @@ export const useAuthForm = () => {
     }
   }, [checkRateLimit, startAuthenticating, stopAuthenticating]);
 
+  // Handle Facebook OAuth
+  const handleFacebookSignIn = useCallback(async (): Promise<AuthResponse> => {
+    console.log("[AUTH] Facebook sign-in initiated");
+
+    if (!checkRateLimit("facebook_signin")) {
+      console.log("[AUTH] Rate limit exceeded for Facebook sign-in");
+      return { success: false, error: "Rate limit exceeded" };
+    }
+
+    setLoading(true);
+    setErrors({});
+
+    // Start authentication process for OAuth
+    startAuthenticating();
+
+    try {
+      console.log("[AUTH] Calling Supabase signInWithOAuth for Facebook");
+      console.log("[AUTH] Redirect URL:", `${window.location.origin}/auth/callback`);
+
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: "facebook",
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+            // Standard Facebook scopes - Instagram access requires separate setup
+            scope: 'email,public_profile',
+          },
+        },
+      });
+
+      console.log("[AUTH] Supabase OAuth response:", { data, error });
+
+      if (error) {
+        console.error("[AUTH] Supabase OAuth error:", error);
+        const appError = handleSupabaseError(error);
+        setErrors({ general: appError.userMessage });
+        logError(appError, "instagram_signin");
+        return { success: false, error: appError.userMessage };
+      }
+
+      console.log("[AUTH] OAuth initiated successfully, redirecting to Facebook");
+      return { success: true, message: "Redirecting to Facebook..." };
+    } catch (error) {
+      console.error("[AUTH] Facebook sign-in exception:", error);
+      const errorMessage = "Facebook sign in failed";
+      setErrors({ general: errorMessage });
+      logError(error, "facebook_signin");
+      // Stop authentication on error
+      stopAuthenticating();
+      return { success: false, error: errorMessage };
+    } finally {
+      setLoading(false);
+      // Don't stop authenticating here - OAuth flow will handle it via callback
+    }
+  }, [checkRateLimit, startAuthenticating, stopAuthenticating]);
+
   // Field-level validation
   const validateField = useCallback(
     (field: string, value: unknown): string | null => {
@@ -389,6 +447,7 @@ export const useAuthForm = () => {
     handleSignUp,
     handlePasswordReset,
     handleGoogleSignIn,
+    handleFacebookSignIn,
     validateField,
     clearError,
   };

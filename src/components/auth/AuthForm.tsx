@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Facebook } from "lucide-react";
 
 import { PasswordResetForm } from "./PasswordResetForm";
 import { SignInForm } from "./SignInForm";
@@ -47,6 +48,7 @@ export default function AuthForm({ initialMode, onSignInStart, onSignInEnd }: Au
     handleSignUp,
     handlePasswordReset,
     handleGoogleSignIn,
+    handleFacebookSignIn,
     clearError,
   } = useAuthForm();
 
@@ -204,6 +206,25 @@ export default function AuthForm({ initialMode, onSignInStart, onSignInEnd }: Au
               </>
             ) : (
               "Sign in with Google"
+            )}
+          </Button>
+
+          <Button
+            variant="outline"
+            className="w-full text-sm sm:text-base"
+            onClick={handleFacebookSignIn}
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" data-testid="authform" />
+                Connecting...
+              </>
+            ) : (
+              <>
+                <Facebook className="w-5 h-5 mr-2" />
+                Sign in with Facebook
+              </>
             )}
           </Button>
         </CardFooter>
