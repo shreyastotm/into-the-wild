@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 interface EventCard {
@@ -31,24 +32,118 @@ const EventCardsPreview: React.FC = () => {
   const [currentImageIndices, setCurrentImageIndices] = useState<{
     [key: number]: number;
   }>({});
+  const [dbEvents, setDbEvents] = useState<EventCard[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch real events from database
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        // Fetch Karnataka/Bangalore events or camping/jam_yard events
+        const { data: events, error } = await supabase
+          .from("trek_events")
+          .select("trek_id, name, location, event_type, start_datetime, duration, difficulty, max_participants, image_url")
+          .or("location.ilike.%Karnataka%,location.ilike.%Bengaluru%,location.ilike.%Bangalore%,event_type.eq.camping,event_type.eq.jam_yard")
+          .gt("start_datetime", new Date().toISOString())
+          .order("start_datetime", { ascending: true })
+          .limit(3);
+
+        if (error) {
+          console.warn("Error fetching events:", error);
+          setLoading(false);
+          return;
+        }
+
+        if (events && events.length > 0) {
+          const trekIds = events.map((e) => e.trek_id);
+
+          // Fetch images for these events
+          const { data: images } = await supabase
+            .from("trek_event_images")
+            .select("trek_id, image_url, position")
+            .in("trek_id", trekIds)
+            .order("position", { ascending: true });
+
+          // Group images by trek_id
+          const imagesByTrek: Record<number, string[]> = {};
+          (images || []).forEach((img) => {
+            if (!imagesByTrek[img.trek_id]) {
+              imagesByTrek[img.trek_id] = [];
+            }
+            imagesByTrek[img.trek_id].push(img.image_url);
+          });
+
+          // Transform to EventCard format
+          const transformedEvents: EventCard[] = events.map((event, index) => {
+            const eventImages = imagesByTrek[event.trek_id] || [];
+            // Use first image from database, fallback to event.image_url, then mock images
+            const primaryImage = eventImages[0] || event.image_url;
+            const allImages = primaryImage
+              ? [primaryImage, ...eventImages.slice(1)]
+              : [
+                  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80",
+                  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80",
+                  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&q=80",
+                ];
+
+            return {
+              id: event.trek_id,
+              title: event.name || "Adventure Trek",
+              location: event.location || "Karnataka",
+              date: new Date(event.start_datetime).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              difficulty: (event.difficulty?.toLowerCase() as "easy" | "moderate" | "hard") || "moderate",
+              participants: Math.floor((event.max_participants || 20) * 0.6),
+              maxParticipants: event.max_participants || 20,
+              cost: 0,
+              duration: event.duration ? `${event.duration}` : "2 Days",
+              images: allImages,
+              tags: event.event_type === "camping" 
+                ? ["Camping", "Adventure", "Community"]
+                : event.event_type === "jam_yard"
+                ? ["Workshop", "Skill", "Community"]
+                : event.location?.toLowerCase().includes("coorg")
+                ? ["Coffee", "Misty Hills", "Western Ghats"]
+                : event.location?.toLowerCase().includes("gokarna")
+                ? ["Beach", "Camping", "Sunset"]
+                : ["Western Ghats", "Nature", "Friends"],
+            };
+          });
+
+          if (transformedEvents.length > 0) {
+            setDbEvents(transformedEvents);
+          }
+        }
+      } catch (error) {
+        console.warn("Error in fetchEvents:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const mockEvents: EventCard[] = [
     {
       id: 1,
-      title: "Sunrise Trek to Rajmachi",
-      location: "Lonavala, Maharashtra",
+      title: "Kudremukh Peak Trek",
+      location: "Kudremukh, Karnataka",
       date: "15 Feb 2025",
       difficulty: "moderate",
       participants: 12,
       maxParticipants: 20,
-      cost: 1200,
-      duration: "1 Day",
+      cost: 2500,
+      duration: "2 Days",
       images: [
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80",
-        "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=400&q=80",
         "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80",
+        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80",
+        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&q=80",
       ],
-      tags: ["Mountain", "Sunrise", "Heritage"],
+      tags: ["Western Ghats", "Rolling Hills", "Nature"],
     },
     {
       id: 2,
@@ -58,7 +153,7 @@ const EventCardsPreview: React.FC = () => {
       difficulty: "easy",
       participants: 8,
       maxParticipants: 15,
-      cost: 2500,
+      cost: 2800,
       duration: "2 Days",
       images: [
         "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=400&q=80",
@@ -69,28 +164,31 @@ const EventCardsPreview: React.FC = () => {
     },
     {
       id: 3,
-      title: "Valley of Flowers Trek",
-      location: "Uttarakhand",
+      title: "Coorg Coffee Plantation Trek",
+      location: "Coorg, Karnataka",
       date: "05 Mar 2025",
-      difficulty: "hard",
-      participants: 6,
-      maxParticipants: 12,
-      cost: 8500,
-      duration: "5 Days",
+      difficulty: "moderate",
+      participants: 10,
+      maxParticipants: 18,
+      cost: 3200,
+      duration: "2 Days",
       images: [
-        "https://images.unsplash.com/photo-1574263867128-a3d5c1b1deac?w=400&q=80",
         "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=400&q=80",
-        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=400&q=80",
+        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&q=80",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80",
       ],
-      tags: ["Alpine", "Flowers", "High Altitude"],
+      tags: ["Coffee", "Misty Hills", "Plantation"],
     },
   ];
+
+  // Use real events if available, otherwise use mock events
+  const displayEvents = dbEvents.length > 0 ? dbEvents : mockEvents;
 
   // Auto-rotate images for each card
   useEffect(() => {
     const intervals: { [key: number]: NodeJS.Timeout } = {};
 
-    mockEvents.forEach((event) => {
+    displayEvents.forEach((event) => {
       intervals[event.id] = setInterval(
         () => {
           setCurrentImageIndices((prev) => ({
@@ -105,7 +203,7 @@ const EventCardsPreview: React.FC = () => {
     return () => {
       Object.values(intervals).forEach(clearInterval);
     };
-  }, []);
+  }, [displayEvents]);
 
   const getDifficultyConfig = (difficulty: string) => {
     switch (difficulty) {
@@ -132,7 +230,7 @@ const EventCardsPreview: React.FC = () => {
     <div className="relative">
       {/* Cards Container */}
       <div className="grid grid-cols-1 gap-6">
-        {mockEvents.map((event, index) => {
+        {displayEvents.map((event, index) => {
           const difficultyConfig = getDifficultyConfig(event.difficulty);
           const DifficultyIcon = difficultyConfig.icon;
           const currentImageIndex = currentImageIndices[event.id] || 0;
@@ -144,7 +242,7 @@ const EventCardsPreview: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: index * 0.2 }}
-              className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02]"
+              className="group relative bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl overflow-hidden hover:bg-white/10 transition-all duration-300 hover:scale-[1.02] anime-sketch-card sketchy-border"
             >
               {/* Glass surface reflection */}
               <div className="absolute inset-0 rounded-2xl opacity-0 group-hover:opacity-30 transition-opacity duration-300">
@@ -235,7 +333,7 @@ const EventCardsPreview: React.FC = () => {
                       <div className="flex items-center gap-1 text-white/70">
                         <Users className="w-4 h-4 text-green-400" />
                         <span>
-                          {event.participants}/{event.maxParticipants}
+                          {event.participants}/{event.maxParticipants} friends
                         </span>
                       </div>
                       <div className="flex items-center gap-1 text-white/70">
@@ -243,10 +341,7 @@ const EventCardsPreview: React.FC = () => {
                         <span>{event.duration}</span>
                       </div>
                     </div>
-                    <div className="flex items-center gap-1 font-semibold text-white">
-                      <IndianRupee className="w-4 h-4 text-yellow-400" />
-                      <span>{event.cost.toLocaleString("en-IN")}</span>
-                    </div>
+                    {/* Cost removed for preview/fabricated content */}
                   </div>
 
                   {/* Tags */}

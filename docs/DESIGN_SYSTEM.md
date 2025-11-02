@@ -468,7 +468,72 @@ const DialogContent = React.forwardRef<
 );
 ```
 
-### 3.2 Enhanced Button Effects System
+### 3.2 Landing Page Components
+
+#### Trial Landing Page (`GlassMorphismLandingTrial`)
+
+Located at `/landing-trial`, this trial landing page features:
+
+**Key Features:**
+- **Karnataka/Bengaluru Focus**: Contextual content highlighting Western Ghats, local adventures
+- **Anime Sketch Effects**: Hand-drawn sketchy aesthetic with blur and bloom effects
+- **Database Integration**: Real event and gallery images from Supabase
+- **Friends Theme**: Emphasizes group adventures and social connections
+- **Local Adventures Section**: Sunday day treks (Nandi Hills, Savandurga, etc.) and camping events
+- **Jam Yard Integration**: Exclusive workshop access details
+
+**Anime Sketch Effect Classes** (defined in `src/index.css`):
+- `.anime-sketch-blur` - Blurred background with sketchy glow
+- `.sketchy-border` - Hand-drawn style borders
+- `.anime-bloom` - Bloom/glow effect with pulse animation
+- `.sketchy-texture` - Texture overlay with repeating patterns
+- `.anime-motion-blur` - Motion blur for anime feel
+- `.anime-sketch-card` - Glass morphism card with sketchy edges
+- `.anime-sketch-text` - Text with glow and shadow effects
+
+**Component Structure:**
+```tsx
+// src/components/landing/EventCardsPreview.tsx
+// Displays upcoming events with:
+// - Database integration (fetches Karnataka/Bangalore events)
+// - Image carousel with auto-rotation
+// - Difficulty badges
+// - Participant count (shows "friends" count)
+// - No cost display (preview/fabricated content)
+
+// src/components/landing/GalleryPreview.tsx
+// Displays gallery items with:
+// - Database integration (fetches past Karnataka events)
+// - Like/view stats
+// - Achievement badges
+// - Friend tagging theme
+```
+
+**Routing:**
+- Gallery buttons route to `/gallery` (not `/glass-gallery`)
+- Event buttons route to `/events` or `/glass-events`
+- All routes follow React Router v6 conventions
+
+**Database Queries:**
+```typescript
+// EventCardsPreview - Fetches upcoming events
+const { data } = await supabase
+  .from("trek_events")
+  .select("trek_id, name, location, event_type, start_datetime...")
+  .or("location.ilike.%Karnataka%,location.ilike.%Bengaluru%...")
+  .gt("start_datetime", new Date().toISOString())
+  .limit(3);
+
+// GalleryPreview - Fetches past events
+const { data } = await supabase
+  .from("trek_events")
+  .select("trek_id, name, location, start_datetime...")
+  .lt("start_datetime", new Date().toISOString())
+  .or("location.ilike.%Karnataka%...")
+  .limit(4);
+```
+
+### 3.3 Enhanced Button Effects System
 
 #### StaticBottomButton Component
 

@@ -76,11 +76,17 @@ src/
 │   └── expenses/         # Expense management components
 ├── pages/                # Route components (page-level)
 │   ├── Index.tsx        # Landing page
+│   ├── GlassMorphismLanding.tsx # Main glassmorphism landing page
+│   ├── GlassMorphismLandingTrial.tsx # Trial landing page with Karnataka/Bengaluru focus
 │   ├── Auth.tsx         # Authentication page
 │   ├── Dashboard.tsx    # User dashboard
 │   ├── TrekEvents.tsx   # Events listing
-│   ├── PublicGallery.tsx # Gallery page
+│   ├── GlassMorphismEvents.tsx # Glass-themed events page
+│   ├── GlassMorphismGallery.tsx # Gallery page (PublicGallery)
 │   └── admin/           # Admin pages
+├── components/landing/  # Landing page components
+│   ├── EventCardsPreview.tsx # Event preview cards with DB integration
+│   └── GalleryPreview.tsx # Gallery preview with DB integration
 ├── hooks/                # Custom React hooks
 │   ├── useAuth.ts       # Authentication hook
 │   ├── useTreks.ts      # Trek data management
@@ -94,6 +100,25 @@ src/
 ├── types/                # TypeScript type definitions
 └── integrations/         # Third-party service integrations
 ```
+
+#### Routing Structure
+
+The application uses React Router v6 for client-side navigation:
+
+**Main Routes:**
+- `/` - Main landing page (Index)
+- `/landing-trial` - Trial landing page with Karnataka/Bengaluru focus, anime sketch effects
+- `/events` - Events listing page (main)
+- `/glass-events` - Glass-themed events page (alternate)
+- `/events/:id` - Individual event details
+- `/gallery` - Public gallery page (routes from `/glass-gallery` redirect here)
+- `/dashboard` - User dashboard
+- `/profile` - User profile
+- `/forum` - Community forum
+- `/login` - Authentication page
+- `/admin/*` - Admin panel routes (protected)
+
+**Note**: Gallery buttons route to `/gallery` (not `/glass-gallery`). The route `/gallery` maps to `GlassMorphismGallery` component.
 
 #### Key Architecture Principles
 

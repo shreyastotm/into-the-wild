@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import React, { useEffect, useState } from "react";
 
+import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 
 interface GalleryItem {
@@ -34,19 +35,120 @@ interface GalleryItem {
 const GalleryPreview: React.FC = () => {
   const [selectedImage, setSelectedImage] = useState<number | null>(null);
   const [likedImages, setLikedImages] = useState<Set<number>>(new Set());
+  const [dbGalleryItems, setDbGalleryItems] = useState<GalleryItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch real gallery items from database
+  useEffect(() => {
+    const fetchGalleryItems = async () => {
+      try {
+        // Fetch completed/past trek events from Karnataka/Bangalore
+        const { data: events, error } = await supabase
+          .from("trek_events")
+          .select("trek_id, name, location, start_datetime, image_url")
+          .lt("start_datetime", new Date().toISOString())
+          .or("location.ilike.%Karnataka%,location.ilike.%Bengaluru%,location.ilike.%Bangalore%")
+          .order("start_datetime", { ascending: false })
+          .limit(4);
+
+        if (error) {
+          console.warn("Error fetching gallery events:", error);
+          setLoading(false);
+          return;
+        }
+
+        if (events && events.length > 0) {
+          const trekIds = events.map((e) => e.trek_id);
+
+          // Fetch images for these events
+          const { data: images } = await supabase
+            .from("trek_event_images")
+            .select("trek_id, image_url, position")
+            .in("trek_id", trekIds)
+            .order("position", { ascending: true });
+
+          // Group images by trek_id, get first image per trek
+          const firstImageByTrek: Record<number, string> = {};
+          (images || []).forEach((img) => {
+            if (!firstImageByTrek[img.trek_id]) {
+              firstImageByTrek[img.trek_id] = img.image_url;
+            }
+          });
+
+          // Transform to GalleryItem format
+          const transformedItems: GalleryItem[] = events.map((event, index) => {
+            const galleryImage = firstImageByTrek[event.trek_id] || event.image_url;
+            const locationParts = (event.location || "Karnataka").split(",");
+            const shortLocation = locationParts[0] || "Karnataka";
+
+            return {
+              id: event.trek_id,
+              image: galleryImage || "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80",
+              title: event.name || "Adventure Memory",
+              location: event.location || "Karnataka",
+              date: new Date(event.start_datetime).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              photographer: "Adventure Friend",
+              likes: Math.floor(Math.random() * 200) + 50,
+              views: Math.floor(Math.random() * 1500) + 500,
+              tags: shortLocation.toLowerCase().includes("coorg")
+                ? ["Coffee", "Misty Hills", "Friends"]
+                : shortLocation.toLowerCase().includes("gokarna")
+                ? ["Beach", "Sunset", "Camping"]
+                : shortLocation.toLowerCase().includes("nandi")
+                ? ["Sunrise", "Day Trek", "Friends"]
+                : ["Nature", "Adventure", "Friends"],
+              achievement: index === 0
+                ? {
+                    icon: Trophy,
+                    label: "Peak Conqueror",
+                    color: "from-yellow-400 to-orange-500",
+                  }
+                : index === 1
+                ? {
+                    icon: Star,
+                    label: "Nature Photographer",
+                    color: "from-purple-400 to-pink-500",
+                  }
+                : index === 2
+                ? {
+                    icon: Compass,
+                    label: "Trail Blazer",
+                    color: "from-green-400 to-teal-500",
+                  }
+                : undefined,
+            };
+          });
+
+          if (transformedItems.length > 0) {
+            setDbGalleryItems(transformedItems);
+          }
+        }
+      } catch (error) {
+        console.warn("Error in fetchGalleryItems:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchGalleryItems();
+  }, []);
 
   const mockGalleryItems: GalleryItem[] = [
     {
       id: 1,
       image:
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=600&q=80",
-      title: "Golden Hour at Rajmachi",
-      location: "Lonavala, Maharashtra",
+        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80",
+      title: "Sunrise at Nandi Hills",
+      location: "Nandi Hills, Karnataka",
       date: "12 Feb 2025",
       photographer: "Adventure Seeker",
       likes: 124,
       views: 892,
-      tags: ["Sunrise", "Mountain", "Heritage"],
+      tags: ["Sunrise", "Day Trek", "Friends"],
       achievement: {
         icon: Trophy,
         label: "Peak Conqueror",
@@ -73,9 +175,9 @@ const GalleryPreview: React.FC = () => {
     {
       id: 3,
       image:
-        "https://images.unsplash.com/photo-1574263867128-a3d5c1b1deac?w=600&q=80",
+        "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=600&q=80",
       title: "Waterfall Wonder",
-      location: "Western Ghats",
+      location: "Jog Falls, Karnataka",
       date: "05 Feb 2025",
       photographer: "Trail Blazer",
       likes: 156,
@@ -90,14 +192,14 @@ const GalleryPreview: React.FC = () => {
     {
       id: 4,
       image:
-        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80",
+        "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=600&q=80",
       title: "Misty Forest Trail",
       location: "Coorg, Karnataka",
       date: "02 Feb 2025",
       photographer: "Mountain Explorer",
       likes: 98,
       views: 743,
-      tags: ["Forest", "Mist", "Wildlife"],
+      tags: ["Forest", "Mist", "Coffee"],
     },
   ];
 
@@ -113,17 +215,20 @@ const GalleryPreview: React.FC = () => {
     });
   };
 
+  // Use real gallery items if available, otherwise use mock items
+  const displayGalleryItems = dbGalleryItems.length > 0 ? dbGalleryItems : mockGalleryItems;
+
   return (
     <div className="relative">
       {/* Gallery Grid */}
       <div className="grid grid-cols-2 gap-3">
-        {mockGalleryItems.map((item, index) => (
+        {displayGalleryItems.map((item, index) => (
           <motion.div
             key={item.id}
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: index * 0.1 }}
-            className="group relative aspect-square bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300"
+            className="group relative aspect-square bg-white/5 backdrop-blur-sm border border-white/10 rounded-xl overflow-hidden cursor-pointer hover:scale-105 transition-all duration-300 anime-sketch-card anime-motion-blur"
             onClick={() => setSelectedImage(item.id)}
           >
             {/* Image */}
@@ -255,7 +360,7 @@ const GalleryPreview: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               {(() => {
-                const item = mockGalleryItems.find(
+                const item = displayGalleryItems.find(
                   (i) => i.id === selectedImage,
                 );
                 if (!item) return null;

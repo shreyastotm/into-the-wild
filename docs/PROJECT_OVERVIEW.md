@@ -51,12 +51,18 @@
 #### Trek Discovery & Registration
 
 - **Advanced filtering**: Category, difficulty, date range, location, cost
+- **Event types**: Weekend treks, Sunday day treks, camping events, Jam Yard workshops
+- **Karnataka/Bengaluru focus**: Local adventures within 2-hour radius from Bengaluru
+  - **Sunday Day Treks**: Nandi Hills, Savandurga, Anthargange, Skandagiri, Makalidurga
+  - **Camping Events**: Multi-activity overnight experiences near Bengaluru
+  - **Jam Yard Access**: Exclusive workshops (stick workshop, parkour, breathwork, yoga, fitness)
 - **Registration workflow**:
   1. Indemnity acceptance (mandatory)
   2. Payment proof upload
   3. Admin verification & approval
   4. Pickup location selection
 - **Real-time availability**: Live participant count and capacity management
+- **Friends theme**: Group-friendly registration, friend tagging in gallery, social sharing
 
 #### Communication & Notifications
 

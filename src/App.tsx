@@ -61,6 +61,7 @@ const GlassMorphismEventDetails = lazy(
   () => import("./pages/GlassMorphismEventDetails"),
 );
 const GlassMorphismLanding = lazy(() => import("./pages/GlassMorphismLanding"));
+const GlassMorphismLandingTrial = lazy(() => import("./pages/GlassMorphismLandingTrial"));
 
 const AppLayout = () => (
   <Layout>
@@ -87,6 +88,16 @@ function App() {
                 element={
                   <Suspense fallback={<LoadingSpinner fullScreen />}>
                     <Index />
+                  </Suspense>
+                }
+              />
+
+              {/* Trial Landing Page */}
+              <Route
+                path="/landing-trial"
+                element={
+                  <Suspense fallback={<LoadingSpinner fullScreen />}>
+                    <GlassMorphismLandingTrial />
                   </Suspense>
                 }
               />
