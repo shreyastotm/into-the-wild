@@ -135,7 +135,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 anime-sketch-card anime-motion-blur"
               >
                 Start Your Adventure
@@ -240,7 +240,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="group mt-8 px-6 py-3 bg-white/10 backdrop-blur-sm border border-green-400/30 rounded-full text-white hover:bg-green-400/20 transition-all duration-300 anime-sketch-card"
               >
                 Explore Events
@@ -354,7 +354,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="w-full px-6 py-3 bg-white/10 backdrop-blur-sm border border-amber-400/30 rounded-full text-white hover:bg-amber-400/20 transition-all duration-300 anime-sketch-card"
               >
                 View Sunday Treks
@@ -421,7 +421,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="w-full px-6 py-3 bg-white/10 backdrop-blur-sm border border-indigo-400/30 rounded-full text-white hover:bg-indigo-400/20 transition-all duration-300 anime-sketch-card"
               >
                 Explore Camping
@@ -636,7 +636,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/glass-events")}
+              onClick={() => navigate("/events")}
               className="group px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 anime-sketch-card anime-motion-blur"
             >
               Try It Now
@@ -743,7 +743,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="group mt-6 px-6 py-3 bg-white/10 backdrop-blur-sm border border-teal-400/30 rounded-full text-white hover:bg-teal-400/20 transition-all duration-300 anime-sketch-card"
               >
                 Join Communities
@@ -791,7 +791,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="group px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 anime-sketch-card anime-motion-blur"
               >
                 Start Exploring

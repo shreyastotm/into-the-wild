@@ -120,7 +120,7 @@ const GlassMorphismLanding: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/25 transition-all duration-300"
               >
                 Start Your Adventure
@@ -130,7 +130,7 @@ const GlassMorphismLanding: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-gallery")}
+                onClick={() => navigate("/gallery")}
                 className="group px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white font-semibold text-lg hover:bg-white/20 transition-all duration-300"
               >
                 <Play className="inline-block mr-2 w-5 h-5" />
@@ -227,7 +227,7 @@ const GlassMorphismLanding: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="group mt-8 px-6 py-3 bg-white/10 backdrop-blur-sm border border-green-400/30 rounded-full text-white hover:bg-green-400/20 transition-all duration-300"
               >
                 Explore Events
@@ -334,7 +334,7 @@ const GlassMorphismLanding: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-gallery")}
+                onClick={() => navigate("/gallery")}
                 className="group mt-8 px-6 py-3 bg-white/10 backdrop-blur-sm border border-orange-400/30 rounded-full text-white hover:bg-orange-400/20 transition-all duration-300"
               >
                 View Gallery
@@ -457,7 +457,7 @@ const GlassMorphismLanding: React.FC = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/glass-events")}
+              onClick={() => navigate("/events")}
               className="group px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-blue-500/25 transition-all duration-300"
             >
               Try It Now
@@ -577,7 +577,7 @@ const GlassMorphismLanding: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-events")}
+                onClick={() => navigate("/events")}
                 className="group px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/25 transition-all duration-300"
               >
                 Start Exploring
@@ -587,7 +587,7 @@ const GlassMorphismLanding: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/glass-gallery")}
+                onClick={() => navigate("/gallery")}
                 className="group px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white font-semibold text-lg hover:bg-white/20 transition-all duration-300"
               >
                 <Play className="inline-block mr-2 w-5 h-5" />

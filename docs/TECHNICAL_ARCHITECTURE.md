@@ -106,8 +106,9 @@ src/
 The application uses React Router v6 for client-side navigation:
 
 **Main Routes:**
-- `/` - Main landing page (Index)
-- `/landing-trial` - Trial landing page with Karnataka/Bengaluru focus, anime sketch effects
+- `/` - Main landing page (GlassMorphismLandingTrial - Karnataka/Bengaluru focus, anime sketch effects)
+- `/landing-trial` - Alternative route to trial landing page (redirects to main)
+- `/glass-landing` - Previous landing page (GlassMorphismLanding)
 - `/events` - Events listing page (main)
 - `/glass-events` - Glass-themed events page (alternate)
 - `/events/:id` - Individual event details

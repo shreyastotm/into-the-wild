@@ -28,7 +28,7 @@ const queryClient = new QueryClient({
 });
 
 // Lazy load all pages for better performance
-const Index = lazy(() => import("./pages/GlassMorphismLanding"));
+const Index = lazy(() => import("./pages/GlassMorphismLandingTrial"));
 const Auth = lazy(() => import("./pages/Auth"));
 const AuthCallback = lazy(() => import("./pages/AuthCallback"));
 const TestRoute = lazy(() => import("./pages/TestRoute"));
@@ -92,7 +92,7 @@ function App() {
                 }
               />
 
-              {/* Trial Landing Page */}
+              {/* Alternative route to main landing page (backward compatibility) */}
               <Route
                 path="/landing-trial"
                 element={
