@@ -18,7 +18,12 @@ const LeafletCSS: any = null;
 // Load Leaflet components dynamically when needed
 const loadLeafletComponents = async () => {
   if (LeafletComponents && LeafletCSS) {
-    return { MapContainer: LeafletComponents.MapContainer, TileLayer: LeafletComponents.TileLayer, Marker: LeafletComponents.Marker, useMapEvents: LeafletComponents.useMapEvents };
+    return {
+      MapContainer: LeafletComponents.MapContainer,
+      TileLayer: LeafletComponents.TileLayer,
+      Marker: LeafletComponents.Marker,
+      useMapEvents: LeafletComponents.useMapEvents,
+    };
   }
 
   try {
@@ -48,7 +53,7 @@ const loadLeafletComponents = async () => {
       MapContainer: reactLeaflet.MapContainer,
       TileLayer: reactLeaflet.TileLayer,
       Marker: reactLeaflet.Marker,
-      useMapEvents: reactLeaflet.useMapEvents
+      useMapEvents: reactLeaflet.useMapEvents,
     };
   } catch (error) {
     console.error("Failed to load Leaflet components:", error);
@@ -213,7 +218,8 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     if (!leafletLoaded || !LeafletComponents) return null;
 
     const { useMapEvents } = LeafletComponents;
-    const [markerPosition, setMarkerPosition] = useState<[number, number]>(position);
+    const [markerPosition, setMarkerPosition] =
+      useState<[number, number]>(position);
 
     const map = useMapEvents({
       click(e: any) {
@@ -241,7 +247,7 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
-          `q=${encodeURIComponent(`${searchQuery  }, India`)}&` +
+          `q=${encodeURIComponent(`${searchQuery}, India`)}&` +
           `format=json&limit=5&addressdetails=1`,
       );
       const data = await response.json();
@@ -880,27 +886,27 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                             <span>Long: {location.coordinates.longitude}</span>
                           </div>
                           {leafletLoaded && LeafletComponents ? (
-                          <div className="h-40 w-full rounded-md overflow-hidden mt-3">
+                            <div className="h-40 w-full rounded-md overflow-hidden mt-3">
                               <LeafletComponents.MapContainer
-                              center={[
-                                location.coordinates.latitude,
-                                location.coordinates.longitude,
-                              ]}
-                              zoom={13}
-                              style={{ height: "100%", width: "100%" }}
-                            >
-                                <LeafletComponents.TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                              />
-                                <LeafletComponents.Marker
-                                position={[
+                                center={[
                                   location.coordinates.latitude,
                                   location.coordinates.longitude,
                                 ]}
-                              />
+                                zoom={13}
+                                style={{ height: "100%", width: "100%" }}
+                              >
+                                <LeafletComponents.TileLayer
+                                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                                <LeafletComponents.Marker
+                                  position={[
+                                    location.coordinates.latitude,
+                                    location.coordinates.longitude,
+                                  ]}
+                                />
                               </LeafletComponents.MapContainer>
-                          </div>
+                            </div>
                           ) : (
                             <div className="h-40 w-full rounded-md bg-gray-200 dark:bg-gray-700 flex items-center justify-center mt-3">
                               <p className="text-gray-500">Loading map...</p>
@@ -1020,36 +1026,37 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
                             Click on the map to set coordinates
                           </div>
                           {leafletLoaded && LeafletComponents ? (
-                          <div className="h-48 w-full">
+                            <div className="h-48 w-full">
                               <LeafletComponents.MapContainer
-                              center={mapCenter}
-                              zoom={12}
-                              style={{ height: "100%", width: "100%" }}
-                              key={JSON.stringify(mapCenter)}
-                            >
+                                center={mapCenter}
+                                zoom={12}
+                                style={{ height: "100%", width: "100%" }}
+                                key={JSON.stringify(mapCenter)}
+                              >
                                 <LeafletComponents.TileLayer
-                                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                              />
-                              <LocationMarker
-                                position={
-                                  newLocation.latitude && newLocation.longitude
-                                    ? [
-                                        parseFloat(newLocation.latitude),
-                                        parseFloat(newLocation.longitude),
-                                      ]
-                                    : mapCenter
-                                }
-                                onPositionChange={(latlng) => {
-                                  setNewLocation((prev) => ({
-                                    ...prev,
-                                    latitude: latlng[0].toString(),
-                                    longitude: latlng[1].toString(),
-                                  }));
-                                }}
-                              />
+                                  attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                                  url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                                />
+                                <LocationMarker
+                                  position={
+                                    newLocation.latitude &&
+                                    newLocation.longitude
+                                      ? [
+                                          parseFloat(newLocation.latitude),
+                                          parseFloat(newLocation.longitude),
+                                        ]
+                                      : mapCenter
+                                  }
+                                  onPositionChange={(latlng) => {
+                                    setNewLocation((prev) => ({
+                                      ...prev,
+                                      latitude: latlng[0].toString(),
+                                      longitude: latlng[1].toString(),
+                                    }));
+                                  }}
+                                />
                               </LeafletComponents.MapContainer>
-                          </div>
+                            </div>
                           ) : (
                             <div className="h-48 w-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center">
                               <p className="text-gray-500">Loading map...</p>

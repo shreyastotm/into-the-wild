@@ -1,4 +1,4 @@
-import { useCallback, useEffect , useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
 import { toast } from "@/components/ui/use-toast";

@@ -1,0 +1,218 @@
+{
+  "timestamp": "2025-11-01T12:32:27.966Z",
+  "summary": {
+    "filesAnalyzed": 326,
+    "formattingApplied": 0,
+    "namingIssues": 6986,
+    "documentationIssues": 223,
+    "importOrganization": 2,
+    "readabilityScore": 35
+  },
+  "details": {
+    "namingIssues": [
+      {
+        "file": "src\\App.tsx",
+        "line": 21,
+        "issue": "Component uses camelCase: queryClient",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\App.tsx",
+        "line": 77,
+        "issue": "Function starts with uppercase: App",
+        "suggestion": "Use camelCase for functions (start with lowercase)",
+        "type": "function"
+      },
+      {
+        "file": "src\\components\\admin\\AdminSidebar.tsx",
+        "line": 26,
+        "issue": "Function starts with uppercase: AdminSidebar",
+        "suggestion": "Use camelCase for functions (start with lowercase)",
+        "type": "function"
+      },
+      {
+        "file": "src\\components\\admin\\AdminSidebar.tsx",
+        "line": 27,
+        "issue": "Component uses camelCase: navigate",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminSidebar.tsx",
+        "line": 31,
+        "issue": "Component uses camelCase: handleSignOut",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminSidebar.tsx",
+        "line": 36,
+        "issue": "Component uses camelCase: navItems",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminSidebar.tsx",
+        "line": 80,
+        "issue": "Variable uses snake_case: itw_logo",
+        "suggestion": "Use camelCase for variables (e.g., userName instead of user_name)",
+        "type": "variable"
+      },
+      {
+        "file": "src\\components\\admin\\AdminSidebar.tsx",
+        "line": 154,
+        "issue": "Variable uses snake_case: itw_logo",
+        "suggestion": "Use camelCase for variables (e.g., userName instead of user_name)",
+        "type": "variable"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 91,
+        "issue": "Component uses camelCase: handleSelectAll",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 96,
+        "issue": "Component uses camelCase: handleSelectRow",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 105,
+        "issue": "Component uses camelCase: isRowSelected",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 109,
+        "issue": "Component uses camelCase: isAllSelected",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 110,
+        "issue": "Component uses camelCase: isIndeterminate",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 113,
+        "issue": "Component uses camelCase: renderActions",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 114,
+        "issue": "Component uses camelCase: visibleActions",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 119,
+        "issue": "Component uses camelCase: action",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 159,
+        "issue": "Component uses camelCase: renderBulkActions",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 185,
+        "issue": "Component uses camelCase: enhancedColumns",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 263,
+        "issue": "Component uses camelCase: columns",
+        "suggestion": "Use PascalCase for React components (e.g., UserProfile instead of userProfile)",
+        "type": "component"
+      },
+      {
+        "file": "src\\components\\admin\\AdminTable.tsx",
+        "line": 265,
+        "issue": "Variable uses snake_case: full_name",
+        "suggestion": "Use camelCase for variables (e.g., userName instead of user_name)",
+        "type": "variable"
+      }
+    ],
+    "documentationIssues": [
+      "src\\App.tsx:21 - queryClient missing JSDoc documentation",
+      "src\\App.tsx:31 - Index missing JSDoc documentation",
+      "src\\App.tsx:32 - Auth missing JSDoc documentation",
+      "src\\App.tsx:33 - AuthCallback missing JSDoc documentation",
+      "src\\App.tsx:34 - TestRoute missing JSDoc documentation",
+      "src\\App.tsx:35 - Profile missing JSDoc documentation",
+      "src\\App.tsx:36 - Dashboard missing JSDoc documentation",
+      "src\\App.tsx:37 - NotFound missing JSDoc documentation",
+      "src\\App.tsx:38 - TrekEvents missing JSDoc documentation",
+      "src\\App.tsx:39 - TrekEventDetails missing JSDoc documentation",
+      "src\\App.tsx:42 - CreateTrekEvent missing JSDoc documentation",
+      "src\\App.tsx:43 - PublicGallery missing JSDoc documentation",
+      "src\\App.tsx:44 - TrekkingGuide missing JSDoc documentation",
+      "src\\App.tsx:45 - SafetyTips missing JSDoc documentation",
+      "src\\App.tsx:46 - PackingList missing JSDoc documentation",
+      "src\\App.tsx:47 - FAQPage missing JSDoc documentation",
+      "src\\App.tsx:48 - PrivacyPolicy missing JSDoc documentation",
+      "src\\App.tsx:49 - TermsOfService missing JSDoc documentation",
+      "src\\App.tsx:50 - DataDeletion missing JSDoc documentation",
+      "src\\App.tsx:51 - DataCallback missing JSDoc documentation"
+    ],
+    "importOrganization": [
+      "Consider consolidating external imports",
+      "Consider organizing internal imports by feature"
+    ],
+    "codeStyle": [
+      "src\\components\\admin\\AdminSidebar.tsx:99 - Line too long (358 characters)",
+      "src\\components\\admin\\AdminSidebar.tsx:118 - Line too long (326 characters)",
+      "src\\components\\admin\\AdminSidebar.tsx:128 - Line too long (196 characters)",
+      "src\\components\\admin\\AdminSidebar.tsx:133 - Line too long (205 characters)",
+      "src\\components\\admin\\AdminSidebar.tsx:144 - Line too long (176 characters)",
+      "src\\components\\admin\\TentRequestsAdmin.tsx:137 - Line too long (109 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:353 - Line too long (151 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:394 - Line too long (113 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:416 - Line too long (104 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:770 - Line too long (169 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:986 - Line too long (106 characters)",
+      "src\\components\\admin\\UserVerificationPanel.tsx:224 - Line too long (198 characters)",
+      "src\\components\\AnalyticsConsent.tsx:15 - Inconsistent indentation",
+      "src\\components\\AnalyticsConsent.tsx:16 - Inconsistent indentation",
+      "src\\components\\AnalyticsConsent.tsx:17 - Inconsistent indentation",
+      "src\\components\\AnalyticsConsent.tsx:18 - Inconsistent indentation",
+      "src\\components\\AnalyticsConsent.tsx:19 - Inconsistent indentation",
+      "src\\components\\AnalyticsConsent.tsx:20 - Inconsistent indentation",
+      "src\\components\\AnalyticsConsent.tsx:21 - Inconsistent indentation",
+      "src\\components\\AnalyticsConsent.tsx:22 - Inconsistent indentation"
+    ]
+  },
+  "metrics": {
+    "averageLineLength": 30.508018569318423,
+    "commentRatio": 3.2707322219877613,
+    "functionComplexity": 0
+  },
+  "recommendations": [
+    "Fix 6986 naming convention issues",
+    "Add JSDoc documentation for 223 functions",
+    "Organize imports in 2 files",
+    "Add more inline comments to explain complex logic",
+    "Apply consistent indentation (2 spaces recommended)",
+    "Use meaningful variable and function names",
+    "Group related functionality together",
+    "Add type annotations for better documentation"
+  ]
+}

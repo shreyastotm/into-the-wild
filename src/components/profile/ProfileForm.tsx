@@ -65,7 +65,8 @@ function LocationMarker({
   position: [number, number];
   onPositionChange: (pos: [number, number]) => void;
 }) {
-  const [markerPosition, setMarkerPosition] = useState<[number, number]>(position);
+  const [markerPosition, setMarkerPosition] =
+    useState<[number, number]>(position);
 
   const map = useMapEvents({
     click(e) {
@@ -111,7 +112,9 @@ export const ProfileForm: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Partial<ProfileFormData>>({});
   // Default map center to Bangalore, India
-  const [mapCenter, setMapCenter] = useState<[number, number]>([12.9716, 77.5946]);
+  const [mapCenter, setMapCenter] = useState<[number, number]>([
+    12.9716, 77.5946,
+  ]);
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<
     Array<{ display_name: string; lat: string; lon: string }>
@@ -287,7 +290,7 @@ export const ProfileForm: React.FC = () => {
     try {
       const response = await fetch(
         `https://nominatim.openstreetmap.org/search?` +
-          `q=${encodeURIComponent(`${searchQuery  }, India`)}&` +
+          `q=${encodeURIComponent(`${searchQuery}, India`)}&` +
           `format=json&limit=5&addressdetails=1`,
       );
       const data = await response.json();
@@ -352,6 +355,7 @@ export const ProfileForm: React.FC = () => {
         description="Update your personal details"
         icon={User}
         variant="card"
+        theme="profile"
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormField
@@ -416,6 +420,7 @@ export const ProfileForm: React.FC = () => {
         description="Tell us about your trekking interests and experience"
         icon={Settings}
         variant="card"
+        theme="profile"
       >
         <FormField
           label="Interests & Hobbies"
@@ -444,6 +449,7 @@ export const ProfileForm: React.FC = () => {
         description="Information about your pets for trek planning"
         icon={PawPrint}
         variant="card"
+        theme="profile"
       >
         <FormField
           label="Pet Information"
@@ -463,6 +469,7 @@ export const ProfileForm: React.FC = () => {
         description="Help us plan carpooling for treks"
         icon={Car}
         variant="card"
+        theme="profile"
       >
         <FormField
           label="I have a car and may be willing to help carpool"
@@ -515,6 +522,7 @@ export const ProfileForm: React.FC = () => {
         description="Search for your location or click on the map to set your approximate home location. This helps organizers plan carpooling routes if needed."
         icon={MapPin}
         variant="card"
+        theme="profile"
       >
         {/* Search Bar */}
         <div className="mb-4 space-y-2">

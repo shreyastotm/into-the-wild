@@ -1,20 +1,26 @@
-import { AlertTriangle, CheckCircle, FileText, Upload } from 'lucide-react';
-import React, { useEffect, useState } from 'react';
+import { AlertTriangle, CheckCircle, FileText, Upload } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
-import { useAuth } from '@/components/auth/AuthProvider';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useAuth } from "@/components/auth/AuthProvider";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '@/components/ui/select';
-import { toast } from '@/components/ui/use-toast';
-import { supabase, WithStringId } from '@/integrations/supabase/client';
+} from "@/components/ui/select";
+import { toast } from "@/components/ui/use-toast";
+import { supabase, WithStringId } from "@/integrations/supabase/client";
 
 interface DbRegistration {
   registration_id: number;
@@ -70,23 +76,49 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   trekId,
   governmentIdRequired,
   userRegistration,
-  onUploadProof
+  onUploadProof,
 }) => {
   const { user } = useAuth();
   const [requiredIdTypes, setRequiredIdTypes] = useState<IdType[]>([]);
   const [userIdProofs, setUserIdProofs] = useState<RegistrationIdProof[]>([]);
-  const [approvedProofs, setApprovedProofs] = useState<RegistrationIdProof[]>([]);
+  const [approvedProofs, setApprovedProofs] = useState<RegistrationIdProof[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [uploadingProof, setUploadingProof] = useState<number | null>(null);
-  const [selectedIdType, setSelectedIdType] = useState<string>('');
+  const [selectedIdType, setSelectedIdType] = useState<string>("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
 
   // Default ID types for government verification
   const defaultIdTypes: IdType[] = [
-    { id_type_id: 1, display_name: 'Aadhaar Card', is_mandatory: true, name: 'aadhaar', description: null },
-    { id_type_id: 2, display_name: 'Passport', is_mandatory: true, name: 'passport', description: null },
-    { id_type_id: 3, display_name: 'Driving License', is_mandatory: true, name: 'driving_license', description: null },
-    { id_type_id: 4, display_name: 'PAN Card', is_mandatory: true, name: 'pan_card', description: null },
+    {
+      id_type_id: 1,
+      display_name: "Aadhaar Card",
+      is_mandatory: true,
+      name: "aadhaar",
+      description: null,
+    },
+    {
+      id_type_id: 2,
+      display_name: "Passport",
+      is_mandatory: true,
+      name: "passport",
+      description: null,
+    },
+    {
+      id_type_id: 3,
+      display_name: "Driving License",
+      is_mandatory: true,
+      name: "driving_license",
+      description: null,
+    },
+    {
+      id_type_id: 4,
+      display_name: "PAN Card",
+      is_mandatory: true,
+      name: "pan_card",
+      description: null,
+    },
   ];
 
   useEffect(() => {
@@ -106,8 +138,10 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
       }
 
       // Load required ID types for this trek
-      const { data: requiredTypes, error: typesError } = await supabase
-        .rpc("get_trek_required_id_types", { trek_id_param: trekId }) as any;
+      const { data: requiredTypes, error: typesError } = (await supabase.rpc(
+        "get_trek_required_id_types",
+        { trek_id_param: trekId },
+      )) as any;
 
       if (typesError) {
         console.error("Error loading required ID types:", typesError);
@@ -117,10 +151,10 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
       }
 
       // Load user's ID proofs for this registration
-      const { data: proofs, error: proofsError } = await supabase
+      const { data: proofs, error: proofsError } = (await supabase
         .from("registration_id_proofs")
         .select("*")
-        .eq("registration_id", userRegistration.registration_id) as any;
+        .eq("registration_id", userRegistration.registration_id)) as any;
 
       if (proofsError) {
         console.error("Error loading ID proofs:", proofsError);
@@ -131,14 +165,16 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
 
       // Load user's previously approved ID proofs (for reuse)
       // Check if user has any approved proofs from other treks
-      const { data: approvedProofsData, error: approvedError } = await supabase
+      const { data: approvedProofsData, error: approvedError } = (await supabase
         .from("registration_id_proofs")
-        .select(`
+        .select(
+          `
           *,
           id_types!inner(*)
-        `)
+        `,
+        )
         .eq("uploaded_by", user?.id)
-        .eq("verification_status", "approved") as any;
+        .eq("verification_status", "approved")) as any;
 
       if (approvedError) {
         console.error("Error loading approved proofs:", approvedError);
@@ -146,7 +182,6 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
       } else {
         setApprovedProofs(approvedProofsData || []);
       }
-
     } catch (error) {
       console.error("Error loading requirements:", error);
       setRequiredIdTypes(defaultIdTypes);
@@ -166,19 +201,20 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
       if (success) {
         await loadRequirements(); // Reload to show updated status
         setSelectedFile(null);
-        setSelectedIdType('');
+        setSelectedIdType("");
         toast({
-          title: 'Proof Uploaded',
-          description: 'Your ID proof has been uploaded and is pending verification.',
+          title: "Proof Uploaded",
+          description:
+            "Your ID proof has been uploaded and is pending verification.",
         });
       }
       return success;
     } catch (error) {
-      console.error('Error uploading proof:', error);
+      console.error("Error uploading proof:", error);
       toast({
-        title: 'Upload Failed',
-        description: 'Failed to upload ID proof. Please try again.',
-        variant: 'destructive',
+        title: "Upload Failed",
+        description: "Failed to upload ID proof. Please try again.",
+        variant: "destructive",
       });
       return false;
     } finally {
@@ -189,9 +225,9 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
   const handleFileUpload = async () => {
     if (!selectedIdType || !selectedFile) {
       toast({
-        title: 'Missing Selection',
-        description: 'Please select an ID type and upload a file.',
-        variant: 'destructive',
+        title: "Missing Selection",
+        description: "Please select an ID type and upload a file.",
+        variant: "destructive",
       });
       return;
     }
@@ -202,29 +238,31 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
 
   const getProofStatus = (idTypeId: number) => {
     // Check current trek proofs first
-    const currentProof = userIdProofs.find(p => p.id_type_id === idTypeId);
+    const currentProof = userIdProofs.find((p) => p.id_type_id === idTypeId);
     if (currentProof) {
       return currentProof.verification_status;
     }
 
     // Check if user has previously approved proof for this ID type
-    const approvedProof = approvedProofs.find(p => p.id_type_id === idTypeId);
+    const approvedProof = approvedProofs.find((p) => p.id_type_id === idTypeId);
     if (approvedProof) {
-      return 'previously_approved';
+      return "previously_approved";
     }
 
-    return 'not_uploaded';
+    return "not_uploaded";
   };
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'approved':
+      case "approved":
         return <Badge className="bg-green-600 text-white">Verified</Badge>;
-      case 'previously_approved':
-        return <Badge className="bg-blue-600 text-white">Previously Approved</Badge>;
-      case 'rejected':
+      case "previously_approved":
+        return (
+          <Badge className="bg-blue-600 text-white">Previously Approved</Badge>
+        );
+      case "rejected":
         return <Badge variant="destructive">Rejected</Badge>;
-      case 'pending':
+      case "pending":
         return <Badge variant="secondary">Pending Review</Badge>;
       default:
         return <Badge variant="outline">Not Uploaded</Badge>;
@@ -272,7 +310,8 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
             Government ID Required
           </AlertTitle>
           <AlertDescription className="text-info-foreground/80">
-            This trek requires government ID verification for ticket booking and permits.
+            This trek requires government ID verification for ticket booking and
+            permits.
             {userRegistration ? (
               <span className="block mt-2">
                 Please upload your ID document below to complete registration.
@@ -287,40 +326,46 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
       )}
 
       {/* Current ID Proof Status */}
-      {userRegistration && (userIdProofs.length > 0 || approvedProofs.length > 0) && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              ID Proof Status
-            </CardTitle>
-            <CardDescription>
-              Current status of your uploaded ID documents for this trek.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            {defaultIdTypes.map((idType) => {
-              const status = getProofStatus(idType.id_type_id);
-              return (
-                <div key={idType.id_type_id} className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border">
-                  <div className="flex items-center gap-3">
-                    <FileText className="h-5 w-5 text-muted-foreground" />
-                    <div>
-                      <p className="font-medium">{idType.display_name}</p>
-                      <p className="text-sm text-muted-foreground">
-                        {status === 'previously_approved' ? 'Previously verified' : 
-                         status === 'not_uploaded' ? 'Not uploaded' : 
-                         `Status: ${status}`}
-                      </p>
+      {userRegistration &&
+        (userIdProofs.length > 0 || approvedProofs.length > 0) && (
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                ID Proof Status
+              </CardTitle>
+              <CardDescription>
+                Current status of your uploaded ID documents for this trek.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {defaultIdTypes.map((idType) => {
+                const status = getProofStatus(idType.id_type_id);
+                return (
+                  <div
+                    key={idType.id_type_id}
+                    className="flex items-center justify-between p-3 bg-muted/30 rounded-lg border"
+                  >
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <p className="font-medium">{idType.display_name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {status === "previously_approved"
+                            ? "Previously verified"
+                            : status === "not_uploaded"
+                              ? "Not uploaded"
+                              : `Status: ${status}`}
+                        </p>
+                      </div>
                     </div>
+                    {getStatusBadge(status)}
                   </div>
-                  {getStatusBadge(status)}
-                </div>
-              );
-            })}
-          </CardContent>
-        </Card>
-      )}
+                );
+              })}
+            </CardContent>
+          </Card>
+        )}
 
       {/* Previously Approved ID Proofs */}
       {approvedProofs.length > 0 && (
@@ -331,18 +376,23 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
               Previously Approved ID Proofs
             </CardTitle>
             <CardDescription className="text-green-700">
-              You have previously uploaded and verified ID proofs that can be reused for this trek.
+              You have previously uploaded and verified ID proofs that can be
+              reused for this trek.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {approvedProofs.map((proof) => (
-              <div key={`${proof.proof_id}-${proof.id_type_id}`} className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200">
+              <div
+                key={`${proof.proof_id}-${proof.id_type_id}`}
+                className="flex items-center justify-between p-3 bg-white rounded-lg border border-green-200"
+              >
                 <div className="flex items-center gap-3">
                   <CheckCircle className="h-5 w-5 text-green-600" />
                   <div>
                     <p className="font-medium">ID Document</p>
                     <p className="text-sm text-muted-foreground">
-                      Verified on {new Date(proof.verified_at || '').toLocaleDateString()}
+                      Verified on{" "}
+                      {new Date(proof.verified_at || "").toLocaleDateString()}
                     </p>
                   </div>
                 </div>
@@ -363,68 +413,72 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
             </CardTitle>
             <CardDescription>
               {userRegistration
-                ? 'Upload your ID document to complete registration.'
-                : 'Upload your ID document first, then register for this trek.'
-              }
+                ? "Upload your ID document to complete registration."
+                : "Upload your ID document first, then register for this trek."}
             </CardDescription>
           </CardHeader>
           <CardContent>
             {userRegistration ? (
               /* Show upload interface when user IS registered */
-                <div className="space-y-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Select ID Type
-                    </label>
-                    <Select value={selectedIdType} onValueChange={setSelectedIdType}>
-                      <SelectTrigger className="w-full cursor-pointer hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20">
-                        <SelectValue placeholder="Choose an ID type to upload" />
-                      </SelectTrigger>
-                      <SelectContent className="z-50">
-                        {defaultIdTypes.map((idType) => (
-                          <SelectItem
-                            key={idType.id_type_id}
-                            value={idType.id_type_id.toString()}
-                            className="cursor-pointer hover:bg-primary/10"
-                          >
-                            {idType.display_name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                    <div className="space-y-2">
-                    <label className="text-sm font-medium">
-                      Upload Document (Image or PDF)
-                    </label>
-                        <input
-                          type="file"
-                          accept="image/*,.pdf"
-                      onChange={(e) => setSelectedFile(e.target.files?.[0] || null)}
-                      className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 dark:file:bg-primary/20 dark:file:text-primary-foreground"
-                        />
-                  </div>
-
-                  <Button
-                    onClick={handleFileUpload}
-                    disabled={!selectedIdType || !selectedFile || uploadingProof !== null}
-                    className="w-full"
-                    size="lg"
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">Select ID Type</label>
+                  <Select
+                    value={selectedIdType}
+                    onValueChange={setSelectedIdType}
                   >
-                    {uploadingProof !== null ? (
-                      <>
-                        <Upload className="mr-2 h-4 w-4 animate-spin" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="mr-2 h-4 w-4" />
-                        Upload ID Proof
-                      </>
-                      )}
-                  </Button>
-                    </div>
+                    <SelectTrigger className="w-full cursor-pointer hover:border-primary/50 focus:border-primary focus:ring-2 focus:ring-primary/20">
+                      <SelectValue placeholder="Choose an ID type to upload" />
+                    </SelectTrigger>
+                    <SelectContent className="z-50">
+                      {defaultIdTypes.map((idType) => (
+                        <SelectItem
+                          key={idType.id_type_id}
+                          value={idType.id_type_id.toString()}
+                          className="cursor-pointer hover:bg-primary/10"
+                        >
+                          {idType.display_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-medium">
+                    Upload Document (Image or PDF)
+                  </label>
+                  <input
+                    type="file"
+                    accept="image/*,.pdf"
+                    onChange={(e) =>
+                      setSelectedFile(e.target.files?.[0] || null)
+                    }
+                    className="block w-full text-sm text-muted-foreground file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/10 file:text-primary hover:file:bg-primary/20 dark:file:bg-primary/20 dark:file:text-primary-foreground"
+                  />
+                </div>
+
+                <Button
+                  onClick={handleFileUpload}
+                  disabled={
+                    !selectedIdType || !selectedFile || uploadingProof !== null
+                  }
+                  className="w-full"
+                  size="lg"
+                >
+                  {uploadingProof !== null ? (
+                    <>
+                      <Upload className="mr-2 h-4 w-4 animate-spin" />
+                      Uploading...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="mr-2 h-4 w-4" />
+                      Upload ID Proof
+                    </>
+                  )}
+                </Button>
+              </div>
             ) : (
               /* Show message when user is NOT registered */
               <div className="p-6 bg-primary/5 dark:bg-primary/10 border border-primary/20 rounded-lg text-center">
@@ -435,12 +489,14 @@ export const TrekRequirements: React.FC<TrekRequirementsProps> = ({
                       Registration Required
                     </p>
                     <p className="text-sm text-primary-foreground/70">
-                      Please register for this trek first. After registering, you'll be able to upload your ID documents for verification.
-                </p>
+                      Please register for this trek first. After registering,
+                      you'll be able to upload your ID documents for
+                      verification.
+                    </p>
                   </div>
                 </div>
               </div>
-                  )}
+            )}
           </CardContent>
         </Card>
       )}

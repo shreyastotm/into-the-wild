@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/components/auth/AuthProvider";
 import { UserTreks } from "@/components/dashboard/UserTreks";
+import { OrigamiHamburger } from "@/components/navigation/OrigamiHamburger";
 import { Button } from "@/components/ui/button";
 import { LoadingScreen } from "@/components/ui/LoadingCard";
 import { useHaptic } from "@/hooks/use-haptic";
@@ -47,9 +48,9 @@ const Dashboard = () => {
 
       // Throttle mouse movement updates to max 30fps (33ms)
       mouseTimeout = setTimeout(() => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 40;
-      const y = (e.clientY / window.innerHeight - 0.5) * 40;
-      setMousePosition({ x, y });
+        const x = (e.clientX / window.innerWidth - 0.5) * 40;
+        const y = (e.clientY / window.innerHeight - 0.5) * 40;
+        setMousePosition({ x, y });
       }, 33);
     };
 
@@ -59,7 +60,7 @@ const Dashboard = () => {
 
       // Throttle scroll updates to max 60fps (16ms)
       scrollTimeout = setTimeout(() => {
-      setScrollY(window.scrollY);
+        setScrollY(window.scrollY);
       }, 16);
     };
 
@@ -81,13 +82,16 @@ const Dashboard = () => {
 
   // ✅ Add defensive check for user data
   if (!user?.id) {
-    console.error('Dashboard: User object is malformed!', { user });
+    console.error("Dashboard: User object is malformed!", { user });
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-xl font-bold mb-4">Session Error</h2>
           <p className="mb-4">Please sign out and sign in again.</p>
-          <Button onClick={() => navigate('/auth?mode=signin')} className="mt-4">
+          <Button
+            onClick={() => navigate("/auth?mode=signin")}
+            className="mt-4"
+          >
             Sign In Again
           </Button>
         </div>
@@ -205,6 +209,7 @@ const Dashboard = () => {
   // Signed-in view - Base Camp Dashboard
   return (
     <div className="min-h-screen relative">
+      <OrigamiHamburger />
       {/* Panning Background Image */}
       <div className="fixed inset-0 -z-10">
         <div
@@ -222,8 +227,8 @@ const Dashboard = () => {
           />
         </div>
 
-        {/* Lighter overlay for readability */}
-        <div className="absolute inset-0 bg-gradient-to-b from-white/70 via-white/50 to-white/70 dark:from-black/70 dark:via-black/50 dark:to-black/70" />
+        {/* Glass theme overlay with backdrop blur */}
+        <div className="absolute inset-0 bg-gradient-to-b from-white/60 via-white/40 to-white/60 dark:from-black/60 dark:via-black/40 dark:to-black/60 backdrop-blur-sm" />
       </div>
 
       {/* Hide default header on mobile - handled in Layout component */}
@@ -312,14 +317,14 @@ const Dashboard = () => {
                   haptic.light();
                   navigate("/events");
                 }}
-                className="bg-white/90 dark:bg-gray-800/90 backdrop-blur-sm"
+                className="glass-card hover:shadow-lg transition-all duration-300"
               >
                 Browse Treks
               </Button>
             </div>
 
-            {/* Trek Cards Container */}
-            <div className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-xl rounded-2xl p-6 shadow-2xl border-2 border-white/50 dark:border-gray-700/50">
+            {/* Trek Cards Container - Glass Card */}
+            <div className="glass-card rounded-2xl p-6">
               <UserTreks />
             </div>
           </div>
@@ -350,7 +355,7 @@ const Dashboard = () => {
                 </p>
                 <Button
                   size="lg"
-                  className="bg-white text-coral-600 hover:bg-white/90 hover:scale-105 shadow-xl font-bold"
+                  className="glass-card text-coral-600 hover:scale-105 shadow-xl font-bold hover:shadow-2xl transition-all duration-300"
                   onClick={() => {
                     haptic.medium();
                     navigate("/events");
@@ -396,7 +401,7 @@ const StatStation = ({
 
   return (
     <div className="group relative">
-      <div className="bg-white/90 dark:bg-gray-900/90 backdrop-blur-xl rounded-2xl p-4 shadow-lg hover:shadow-2xl transition-all duration-300 hover:scale-105 border-2 border-white/50 dark:border-gray-700/50">
+      <div className="glass-card rounded-2xl p-4 hover:shadow-2xl transition-all duration-300 hover:scale-105">
         <div
           className={cn(
             "inline-flex p-3 rounded-xl mb-3 bg-gradient-to-br shadow-md",

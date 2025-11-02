@@ -84,24 +84,25 @@ CREATE TABLE IF NOT EXISTS public.users (
     longitude DOUBLE PRECISION
 );
 
--- Ensure trek_events table
+-- Ensure trek_events table (using squashed schema structure)
 CREATE TABLE IF NOT EXISTS public.trek_events (
     trek_id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     description TEXT,
+    category VARCHAR(100),
     difficulty VARCHAR(50),
-    start_date DATE NOT NULL,
-    end_date DATE NOT NULL,
+    start_datetime TIMESTAMPTZ NOT NULL,
+    end_datetime TIMESTAMPTZ,
     location VARCHAR(255),
     cost DECIMAL(10,2),
+    base_price DECIMAL(10,2),
     capacity INTEGER,
+    max_participants INTEGER,
+    min_participants INTEGER DEFAULT 1,
     created_by UUID REFERENCES public.users(user_id),
     created_at TIMESTAMPTZ DEFAULT NOW(),
     updated_at TIMESTAMPTZ DEFAULT NOW(),
     -- Additional fields
-    status VARCHAR(50) DEFAULT 'draft',
-    max_participants INTEGER,
-    min_participants INTEGER DEFAULT 1,
     registration_deadline DATE,
     meeting_point TEXT,
     difficulty_level VARCHAR(20),
@@ -110,7 +111,8 @@ CREATE TABLE IF NOT EXISTS public.trek_events (
     altitude_meters INTEGER,
     transport_mode public.transport_mode,
     partner_id UUID REFERENCES public.users(user_id),
-    creator_type public.event_creator_type DEFAULT 'internal'
+    creator_type public.event_creator_type DEFAULT 'internal',
+    event_type VARCHAR(50) DEFAULT 'trek'
 );
 
 -- Ensure trek_registrations table
@@ -265,7 +267,7 @@ CREATE TABLE IF NOT EXISTS public.votes (
 -- Ensure packing system tables
 CREATE TABLE IF NOT EXISTS public.master_packing_items (
     item_id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL UNIQUE,
     category VARCHAR(100),
     description TEXT,
     is_mandatory BOOLEAN DEFAULT false,
@@ -459,13 +461,11 @@ CREATE INDEX IF NOT EXISTS idx_users_user_type ON public.users(user_type);
 CREATE INDEX IF NOT EXISTS idx_users_created_at ON public.users(created_at);
 
 CREATE INDEX IF NOT EXISTS idx_trek_events_created_by ON public.trek_events(created_by);
-CREATE INDEX IF NOT EXISTS idx_trek_events_start_date ON public.trek_events(start_date);
-CREATE INDEX IF NOT EXISTS idx_trek_events_status ON public.trek_events(status);
+CREATE INDEX IF NOT EXISTS idx_trek_events_start_datetime ON public.trek_events(start_datetime);
 CREATE INDEX IF NOT EXISTS idx_trek_events_location ON public.trek_events(location);
 
 CREATE INDEX IF NOT EXISTS idx_trek_registrations_trek_id ON public.trek_registrations(trek_id);
 CREATE INDEX IF NOT EXISTS idx_trek_registrations_user_id ON public.trek_registrations(user_id);
-CREATE INDEX IF NOT EXISTS idx_trek_registrations_status ON public.trek_registrations(status);
 CREATE INDEX IF NOT EXISTS idx_trek_registrations_payment_status ON public.trek_registrations(payment_status);
 
 CREATE INDEX IF NOT EXISTS idx_trek_comments_trek_id ON public.trek_comments(trek_id);
@@ -560,175 +560,21 @@ ALTER TABLE public.trek_expense_categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.scheduled_notifications ENABLE ROW LEVEL SECURITY;
 
 -- ====================================================================
--- PHASE 6: DROP ALL EXISTING POLICIES TO AVOID CONFLICTS
+-- PHASE 6: CREATE DATABASE FUNCTIONS (BEFORE POLICIES)
 -- ====================================================================
 
--- Drop all existing policies on users table
-DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
-DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
-DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
-DROP POLICY IF EXISTS "Authenticated users can view basic info" ON public.users;
-DROP POLICY IF EXISTS "Admins can manage all users" ON public.users;
-DROP POLICY IF EXISTS "Allow individual user read access" ON public.users;
-DROP POLICY IF EXISTS "Allow individual user update access" ON public.users;
-DROP POLICY IF EXISTS "Users can read profiles" ON public.users;
-DROP POLICY IF EXISTS "Users can update their profile" ON public.users;
-DROP POLICY IF EXISTS "Allow user signup" ON public.users;
-DROP POLICY IF EXISTS "Allow users to view their own profile" ON public.users;
-DROP POLICY IF EXISTS "Allow users to update their own profile" ON public.users;
-DROP POLICY IF EXISTS "Allow authenticated users to view basic user info" ON public.users;
-DROP POLICY IF EXISTS "Allow admin full access to users" ON public.users;
-DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.users;
-DROP POLICY IF EXISTS "Enable read access for all authenticated users" ON public.users;
-DROP POLICY IF EXISTS "user_own_profile_read" ON public.users;
-DROP POLICY IF EXISTS "user_own_profile_update" ON public.users;
-DROP POLICY IF EXISTS "user_own_profile_insert" ON public.users;
-DROP POLICY IF EXISTS "authenticated_users_read_basic_info" ON public.users;
-DROP POLICY IF EXISTS "admin_full_access" ON public.users;
-DROP POLICY IF EXISTS "Allow users read own profile" ON public.users;
-DROP POLICY IF EXISTS "Allow users update own profile" ON public.users;
-DROP POLICY IF EXISTS "Allow users insert own profile" ON public.users;
-DROP POLICY IF EXISTS "Allow authenticated read basic info" ON public.users;
-DROP POLICY IF EXISTS "Allow admin full access" ON public.users;
-
--- Drop all policies on other tables (similar pattern for all tables)
-DROP POLICY IF EXISTS "Users can view own trek events" ON public.trek_events;
-DROP POLICY IF EXISTS "Users can create trek events" ON public.trek_events;
-DROP POLICY IF EXISTS "Admins can manage all trek events" ON public.trek_events;
-
-DROP POLICY IF EXISTS "Users can view own registrations" ON public.trek_registrations;
-DROP POLICY IF EXISTS "Users can register for treks" ON public.trek_registrations;
-DROP POLICY IF EXISTS "Admins can manage all registrations" ON public.trek_registrations;
-
--- Continue dropping policies for all other tables...
-DROP POLICY IF EXISTS "Users can view trek comments" ON public.trek_comments;
-DROP POLICY IF EXISTS "Users can create comments" ON public.trek_comments;
-DROP POLICY IF EXISTS "Admins can manage comments" ON public.trek_comments;
-
-DROP POLICY IF EXISTS "Users can view trek ratings" ON public.trek_ratings;
-DROP POLICY IF EXISTS "Users can create ratings" ON public.trek_ratings;
-DROP POLICY IF EXISTS "Admins can manage ratings" ON public.trek_ratings;
-
--- ... and so on for all tables
-
--- ====================================================================
--- PHASE 7: CREATE COMPREHENSIVE RLS POLICIES
--- ====================================================================
-
--- USERS TABLE POLICIES
-CREATE POLICY "Allow users read own profile" ON public.users
-    FOR SELECT
-    USING (auth.uid() = user_id);
-
-CREATE POLICY "Allow users update own profile" ON public.users
-    FOR UPDATE
-    USING (auth.uid() = user_id)
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Allow users insert own profile" ON public.users
-    FOR INSERT
-    WITH CHECK (auth.uid() = user_id);
-
-CREATE POLICY "Allow authenticated read basic info" ON public.users
-    FOR SELECT
-    TO authenticated
-    USING (true);
-
-CREATE POLICY "Allow admin full access" ON public.users
-    FOR ALL
-    USING (public.is_admin(auth.uid()));
-
--- TREK EVENTS POLICIES
-CREATE POLICY "Allow public read trek events" ON public.trek_events
-    FOR SELECT
-    TO anon, authenticated
-    USING (status != 'draft' OR created_by = auth.uid() OR public.is_admin(auth.uid()));
-
-CREATE POLICY "Allow users create trek events" ON public.trek_events
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (created_by = auth.uid());
-
-CREATE POLICY "Allow creators update trek events" ON public.trek_events
-    FOR UPDATE
-    USING (created_by = auth.uid() OR public.is_admin(auth.uid()));
-
-CREATE POLICY "Allow admin full access trek events" ON public.trek_events
-    FOR ALL
-    USING (public.is_admin(auth.uid()));
-
--- TREK REGISTRATIONS POLICIES
-CREATE POLICY "Allow users view own registrations" ON public.trek_registrations
-    FOR SELECT
-    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
-
-CREATE POLICY "Allow users register for treks" ON public.trek_registrations
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY "Allow users update own registrations" ON public.trek_registrations
-    FOR UPDATE
-    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
-
-CREATE POLICY "Allow admin manage all registrations" ON public.trek_registrations
-    FOR ALL
-    USING (public.is_admin(auth.uid()));
-
--- Similar policy patterns for all other tables...
--- (Continuing with essential policies for space constraints)
-
--- FORUM TABLES POLICIES
-CREATE POLICY "Allow public read forum categories" ON public.forum_categories
-    FOR SELECT
-    TO anon, authenticated
-    USING (true);
-
-CREATE POLICY "Allow authenticated read forum threads" ON public.forum_threads
-    FOR SELECT
-    TO authenticated
-    USING (true);
-
-CREATE POLICY "Allow users create forum threads" ON public.forum_threads
-    FOR INSERT
-    TO authenticated
-    WITH CHECK (user_id = auth.uid());
-
-CREATE POLICY "Allow users update own forum threads" ON public.forum_threads
-    FOR UPDATE
-    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
-
--- NOTIFICATIONS POLICIES
-CREATE POLICY "Allow users access own notifications" ON public.notifications
-    FOR ALL
-    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
-
--- ID PROOFS POLICIES
-CREATE POLICY "Allow users upload own ID proofs" ON public.registration_id_proofs
-    FOR INSERT
-    WITH CHECK (
-        auth.uid() = uploaded_by
-        AND registration_id IN (
-            SELECT registration_id
-            FROM public.trek_registrations
-            WHERE user_id = auth.uid()
-        )
-    );
-
-CREATE POLICY "Allow users view own ID proofs" ON public.registration_id_proofs
-    FOR SELECT
-    USING (
-        auth.uid() = uploaded_by
-        OR public.is_admin(auth.uid())
-    );
-
-CREATE POLICY "Allow admins verify ID proofs" ON public.registration_id_proofs
-    FOR UPDATE
-    USING (public.is_admin(auth.uid()));
-
--- ====================================================================
--- PHASE 8: CREATE DATABASE FUNCTIONS
--- ====================================================================
+-- Drop any existing versions of functions to avoid conflicts
+DROP FUNCTION IF EXISTS public.is_admin(UUID) CASCADE;
+DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
+DROP FUNCTION IF EXISTS public.update_user_profile() CASCADE;
+DROP FUNCTION IF EXISTS public.get_trek_participant_count(INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS public.get_trek_participant_count(INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS public.create_notification(UUID, VARCHAR(255), TEXT, VARCHAR(50), TIMESTAMPTZ) CASCADE;
+DROP FUNCTION IF EXISTS public.get_my_notifications() CASCADE;
+DROP FUNCTION IF EXISTS public.mark_notification_as_read(INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS public.update_tent_reserved_count() CASCADE;
+DROP FUNCTION IF EXISTS public.get_trek_required_id_types(INTEGER) CASCADE;
+DROP FUNCTION IF EXISTS public.user_has_approved_id_proofs(UUID, INTEGER) CASCADE;
 
 -- Function to check if user is admin
 CREATE OR REPLACE FUNCTION public.is_admin(user_id_param UUID DEFAULT auth.uid())
@@ -779,14 +625,20 @@ $$ LANGUAGE plpgsql;
 
 -- Function to get trek participant count
 CREATE OR REPLACE FUNCTION public.get_trek_participant_count(trek_id_param INTEGER)
-RETURNS INTEGER
+RETURNS TABLE (
+    total_participants BIGINT,
+    confirmed_participants BIGINT,
+    pending_participants BIGINT
+)
 LANGUAGE sql
 SECURITY DEFINER
 AS $$
-    SELECT COUNT(*)
+    SELECT
+        COUNT(*) as total_participants,
+        COUNT(*) FILTER (WHERE status = 'confirmed') as confirmed_participants,
+        COUNT(*) FILTER (WHERE status = 'pending') as pending_participants
     FROM public.trek_registrations
-    WHERE trek_id = trek_id_param
-    AND status = 'confirmed';
+    WHERE trek_id = trek_id_param;
 $$;
 
 -- Function to create notification
@@ -919,6 +771,173 @@ AS $$
 $$;
 
 -- ====================================================================
+-- PHASE 7: DROP ALL EXISTING POLICIES TO AVOID CONFLICTS
+-- ====================================================================
+
+-- Drop all existing policies on users table
+DROP POLICY IF EXISTS "Users can view own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can update own profile" ON public.users;
+DROP POLICY IF EXISTS "Users can insert own profile" ON public.users;
+DROP POLICY IF EXISTS "Authenticated users can view basic info" ON public.users;
+DROP POLICY IF EXISTS "Admins can manage all users" ON public.users;
+DROP POLICY IF EXISTS "Allow individual user read access" ON public.users;
+DROP POLICY IF EXISTS "Allow individual user update access" ON public.users;
+DROP POLICY IF EXISTS "Users can read profiles" ON public.users;
+DROP POLICY IF EXISTS "Users can update their profile" ON public.users;
+DROP POLICY IF EXISTS "Allow user signup" ON public.users;
+DROP POLICY IF EXISTS "Allow users to view their own profile" ON public.users;
+DROP POLICY IF EXISTS "Allow users to update their own profile" ON public.users;
+DROP POLICY IF EXISTS "Allow authenticated users to view basic user info" ON public.users;
+DROP POLICY IF EXISTS "Allow admin full access to users" ON public.users;
+DROP POLICY IF EXISTS "Enable insert for authenticated users only" ON public.users;
+DROP POLICY IF EXISTS "Enable read access for all authenticated users" ON public.users;
+DROP POLICY IF EXISTS "user_own_profile_read" ON public.users;
+DROP POLICY IF EXISTS "user_own_profile_update" ON public.users;
+DROP POLICY IF EXISTS "user_own_profile_insert" ON public.users;
+DROP POLICY IF EXISTS "authenticated_users_read_basic_info" ON public.users;
+DROP POLICY IF EXISTS "admin_full_access" ON public.users;
+DROP POLICY IF EXISTS "Allow users read own profile" ON public.users;
+DROP POLICY IF EXISTS "Allow users update own profile" ON public.users;
+DROP POLICY IF EXISTS "Allow users insert own profile" ON public.users;
+DROP POLICY IF EXISTS "Allow authenticated read basic info" ON public.users;
+DROP POLICY IF EXISTS "Allow admin full access" ON public.users;
+
+-- Drop all policies on other tables (similar pattern for all tables)
+DROP POLICY IF EXISTS "Users can view own trek events" ON public.trek_events;
+DROP POLICY IF EXISTS "Users can create trek events" ON public.trek_events;
+DROP POLICY IF EXISTS "Admins can manage all trek events" ON public.trek_events;
+
+DROP POLICY IF EXISTS "Users can view own registrations" ON public.trek_registrations;
+DROP POLICY IF EXISTS "Users can register for treks" ON public.trek_registrations;
+DROP POLICY IF EXISTS "Admins can manage all registrations" ON public.trek_registrations;
+
+-- Continue dropping policies for all other tables...
+DROP POLICY IF EXISTS "Users can view trek comments" ON public.trek_comments;
+DROP POLICY IF EXISTS "Users can create comments" ON public.trek_comments;
+DROP POLICY IF EXISTS "Admins can manage comments" ON public.trek_comments;
+
+DROP POLICY IF EXISTS "Users can view trek ratings" ON public.trek_ratings;
+DROP POLICY IF EXISTS "Users can create ratings" ON public.trek_ratings;
+DROP POLICY IF EXISTS "Admins can manage ratings" ON public.trek_ratings;
+
+-- ... and so on for all tables
+
+-- ====================================================================
+-- PHASE 8: CREATE COMPREHENSIVE RLS POLICIES
+-- ====================================================================
+
+-- USERS TABLE POLICIES
+CREATE POLICY "Allow users read own profile" ON public.users
+    FOR SELECT
+    USING (auth.uid() = user_id);
+
+CREATE POLICY "Allow users update own profile" ON public.users
+    FOR UPDATE
+    USING (auth.uid() = user_id)
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow users insert own profile" ON public.users
+    FOR INSERT
+    WITH CHECK (auth.uid() = user_id);
+
+CREATE POLICY "Allow authenticated read basic info" ON public.users
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Allow admin full access" ON public.users
+    FOR ALL
+    USING (public.is_admin(auth.uid()));
+
+-- TREK EVENTS POLICIES
+CREATE POLICY "Allow public read trek events" ON public.trek_events
+    FOR SELECT
+    TO anon, authenticated
+    USING (true);
+
+CREATE POLICY "Allow users create trek events" ON public.trek_events
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (created_by = auth.uid());
+
+CREATE POLICY "Allow creators update trek events" ON public.trek_events
+    FOR UPDATE
+    USING (created_by = auth.uid() OR public.is_admin(auth.uid()));
+
+CREATE POLICY "Allow admin full access trek events" ON public.trek_events
+    FOR ALL
+    USING (public.is_admin(auth.uid()));
+
+-- TREK REGISTRATIONS POLICIES
+CREATE POLICY "Allow users view own registrations" ON public.trek_registrations
+    FOR SELECT
+    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
+
+CREATE POLICY "Allow users register for treks" ON public.trek_registrations
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Allow users update own registrations" ON public.trek_registrations
+    FOR UPDATE
+    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
+
+CREATE POLICY "Allow admin manage all registrations" ON public.trek_registrations
+    FOR ALL
+    USING (public.is_admin(auth.uid()));
+
+-- Similar policy patterns for all other tables...
+-- (Continuing with essential policies for space constraints)
+
+-- FORUM TABLES POLICIES
+CREATE POLICY "Allow public read forum categories" ON public.forum_categories
+    FOR SELECT
+    TO anon, authenticated
+    USING (true);
+
+CREATE POLICY "Allow authenticated read forum threads" ON public.forum_threads
+    FOR SELECT
+    TO authenticated
+    USING (true);
+
+CREATE POLICY "Allow users create forum threads" ON public.forum_threads
+    FOR INSERT
+    TO authenticated
+    WITH CHECK (user_id = auth.uid());
+
+CREATE POLICY "Allow users update own forum threads" ON public.forum_threads
+    FOR UPDATE
+    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
+
+-- NOTIFICATIONS POLICIES
+CREATE POLICY "Allow users access own notifications" ON public.notifications
+    FOR ALL
+    USING (user_id = auth.uid() OR public.is_admin(auth.uid()));
+
+-- ID PROOFS POLICIES
+CREATE POLICY "Allow users upload own ID proofs" ON public.registration_id_proofs
+    FOR INSERT
+    WITH CHECK (
+        auth.uid() = uploaded_by
+        AND registration_id IN (
+            SELECT registration_id
+            FROM public.trek_registrations
+            WHERE user_id = auth.uid()
+        )
+    );
+
+CREATE POLICY "Allow users view own ID proofs" ON public.registration_id_proofs
+    FOR SELECT
+    USING (
+        auth.uid() = uploaded_by
+        OR public.is_admin(auth.uid())
+    );
+
+CREATE POLICY "Allow admins verify ID proofs" ON public.registration_id_proofs
+    FOR UPDATE
+    USING (public.is_admin(auth.uid()));
+
+-- ====================================================================
 -- PHASE 9: CREATE TRIGGERS
 -- ====================================================================
 
@@ -1025,9 +1044,29 @@ ON CONFLICT (name) DO NOTHING;
 -- PHASE 12: STORAGE BUCKET SETUP
 -- ====================================================================
 
--- Create storage bucket for ID proofs
+-- Create storage bucket for ID proofs (private)
 INSERT INTO storage.buckets (id, name, public, avif_autodetection, file_size_limit, allowed_mime_types)
 VALUES ('id-proofs', 'id-proofs', false, false, 52428800, '{"image/*","application/pdf"}')
+ON CONFLICT (id) DO NOTHING;
+
+-- Create avatars bucket (public)
+INSERT INTO storage.buckets (id, name, public, avif_autodetection, file_size_limit, allowed_mime_types)
+VALUES ('avatars', 'avatars', true, true, 5242880, '{"image/*"}')
+ON CONFLICT (id) DO NOTHING;
+
+-- Create trek-images bucket (public)
+INSERT INTO storage.buckets (id, name, public, avif_autodetection, file_size_limit, allowed_mime_types)
+VALUES ('trek-images', 'trek-images', true, true, 10485760, '{"image/*","video/*"}')
+ON CONFLICT (id) DO NOTHING;
+
+-- Create payment-proofs bucket (private)
+INSERT INTO storage.buckets (id, name, public, avif_autodetection, file_size_limit, allowed_mime_types)
+VALUES ('payment-proofs', 'payment-proofs', false, false, 52428800, '{"image/*","application/pdf"}')
+ON CONFLICT (id) DO NOTHING;
+
+-- Create forum-media bucket (public)
+INSERT INTO storage.buckets (id, name, public, avif_autodetection, file_size_limit, allowed_mime_types)
+VALUES ('forum-media', 'forum-media', true, true, 10485760, '{"image/*","video/*"}')
 ON CONFLICT (id) DO NOTHING;
 
 -- Drop conflicting storage policies
@@ -1073,6 +1112,93 @@ FOR DELETE USING (
             AND user_type = 'admin'::public.user_type_enum
         )
     )
+);
+
+-- Create storage policies for avatars (public)
+CREATE POLICY "Allow users upload avatars" ON storage.objects
+FOR INSERT WITH CHECK (
+    bucket_id = 'avatars'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+CREATE POLICY "Allow public view avatars" ON storage.objects
+FOR SELECT USING (
+    bucket_id = 'avatars'
+);
+
+CREATE POLICY "Allow users delete own avatars" ON storage.objects
+FOR DELETE USING (
+    bucket_id = 'avatars'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Create storage policies for trek-images (public)
+CREATE POLICY "Allow users upload trek images" ON storage.objects
+FOR INSERT WITH CHECK (
+    bucket_id = 'trek-images'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+CREATE POLICY "Allow public view trek images" ON storage.objects
+FOR SELECT USING (
+    bucket_id = 'trek-images'
+);
+
+CREATE POLICY "Allow users delete own trek images" ON storage.objects
+FOR DELETE USING (
+    bucket_id = 'trek-images'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+-- Create storage policies for payment-proofs (private)
+CREATE POLICY "Allow users upload payment proofs" ON storage.objects
+FOR INSERT WITH CHECK (
+    bucket_id = 'payment-proofs'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+CREATE POLICY "Allow users view own payment proofs" ON storage.objects
+FOR SELECT USING (
+    bucket_id = 'payment-proofs'
+    AND (
+        auth.uid()::text = (storage.foldername(name))[1]
+        OR EXISTS (
+            SELECT 1 FROM public.users
+            WHERE user_id = auth.uid()
+            AND user_type = 'admin'::public.user_type_enum
+        )
+    )
+);
+
+CREATE POLICY "Allow users delete own payment proofs" ON storage.objects
+FOR DELETE USING (
+    bucket_id = 'payment-proofs'
+    AND (
+        auth.uid()::text = (storage.foldername(name))[1]
+        OR EXISTS (
+            SELECT 1 FROM public.users
+            WHERE user_id = auth.uid()
+            AND user_type = 'admin'::public.user_type_enum
+        )
+    )
+);
+
+-- Create storage policies for forum-media (public)
+CREATE POLICY "Allow users upload forum media" ON storage.objects
+FOR INSERT WITH CHECK (
+    bucket_id = 'forum-media'
+    AND auth.uid()::text = (storage.foldername(name))[1]
+);
+
+CREATE POLICY "Allow public view forum media" ON storage.objects
+FOR SELECT USING (
+    bucket_id = 'forum-media'
+);
+
+CREATE POLICY "Allow users delete own forum media" ON storage.objects
+FOR DELETE USING (
+    bucket_id = 'forum-media'
+    AND auth.uid()::text = (storage.foldername(name))[1]
 );
 
 -- ====================================================================

@@ -78,10 +78,10 @@ const TrekEvents = () => {
 
   const fetchCategories = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("trek_events")
         .select("*")
-        .not("category", "is", null) as any;
+        .not("category", "is", null)) as any;
 
       if (error) throw error;
 
@@ -117,11 +117,8 @@ const TrekEvents = () => {
 
       // ✅ OPTIMIZED: Reduced field selection for better performance
       const selectString =
-        "trek_id,name,description,category,difficulty,base_price,start_datetime,max_participants,image_url,image,location,status,duration,event_type";
+        "trek_id,name,description,category,difficulty,base_price,start_datetime,max_participants,image_url,image,location,duration,event_type";
       let query = supabase.from("trek_events").select(selectString);
-
-      // Filter out only CANCELLED events - show Draft events for public viewing
-      query = query.neq("status", TrekEventStatus.CANCELLED);
 
       // ✅ OPTIMIZED: Simplified search filter for better performance
       if (currentFilterOptions.search) {
@@ -140,7 +137,9 @@ const TrekEvents = () => {
 
       // Apply price range filter (uses DB column 'base_price')
       if (currentFilterOptions.priceRange) {
-        const [min, max] = currentFilterOptions.priceRange.split("-").map(Number);
+        const [min, max] = currentFilterOptions.priceRange
+          .split("-")
+          .map(Number);
         query = query.gte("base_price", min).lte("base_price", max);
       }
 
@@ -207,13 +206,13 @@ const TrekEvents = () => {
       // ✅ OPTIMIZED: Single query for all participant counts instead of multiple RPC calls
       const newParticipantCounts: Record<number, number> = {};
       if (fetchedData && fetchedData.length > 0) {
-        const trekIds = fetchedData.map(trek => trek.trek_id);
+        const trekIds = fetchedData.map((trek) => trek.trek_id);
 
         // Check cache first
         const cachedCounts: Record<number, number> = {};
         let needsFetch = false;
 
-        trekIds.forEach(trekId => {
+        trekIds.forEach((trekId) => {
           if (cachedParticipantCounts[trekId] !== undefined) {
             cachedCounts[trekId] = cachedParticipantCounts[trekId];
           } else {
@@ -225,34 +224,34 @@ const TrekEvents = () => {
         if (needsFetch) {
           const { data: countsData, error: countsError } = await supabase
             .from("trek_registrations")
-            .select("trek_event_id")
-            .in("trek_event_id", trekIds);
+            .select("trek_id")
+            .in("trek_id", trekIds);
 
           if (!countsError && countsData) {
             // Count registrations per trek
             const freshCounts: Record<number, number> = {};
-            countsData.forEach(reg => {
-              freshCounts[reg.trek_event_id] = (freshCounts[reg.trek_event_id] || 0) + 1;
+            countsData.forEach((reg) => {
+              freshCounts[reg.trek_id] = (freshCounts[reg.trek_id] || 0) + 1;
             });
 
             // Merge cached and fresh data
-            trekIds.forEach(trekId => {
+            trekIds.forEach((trekId) => {
               newParticipantCounts[trekId] = freshCounts[trekId] || 0;
             });
 
             // Update cache
-            setCachedParticipantCounts(prev => ({ ...prev, ...freshCounts }));
+            setCachedParticipantCounts((prev) => ({ ...prev, ...freshCounts }));
           } else {
             // Fallback: set all to 0 if query fails
-            trekIds.forEach(trekId => {
+            trekIds.forEach((trekId) => {
               newParticipantCounts[trekId] = 0;
             });
           }
         } else {
           // All data from cache
-          trekIds.forEach(trekId => {
+          trekIds.forEach((trekId) => {
             newParticipantCounts[trekId] = cachedCounts[trekId];
-        });
+          });
         }
       }
       setParticipantCounts(newParticipantCounts);
@@ -301,8 +300,8 @@ const TrekEvents = () => {
   useEffect(() => {
     // ✅ OPTIMIZED: Debounce filter changes to reduce query frequency
     const timeoutId = setTimeout(() => {
-    fetchEvents();
-    fetchCategories();
+      fetchEvents();
+      fetchCategories();
     }, 300); // 300ms debounce
 
     return () => clearTimeout(timeoutId);
@@ -361,9 +360,53 @@ const TrekEvents = () => {
           </MobileGrid>
         ) : events.length > 0 ? (
           <>
+            {/* Events Count */}
+            <div className="mb-4 text-sm text-muted-foreground">
+              Showing{" "}
+              <span className="font-semibold text-foreground">
+                {events.length}
+              </span>{" "}
+              adventure{events.length !== 1 ? "s" : ""}
+            </div>
+
             {/* Mobile: Event cards in grid */}
             {isMobile ? (
-              <MobileGrid>
+              <div className="space-y-4">
+                {/* Mobile Horizontal Scroll */}
+                <div className="flex gap-4 pb-4 overflow-x-auto snap-x snap-mandatory scrollbar-hide">
+                  {events.map((event) => (
+                    <div
+                      key={event.trek_id}
+                      className="flex-shrink-0 w-72 sm:w-96"
+                    >
+                      <EventCard
+                        trek={{
+                          trek_id: event.trek_id,
+                          name: event.trek_name,
+                          description: event.description,
+                          location: event.location || null,
+                          start_datetime: event.start_datetime,
+                          difficulty: event.difficulty,
+                          duration: event.duration,
+                          cost: event.cost,
+                          max_participants: event.max_participants,
+                          participant_count: event.participant_count,
+                          image_url: event.image_url,
+                          category: event.category,
+                          event_type: event.event_type || null,
+                        }}
+                        onClick={() =>
+                          navigate(`/trek-events/${event.trek_id}`)
+                        }
+                        showProgress
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+              /* Desktop: Grid layout with better spacing */
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {events.map((event) => (
                   <EventCard
                     key={event.trek_id}
@@ -386,10 +429,7 @@ const TrekEvents = () => {
                     showProgress
                   />
                 ))}
-              </MobileGrid>
-            ) : (
-              /* Desktop: Grid layout */
-              <TrekEventsList treks={events} />
+              </div>
             )}
           </>
         ) : (

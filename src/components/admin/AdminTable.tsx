@@ -20,7 +20,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { formatIndianDate } from '@/utils/indianStandards';
+import { formatIndianDate } from "@/utils/indianStandards";
 
 export interface AdminTableAction {
   label: string;
@@ -111,9 +111,7 @@ const AdminTable = <T extends Record<string, any>>({
     selectedRows.length > 0 && selectedRows.length < data.length;
 
   const renderActions = (row: T) => {
-    const visibleActions = actions.filter(
-      (action) => !action.hidden?.(row),
-    );
+    const visibleActions = actions.filter((action) => !action.hidden?.(row));
 
     if (visibleActions.length === 0) return null;
 
@@ -162,7 +160,10 @@ const AdminTable = <T extends Record<string, any>>({
     if (bulkActions.length === 0 || selectedRows.length === 0) return null;
 
     return (
-      <div className="flex items-center space-x-2 p-2 bg-muted rounded-md" data-testid="admintable">
+      <div
+        className="flex items-center space-x-2 p-2 bg-muted rounded-md"
+        data-testid="admintable"
+      >
         <span className="text-sm text-muted-foreground">
           {selectedRows.length} selected
         </span>
@@ -376,8 +377,15 @@ export const RegistrationAdminTable: React.FC<
       label: "User",
       render: (value, row) => (
         <div data-testid="admintable">
-          <div className="font-medium" data-testid="admintable">{row.user?.full_name || "Unknown"}</div>
-          <div className="text-sm text-muted-foreground" data-testid="admintable">{row.user?.email}</div>
+          <div className="font-medium" data-testid="admintable">
+            {row.user?.full_name || "Unknown"}
+          </div>
+          <div
+            className="text-sm text-muted-foreground"
+            data-testid="admintable"
+          >
+            {row.user?.email}
+          </div>
         </div>
       ),
     },
@@ -389,7 +397,10 @@ export const RegistrationAdminTable: React.FC<
           <div className="font-medium" data-testid="admintable">
             {row.trek_event?.name || "Unknown Event"}
           </div>
-          <div className="text-sm text-muted-foreground" data-testid="admintable">
+          <div
+            className="text-sm text-muted-foreground"
+            data-testid="admintable"
+          >
             {formatIndianDate(new Date(row.trek_event?.start_datetime))}
           </div>
         </div>

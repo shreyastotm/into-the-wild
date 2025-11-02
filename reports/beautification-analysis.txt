@@ -1,0 +1,109 @@
+CODE BEAUTIFICATION REPORT
+==========================
+Date: 2025-11-01T12:37:18.178Z
+Project: Into The Wild
+
+EXECUTIVE SUMMARY:
+📁 Files Analyzed: 326
+💄 Formatting Applied: 0 tools
+📝 Naming Issues: 6986
+📚 Documentation Issues: 223
+📦 Import Organization: 2
+
+READABILITY METRICS:
+📏 Average Line Length: 31 characters
+💬 Comment Ratio: 3.3%
+🎯 Readability Score: 35/100
+
+TOP NAMING ISSUES:
+COMPONENT: src\App.tsx:21 - Component uses camelCase: queryClient
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+FUNCTION: src\App.tsx:77 - Function starts with uppercase: App
+   💡 Use camelCase for functions (start with lowercase)
+
+FUNCTION: src\components\admin\AdminSidebar.tsx:26 - Function starts with uppercase: AdminSidebar
+   💡 Use camelCase for functions (start with lowercase)
+
+COMPONENT: src\components\admin\AdminSidebar.tsx:27 - Component uses camelCase: navigate
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminSidebar.tsx:31 - Component uses camelCase: handleSignOut
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminSidebar.tsx:36 - Component uses camelCase: navItems
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+VARIABLE: src\components\admin\AdminSidebar.tsx:80 - Variable uses snake_case: itw_logo
+   💡 Use camelCase for variables (e.g., userName instead of user_name)
+
+VARIABLE: src\components\admin\AdminSidebar.tsx:154 - Variable uses snake_case: itw_logo
+   💡 Use camelCase for variables (e.g., userName instead of user_name)
+
+COMPONENT: src\components\admin\AdminTable.tsx:91 - Component uses camelCase: handleSelectAll
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminTable.tsx:96 - Component uses camelCase: handleSelectRow
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminTable.tsx:105 - Component uses camelCase: isRowSelected
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminTable.tsx:109 - Component uses camelCase: isAllSelected
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminTable.tsx:110 - Component uses camelCase: isIndeterminate
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminTable.tsx:113 - Component uses camelCase: renderActions
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+COMPONENT: src\components\admin\AdminTable.tsx:114 - Component uses camelCase: visibleActions
+   💡 Use PascalCase for React components (e.g., UserProfile instead of userProfile)
+
+TOP DOCUMENTATION ISSUES:
+📚 src\App.tsx:21 - queryClient missing JSDoc documentation
+📚 src\App.tsx:31 - Index missing JSDoc documentation
+📚 src\App.tsx:32 - Auth missing JSDoc documentation
+📚 src\App.tsx:33 - AuthCallback missing JSDoc documentation
+📚 src\App.tsx:34 - TestRoute missing JSDoc documentation
+📚 src\App.tsx:35 - Profile missing JSDoc documentation
+📚 src\App.tsx:36 - Dashboard missing JSDoc documentation
+📚 src\App.tsx:37 - NotFound missing JSDoc documentation
+📚 src\App.tsx:38 - TrekEvents missing JSDoc documentation
+📚 src\App.tsx:39 - TrekEventDetails missing JSDoc documentation
+
+IMPORT ORGANIZATION:
+📦 Consider consolidating external imports
+📦 Consider organizing internal imports by feature
+
+🇮🇳 INDIAN MARKET BEAUTIFICATION:
+  - Currency formatting: Well implemented with formatCurrency utility
+  - Date formatting: Consistent DD/MM/YYYY patterns
+  - GST calculations: Properly documented and organized
+  - Mobile responsiveness: Clean responsive class patterns
+  - Dark mode: Consistent theme implementation
+
+BEAUTIFICATION RECOMMENDATIONS:
+✨ Fix 6986 naming convention issues
+✨ Add JSDoc documentation for 223 functions
+✨ Organize imports in 2 files
+✨ Add more inline comments to explain complex logic
+✨ Apply consistent indentation (2 spaces recommended)
+✨ Use meaningful variable and function names
+✨ Group related functionality together
+✨ Add type annotations for better documentation
+
+APPLIED FORMATTING:
+✅ ESLint auto-fix applied
+✅ Import sorting applied
+✅ Prettier formatting applied
+
+NEXT STEPS:
+1. Review naming convention issues above
+2. Add JSDoc documentation for missing functions
+3. Organize imports by category (external, internal, relative)
+4. Apply consistent code formatting
+5. Run 'npm run refactor' for improvements
+
+Report saved to: reports/beautification-analysis.json

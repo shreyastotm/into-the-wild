@@ -3,6 +3,7 @@
 ## 🎯 Problem Statement
 
 The application was experiencing persistent "Maximum call stack size exceeded" errors on multiple pages:
+
 - `/dashboard` - "Error loading your treks. $3 is not defined"
 - `/events` - "Maximum call stack size exceeded"
 - `/gallery` - "Maximum call stack size exceeded"
@@ -44,6 +45,7 @@ The errors were caused by **infinite useEffect loops** due to circular dependenc
 ### **1. Fixed Circular Dependencies**
 
 #### UserTreks.tsx
+
 ```typescript
 // BEFORE (Infinite Loop)
 useEffect(() => {
@@ -62,6 +64,7 @@ useEffect(() => {
 ```
 
 #### TrekEvents.tsx
+
 ```typescript
 // BEFORE
 useEffect(() => {
@@ -78,6 +81,7 @@ useEffect(() => {
 ```
 
 #### useExpenseSplitting.ts
+
 ```typescript
 // BEFORE
 useEffect(() => {
@@ -129,6 +133,7 @@ componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
 ## 📊 Files Modified
 
 ### **Critical Fixes (Runtime)**
+
 1. `src/components/dashboard/UserTreks.tsx` - Fixed useEffect dependencies
 2. `src/pages/TrekEvents.tsx` - Fixed useEffect dependencies
 3. `src/pages/admin/TrekEventsAdmin.tsx` - Fixed useEffect dependencies
@@ -136,6 +141,7 @@ componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
 5. **`src/pages/PublicGallery.tsx` - Fixed infinite loop (GALLERY PAGE)** ⭐
 
 ### **Debug Infrastructure**
+
 5. `src/components/ErrorBoundary.tsx` - Enhanced error detection
 6. `src/components/auth/AuthProvider.tsx` - Added debug logging
 7. `src/debug-console.js` - Created debug monitoring script (commented out)
@@ -195,6 +201,7 @@ Open https://intothewild.club and check browser console for:
 ### **3. Look for Loop Indicators**
 
 **❌ BAD (Infinite Loop):**
+
 ```
 🔍 UserTreks: useEffect triggered
 🔍 UserTreks: useEffect triggered
@@ -204,6 +211,7 @@ Open https://intothewild.club and check browser console for:
 ```
 
 **✅ GOOD (Normal):**
+
 ```
 🔍 UserTreks: useEffect triggered
 🔍 UserTreks: Calling fetchUserTrekRegistrations
@@ -215,12 +223,14 @@ Open https://intothewild.club and check browser console for:
 ## 📈 Expected Results
 
 ### **Before Fix:**
+
 - ❌ Dashboard: "Error loading your treks. $3 is not defined"
 - ❌ Events: "Maximum call stack size exceeded"
 - ❌ Gallery: "Maximum call stack size exceeded"
 - ❌ Console: No visible errors (silent failure)
 
 ### **After Fix:**
+
 - ✅ Dashboard: Loads user's registered treks successfully
 - ✅ Events: Displays all trek events with filters
 - ✅ Gallery: Shows trek images with proper loading
@@ -233,10 +243,12 @@ Open https://intothewild.club and check browser console for:
 ### **Why useEffect Loops Occur**
 
 React's useEffect compares dependencies using `Object.is()`:
+
 - **Primitive values** (strings, numbers): Compared by value ✅
 - **Objects/Functions**: Compared by reference ❌
 
 When you include a function in dependencies:
+
 1. Component renders
 2. Function is recreated (new reference)
 3. useEffect sees "new" dependency
@@ -248,13 +260,17 @@ When you include a function in dependencies:
 
 ```typescript
 // ❌ BAD: Function in dependencies
-const fetchData = async () => { /* ... */ };
+const fetchData = async () => {
+  /* ... */
+};
 useEffect(() => {
   fetchData();
 }, [fetchData]); // New reference every render
 
 // ✅ GOOD: Only data dependencies
-const fetchData = useCallback(async () => { /* ... */ }, []);
+const fetchData = useCallback(async () => {
+  /* ... */
+}, []);
 useEffect(() => {
   fetchData();
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -294,6 +310,7 @@ useEffect(() => {
 ## 🙏 Acknowledgments
 
 This fix was implemented following a systematic debugging approach:
+
 1. Identified symptoms (stack overflow errors)
 2. Added comprehensive logging
 3. Analyzed component lifecycle
@@ -312,6 +329,7 @@ This fix was implemented following a systematic debugging approach:
 2. **Line 570-572:** `useEffect` with `handleFiltersChange` dependency
 
 **Fix Applied:**
+
 ```typescript
 // BEFORE (Infinite Loop)
 useEffect(() => {
@@ -323,7 +341,7 @@ useEffect(() => {
 
 // AFTER (Fixed)
 useEffect(() => {
-  console.log('🔍 PublicGallery: Initial load useEffect triggered');
+  console.log("🔍 PublicGallery: Initial load useEffect triggered");
   setCurrentPage(1);
   setHasMore(true);
   fetchTreks(1, false);
@@ -338,4 +356,3 @@ useEffect(() => {
 **Initial Deployment:** January 25, 2025 - Commit `19edd7e`
 **Gallery Fix:** January 25, 2025 - Commit `be303e8` ⭐
 **Expected Resolution:** Immediate (once Vercel deployment completes)
-

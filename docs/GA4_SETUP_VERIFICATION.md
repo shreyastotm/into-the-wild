@@ -41,6 +41,7 @@ The `react-ga4` library automatically implements the Google tag (gtag.js) script
 #### Check Console for Initialization
 
 In browser console, you should see:
+
 ```
 [GA4] Analytics initialized successfully
 ```
@@ -48,8 +49,9 @@ In browser console, you should see:
 #### Check window.gtag
 
 In browser console, type:
+
 ```javascript
-window.gtag
+window.gtag;
 ```
 
 You should see the gtag function defined.
@@ -57,8 +59,9 @@ You should see the gtag function defined.
 #### Check dataLayer
 
 In browser console, type:
+
 ```javascript
-window.dataLayer
+window.dataLayer;
 ```
 
 You should see an array with initialization events.
@@ -87,21 +90,21 @@ You can run this in browser console to verify everything is working:
 
 ```javascript
 // Check if gtag is loaded
-console.log('gtag loaded:', typeof window.gtag === 'function');
+console.log("gtag loaded:", typeof window.gtag === "function");
 
 // Check if dataLayer exists
-console.log('dataLayer:', window.dataLayer);
+console.log("dataLayer:", window.dataLayer);
 
 // Check if GA4 is initialized (if using react-ga4)
-console.log('GA4 initialized:', window.gtag ? 'Yes' : 'No');
+console.log("GA4 initialized:", window.gtag ? "Yes" : "No");
 
 // Send a test event
 if (window.gtag) {
-  window.gtag('event', 'test_event', {
-    event_category: 'Test',
-    event_label: 'Manual Verification'
+  window.gtag("event", "test_event", {
+    event_category: "Test",
+    event_label: "Manual Verification",
   });
-  console.log('Test event sent!');
+  console.log("Test event sent!");
 }
 ```
 
@@ -144,6 +147,7 @@ if (window.gtag) {
 ### Script Loading
 
 The gtag.js script is loaded dynamically via `react-ga4` when:
+
 - ✅ Analytics is enabled (`VITE_ENABLE_ANALYTICS=true`)
 - ✅ Measurement ID is provided (`VITE_GA4_MEASUREMENT_ID`)
 - ✅ User has given consent
@@ -151,22 +155,30 @@ The gtag.js script is loaded dynamically via `react-ga4` when:
 ### Equivalent Google Tag Code
 
 The following Google tag code:
+
 ```html
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-NW4MTHFT60"></script>
+<script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=G-NW4MTHFT60"
+></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-  gtag('config', 'G-NW4MTHFT60');
+  function gtag() {
+    dataLayer.push(arguments);
+  }
+  gtag("js", new Date());
+  gtag("config", "G-NW4MTHFT60");
 </script>
 ```
 
 Is automatically implemented by `react-ga4` when you call:
+
 ```typescript
-ReactGA.initialize('G-NW4MTHFT60')
+ReactGA.initialize("G-NW4MTHFT60");
 ```
 
 **Benefits of using react-ga4:**
+
 - ✅ Automatic script loading
 - ✅ React lifecycle management
 - ✅ TypeScript support
@@ -181,4 +193,3 @@ ReactGA.initialize('G-NW4MTHFT60')
 4. ✅ Start using tracking hooks in your components
 
 See `docs/GA4_ANALYTICS_INTEGRATION.md` for usage examples.
-

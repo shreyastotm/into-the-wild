@@ -22,7 +22,7 @@ export default function AuthCallback() {
 
         if (error) {
           console.error("Auth callback error:", error);
-          navigate(`/auth?error=${  encodeURIComponent(error.message)}`);
+          navigate(`/auth?error=${encodeURIComponent(error.message)}`);
           return;
         }
 
@@ -44,8 +44,9 @@ export default function AuthCallback() {
             // Stop authentication on error
             stopAuthenticating();
             navigate(
-              `/auth?error=${ 
-                encodeURIComponent(errorDescription || errorParam)}`,
+              `/auth?error=${encodeURIComponent(
+                errorDescription || errorParam,
+              )}`,
             );
             return;
           }

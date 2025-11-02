@@ -84,47 +84,47 @@ router.post("/plan", async (req, res) => {
         "OTP not available, using fallback calculation:",
         otpError instanceof Error ? otpError.message : String(otpError),
       );
-      
+
       // Calculate straight-line distance as fallback (only when needed)
       const distance = calculateHaversineDistance(from, to);
       const estimatedDuration = Math.round((distance / 40) * 60); // Assume 40 km/h average speed
 
-    // Fallback: Use straight-line distance calculation
-    const transformed = {
-      success: true,
-      route: {
-        duration: estimatedDuration * 60, // Convert to seconds
-        durationMinutes: estimatedDuration,
-        distance: distance * 1000, // Convert to meters
-        distanceKm: Math.round(distance * 10) / 10,
-        startTime: new Date().toLocaleString("en-IN"),
-        endTime: new Date(
-          Date.now() + estimatedDuration * 60000,
-        ).toLocaleString("en-IN"),
-        legs: [
-          {
-            mode: mode.toLowerCase(),
-            from: {
-              name: "Start Point",
-              lat: from.lat,
-              lon: from.lon,
+      // Fallback: Use straight-line distance calculation
+      const transformed = {
+        success: true,
+        route: {
+          duration: estimatedDuration * 60, // Convert to seconds
+          durationMinutes: estimatedDuration,
+          distance: distance * 1000, // Convert to meters
+          distanceKm: Math.round(distance * 10) / 10,
+          startTime: new Date().toLocaleString("en-IN"),
+          endTime: new Date(
+            Date.now() + estimatedDuration * 60000,
+          ).toLocaleString("en-IN"),
+          legs: [
+            {
+              mode: mode.toLowerCase(),
+              from: {
+                name: "Start Point",
+                lat: from.lat,
+                lon: from.lon,
+              },
+              to: {
+                name: "End Point",
+                lat: to.lat,
+                lon: to.lon,
+              },
+              distance: distance * 1000,
+              duration: estimatedDuration * 60,
+              steps: [],
             },
-            to: {
-              name: "End Point",
-              lat: to.lat,
-              lon: to.lon,
-            },
-            distance: distance * 1000,
-            duration: estimatedDuration * 60,
-            steps: [],
-          },
-        ],
-        fallback: true,
-        note: "Using estimated distance calculation (OTP service not available)",
-      },
-    };
+          ],
+          fallback: true,
+          note: "Using estimated distance calculation (OTP service not available)",
+        },
+      };
 
-    return res.json(transformed);
+      return res.json(transformed);
     }
 
     // This should never be reached as we either return from the try block
@@ -206,22 +206,22 @@ router.post("/time", async (req, res) => {
         "OTP not available for time estimation, using fallback:",
         otpError instanceof Error ? otpError.message : String(otpError),
       );
-      
+
       // Calculate distance using Haversine formula (only when needed)
       const distance = calculateHaversineDistance(from, to);
       const estimatedTimeMinutes = Math.round((distance / 40) * 60); // Assume 40 km/h average speed
 
-    // Fallback calculation
+      // Fallback calculation
       return res.json({
-      success: true,
-      timeMinutes: estimatedTimeMinutes,
-      distanceKm: Math.round(distance * 10) / 10,
-      otpUsed: false,
-      fallback: true,
-      note: "Using estimated calculation (OTP service not available)",
-    });
+        success: true,
+        timeMinutes: estimatedTimeMinutes,
+        distanceKm: Math.round(distance * 10) / 10,
+        otpUsed: false,
+        fallback: true,
+        note: "Using estimated calculation (OTP service not available)",
+      });
     }
-    
+
     // This should never be reached as we either return from the try block
     // or from the catch block, but TypeScript doesn't know that
     return res.status(500).json({ error: "Unexpected time estimation error" });

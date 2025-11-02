@@ -3,7 +3,7 @@
 > **Version:** 1.0  
 > **Date:** October 24, 2025  
 > **Status:** Complete Implementation  
-> **Focus:** Bundle Optimization, Code Splitting, and Performance  
+> **Focus:** Bundle Optimization, Code Splitting, and Performance
 
 ---
 
@@ -99,33 +99,41 @@ We implemented a comprehensive code splitting strategy using Vite's manual chunk
 // vite.config.ts
 manualChunks: (id) => {
   // Vendor chunks
-  if (id.includes('node_modules')) {
-    if (id.includes('react') || id.includes('scheduler') || id.includes('prop-types')) {
-      return 'vendor-react';
+  if (id.includes("node_modules")) {
+    if (
+      id.includes("react") ||
+      id.includes("scheduler") ||
+      id.includes("prop-types")
+    ) {
+      return "vendor-react";
     }
-    if (id.includes('@supabase')) {
-      return 'vendor-supabase';
+    if (id.includes("@supabase")) {
+      return "vendor-supabase";
     }
-    if (id.includes('lucide') || id.includes('radix') || id.includes('shadcn')) {
-      return 'vendor-ui';
+    if (
+      id.includes("lucide") ||
+      id.includes("radix") ||
+      id.includes("shadcn")
+    ) {
+      return "vendor-ui";
     }
-    return 'vendor';
+    return "vendor";
   }
-  
+
   // Feature chunks
-  if (id.includes('/components/admin/')) {
-    return 'admin';
+  if (id.includes("/components/admin/")) {
+    return "admin";
   }
-  if (id.includes('/components/trek/')) {
-    return 'trek';
+  if (id.includes("/components/trek/")) {
+    return "trek";
   }
-  if (id.includes('/components/profile/')) {
-    return 'profile';
+  if (id.includes("/components/profile/")) {
+    return "profile";
   }
-  if (id.includes('/pages/forum/')) {
-    return 'forum';
+  if (id.includes("/pages/forum/")) {
+    return "forum";
   }
-}
+};
 ```
 
 ### 3.2 Lazy Loading Implementation
@@ -142,11 +150,14 @@ const Dashboard = lazy(() => import("./pages/Dashboard"));
 // ...
 
 // In routes
-<Route path="/" element={
-  <Suspense fallback={<LoadingSpinner fullScreen />}>
-    <Index />
-  </Suspense>
-} />
+<Route
+  path="/"
+  element={
+    <Suspense fallback={<LoadingSpinner fullScreen />}>
+      <Index />
+    </Suspense>
+  }
+/>;
 ```
 
 ### 3.3 Loading State Improvements
@@ -233,13 +244,13 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 // Re-export types from trek.ts for convenience
-export type { TrekCost, TrekCostType } from '@/types/trek';
+export type { TrekCost, TrekCostType } from "@/types/trek";
 
 // User verification types
-export type UserVerificationStatus = 'pending' | 'verified' | 'rejected';
+export type UserVerificationStatus = "pending" | "verified" | "rejected";
 
 export interface VerificationDocs {
   front_url?: string;
@@ -249,7 +260,7 @@ export interface VerificationDocs {
 
 export type Database = {
   // ... generated types
-}
+};
 ```
 
 ### 4.3 Unused Imports Cleanup
@@ -258,10 +269,10 @@ Created a script to automatically remove unused imports:
 
 ```javascript
 // scripts/fix-unused-imports.mjs
-import fs from 'fs';
-import path from 'path';
-import { execSync } from 'child_process';
-import { fileURLToPath } from 'url';
+import fs from "fs";
+import path from "path";
+import { execSync } from "child_process";
+import { fileURLToPath } from "url";
 
 // Get current directory
 const __filename = fileURLToPath(import.meta.url);
@@ -279,13 +290,13 @@ const fixUnusedImports = (filePath) => {
 
 // Main function
 const main = () => {
-  const srcDir = path.join(process.cwd(), 'src');
+  const srcDir = path.join(process.cwd(), "src");
   const files = getAllFiles(srcDir);
-  
+
   console.log(`Found ${files.length} TypeScript files to process`);
-  
+
   // Process each file
-  files.forEach(file => {
+  files.forEach((file) => {
     fixUnusedImports(file);
   });
 };
@@ -299,32 +310,32 @@ main();
 
 ### 5.1 Bundle Size Comparison
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Main Bundle | 1,230 KB | 349 KB | 71.6% reduction |
-| Total Chunks | 1 | 33 | Better caching |
-| Initial Load | ~1.2 MB | ~350 KB | 3.4x faster |
+| Metric       | Before   | After   | Improvement     |
+| ------------ | -------- | ------- | --------------- |
+| Main Bundle  | 1,230 KB | 349 KB  | 71.6% reduction |
+| Total Chunks | 1        | 33      | Better caching  |
+| Initial Load | ~1.2 MB  | ~350 KB | 3.4x faster     |
 
 ### 5.2 Chunk Distribution
 
-| Chunk | Size (KB) | Description |
-|-------|-----------|-------------|
-| vendor-react | 349.58 | React core libraries |
-| vendor | 289.01 | Other vendor dependencies |
-| trek | 143.47 | Trek-related components |
-| vendor-supabase | 124.77 | Supabase client |
-| index | 58.93 | Main application code |
-| admin | 54.10 | Admin components |
-| profile | 42.70 | Profile components |
-| ... | ... | ... |
+| Chunk           | Size (KB) | Description               |
+| --------------- | --------- | ------------------------- |
+| vendor-react    | 349.58    | React core libraries      |
+| vendor          | 289.01    | Other vendor dependencies |
+| trek            | 143.47    | Trek-related components   |
+| vendor-supabase | 124.77    | Supabase client           |
+| index           | 58.93     | Main application code     |
+| admin           | 54.10     | Admin components          |
+| profile         | 42.70     | Profile components        |
+| ...             | ...       | ...                       |
 
 ### 5.3 Load Time Improvements
 
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| First Contentful Paint | ~1.8s | ~0.6s | 66.7% faster |
-| Largest Contentful Paint | ~2.9s | ~1.2s | 58.6% faster |
-| Time to Interactive | ~3.5s | ~1.5s | 57.1% faster |
+| Metric                   | Before | After | Improvement  |
+| ------------------------ | ------ | ----- | ------------ |
+| First Contentful Paint   | ~1.8s  | ~0.6s | 66.7% faster |
+| Largest Contentful Paint | ~2.9s  | ~1.2s | 58.6% faster |
+| Time to Interactive      | ~3.5s  | ~1.5s | 57.1% faster |
 
 ---
 

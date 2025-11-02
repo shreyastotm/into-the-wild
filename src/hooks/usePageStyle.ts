@@ -11,7 +11,10 @@ export const usePageStyle = (config: {
   minHeight?: string;
 }) => {
   // Memoize the config object to prevent unnecessary re-renders
-  const memoizedConfig = useMemo(() => config, [config.overflow, config.height, config.minHeight]);
+  const memoizedConfig = useMemo(
+    () => config,
+    [config.overflow, config.height, config.minHeight],
+  );
 
   // ✅ FIXED: Add memoizedConfig dependency to prevent stale closure issues
   useEffect(() => {

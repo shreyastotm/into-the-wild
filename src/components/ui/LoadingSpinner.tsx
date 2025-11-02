@@ -1,4 +1,3 @@
-
 import { cn } from "@/lib/utils";
 
 interface LoadingSpinnerProps {
@@ -23,14 +22,14 @@ export function LoadingSpinner({
       className={cn(
         "flex items-center justify-center",
         fullScreen ? "h-screen w-full" : "h-full w-full min-h-[200px]",
-        className
+        className,
       )}
     >
       <div className="flex flex-col items-center gap-2">
         <div
           className={cn(
             "animate-spin rounded-full border-t-transparent border-primary",
-            sizeClasses[size]
+            sizeClasses[size],
           )}
         />
         <p className="text-sm text-muted-foreground">Loading...</p>

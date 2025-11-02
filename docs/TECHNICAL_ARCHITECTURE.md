@@ -54,6 +54,7 @@ into-the-wild/
 ### 1.2 Frontend Architecture
 
 #### Component Organization
+
 The frontend follows a feature-based architecture with clear separation:
 
 ```
@@ -109,16 +110,17 @@ src/
 ### 2.1 React Architecture Patterns
 
 #### State Management Strategy
+
 ```typescript
 // Global state management with TanStack Query
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 // Server state (API data)
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       staleTime: 5 * 60 * 1000, // 5 minutes
-      gcTime: 10 * 60 * 1000,   // 10 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes
     },
   },
 });
@@ -129,6 +131,7 @@ const [filters, setFilters] = useState(defaultFilters);
 ```
 
 #### Component Patterns
+
 ```typescript
 // Compound component pattern for complex UIs
 interface TabsProps {
@@ -158,6 +161,7 @@ const Tabs: React.FC<TabsProps> & {
 ### 2.2 React Hooks Guidelines
 
 #### Core Principles
+
 1. **Prevent Infinite Loops**: Avoid dependency cycles between `useEffect` and `useCallback`
 2. **Performance First**: Memoize expensive operations but avoid unnecessary dependencies
 3. **Predictable Behavior**: Ensure consistent behavior across renders
@@ -165,6 +169,7 @@ const Tabs: React.FC<TabsProps> & {
 #### Correct Patterns
 
 **Pattern 1: Empty Dependencies with Stale Closure (Recommended)**
+
 ```typescript
 const fetchData = useCallback(async (param: string) => {
   // ✅ Read current state inside function (stale closure)
@@ -172,19 +177,22 @@ const fetchData = useCallback(async (param: string) => {
   const currentSort = sortBy;
 
   // Make API call using current values
-  const result = await api.get(`/data?filter=${currentFilter}&sort=${currentSort}`);
+  const result = await api.get(
+    `/data?filter=${currentFilter}&sort=${currentSort}`,
+  );
   setData(result);
 }, []); // ✅ Empty dependencies
 
 useEffect(() => {
-  fetchData('initial');
+  fetchData("initial");
 }, [fetchData]);
 ```
 
 **Pattern 2: Primitive Dependencies Only**
+
 ```typescript
-const [searchTerm, setSearchTerm] = useState('');
-const [sortBy, setSortBy] = useState('date');
+const [searchTerm, setSearchTerm] = useState("");
+const [sortBy, setSortBy] = useState("date");
 
 const fetchData = useCallback(async () => {
   await api.get(`/data?search=${searchTerm}&sort=${sortBy}`);
@@ -196,6 +204,7 @@ useEffect(() => {
 ```
 
 **Pattern 3: Object Length Instead of Object Reference**
+
 ```typescript
 const [selectedTags, setSelectedTags] = useState<number[]>([]);
 
@@ -210,6 +219,7 @@ useEffect(() => {
 #### Anti-Patterns (Never Use)
 
 **Anti-Pattern 1: Function in Dependencies**
+
 ```typescript
 // ❌ NEVER DO THIS - Creates infinite loops
 const fetchData = useCallback(async () => {
@@ -222,6 +232,7 @@ useEffect(() => {
 ```
 
 **Anti-Pattern 2: Complex Dependencies**
+
 ```typescript
 // ❌ AVOID - Creates unnecessary re-renders
 const fetchData = useCallback(async () => {
@@ -237,6 +248,7 @@ const fetchData = useCallback(async () => {
 ### 2.3 TypeScript Configuration
 
 #### Project Configuration
+
 ```json
 // tsconfig.json - Root configuration
 {
@@ -252,7 +264,7 @@ const fetchData = useCallback(async () => {
     "noEmit": true,
     "composite": true,
     "jsx": "react",
-    "strict": false,  // Note: Currently relaxed for development speed
+    "strict": false, // Note: Currently relaxed for development speed
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
@@ -268,7 +280,9 @@ const fetchData = useCallback(async () => {
 ```
 
 #### Strict Type Checking
+
 For production builds and quality gates:
+
 ```bash
 # Run strict TypeScript checking
 npm run type-check:strict
@@ -283,6 +297,7 @@ npm run type-check:strict
 ### 2.4 Code Quality Standards
 
 #### ESLint Configuration
+
 ```javascript
 // eslint.config.js - Enhanced rules
 export default [
@@ -333,13 +348,17 @@ export default [
 
       // TypeScript specific
       "@typescript-eslint/no-explicit-any": "warn",
-      "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "error",
+        { argsIgnorePattern: "^_" },
+      ],
     },
   },
 ];
 ```
 
 #### Pre-commit Hooks
+
 ```bash
 # Pre-commit quality gates
 npm run precommit  # Runs: type-check + lint + test:run
@@ -358,6 +377,7 @@ npm run build         # Production build validation
 ### 3.1 Supabase Architecture
 
 #### Services Overview
+
 - **Database**: PostgreSQL with advanced features
 - **Authentication**: Built-in user management and JWT
 - **Storage**: File uploads with RLS policies
@@ -366,6 +386,7 @@ npm run build         # Production build validation
 - **Row Level Security**: Comprehensive data access control
 
 #### Database Schema Structure
+
 ```sql
 -- Core user management
 users (id, email, user_type, partner_id, verification_status)
@@ -392,6 +413,7 @@ scheduled_notifications (schedule_id, notification_id, scheduled_for)
 ### 3.2 Database Migration Strategy
 
 #### Migration Files Structure
+
 ```
 supabase/migrations/
 ├── 20250505155501_squashed_schema.sql    # Complete schema
@@ -403,6 +425,7 @@ supabase/migrations/
 ```
 
 #### Creating New Migrations
+
 ```bash
 # Method 1: Diff-based (recommended)
 supabase db diff -f add_new_feature
@@ -416,6 +439,7 @@ supabase db push   # Push specific migrations
 ```
 
 #### Migration Best Practices
+
 - **Conditional Logic**: Use `DO $$ BEGIN IF EXISTS ... END IF; $$`
 - **Error Handling**: Proper rollback procedures
 - **Testing**: Test migrations on development before production
@@ -490,35 +514,35 @@ npm run db:validate
 
 ##### Database Management Agents
 
-| Command | Description | Usage |
-|---------|-------------|-------|
-| `npm run db:sync` | Synchronize local and remote databases | Full sync including conflict resolution |
-| `npm run db:validate` | Validate schema health and RLS policies | Health check with detailed reporting |
-| `npm run db:consolidate` | Consolidate migrations into clean schema | Creates single consolidated migration |
-| `npm run db:backup` | Create timestamped database backup | Backup current state |
-| `npm run db:health` | Run comprehensive health checks | Quick health assessment |
+| Command                  | Description                              | Usage                                   |
+| ------------------------ | ---------------------------------------- | --------------------------------------- |
+| `npm run db:sync`        | Synchronize local and remote databases   | Full sync including conflict resolution |
+| `npm run db:validate`    | Validate schema health and RLS policies  | Health check with detailed reporting    |
+| `npm run db:consolidate` | Consolidate migrations into clean schema | Creates single consolidated migration   |
+| `npm run db:backup`      | Create timestamped database backup       | Backup current state                    |
+| `npm run db:health`      | Run comprehensive health checks          | Quick health assessment                 |
 
 ##### Complete Workflows
 
-| Command | Description | When to Use |
-|---------|-------------|-------------|
-| `npm run db:dev` | Start development with validation | Daily development |
-| `npm run db:dev:reset` | Reset and sync development | After major changes |
-| `npm run db:prod-sync` | Production synchronization | Before deployment |
-| `npm run db:full-setup` | Complete setup from scratch | Initial setup or recovery |
+| Command                 | Description                       | When to Use               |
+| ----------------------- | --------------------------------- | ------------------------- |
+| `npm run db:dev`        | Start development with validation | Daily development         |
+| `npm run db:dev:reset`  | Reset and sync development        | After major changes       |
+| `npm run db:prod-sync`  | Production synchronization        | Before deployment         |
+| `npm run db:full-setup` | Complete setup from scratch       | Initial setup or recovery |
 
 #### Database Schema
 
 ##### Core Tables
 
-| Table | Purpose | Key Features |
-|-------|---------|--------------|
-| `users` | User profiles and authentication | Extended profile fields, RLS policies |
-| `trek_events` | Trek event definitions | Complete lifecycle management |
-| `trek_registrations` | User registrations for treks | Multi-step registration process |
-| `trek_expenses` | Expense tracking | Fair sharing system |
-| `notifications` | User notifications | Real-time and scheduled |
-| `forum_*` | Community forum system | Categories, threads, posts, voting |
+| Table                | Purpose                          | Key Features                          |
+| -------------------- | -------------------------------- | ------------------------------------- |
+| `users`              | User profiles and authentication | Extended profile fields, RLS policies |
+| `trek_events`        | Trek event definitions           | Complete lifecycle management         |
+| `trek_registrations` | User registrations for treks     | Multi-step registration process       |
+| `trek_expenses`      | Expense tracking                 | Fair sharing system                   |
+| `notifications`      | User notifications               | Real-time and scheduled               |
+| `forum_*`            | Community forum system           | Categories, threads, posts, voting    |
 
 ##### Security Features
 
@@ -547,6 +571,7 @@ npm run db:validate
 ##### Conflict Resolution
 
 The system automatically detects and resolves:
+
 - **Local/Remote Drift** - Synchronizes migration status
 - **Policy Conflicts** - Removes duplicate RLS policies
 - **Schema Inconsistencies** - Standardizes table structures
@@ -557,18 +582,21 @@ The system automatically detects and resolves:
 The validation system checks:
 
 ##### Schema Integrity
+
 - All tables have RLS enabled
 - Required indexes exist
 - Foreign key constraints valid
 - Data types consistent
 
 ##### Security Validation
+
 - RLS policies working correctly
 - Admin functions accessible
 - User permissions appropriate
 - Storage policies configured
 
 ##### Performance Metrics
+
 - Query performance acceptable
 - Indexes properly utilized
 - Connection limits not exceeded
@@ -579,6 +607,7 @@ The validation system checks:
 ##### Common Issues
 
 ###### Database Connection Issues
+
 ```bash
 # Check Supabase status
 npm run supabase:status
@@ -588,6 +617,7 @@ npm run supabase:stop && npm run supabase:start
 ```
 
 ###### Migration Conflicts
+
 ```bash
 # Consolidate and start fresh
 npm run db:consolidate
@@ -595,6 +625,7 @@ npm run db:dev:reset
 ```
 
 ###### RLS Policy Errors
+
 ```bash
 # Validate and fix policies
 npm run db:validate
@@ -602,6 +633,7 @@ npm run db:sync
 ```
 
 ###### Schema Drift
+
 ```bash
 # Sync with remote
 npm run db:sync
@@ -611,6 +643,7 @@ npm run db:extract-schema
 ##### Recovery Procedures
 
 ###### Emergency Reset
+
 ```bash
 # Complete reset and rebuild
 npm run supabase:stop
@@ -619,6 +652,7 @@ npm run db:full-setup
 ```
 
 ###### Production Recovery
+
 ```bash
 # Backup, sync, validate
 npm run db:backup
@@ -645,18 +679,21 @@ npm run db:validate
 #### Best Practices
 
 ##### Development
+
 1. **Always validate** after schema changes
 2. **Create backups** before major operations
 3. **Test locally** before deploying to remote
 4. **Use consolidated migrations** for complex changes
 
 ##### Deployment
+
 1. **Validate production** before deployment
 2. **Create backups** of production data
 3. **Test deployment** in staging first
 4. **Monitor** after deployment completion
 
 ##### Maintenance
+
 1. **Regular health checks** with `npm run db:health`
 2. **Schema extraction** after major changes
 3. **Migration consolidation** when conflicts arise
@@ -681,6 +718,7 @@ The system integrates with deployment pipelines:
 ### 3.4 Edge Functions Architecture
 
 #### Function Structure
+
 ```
 supabase/functions/
 ├── signup-automation/          # User onboarding automation
@@ -690,6 +728,7 @@ supabase/functions/
 ```
 
 #### Function Development
+
 ```typescript
 // supabase/functions/signup-automation/index.ts
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
@@ -698,7 +737,7 @@ import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 serve(async (req) => {
   const supabaseClient = createClient(
     Deno.env.get("SUPABASE_URL") ?? "",
-    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+    Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
   );
 
   // Function logic here
@@ -717,6 +756,7 @@ serve(async (req) => {
 #### Core Interaction Tables
 
 **Nudges System** (`public.nudges`)
+
 - Behavioral psychology-driven contextual prompts
 - Triggers: onboarding, engagement, retention, conversion, social
 - Types: contextual, milestone, social_proof, urgency, recurring
@@ -725,24 +765,73 @@ serve(async (req) => {
 - Analytics tracking for optimization
 
 **Profile Completion Funnel** (`public.profile_completion_stages`)
+
 - Gamified onboarding with 5 stages: avatar (20%), bio (40%), interests (60%), verification (80%), social (100%)
 - Status tracking: not_started, in_progress, completed, skipped
 - Completion percentage calculation
 - Milestone celebration system
 
 **Enhanced Notifications** (`public.enhanced_notifications`)
+
 - Multiple toast variants: success, error, info, warning, milestone, celebration, nudge, social
 - Intelligent positioning and timing
 - Context-aware messaging
 - User preference respecting
 
 **Social Features Foundation** (Multiple Tables)
-- User connections: `public.user_connections` (friends, followers)
-- Posts: `public.user_posts` (content sharing)
-- Reactions: `public.post_reactions` (likes, comments, shares)
-- Image tagging: Through `public.image_tag_assignments`
+
+**User Connections** (`public.user_connections`)
+- Connection ID: UUID primary key
+- Requester/Addressee: Bidirectional relationships
+- Status: pending, accepted, blocked
+- Connection Type: friend, follower
+- Mutual tracking: mutual_friends_count, mutual_treks_count
+- Timestamps: requested_at, responded_at, connected_at
+- Indexes: requester_id, addressee_id, status
+- RLS: Users can view own connections, admins see all
+
+**User Posts** (`public.user_posts`)
+- Post ID: UUID primary key
+- User ID: References users(user_id) with CASCADE delete
+- Content: TEXT (required), media_urls JSONB array
+- Post Type: text, image, video, trek_share
+- Trek Association: trek_id, registration_id (optional)
+- Engagement Metrics: like_count, comment_count, share_count, view_count (default 0)
+- Visibility: public, friends, private (default: friends)
+- Features: is_pinned, is_featured (boolean flags)
+- Location: location_name, latitude, longitude (DOUBLE PRECISION)
+- Metadata: tags JSONB array [{ user_id, x, y }], mentions JSONB array
+- Timestamps: created_at, updated_at
+- Indexes: user_id, trek_id, visibility, created_at (optimized for queries)
+- RLS Policies:
+  - SELECT: Own posts OR public OR (friends visibility AND accepted connection) OR admin
+  - INSERT: Only own user_id
+  - UPDATE: Own posts OR admin
+  - DELETE: Own posts OR admin
+- Migration: Applied via `REMOTE_APPLY_user_posts.sql` (February 2026)
+
+**Post Reactions** (`public.post_reactions`)
+- Reaction ID: UUID primary key
+- Post ID: References user_posts(post_id) with CASCADE delete
+- User ID: References users(user_id) with CASCADE delete
+- Reaction Type: like, love, laugh, wow, sad, angry (VARCHAR 50)
+- Emoji: VARCHAR(10) for reaction emoji
+- Timestamps: reacted_at, created_at, updated_at
+- Constraint: UNIQUE(post_id, user_id) - one reaction per user per post
+- Indexes: post_id, user_id (optimized for reaction queries)
+- RLS Policies:
+  - SELECT: All reactions visible to authenticated users
+  - INSERT: Only own user_id
+  - DELETE: Only own reactions
+- Migration: Applied via `REMOTE_APPLY_user_posts.sql` (February 2026)
+
+**Image Tagging System**
+- Image-to-tag associations through `public.image_tag_assignments`
+- Multi-tag filtering and category-based organization
+- Friend tagging on gallery past adventures (Phase 5B feature)
 
 **Analytics & Tracking**
+
 - `public.user_interactions`: Comprehensive user behavior tracking
 - `public.transition_states`: State management analytics
 - `public.nudge_analytics`: Nudge performance metrics
@@ -754,6 +843,7 @@ serve(async (req) => {
   - Integration with internal behavioral tracking system
 
 #### Phase 5 Enum Types
+
 - `nudge_type_enum`: contextual, milestone, social_proof, urgency, recurring
 - `nudge_trigger_enum`: onboarding, engagement, retention, conversion, social
 - `nudge_priority_enum`: low, medium, high, critical
@@ -762,6 +852,7 @@ serve(async (req) => {
 - `toast_variant_enum`: success, error, info, warning, milestone, celebration, nudge, social
 
 #### Functions Created
+
 - `calculate_profile_completion(user_uuid UUID)`: Calculates overall profile completion
 - `create_profile_milestone(user_uuid UUID, stage profile_stage_enum)`: Creates milestones for celebrations
 - `track_user_interaction(user_uuid UUID, interaction_type VARCHAR(100), context_data JSONB)`: Tracks user actions
@@ -769,6 +860,7 @@ serve(async (req) => {
 - `update_nudge_shown()`: Trigger-based nudge tracking
 
 #### Storage Buckets (5 Total)
+
 - `avatars` (public): User profile pictures and avatars
 - `trek-images` (public): Trek photos and videos shared by users
 - `id-proofs` (private): Government ID verification documents
@@ -778,12 +870,65 @@ serve(async (req) => {
 ### 5.2 Behavioral Psychology Engine
 
 **Nudge System Architecture**
+
 - Context-aware display logic
 - Frequency-based rule engine
 - Device and behavior-based personalization
 - A/B testing support via analytics
 
+**Nudge Templates & Triggers**
+
+The nudge system uses behavioral psychology principles to guide user actions:
+
+**Onboarding Nudges** (Trigger: onboarding)
+- `first_profile_setup`: Complete your profile to unlock features
+- `complete_profile`: Join 1000+ trekkers with complete profiles
+- `continue_momentum`: You're 20% there! Complete your profile to unlock more
+
+**Engagement Nudges** (Trigger: engagement)
+- `first_trek_urgency`: Limited spots available for your first trek!
+- `trek_discovery`: Discover treks matching your interests
+- `community_join`: Connect with fellow trekkers on your next adventure
+
+**Retention Nudges** (Trigger: retention)
+- `trek_recommendation`: Based on your profile, you might enjoy these treks
+- `social_connection`: Tag friends in your trek photos to share memories
+- `profile_update`: Update your interests to get better trek recommendations
+
+**Conversion Nudges** (Trigger: conversion)
+- `registration_complete`: Complete your registration to secure your spot
+- `payment_pending`: Secure your trek spot - payment verification pending
+- `early_bird`: Register early to get exclusive discounts
+
+**Social Nudges** (Trigger: social)
+- `friend_connect`: Connect with friends who share your trek interests
+- `post_share`: Share your trek experience with the community
+- `tag_friends`: Tag friends in gallery photos to relive memories together
+
+**Nudge Psychology Types**
+
+- **Contextual**: Context-aware prompts based on current page/action
+- **Milestone**: Celebrate achievements and progress markers
+- **Social Proof**: Leverage community actions ("Join 1000+ trekkers")
+- **Urgency**: Create time-sensitive motivation (limited spots)
+- **Recurring**: Periodic reminders for incomplete actions
+
+**Nudge Priority Levels**
+
+- **Low** (1-3): Informational nudges, non-critical suggestions
+- **Medium** (4-6): Important but not urgent guidance
+- **High** (7-8): Important actions requiring attention
+- **Critical** (9-10): Blocking issues or time-sensitive actions
+
+**Frequency Rules**
+
+- Same nudge won't show within 24 hours (configurable)
+- User can dismiss nudges with "Don't show again" option
+- Nudges respect user preferences and quiet hours
+- Analytics track nudge effectiveness for optimization
+
 **Profile Completion Psychology**
+
 - Milestone-based motivation
 - Progress visualization
 - Achievement unlocks
@@ -792,11 +937,13 @@ serve(async (req) => {
 ### 5.3 Enhanced Toast System
 
 **Toast Hierarchy**
+
 - Standard: info, success, warning, error
 - Elevated: milestone, celebration
 - Behavioral: nudge, social
 
 **Intelligent Positioning**
+
 - Top-center for critical alerts
 - Bottom-right for standard notifications
 - Context-specific placement based on user preferences
@@ -804,17 +951,20 @@ serve(async (req) => {
 ### 5.4 Social Features Engine
 
 **Connection System**
+
 - Bidirectional friend relationships
 - Follow/unfollow capabilities
 - Mutual connection tracking
 
 **Post Engagement**
+
 - Create, read, update, delete posts
 - Like/unlike functionality
 - Comment threads
 - Share tracking
 
 **Image Tagging System**
+
 - Tag creation and management
 - Image-to-tag associations
 - Multi-tag filtering
@@ -823,20 +973,47 @@ serve(async (req) => {
 ### 5.5 GA4 Analytics Integration
 
 **Implementation**
+
 - **Library**: `react-ga4` v2.1.0 for React integration
 - **Hook**: `useGA4Analytics()` - Custom hook for tracking
 - **Consent**: GDPR-compliant consent management component
 - **Initialization**: Automatic on app load (after consent)
 
+**Setup & Configuration**
+
+Environment variables required:
+```env
+VITE_ENABLE_ANALYTICS=true
+VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
+```
+
 **Features**
+
 - Privacy-compliant tracking with consent management
 - Automatic page view tracking on route changes
 - Custom event tracking for business metrics
 - User identification and property tracking
 - Indian market context (INR currency, India country code)
 - Integration with internal behavioral tracking system
+- Dual tracking support (GA4 + internal behavioral system)
+
+**Available Tracking Methods**
+
+| Method | Description | Parameters |
+|--------|-------------|------------|
+| `trackEvent` | Generic event tracking | `(eventName: string, parameters?: object)` |
+| `trackTrekRegistration` | Track trek registrations | `(trekId: string, trekName: string, cost: number)` |
+| `trackPaymentSuccess` | Track payment completion | `(amount: number, trekId: string, transactionId?: string)` |
+| `trackGalleryView` | Track gallery image views | `(imageId: string, trekName?: string)` |
+| `trackForumInteraction` | Track forum actions | `(action: string, threadId?: string)` |
+| `trackProfileCompletion` | Track profile completion | `(completionPercentage: number)` |
+| `trackButtonClick` | Track button clicks | `(buttonName: string, context?: object)` |
+| `trackFormSubmit` | Track form submissions | `(formName: string, success: boolean, data?: object)` |
+| `trackNavigation` | Track navigation clicks | `(destination: string, linkText?: string)` |
+| `trackError` | Track errors | `(errorMessage: string, errorType?: string, context?: object)` |
 
 **Events Tracked**
+
 - Page views (automatic on navigation)
 - Trek views and registrations
 - Gallery image views
@@ -846,19 +1023,47 @@ serve(async (req) => {
 - Social sharing actions
 - Button clicks and form submissions
 
-**Documentation**
-- Setup Guide: [GA4_SETUP_COMPLETE.md](docs/GA4_SETUP_COMPLETE.md)
-- Integration Guide: [GA4_ANALYTICS_INTEGRATION.md](docs/GA4_ANALYTICS_INTEGRATION.md)
+**Privacy & GDPR Compliance**
+
+- Consent management with localStorage persistence
+- IP anonymization enabled by default
+- Google signals disabled (privacy-first)
+- Ad personalization disabled
+- User can revoke consent anytime
+- No personal data shared beyond Google Analytics
+
+**Usage Example**
+
+```typescript
+import { useGA4Analytics } from '@/hooks/useGA4Analytics';
+
+function TrekRegistrationForm() {
+  const { trackTrekRegistration } = useGA4Analytics();
+
+  const handleRegistration = async (trekData: TrekEvent) => {
+    trackTrekRegistration(trekData.id, trekData.name, trekData.cost);
+    await registerForTrek(trekData);
+  };
+}
+```
+
+**Documentation References**
+
+- Complete Setup: [GA4_ANALYTICS_INTEGRATION.md](docs/GA4_ANALYTICS_INTEGRATION.md)
 - Quick Start: [GA4_QUICK_START.md](docs/GA4_QUICK_START.md)
+- Setup Steps: [GA4_SETUP_STEPS.md](docs/GA4_SETUP_STEPS.md)
+- Verification: [GA4_SETUP_VERIFICATION.md](docs/GA4_SETUP_VERIFICATION.md)
 
 ### 5.6 Performance Monitoring
 
 **Guarantees**
+
 - 60fps animation guarantee with CSS transforms
 - Database query optimization through RLS
 - Real-time analytics without blocking
 
 **Metrics Tracked**
+
 - Nudge performance (impressions, clicks, dismissals)
 - Profile completion rates by stage
 - Social feature adoption
@@ -872,34 +1077,38 @@ serve(async (req) => {
 ### 6.1 Component Updates for Phase 5B
 
 #### Glass Morphism Card Component
+
 ```tsx
 // Apply to all card components across pages
 interface ModernCardProps {
   className?: string;
   glassMorphism?: boolean;
   darkMode?: boolean;
-  hoverEffect?: 'scale' | 'shadow' | 'glow';
+  hoverEffect?: "scale" | "shadow" | "glow";
 }
 
 const ModernCard = ({
   className,
   glassMorphism = true,
-  hoverEffect = 'shadow'
-}: ModernCardProps) => cn(
-  "relative overflow-hidden rounded-2xl",
-  "bg-white/10 dark:bg-gray-800/10",
-  glassMorphism && "backdrop-blur-md border border-white/20 dark:border-gray-700/20",
-  hoverEffect === 'shadow' && "hover:shadow-2xl",
-  hoverEffect === 'scale' && "hover:scale-105 hover:shadow-2xl",
-  hoverEffect === 'glow' && "hover:shadow-[0_0_30px_rgba(244,164,96,0.3)]",
-  "transition-all duration-300",
-  className
-);
+  hoverEffect = "shadow",
+}: ModernCardProps) =>
+  cn(
+    "relative overflow-hidden rounded-2xl",
+    "bg-white/10 dark:bg-gray-800/10",
+    glassMorphism &&
+      "backdrop-blur-md border border-white/20 dark:border-gray-700/20",
+    hoverEffect === "shadow" && "hover:shadow-2xl",
+    hoverEffect === "scale" && "hover:scale-105 hover:shadow-2xl",
+    hoverEffect === "glow" && "hover:shadow-[0_0_30px_rgba(244,164,96,0.3)]",
+    "transition-all duration-300",
+    className,
+  );
 ```
 
 ### 6.2 Page Modernization Checklist
 
 #### 1. Landing Page (Index.tsx) → Use Index.v2.tsx
+
 - ✅ Replace old index with modern continuous scroll
 - ✅ Apply glass morphism to all CTAs
 - ✅ Add background blur and gradient overlays
@@ -908,6 +1117,7 @@ const ModernCard = ({
 - ✅ Dark mode support
 
 #### 2. Events Page (TrekEvents.tsx)
+
 - ✅ Apply ModernCard to EventCard components
 - ✅ Implement horizontal scroll for mobile
 - ✅ Add glass morphism styling
@@ -917,6 +1127,7 @@ const ModernCard = ({
 - ✅ Add social proof indicators (participant count, reviews)
 
 #### 3. Gallery Page (PublicGallery.tsx)
+
 - ✅ Apply glass morphism to gallery cards
 - ✅ Implement friend tagging UI system
 - ✅ Add image hover effects and overlays
@@ -925,6 +1136,7 @@ const ModernCard = ({
 - ✅ Add social interaction buttons (like, comment, tag)
 
 #### 4. Admin Pages (AdminPanel.tsx)
+
 - ✅ Desktop: Wider sidebar (256px)
 - ✅ Larger touch targets (48px minimum)
 - ✅ Enhanced spacing and typography
@@ -932,6 +1144,7 @@ const ModernCard = ({
 - ✅ Mobile: Hamburger menu with bottom sheet
 
 #### 5. Profile Completion Overlay (Layout.tsx)
+
 - ✅ Context-aware visibility rules
 - ✅ Mobile-responsive positioning
 - ✅ Hide on admin/event details pages
@@ -940,6 +1153,7 @@ const ModernCard = ({
 ### 6.3 Responsive Design Implementation
 
 #### Mobile-First Breakpoints (All Components)
+
 ```tsx
 // Tailwind breakpoints applied consistently
 const RESPONSIVE_CLASSES = {
@@ -949,44 +1163,47 @@ const RESPONSIVE_CLASSES = {
   card: {
     mobile: "h-48 rounded-xl p-3",
     tablet: "h-56 rounded-2xl p-4",
-    desktop: "h-64 rounded-2xl p-6"
-  }
+    desktop: "h-64 rounded-2xl p-6",
+  },
 };
 ```
 
 #### Touch Target Compliance
+
 ```tsx
 // All interactive elements meet minimum 44px (mobile) / 48px (desktop)
 const TOUCH_TARGETS = {
-  mobile: "h-11 w-11",      // 44px minimum
-  desktop: "h-12 w-12",     // 48px recommended
-  icon: "h-5 w-5",           // Inside buttons
-  spacing: "gap-2 sm:gap-3"  // Min 8px between targets
+  mobile: "h-11 w-11", // 44px minimum
+  desktop: "h-12 w-12", // 48px recommended
+  icon: "h-5 w-5", // Inside buttons
+  spacing: "gap-2 sm:gap-3", // Min 8px between targets
 };
 ```
 
 ### 6.4 Animation & Performance Standards
 
 #### 60fps Animation Guarantee
+
 ```tsx
 // Only use transform and opacity for GPU acceleration
 const PERFORMANCE_SAFE_ANIMATIONS = {
-  transform: 'translate3d(0,0,0)',
-  opacity: 'opacity-0 to opacity-100',
+  transform: "translate3d(0,0,0)",
+  opacity: "opacity-0 to opacity-100",
   noColorChanges: true,
   noBorderRadiusChanges: true,
-  useWillChange: 'will-change: transform, opacity'
+  useWillChange: "will-change: transform, opacity",
 };
 ```
 
 #### Loading State Hierarchy
+
 ```tsx
 // Progressive loading for better UX
 const LOADING_STATES = {
   skeleton: "Skeleton screens for initial load",
   shimmer: "Shimmer effect for content updates",
   spinner: "Loading spinner for actions",
-  progressive: "Progressive image loading with blur placeholders"
+  progressive: "Progressive image loading with blur placeholders",
 };
 ```
 
@@ -995,11 +1212,13 @@ const LOADING_STATES = {
 ## 7. Development Standards & Quality
 
 ### Phase 5B Implementation Phase
+
 **Status**: Ready for implementation  
 **Timeline**: 3 weeks  
-**Priority**: High (affects all user-facing pages)  
+**Priority**: High (affects all user-facing pages)
 
 **Deliverables**:
+
 1. ✅ Landing page modernization
 2. ✅ Events page UI update
 3. ✅ Gallery page social features
@@ -1010,15 +1229,16 @@ const LOADING_STATES = {
 ---
 
 **Document Version**: 2.1 (Phase 5B Ready)  
-**Last Updated**: February 2, 2026  
+**Last Updated**: February 26, 2026  
 **Status**: Phase 5B Implementation Started  
 **Next Review**: February 16, 2026
 
 ---
 
 **For detailed implementation examples, see:**
+
 - [Project Overview Guide](PROJECT_OVERVIEW.md)
-- [Technical Architecture Guide](TECHNICAL_ARCHITECTURE.md#5-interaction-system-architecture)
+- [Technical Architecture Guide](docs/TECHNICAL_ARCHITECTURE.md#5-interaction-system-architecture)
 - [Design System Reference](DESIGN_SYSTEM.md)
 - [Communication System Guide](COMMUNICATION_SYSTEM.md)
 - [Phase 5 Interaction System Guide](PHASE5_INTERACTION_SYSTEM.md)

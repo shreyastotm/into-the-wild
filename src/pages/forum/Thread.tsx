@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 
 import { useAuth } from "@/components/auth/AuthProvider";
+import { OrigamiHamburger } from "@/components/navigation/OrigamiHamburger";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,16 @@ export default function ForumThread() {
       fetchThreadData();
     }
   }, [id]);
+
+  // Apply minimal glassmorphic scrollbar styling to html/body
+  useEffect(() => {
+    document.documentElement.classList.add("glass-theme-active");
+    document.body.classList.add("glass-theme-active");
+    return () => {
+      document.documentElement.classList.remove("glass-theme-active");
+      document.body.classList.remove("glass-theme-active");
+    };
+  }, []);
 
   const fetchThreadData = async () => {
     if (!id) return;
@@ -251,6 +262,8 @@ export default function ForumThread() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
+      {/* Origami Hamburger Menu */}
+      <OrigamiHamburger />
       {/* Header */}
       <div className="mb-8">
         <div className="flex items-center gap-4 mb-4">

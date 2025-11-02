@@ -5,12 +5,14 @@ Generated on: 2025-01-25
 > **Note**: For comprehensive database management documentation including automated schema management, migration workflows, health checks, and troubleshooting, see [TECHNICAL_ARCHITECTURE.md](../../docs/TECHNICAL_ARCHITECTURE.md#database-management-system)
 
 ## Files Generated:
+
 - `latest_schema.sql` - Complete schema dump with all tables, types, functions, and policies
 - `migration_history.txt` - List of applied migrations
 
 ## Key Tables:
 
 ### Core Tables:
+
 - `users` - User profiles and authentication
 - `trek_events` - Trek event definitions
 - `trek_registrations` - User registrations for treks
@@ -19,17 +21,20 @@ Generated on: 2025-01-25
 - `trek_participant_ratings` - Participant-to-participant ratings
 
 ### Transport & Logistics:
+
 - `trek_pickup_locations` - Pickup points for treks
 - `trek_drivers` - Users acting as drivers
 - `trek_driver_assignments` - Driver-participant assignments
 
 ### Financial:
+
 - `trek_expenses` - Expense tracking
 - `expense_shares` - How expenses are shared among participants
 - `trek_expense_categories` - Expense categories
 - `trek_costs` - Fixed costs for treks
 
 ### Community & Communication:
+
 - `notifications` - User notifications
 - `scheduled_notifications` - Scheduled notifications
 - `forum_categories` - Forum categories
@@ -38,11 +43,13 @@ Generated on: 2025-01-25
 - `votes` - Voting system for forum content
 
 ### Packing & Equipment:
+
 - `master_packing_items` - Reusable packing items
 - `trek_packing_list_assignments` - Trek-specific packing lists
 - `tent_rentals` - Tent rental system
 
 ### Media & Documentation:
+
 - `user_trek_images` - User-uploaded trek images
 - `image_tags` - Image tagging system
 - `registration_id_proofs` - ID proof uploads
@@ -50,6 +57,7 @@ Generated on: 2025-01-25
 - `trek_id_requirements` - ID requirements per trek
 
 ### System Tables:
+
 - `site_settings` - Application settings
 - `subscriptions_billing` - Billing information
 - `comments` - Generic comments system
@@ -57,16 +65,19 @@ Generated on: 2025-01-25
 ## Key Features:
 
 ### Security:
+
 - Row Level Security (RLS) enabled on all tables
 - Comprehensive RLS policies for data access control
 - User authentication and authorization
 
 ### Data Types:
+
 - Custom ENUMs for user roles, transport modes, event types
 - JSONB columns for flexible data storage
 - Proper foreign key relationships
 
 ### Functions:
+
 - `get_trek_participant_count()` - Get participant count for treks
 - `create_notification()` - Create user notifications
 - `get_my_notifications()` - Get user's notifications
@@ -76,6 +87,7 @@ Generated on: 2025-01-25
 - `user_has_approved_id_proofs()` - Check user's ID verification status
 
 ### Features:
+
 - **Trek Management**: Complete trek lifecycle from creation to completion
 - **User Management**: User profiles, verification, and roles
 - **Transport Coordination**: Driver assignments and pickup management
@@ -88,7 +100,9 @@ Generated on: 2025-01-25
 - **ID Verification**: Document upload and verification system
 
 ## Migration History:
+
 The database has been through extensive development with 67+ migrations covering:
+
 - Initial schema setup
 - User authentication and profiles
 - Trek event management
@@ -105,12 +119,14 @@ The database has been through extensive development with 67+ migrations covering
 ## Usage:
 
 ### Apply to Fresh Database:
+
 ```bash
 # Apply the complete schema
 psql -d your_database -f latest_schema.sql
 ```
 
 ### Apply to Existing Database:
+
 ```bash
 # Check migration status first
 npx supabase migration list
@@ -120,6 +136,7 @@ npx supabase db push
 ```
 
 ### Development Setup:
+
 ```bash
 # Start local Supabase
 npx supabase start
@@ -132,16 +149,15 @@ npx supabase migration new your_migration_name
 ```
 
 ## Database Connection:
+
 - **Local Development**: `postgresql://postgres:postgres@127.0.0.1:54322/postgres`
 - **API URL**: `http://127.0.0.1:54321`
 - **Studio URL**: `http://127.0.0.1:54323`
 
 ## Important Notes:
+
 - All tables have RLS enabled with appropriate policies
 - Foreign key relationships are properly maintained
 - Indexes are created for performance optimization
 - Functions are secured with proper permissions
 - The schema supports both local development and production deployment
-
-
-

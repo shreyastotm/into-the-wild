@@ -49,7 +49,10 @@ export const AddExpenseModal: React.FC<AddExpenseModalProps> = ({
           </DialogDescription>
         </DialogHeader>
         {loading ? (
-          <div className="flex items-center justify-center h-24" data-testid="addexpensemodal">
+          <div
+            className="flex items-center justify-center h-24"
+            data-testid="addexpensemodal"
+          >
             <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             <span className="ml-2">Loading participants...</span>
           </div>

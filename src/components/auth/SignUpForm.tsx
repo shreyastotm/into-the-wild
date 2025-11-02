@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import { Link } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -263,12 +264,16 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               ];
               return (
                 <>
-                  <div className="flex gap-1" aria-hidden data-testid="signupform">
+                  <div
+                    className="flex gap-1"
+                    aria-hidden
+                    data-testid="signupform"
+                  >
                     {[0, 1, 2, 3].map((i) => (
                       <span
                         key={i}
                         className={`h-1.5 w-8 rounded ${i < score ? colors[score - 1] : "bg-gray-200"}`}
-                       />
+                      />
                     ))}
                   </div>
                   <span className="text-xs text-gray-600">
@@ -342,16 +347,18 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
               variant="link"
               size="sm"
               className="h-auto p-0 text-primary underline text-xs sm:text-sm"
+              asChild
             >
-              Terms of Service
+              <Link to="/terms-of-service">Terms of Service</Link>
             </Button>{" "}
             and{" "}
             <Button
               variant="link"
               size="sm"
               className="h-auto p-0 text-primary underline text-xs sm:text-sm"
+              asChild
             >
-              Privacy Policy
+              <Link to="/privacy-policy">Privacy Policy</Link>
             </Button>
             , including the indemnity clause for adventure activities.
           </Label>
@@ -367,7 +374,8 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
         <div
           className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md"
           role="alert"
-         data-testid="signupform">
+          data-testid="signupform"
+        >
           {errors.general}
         </div>
       )}
@@ -387,7 +395,10 @@ export const SignUpForm: React.FC<SignUpFormProps> = ({
       >
         {loading ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="signupform" />
+            <div
+              className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+              data-testid="signupform"
+            />
             Creating account...
           </>
         ) : (

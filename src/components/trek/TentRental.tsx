@@ -1,5 +1,5 @@
 import { AlertCircle, Calendar, Tent, Users } from "lucide-react";
-import React, { useCallback, useEffect , useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -186,7 +186,11 @@ export const TentRental: React.FC<TentRentalProps> = ({
       setSubmitting(true);
 
       // GST disabled temporarily - calculating base cost only
-      const totalCost = calculateCost(tentType, selection.quantity, selection.nights);
+      const totalCost = calculateCost(
+        tentType,
+        selection.quantity,
+        selection.nights,
+      );
 
       const { error } = await supabase.from("tent_requests").upsert(
         {

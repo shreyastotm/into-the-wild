@@ -1,26 +1,26 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 
-import AuthContext from '../AuthProvider';
+import AuthContext from "../AuthProvider";
 
-describe('AuthContext', () => {
-  it('renders without crashing', () => {
+describe("AuthContext", () => {
+  it("renders without crashing", () => {
     render(<AuthContext />);
     // Basic existence check
-    expect(screen.getByTestId('authprovider')).toBeInTheDocument();
+    expect(screen.getByTestId("authprovider")).toBeInTheDocument();
   });
 
-  it('displays correct content', () => {
+  it("displays correct content", () => {
     render(<AuthContext />);
     // Check for expected content
     // Example: expect(screen.getByText('Expected Text')).toBeInTheDocument();
   });
 
-  it('handles user interactions', async () => {
+  it("handles user interactions", async () => {
     const user = userEvent.setup();
     render(<AuthContext />);
-    
+
     // Example: Find a button and click it
     // const button = screen.getByRole('button', { name: 'Click Me' });
     // await user.click(button);

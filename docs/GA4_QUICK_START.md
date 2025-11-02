@@ -40,6 +40,7 @@ npm run dev
 ### 3. Accept Analytics Consent
 
 When you load the app:
+
 1. Wait 2 seconds for consent dialog
 2. Click "Accept Analytics"
 3. Page will reload and GA4 will initialize
@@ -47,6 +48,7 @@ When you load the app:
 ### 4. Verify It's Working
 
 Open browser DevTools Console, you should see:
+
 ```
 [GA4] Analytics initialized successfully
 [GA4] Page view tracked: /
@@ -74,30 +76,30 @@ Run this to verify everything:
 
 ```javascript
 // Check gtag.js is loaded
-console.log('✅ gtag loaded:', typeof window.gtag === 'function');
+console.log("✅ gtag loaded:", typeof window.gtag === "function");
 
 // Check dataLayer exists
-console.log('✅ dataLayer:', window.dataLayer?.length || 0, 'items');
+console.log("✅ dataLayer:", window.dataLayer?.length || 0, "items");
 
 // Check GA4 config
-console.log('✅ Measurement ID:', 'G-NW4MTHFT60');
+console.log("✅ Measurement ID:", "G-NW4MTHFT60");
 
 // Send test event
 if (window.gtag) {
-  window.gtag('event', 'test_setup', {
-    event_category: 'Setup',
-    event_label: 'Manual Verification'
+  window.gtag("event", "test_setup", {
+    event_category: "Setup",
+    event_label: "Manual Verification",
   });
-  console.log('✅ Test event sent! Check GA4 Real-Time reports.');
+  console.log("✅ Test event sent! Check GA4 Real-Time reports.");
 }
 ```
 
 ## You're All Set! 🎉
 
 Your Google Tag is configured and ready to track:
+
 - ✅ Page views (automatic)
 - ✅ User interactions (via hooks)
 - ✅ Custom events (via tracking methods)
 
 See `docs/GA4_ANALYTICS_INTEGRATION.md` for detailed usage examples.
-

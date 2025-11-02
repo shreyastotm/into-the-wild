@@ -21,6 +21,7 @@ The communication system is designed to keep trekkers informed, engaged, and saf
 ### 1.2 Key Principles
 
 #### User-Centric Design
+
 - **Reduce Anxiety**: Keep users informed about their trek status
 - **Build Excitement**: Create anticipation for upcoming adventures
 - **Foster Community**: Connect participants and encourage engagement
@@ -28,6 +29,7 @@ The communication system is designed to keep trekkers informed, engaged, and saf
 - **Gather Feedback**: Enable continuous improvement through user input
 
 #### Indian Market Focus
+
 - **WhatsApp-First**: 530M+ Indian users prefer WhatsApp over email
 - **Mobile-Optimized**: 80% mobile usage requires mobile-first approach
 - **Low-Data Friendly**: Optimized for poor network conditions
@@ -35,14 +37,14 @@ The communication system is designed to keep trekkers informed, engaged, and saf
 
 ### 1.3 Communication Channels
 
-| Channel | Purpose | Current Status | Target Reach |
-|---------|---------|----------------|--------------|
-| **In-App Notifications** | Real-time updates | ✅ Implemented | 100% users |
-| **WhatsApp Groups** | Community coordination | ✅ 200+ members | 75%+ opt-in |
-| **Email Notifications** | Formal confirmations | ✅ Implemented | 50% users |
-| **SMS Alerts** | Critical updates | 🚧 Planned | Emergency only |
-| **Push Notifications** | PWA engagement | ✅ Implemented | 90%+ users |
-| **Browser Notifications** | Desktop alerts | ✅ Implemented | 30% users |
+| Channel                   | Purpose                | Current Status  | Target Reach   |
+| ------------------------- | ---------------------- | --------------- | -------------- |
+| **In-App Notifications**  | Real-time updates      | ✅ Implemented  | 100% users     |
+| **WhatsApp Groups**       | Community coordination | ✅ 200+ members | 75%+ opt-in    |
+| **Email Notifications**   | Formal confirmations   | ✅ Implemented  | 50% users      |
+| **SMS Alerts**            | Critical updates       | 🚧 Planned      | Emergency only |
+| **Push Notifications**    | PWA engagement         | ✅ Implemented  | 90%+ users     |
+| **Browser Notifications** | Desktop alerts         | ✅ Implemented  | 30% users      |
 
 ---
 
@@ -51,6 +53,7 @@ The communication system is designed to keep trekkers informed, engaged, and saf
 ### 2.1 Database Architecture
 
 #### Core Tables
+
 ```sql
 -- User notifications
 CREATE TABLE notifications (
@@ -92,6 +95,7 @@ CREATE TABLE user_notification_preferences (
 ```
 
 #### Notification Types
+
 ```sql
 -- Notification type enum
 CREATE TYPE notification_type_enum AS ENUM (
@@ -118,6 +122,7 @@ CREATE TYPE notification_status_enum AS ENUM (
 ### 2.2 Row Level Security (RLS) Policies
 
 #### User Access Control
+
 ```sql
 -- Users can only see their own notifications
 CREATE POLICY "Users can view own notifications" ON notifications
@@ -132,6 +137,7 @@ CREATE POLICY "Users can manage own preferences" ON user_notification_preference
 ```
 
 #### Admin Access
+
 ```sql
 -- Admins can create notifications for any user
 CREATE POLICY "Admins can create notifications" ON notifications
@@ -147,6 +153,7 @@ CREATE POLICY "Admins can create notifications" ON notifications
 ### 2.3 Notification Functions
 
 #### Create Notification RPC
+
 ```sql
 CREATE OR REPLACE FUNCTION create_notification(
   p_user_id UUID,
@@ -194,6 +201,7 @@ $$;
 ```
 
 #### Mark as Read RPC
+
 ```sql
 CREATE OR REPLACE FUNCTION mark_notification_as_read(
   p_notification_id UUID
@@ -223,6 +231,7 @@ $$;
 ### 3.1 In-App Notifications
 
 #### React Hook Implementation
+
 ```typescript
 // src/hooks/useNotifications.ts
 export function useNotifications() {
@@ -234,16 +243,16 @@ export function useNotifications() {
   const fetchNotifications = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .rpc('get_my_notifications')
-        .order('created_at', { ascending: false })
+        .rpc("get_my_notifications")
+        .order("created_at", { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
       setNotifications(data || []);
-      setUnreadCount(data?.filter(n => n.status === 'unread').length || 0);
+      setUnreadCount(data?.filter((n) => n.status === "unread").length || 0);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -252,21 +261,25 @@ export function useNotifications() {
   // Mark as read
   const markAsRead = useCallback(async (notificationId: string) => {
     try {
-      await supabase.rpc('mark_notification_as_read', {
-        p_notification_id: notificationId
+      await supabase.rpc("mark_notification_as_read", {
+        p_notification_id: notificationId,
       });
 
-      setNotifications(prev =>
-        prev.map(n =>
+      setNotifications((prev) =>
+        prev.map((n) =>
           n.notification_id === notificationId
-            ? { ...n, status: 'read' as const, read_at: new Date().toISOString() }
-            : n
-        )
+            ? {
+                ...n,
+                status: "read" as const,
+                read_at: new Date().toISOString(),
+              }
+            : n,
+        ),
       );
 
-      setUnreadCount(prev => Math.max(0, prev - 1));
+      setUnreadCount((prev) => Math.max(0, prev - 1));
     } catch (error) {
-      console.error('Error marking notification as read:', error);
+      console.error("Error marking notification as read:", error);
     }
   }, []);
 
@@ -275,19 +288,19 @@ export function useNotifications() {
 
     // Real-time subscription
     const subscription = supabase
-      .channel('notifications')
+      .channel("notifications")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user?.id}`
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user?.id}`,
         },
         (payload) => {
-          setNotifications(prev => [payload.new, ...prev]);
-          setUnreadCount(prev => prev + 1);
-        }
+          setNotifications((prev) => [payload.new, ...prev]);
+          setUnreadCount((prev) => prev + 1);
+        },
       )
       .subscribe();
 
@@ -299,12 +312,13 @@ export function useNotifications() {
     unreadCount,
     loading,
     markAsRead,
-    refetch: fetchNotifications
+    refetch: fetchNotifications,
   };
 }
 ```
 
 #### UI Components
+
 ```tsx
 // Notification bell component
 export function NotificationBell({ className }: { className?: string }) {
@@ -320,7 +334,7 @@ export function NotificationBell({ className }: { className?: string }) {
               className="absolute -top-1 -right-1 h-5 w-5 p-0 flex items-center justify-center text-xs"
               variant="destructive"
             >
-              {unreadCount > 99 ? '99+' : unreadCount}
+              {unreadCount > 99 ? "99+" : unreadCount}
             </Badge>
           )}
         </Button>
@@ -353,12 +367,14 @@ export function NotificationBell({ className }: { className?: string }) {
 ### 3.2 WhatsApp Integration
 
 #### Current Implementation
+
 - **Manual Group Creation**: Admins create WhatsApp groups for each trek
 - **Automated Invitations**: System generates participant lists and invite links
 - **200+ Active Members**: Growing community across multiple trek groups
 - **Real-time Coordination**: Participants share updates, photos, and logistics
 
 #### Group Management Workflow
+
 ```typescript
 // Generate WhatsApp group details
 const generateWhatsAppGroup = async (trekId: number) => {
@@ -380,11 +396,11 @@ Welcome to your trek community! Please:
 
 Trek leader will be added shortly.
     `.trim(),
-    participants: participants.map(p => ({
+    participants: participants.map((p) => ({
       name: p.name,
       phone: p.phone,
-      role: p.user_type
-    }))
+      role: p.user_type,
+    })),
   };
 
   return groupDetails;
@@ -392,30 +408,31 @@ Trek leader will be added shortly.
 ```
 
 #### Future WhatsApp Business API
+
 ```typescript
 // Planned automated messaging via WhatsApp Business API
 const sendWhatsAppMessage = async (
   phoneNumber: string,
   message: string,
-  template?: string
+  template?: string,
 ) => {
   // Template-based messaging for compliance
   const templates = {
     trek_reminder: {
       name: "trek_reminder",
-      variables: ["trek_name", "start_date", "location"]
+      variables: ["trek_name", "start_date", "location"],
     },
     registration_confirmed: {
       name: "registration_confirmed",
-      variables: ["trek_name", "amount_paid"]
-    }
+      variables: ["trek_name", "amount_paid"],
+    },
   };
 
   // Send via WhatsApp Business API
   await whatsappAPI.sendMessage({
     to: phoneNumber,
     template: template || "general_message",
-    message: message
+    message: message,
   });
 };
 ```
@@ -423,6 +440,7 @@ const sendWhatsAppMessage = async (
 ### 3.3 Email Notifications
 
 #### Email Templates
+
 ```typescript
 // Email template system
 const emailTemplates = {
@@ -438,7 +456,7 @@ const emailTemplates = {
         <p><strong>Amount Paid:</strong> ₹${amount_paid}</p>
       </div>
       <p>Check your dashboard for updates and join the WhatsApp group!</p>
-    `
+    `,
   },
   payment_verified: {
     subject: "✅ Payment Verified - {trek_name}",
@@ -446,35 +464,36 @@ const emailTemplates = {
       <h2>Payment Verified!</h2>
       <p>Your payment of ₹${amount} has been verified.</p>
       <p>You're all set for ${trek_name}!</p>
-    `
-  }
+    `,
+  },
 };
 ```
 
 #### Email Service Integration
+
 ```typescript
 // Supabase Edge Function for email sending
 export async function sendEmail({
   to,
   subject,
   html,
-  from = "Into The Wild <noreply@intothewild.club>"
+  from = "Into The Wild <noreply@intothewild.club>",
 }) {
   const emailData = {
     to: [to],
     subject: subject,
     html: html,
-    from: from
+    from: from,
   };
 
   // Send via email service (Resend, SendGrid, etc.)
-  const response = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
+  const response = await fetch("https://api.resend.com/emails", {
+    method: "POST",
     headers: {
-      'Authorization': `Bearer ${Deno.env.get('RESEND_API_KEY')}`,
-      'Content-Type': 'application/json'
+      Authorization: `Bearer ${Deno.env.get("RESEND_API_KEY")}`,
+      "Content-Type": "application/json",
     },
-    body: JSON.stringify(emailData)
+    body: JSON.stringify(emailData),
   });
 
   return response.json();
@@ -484,64 +503,62 @@ export async function sendEmail({
 ### 3.4 Push Notifications (PWA)
 
 #### Service Worker Implementation
+
 ```javascript
 // public/sw.js
-self.addEventListener('push', (event) => {
+self.addEventListener("push", (event) => {
   const data = event.data.json();
   const options = {
     body: data.body,
-    icon: '/icons/icon-192x192.png',
-    badge: '/icons/badge-72x72.png',
+    icon: "/icons/icon-192x192.png",
+    badge: "/icons/badge-72x72.png",
     vibrate: [200, 100, 200],
     data: {
-      url: data.url || '/',
+      url: data.url || "/",
       notificationId: data.id,
-      trekId: data.trekId
+      trekId: data.trekId,
     },
     actions: [
       {
-        action: 'view',
-        title: 'View Details',
-        icon: '/icons/view-icon.png'
+        action: "view",
+        title: "View Details",
+        icon: "/icons/view-icon.png",
       },
       {
-        action: 'dismiss',
-        title: 'Dismiss'
-      }
-    ]
+        action: "dismiss",
+        title: "Dismiss",
+      },
+    ],
   };
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
 // Handle notification clicks
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener("notificationclick", (event) => {
   event.notification.close();
 
-  if (event.action === 'view') {
-    event.waitUntil(
-      clients.openWindow(event.notification.data.url)
-    );
+  if (event.action === "view") {
+    event.waitUntil(clients.openWindow(event.notification.data.url));
   }
 });
 ```
 
 #### Browser Notification Permissions
+
 ```typescript
 // Request notification permission
 export async function requestNotificationPermission(): Promise<NotificationPermission> {
-  if (!('Notification' in window)) {
-    return 'denied';
+  if (!("Notification" in window)) {
+    return "denied";
   }
 
-  if (Notification.permission === 'granted') {
-    return 'granted';
+  if (Notification.permission === "granted") {
+    return "granted";
   }
 
-  if (Notification.permission === 'denied') {
-    return 'denied';
+  if (Notification.permission === "denied") {
+    return "denied";
   }
 
   const permission = await Notification.requestPermission();
@@ -551,13 +568,13 @@ export async function requestNotificationPermission(): Promise<NotificationPermi
 // Send browser notification
 export function sendBrowserNotification(
   title: string,
-  options: NotificationOptions = {}
+  options: NotificationOptions = {},
 ) {
-  if (Notification.permission === 'granted') {
+  if (Notification.permission === "granted") {
     new Notification(title, {
-      icon: '/icons/icon-192x192.png',
-      badge: '/icons/badge-72x72.png',
-      ...options
+      icon: "/icons/icon-192x192.png",
+      badge: "/icons/badge-72x72.png",
+      ...options,
     });
   }
 }
@@ -570,17 +587,20 @@ export function sendBrowserNotification(
 ### 4.1 Automated Communication Timeline
 
 #### Pre-Trek Communication (Discovery → Registration)
+
 - **T-7 Days**: Preparation checklist and excitement building
 - **T-3 Days**: Weather updates and final preparation reminders
 - **T-1 Day**: Pickup details, emergency contacts, last-minute updates
 - **Day 0**: Welcome message and group coordination
 
 #### During Trek Communication
+
 - **Real-time Updates**: Weather alerts, route changes, safety information
 - **Emergency Alerts**: Critical safety notifications with priority delivery
 - **Group Coordination**: WhatsApp group for participant communication
 
 #### Post-Trek Communication
+
 - **T+1 Day**: Initial feedback request and thank you
 - **T+3 Days**: Detailed feedback survey and photo sharing
 - **T+7 Days**: Review request and future trek recommendations
@@ -588,6 +608,7 @@ export function sendBrowserNotification(
 ### 4.2 Notification Templates
 
 #### T-7 Day Reminder Template
+
 ```typescript
 const t7ReminderTemplate = {
   title: "🌄 Get Ready for {trek_name}!",
@@ -608,12 +629,13 @@ const t7ReminderTemplate = {
 
     Questions? Reply to this message or ask in the group!
   `,
-  channels: ['in_app', 'whatsapp', 'email'],
-  priority: 'normal'
+  channels: ["in_app", "whatsapp", "email"],
+  priority: "normal",
 };
 ```
 
 #### Weather Alert Template
+
 ```typescript
 const weatherAlertTemplate = {
   title: "⚠️ Weather Update - {trek_name}",
@@ -629,12 +651,13 @@ const weatherAlertTemplate = {
 
     Stay safe and check for updates!
   `,
-  channels: ['in_app', 'whatsapp', 'sms', 'push'],
-  priority: 'high'
+  channels: ["in_app", "whatsapp", "sms", "push"],
+  priority: "high",
 };
 ```
 
 #### Emergency Alert Template
+
 ```typescript
 const emergencyAlertTemplate = {
   title: "🚨 URGENT - {trek_name}",
@@ -648,14 +671,15 @@ const emergencyAlertTemplate = {
 
     This is an automated emergency alert. Please respond immediately.
   `,
-  channels: ['in_app', 'whatsapp', 'sms', 'push', 'call'],
-  priority: 'critical'
+  channels: ["in_app", "whatsapp", "sms", "push", "call"],
+  priority: "critical",
 };
 ```
 
 ### 4.3 Communication Automation
 
 #### Scheduled Notification System
+
 ```typescript
 // Schedule notifications based on trek timeline
 export async function scheduleTrekNotifications(trekId: number) {
@@ -664,34 +688,34 @@ export async function scheduleTrekNotifications(trekId: number) {
 
   // Schedule T-7 day reminder
   await scheduleNotification({
-    userIds: participants.map(p => p.user_id),
-    template: 'trek_reminder_t7',
+    userIds: participants.map((p) => p.user_id),
+    template: "trek_reminder_t7",
     scheduledFor: new Date(trek.start_date.getTime() - 7 * 24 * 60 * 60 * 1000),
-    data: { trek_name: trek.name, trek_date: trek.start_date }
+    data: { trek_name: trek.name, trek_date: trek.start_date },
   });
 
   // Schedule T-3 day reminder
   await scheduleNotification({
-    userIds: participants.map(p => p.user_id),
-    template: 'trek_reminder_t3',
+    userIds: participants.map((p) => p.user_id),
+    template: "trek_reminder_t3",
     scheduledFor: new Date(trek.start_date.getTime() - 3 * 24 * 60 * 60 * 1000),
-    data: { trek_name: trek.name, trek_date: trek.start_date }
+    data: { trek_name: trek.name, trek_date: trek.start_date },
   });
 
   // Schedule T-1 day reminder
   await scheduleNotification({
-    userIds: participants.map(p => p.user_id),
-    template: 'trek_reminder_t1',
+    userIds: participants.map((p) => p.user_id),
+    template: "trek_reminder_t1",
     scheduledFor: new Date(trek.start_date.getTime() - 1 * 24 * 60 * 60 * 1000),
-    data: { trek_name: trek.name, trek_date: trek.start_date }
+    data: { trek_name: trek.name, trek_date: trek.start_date },
   });
 
   // Schedule post-trek feedback
   await scheduleNotification({
-    userIds: participants.map(p => p.user_id),
-    template: 'post_trek_feedback',
+    userIds: participants.map((p) => p.user_id),
+    template: "post_trek_feedback",
     scheduledFor: new Date(trek.end_date.getTime() + 1 * 24 * 60 * 60 * 1000),
-    data: { trek_name: trek.name }
+    data: { trek_name: trek.name },
   });
 }
 ```
@@ -703,25 +727,26 @@ export async function scheduleTrekNotifications(trekId: number) {
 ### 5.1 Admin Notification Dashboard
 
 #### Bulk Communication Interface
+
 ```tsx
 // Admin bulk messaging component
 export function BulkMessagingPanel() {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [messageTemplate, setMessageTemplate] = useState('');
+  const [messageTemplate, setMessageTemplate] = useState("");
   const [channels, setChannels] = useState({
     in_app: true,
     email: true,
     whatsapp: false,
-    sms: false
+    sms: false,
   });
 
   const sendBulkMessage = async () => {
-    await supabase.rpc('send_bulk_notification', {
+    await supabase.rpc("send_bulk_notification", {
       user_ids: selectedUsers,
       template: messageTemplate,
       channels: Object.entries(channels)
         .filter(([_, enabled]) => enabled)
-        .map(([channel, _]) => channel)
+        .map(([channel, _]) => channel),
     });
   };
 
@@ -741,7 +766,9 @@ export function BulkMessagingPanel() {
         <div>
           <Label>Message Template</Label>
           <Select value={messageTemplate} onValueChange={setMessageTemplate}>
-            <SelectItem value="general_announcement">General Announcement</SelectItem>
+            <SelectItem value="general_announcement">
+              General Announcement
+            </SelectItem>
             <SelectItem value="weather_update">Weather Update</SelectItem>
             <SelectItem value="emergency_alert">Emergency Alert</SelectItem>
           </Select>
@@ -750,10 +777,26 @@ export function BulkMessagingPanel() {
         <div>
           <Label>Channels</Label>
           <div className="flex gap-4">
-            <Checkbox label="In-App" checked={channels.in_app} onChange={setChannels} />
-            <Checkbox label="Email" checked={channels.email} onChange={setChannels} />
-            <Checkbox label="WhatsApp" checked={channels.whatsapp} onChange={setChannels} />
-            <Checkbox label="SMS" checked={channels.sms} onChange={setChannels} />
+            <Checkbox
+              label="In-App"
+              checked={channels.in_app}
+              onChange={setChannels}
+            />
+            <Checkbox
+              label="Email"
+              checked={channels.email}
+              onChange={setChannels}
+            />
+            <Checkbox
+              label="WhatsApp"
+              checked={channels.whatsapp}
+              onChange={setChannels}
+            />
+            <Checkbox
+              label="SMS"
+              checked={channels.sms}
+              onChange={setChannels}
+            />
           </div>
         </div>
 
@@ -767,31 +810,36 @@ export function BulkMessagingPanel() {
 ### 5.2 Template Management
 
 #### Message Template System
+
 ```typescript
 // Template management interface
 const messageTemplates = {
   general_announcement: {
     title: "📢 Important Update",
     body: "We have an important update to share with you...",
-    variables: []
+    variables: [],
   },
   weather_update: {
     title: "🌤️ Weather Update - {trek_name}",
     body: "Current weather conditions for {trek_name}: {conditions}. Temperature: {temperature}°C",
-    variables: ["trek_name", "conditions", "temperature"]
+    variables: ["trek_name", "conditions", "temperature"],
   },
   trek_reminder: {
     title: "🌄 Trek Reminder - {trek_name}",
     body: "Your trek {trek_name} starts in {days_until} days! Don't forget: {reminder_items}",
-    variables: ["trek_name", "days_until", "reminder_items"]
-  }
+    variables: ["trek_name", "days_until", "reminder_items"],
+  },
 };
 ```
 
 #### Template Variables
+
 ```typescript
 // Dynamic variable replacement
-function replaceTemplateVariables(template: string, variables: Record<string, any>) {
+function replaceTemplateVariables(
+  template: string,
+  variables: Record<string, any>,
+) {
   return template.replace(/{(\w+)}/g, (match, key) => {
     return variables[key] !== undefined ? String(variables[key]) : match;
   });
@@ -800,7 +848,7 @@ function replaceTemplateVariables(template: string, variables: Record<string, an
 // Usage
 const message = replaceTemplateVariables(
   "Your trek {trek_name} starts in {days_until} days!",
-  { trek_name: "Everest Base Camp", days_until: 7 }
+  { trek_name: "Everest Base Camp", days_until: 7 },
 );
 // Result: "Your trek Everest Base Camp starts in 7 days!"
 ```
@@ -808,6 +856,7 @@ const message = replaceTemplateVariables(
 ### 5.3 Analytics & Reporting
 
 #### Communication Metrics
+
 ```sql
 -- Notification delivery and engagement metrics
 CREATE VIEW notification_analytics AS
@@ -828,17 +877,18 @@ LEFT JOIN user_notification_preferences unp ON n.user_id = unp.user_id;
 ```
 
 #### Engagement Tracking
+
 ```typescript
 // Track notification engagement
 export function trackNotificationEngagement(
   notificationId: string,
-  action: 'viewed' | 'clicked' | 'dismissed'
+  action: "viewed" | "clicked" | "dismissed",
 ) {
   // Send analytics event
-  analytics.track('notification_engagement', {
+  analytics.track("notification_engagement", {
     notification_id: notificationId,
     action: action,
-    timestamp: new Date().toISOString()
+    timestamp: new Date().toISOString(),
   });
 }
 ```
@@ -850,6 +900,7 @@ export function trackNotificationEngagement(
 ### 6.1 Notification Preference Center
 
 #### User Preference Interface
+
 ```tsx
 // User notification preferences component
 export function NotificationPreferences() {
@@ -861,20 +912,22 @@ export function NotificationPreferences() {
     push: true,
     quiet_hours: {
       enabled: false,
-      start: '22:00',
-      end: '08:00'
-    }
+      start: "22:00",
+      end: "08:00",
+    },
   });
 
   const savePreferences = async () => {
-    await supabase
-      .from('user_notification_preferences')
-      .upsert({
-        user_id: user.id,
-        ...preferences,
-        quiet_hours_start: preferences.quiet_hours.enabled ? preferences.quiet_hours.start : null,
-        quiet_hours_end: preferences.quiet_hours.enabled ? preferences.quiet_hours.end : null
-      });
+    await supabase.from("user_notification_preferences").upsert({
+      user_id: user.id,
+      ...preferences,
+      quiet_hours_start: preferences.quiet_hours.enabled
+        ? preferences.quiet_hours.start
+        : null,
+      quiet_hours_end: preferences.quiet_hours.enabled
+        ? preferences.quiet_hours.end
+        : null,
+    });
   };
 
   return (
@@ -885,52 +938,75 @@ export function NotificationPreferences() {
         <div className="flex items-center justify-between">
           <div>
             <Label>In-App Notifications</Label>
-            <p className="text-sm text-muted-foreground">Real-time updates in the app</p>
+            <p className="text-sm text-muted-foreground">
+              Real-time updates in the app
+            </p>
           </div>
-          <Switch checked={preferences.in_app} onCheckedChange={(checked) =>
-            setPreferences(prev => ({ ...prev, in_app: checked }))
-          } />
+          <Switch
+            checked={preferences.in_app}
+            onCheckedChange={(checked) =>
+              setPreferences((prev) => ({ ...prev, in_app: checked }))
+            }
+          />
         </div>
 
         <div className="flex items-center justify-between">
           <div>
             <Label>Email Notifications</Label>
-            <p className="text-sm text-muted-foreground">Formal confirmations and updates</p>
+            <p className="text-sm text-muted-foreground">
+              Formal confirmations and updates
+            </p>
           </div>
-          <Switch checked={preferences.email} onCheckedChange={(checked) =>
-            setPreferences(prev => ({ ...prev, email: checked }))
-          } />
+          <Switch
+            checked={preferences.email}
+            onCheckedChange={(checked) =>
+              setPreferences((prev) => ({ ...prev, email: checked }))
+            }
+          />
         </div>
 
         <div className="flex items-center justify-between">
           <div>
             <Label>WhatsApp Notifications</Label>
-            <p className="text-sm text-muted-foreground">Community updates and coordination</p>
+            <p className="text-sm text-muted-foreground">
+              Community updates and coordination
+            </p>
           </div>
-          <Switch checked={preferences.whatsapp} onCheckedChange={(checked) =>
-            setPreferences(prev => ({ ...prev, whatsapp: checked }))
-          } />
+          <Switch
+            checked={preferences.whatsapp}
+            onCheckedChange={(checked) =>
+              setPreferences((prev) => ({ ...prev, whatsapp: checked }))
+            }
+          />
         </div>
 
         <div className="flex items-center justify-between">
           <div>
             <Label>Push Notifications</Label>
-            <p className="text-sm text-muted-foreground">Mobile app notifications</p>
+            <p className="text-sm text-muted-foreground">
+              Mobile app notifications
+            </p>
           </div>
-          <Switch checked={preferences.push} onCheckedChange={(checked) =>
-            setPreferences(prev => ({ ...prev, push: checked }))
-          } />
+          <Switch
+            checked={preferences.push}
+            onCheckedChange={(checked) =>
+              setPreferences((prev) => ({ ...prev, push: checked }))
+            }
+          />
         </div>
 
         <div className="border-t pt-4">
           <div className="flex items-center justify-between mb-2">
             <Label>Quiet Hours</Label>
-            <Switch checked={preferences.quiet_hours.enabled} onCheckedChange={(checked) =>
-              setPreferences(prev => ({
-                ...prev,
-                quiet_hours: { ...prev.quiet_hours, enabled: checked }
-              }))
-            } />
+            <Switch
+              checked={preferences.quiet_hours.enabled}
+              onCheckedChange={(checked) =>
+                setPreferences((prev) => ({
+                  ...prev,
+                  quiet_hours: { ...prev.quiet_hours, enabled: checked },
+                }))
+              }
+            />
           </div>
 
           {preferences.quiet_hours.enabled && (
@@ -938,18 +1014,22 @@ export function NotificationPreferences() {
               <Input
                 type="time"
                 value={preferences.quiet_hours.start}
-                onChange={(e) => setPreferences(prev => ({
-                  ...prev,
-                  quiet_hours: { ...prev.quiet_hours, start: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    quiet_hours: { ...prev.quiet_hours, start: e.target.value },
+                  }))
+                }
               />
               <Input
                 type="time"
                 value={preferences.quiet_hours.end}
-                onChange={(e) => setPreferences(prev => ({
-                  ...prev,
-                  quiet_hours: { ...prev.quiet_hours, end: e.target.value }
-                }))}
+                onChange={(e) =>
+                  setPreferences((prev) => ({
+                    ...prev,
+                    quiet_hours: { ...prev.quiet_hours, end: e.target.value },
+                  }))
+                }
               />
             </div>
           )}
@@ -967,12 +1047,14 @@ export function NotificationPreferences() {
 ### 6.2 Privacy & Compliance
 
 #### Data Protection
+
 - **GDPR Compliance**: User consent for data processing
 - **Opt-out Mechanisms**: Easy unsubscribe from all channels
 - **Data Retention**: Notifications deleted after 90 days
 - **Privacy Controls**: Users control what data is shared
 
 #### WhatsApp Compliance
+
 ```typescript
 // Ensure WhatsApp compliance
 const whatsappOptInFlow = {
@@ -980,10 +1062,10 @@ const whatsappOptInFlow = {
   requestOptIn: async (userId: string) => {
     await createNotification({
       user_id: userId,
-      type: 'general_info',
-      title: 'Join WhatsApp Community?',
-      message: 'Get real-time updates and connect with fellow trekkers!',
-      link: '/preferences?tab=notifications'
+      type: "general_info",
+      title: "Join WhatsApp Community?",
+      message: "Get real-time updates and connect with fellow trekkers!",
+      link: "/preferences?tab=notifications",
     });
   },
 
@@ -992,7 +1074,7 @@ const whatsappOptInFlow = {
     // Validate Indian phone number format
     const indianPhoneRegex = /^(\+91|91|0)?[6-9]\d{9}$/;
     if (!indianPhoneRegex.test(phoneNumber)) {
-      throw new Error('Please enter a valid Indian phone number');
+      throw new Error("Please enter a valid Indian phone number");
     }
   },
 
@@ -1001,7 +1083,7 @@ const whatsappOptInFlow = {
     for (const trekId of treks) {
       await addUserToWhatsAppGroup(userId, trekId);
     }
-  }
+  },
 };
 ```
 
@@ -1012,6 +1094,7 @@ const whatsappOptInFlow = {
 ### 7.1 Client-Side Implementation
 
 #### React Hook for Notifications
+
 ```typescript
 // src/hooks/useNotifications.ts
 export function useNotifications() {
@@ -1023,16 +1106,16 @@ export function useNotifications() {
   const fetchNotifications = useCallback(async () => {
     try {
       const { data, error } = await supabase
-        .rpc('get_my_notifications')
-        .order('created_at', { ascending: false })
+        .rpc("get_my_notifications")
+        .order("created_at", { ascending: false })
         .limit(50);
 
       if (error) throw error;
 
       setNotifications(data || []);
-      setUnreadCount(data?.filter(n => n.status === 'unread').length || 0);
+      setUnreadCount(data?.filter((n) => n.status === "unread").length || 0);
     } catch (error) {
-      console.error('Error fetching notifications:', error);
+      console.error("Error fetching notifications:", error);
     } finally {
       setLoading(false);
     }
@@ -1043,19 +1126,19 @@ export function useNotifications() {
     fetchNotifications();
 
     const subscription = supabase
-      .channel('user_notifications')
+      .channel("user_notifications")
       .on(
-        'postgres_changes',
+        "postgres_changes",
         {
-          event: 'INSERT',
-          schema: 'public',
-          table: 'notifications',
-          filter: `user_id=eq.${user?.id}`
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `user_id=eq.${user?.id}`,
         },
         (payload) => {
-          setNotifications(prev => [payload.new, ...prev]);
-          setUnreadCount(prev => prev + 1);
-        }
+          setNotifications((prev) => [payload.new, ...prev]);
+          setUnreadCount((prev) => prev + 1);
+        },
       )
       .subscribe();
 
@@ -1067,12 +1150,16 @@ export function useNotifications() {
     unreadCount,
     loading,
     markAsRead: async (id: string) => {
-      await supabase.rpc('mark_notification_as_read', { p_notification_id: id });
-      setNotifications(prev =>
-        prev.map(n => n.notification_id === id ? { ...n, status: 'read' } : n)
+      await supabase.rpc("mark_notification_as_read", {
+        p_notification_id: id,
+      });
+      setNotifications((prev) =>
+        prev.map((n) =>
+          n.notification_id === id ? { ...n, status: "read" } : n,
+        ),
       );
     },
-    refetch: fetchNotifications
+    refetch: fetchNotifications,
   };
 }
 ```
@@ -1080,6 +1167,7 @@ export function useNotifications() {
 ### 7.2 Server-Side Automation
 
 #### Scheduled Notification Processor
+
 ```sql
 -- Function to process scheduled notifications
 CREATE OR REPLACE FUNCTION process_scheduled_notifications()
@@ -1133,6 +1221,7 @@ $$;
 ```
 
 #### Database Triggers for Automation
+
 ```sql
 -- Automatically create notifications on registration
 CREATE OR REPLACE FUNCTION notify_registration_changes()
@@ -1175,6 +1264,7 @@ CREATE TRIGGER registration_status_changes
 ### 7.4 Quality Automation Integration
 
 #### Documentation Agent Workflow
+
 The communication system documentation is automatically validated and maintained by the Documentation Agent:
 
 ```bash
@@ -1188,6 +1278,7 @@ npm run docs:full-check    # Complete documentation validation
 ```
 
 #### Communication Quality Metrics
+
 - **Documentation Score**: 95/100 (automated quality check)
 - **Template Validation**: All notification templates verified
 - **Link Validation**: All internal and external links functional
@@ -1195,7 +1286,9 @@ npm run docs:full-check    # Complete documentation validation
 - **Integration**: Proper integration with admin tools documented
 
 #### Automated Maintenance
+
 The Documentation Agent automatically:
+
 - Validates notification templates and schemas
 - Checks for broken links in communication workflows
 - Ensures admin tool documentation is current
@@ -1212,10 +1305,12 @@ The Documentation Agent automatically:
 ---
 
 **For implementation details, see:**
+
 - [Project Overview Guide](PROJECT_OVERVIEW.md)
 - [Technical Architecture Guide](TECHNICAL_ARCHITECTURE.md)
 - [Design System Reference](DESIGN_SYSTEM.md)
 
 **For quality automation and agent system:**
+
 - [Documentation Agent Commands](PROJECT_OVERVIEW.md)
 - [8-Agent Quality System](TECHNICAL_ARCHITECTURE.md)

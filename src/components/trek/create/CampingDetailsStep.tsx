@@ -1,5 +1,5 @@
 import { Clock, PlusCircle, Tent, Trash2, Users } from "lucide-react";
-import React, { useCallback , useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { StepProps } from "./types";
 

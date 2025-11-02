@@ -84,12 +84,12 @@ export function useExpenseSplitting(trekId: string | undefined) {
       if (isNaN(trekIdNumber)) throw new Error("Invalid trek ID");
 
       // --- Fetch expenses (Phase 1: Raw data WITHOUT category join) ---
-      const { data: rawExpenses, error: expensesError } = await supabase
+      const { data: rawExpenses, error: expensesError } = (await supabase
         .from("trek_expenses")
         .select(
           "id, trek_id, creator_id, category_id, amount, description, expense_date, receipt_url, expense_shares(*)",
         )
-        .eq("trek_id", trekIdNumber) as any;
+        .eq("trek_id", trekIdNumber)) as any;
 
       if (expensesError) throw expensesError;
       if (!rawExpenses || rawExpenses.length === 0) {
@@ -107,10 +107,10 @@ export function useExpenseSplitting(trekId: string | undefined) {
       ]; // Get unique category IDs
       const categoryMap: Record<number, ExpenseCategory> = {};
       if (categoryIds.length > 0) {
-        const { data: categoriesData, error: categoriesError } = await supabase
-        .from("trek_expense_categories")
-        .select("id, name, icon")
-        .in("id", categoryIds) as any;
+        const { data: categoriesData, error: categoriesError } = (await supabase
+          .from("trek_expense_categories")
+          .select("id, name, icon")
+          .in("id", categoryIds)) as any;
 
         if (categoriesError)
           console.error("Error fetching expense categories:", categoriesError);
@@ -140,10 +140,10 @@ export function useExpenseSplitting(trekId: string | undefined) {
       // --- Fetch User Details (Phase 4) ---
       const userMap: Record<string, { name: string | null }> = {};
       if (uniqueUserIds.length > 0) {
-        const { data: usersData, error: usersError } = await supabase
-        .from("users")
-        .select("user_id, name")
-        .in("user_id", uniqueUserIds) as any;
+        const { data: usersData, error: usersError } = (await supabase
+          .from("users")
+          .select("user_id, name")
+          .in("user_id", uniqueUserIds)) as any;
         if (usersError)
           console.error(
             "Error fetching user details for expenses:",
@@ -258,7 +258,10 @@ export function useExpenseSplitting(trekId: string | undefined) {
   }, [user, myExpenses, expensesSharedWithMe]);
 
   useEffect(() => {
-    console.log('🔍 useExpenseSplitting: useEffect triggered', { trekId, hasUser: !!user });
+    console.log("🔍 useExpenseSplitting: useEffect triggered", {
+      trekId,
+      hasUser: !!user,
+    });
     if (trekId && user) {
       fetchExpenseCategories();
       fetchExpenses();
@@ -267,7 +270,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
   }, [trekId, user]);
 
   useEffect(() => {
-    console.log('🔍 useExpenseSplitting: calculateSummary triggered');
+    console.log("🔍 useExpenseSplitting: calculateSummary triggered");
     calculateSummary();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [myExpenses, expensesSharedWithMe]);
@@ -284,21 +287,21 @@ export function useExpenseSplitting(trekId: string | undefined) {
       // Upload receipt if provided
       if (expenseData.receipt) {
         const fileName = `${user.id}/${Date.now()}-${expenseData.receipt.name}`;
-        const { data: uploadData, error: uploadError } = await supabase.storage
-        .from("expense_receipts")
-        .upload(fileName, expenseData.receipt) as any;
+        const { data: uploadData, error: uploadError } = (await supabase.storage
+          .from("expense_receipts")
+          .upload(fileName, expenseData.receipt)) as any;
 
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage
-        .from("expense_receipts")
-        .getPublicUrl(fileName) as any;
+          .from("expense_receipts")
+          .getPublicUrl(fileName) as any;
 
         receiptUrl = urlData.publicUrl;
       }
 
       // Create expense record
-      const { data: expenseRecord, error: expenseError } = await supabase
+      const { data: expenseRecord, error: expenseError } = (await supabase
         .from("trek_expenses")
         .insert({
           trek_id: expenseData.trekId,
@@ -310,7 +313,7 @@ export function useExpenseSplitting(trekId: string | undefined) {
           receipt_url: receiptUrl,
         })
         .select()
-        .single() as any;
+        .single()) as any;
 
       if (expenseError) throw expenseError;
 
@@ -322,9 +325,9 @@ export function useExpenseSplitting(trekId: string | undefined) {
         status: "pending",
       }));
 
-      const { error: sharesError } = await supabase
+      const { error: sharesError } = (await supabase
         .from("expense_shares")
-        .insert(sharesToInsert) as any;
+        .insert(sharesToInsert)) as any;
 
       if (sharesError) throw sharesError;
 
@@ -367,11 +370,11 @@ export function useExpenseSplitting(trekId: string | undefined) {
         updateData.payment_date = new Date().toISOString();
       }
 
-      const { error } = await supabase
+      const { error } = (await supabase
         .from("expense_shares")
         .update(updateData)
         .eq("id", shareId)
-        .eq("user_id", user.id) as any;
+        .eq("user_id", user.id)) as any;
 
       if (error) throw error;
 
@@ -416,11 +419,11 @@ export function useExpenseSplitting(trekId: string | undefined) {
       }
 
       // Delete expense (shares will be deleted via cascading constraints)
-      const { error } = await supabase
+      const { error } = (await supabase
         .from("trek_expenses")
         .delete()
         .eq("id", expenseId)
-        .eq("creator_id", user.id) as any;
+        .eq("creator_id", user.id)) as any;
 
       if (error) throw error;
 
@@ -447,10 +450,10 @@ export function useExpenseSplitting(trekId: string | undefined) {
 
   const fetchExpenseCategories = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("avatar_catalog")
         .select("*")
-        .order("name") as any;
+        .order("name")) as any;
 
       if (error) throw error;
       const datatrek_expense_categories = data;

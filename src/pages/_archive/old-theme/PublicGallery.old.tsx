@@ -1,19 +1,27 @@
 import {
   Calendar,
+  Camera,
   ChevronLeft,
   ChevronRight,
+  Eye,
   Filter,
+  Heart,
   Loader2,
   MapPin,
+  MessageCircle,
   Mountain,
   Play,
   Search,
+  Share2,
   Tag,
+  UserPlus,
   Users,
   X,
 } from "lucide-react";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 
+import { useAuth } from "@/components/auth/AuthProvider";
+import { FriendTaggingOverlay } from "@/components/interactions/FriendTaggingOverlay";
 import {
   MobileGrid,
   MobilePage,
@@ -36,9 +44,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useSocialFeatures } from "@/hooks/useSocialFeatures";
 import { supabase } from "@/integrations/supabase/client";
-// Remove useAuth import - this is a public page
 import { getHomeBackground, setHomeBackground } from "@/lib/siteSettings";
+import { cn } from "@/lib/utils";
 
 type PastTrek = {
   trek_id: number;
@@ -70,6 +79,8 @@ type PastTrek = {
 };
 
 export default function PublicGallery() {
+  const { user } = useAuth();
+  const { likePost, sharePost } = useSocialFeatures();
   const [items, setItems] = useState<PastTrek[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -88,6 +99,12 @@ export default function PublicGallery() {
   const [currentPage, setCurrentPage] = useState(1);
   const [loadingMore, setLoadingMore] = useState(false);
   const [tagsLoaded, setTagsLoaded] = useState(false);
+
+  // Friend tagging state
+  const [showFriendTagging, setShowFriendTagging] = useState(false);
+  const [currentImageForTagging, setCurrentImageForTagging] = useState<
+    string | null
+  >(null);
 
   // Remove userProfile and isAdmin - this is a public page
   const ITEMS_PER_PAGE = 12;
@@ -329,9 +346,11 @@ export default function PublicGallery() {
             );
 
             // Keep only the first image for each trek (remove duplicates)
-            Object.keys(firstImagesByTrek).forEach(trekId => {
+            Object.keys(firstImagesByTrek).forEach((trekId) => {
               if (firstImagesByTrek[Number(trekId)].length > 1) {
-                firstImagesByTrek[Number(trekId)] = [firstImagesByTrek[Number(trekId)][0]];
+                firstImagesByTrek[Number(trekId)] = [
+                  firstImagesByTrek[Number(trekId)][0],
+                ];
               }
             });
           }
@@ -582,7 +601,8 @@ export default function PublicGallery() {
 
   // Load tags when filters are applied (deferred loading for performance)
   useEffect(() => {
-    const hasFilters = searchTerm.trim() || difficultyFilter !== "all" || sortBy !== "date";
+    const hasFilters =
+      searchTerm.trim() || difficultyFilter !== "all" || sortBy !== "date";
     if (hasFilters && !tagsLoaded) {
       fetchTags();
       setTagsLoaded(true);
@@ -591,7 +611,8 @@ export default function PublicGallery() {
 
   // Handle search and filter changes - use enhanced fetch for filtered results
   useEffect(() => {
-    const hasFilters = searchTerm.trim() || difficultyFilter !== "all" || sortBy !== "date";
+    const hasFilters =
+      searchTerm.trim() || difficultyFilter !== "all" || sortBy !== "date";
 
     // Debounce the fetch to avoid too many requests
     const timeoutId = setTimeout(() => {
@@ -709,7 +730,9 @@ export default function PublicGallery() {
 
     // Apply sorting
     if (sortBy === "name") {
-      filtered = [...filtered].sort((a, b) => a.name?.localeCompare(b.name || "") || 0);
+      filtered = [...filtered].sort(
+        (a, b) => a.name?.localeCompare(b.name || "") || 0,
+      );
     } else {
       filtered = [...filtered].sort(
         (a, b) =>
@@ -850,7 +873,7 @@ export default function PublicGallery() {
                     }`}
                     style={{
                       backgroundColor: selectedTags.includes(tag.id)
-                        ? `${tag.color  }20`
+                        ? `${tag.color}20`
                         : undefined,
                       borderColor: tag.color,
                       color: tag.color,
@@ -911,8 +934,15 @@ export default function PublicGallery() {
                     location: trek.location,
                     start_datetime: trek.start_datetime,
                     images: trek.images,
+                    tags: trek.tags,
+                    user_contributions: trek.user_contributions,
                   }}
                   onClick={() => handleTrekClick(trek)}
+                  onLike={(trekId) => console.log("Liked trek:", trekId)}
+                  onShare={(trekId) => console.log("Shared trek:", trekId)}
+                  isLiked={false}
+                  likeCount={Math.floor(Math.random() * 50)}
+                  viewCount={Math.floor(Math.random() * 200) + 50}
                 />
               ))}
             </MobileGrid>
@@ -1012,6 +1042,67 @@ export default function PublicGallery() {
                           );
                         })()}
                       </div>
+
+                      {/* Social Interaction Buttons */}
+                      {user && (
+                        <div className="flex items-center justify-between mt-4 p-3 bg-white/10 backdrop-blur-md rounded-lg border border-white/20">
+                          <div className="flex items-center gap-4">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-white hover:bg-white/20"
+                              onClick={() =>
+                                likePost("trek", selectedTrek.trek_id)
+                              }
+                            >
+                              <Heart className="w-4 h-4 mr-2" />
+                              Like
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-white hover:bg-white/20"
+                              onClick={() =>
+                                console.log(
+                                  "Comment on trek:",
+                                  selectedTrek.trek_id,
+                                )
+                              }
+                            >
+                              <MessageCircle className="w-4 h-4 mr-2" />
+                              Comment
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-white hover:bg-white/20"
+                              onClick={() =>
+                                sharePost("trek", selectedTrek.trek_id)
+                              }
+                            >
+                              <Share2 className="w-4 h-4 mr-2" />
+                              Share
+                            </Button>
+                          </div>
+
+                          {getCurrentMediaInfo()?.type === "image" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-white hover:bg-white/20"
+                              onClick={() => {
+                                setCurrentImageForTagging(
+                                  getCurrentMediaInfo()?.url || null,
+                                );
+                                setShowFriendTagging(true);
+                              }}
+                            >
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Tag Friends
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   ) : (
                     <div className="aspect-video rounded-lg bg-gray-100 dark:bg-gray-800 flex items-center justify-center">
@@ -1113,7 +1204,7 @@ export default function PublicGallery() {
                             style={{
                               borderColor: tag.color,
                               color: tag.color,
-                              backgroundColor: `${tag.color  }10`,
+                              backgroundColor: `${tag.color}10`,
                             }}
                           >
                             {tag.name}
@@ -1128,6 +1219,26 @@ export default function PublicGallery() {
           )}
         </DialogContent>
       </Dialog>
+
+      {/* Friend Tagging Overlay */}
+      {showFriendTagging && currentImageForTagging && (
+        <FriendTaggingOverlay
+          imageUrl={currentImageForTagging}
+          imageId={`trek-${selectedTrek?.trek_id}-image-${currentImageIndex}`}
+          existingTags={[]}
+          isVisible={showFriendTagging}
+          onClose={() => {
+            setShowFriendTagging(false);
+            setCurrentImageForTagging(null);
+          }}
+          onTagAdded={(tag) => {
+            console.log("Tag added:", tag);
+          }}
+          onTagRemoved={(tagId) => {
+            console.log("Tag removed:", tagId);
+          }}
+        />
+      )}
     </MobilePage>
   );
 }

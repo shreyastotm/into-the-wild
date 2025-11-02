@@ -8,25 +8,27 @@
 
 ## 📊 Current Platform Status
 
-| Metric | Current | Target | Phase 5B Enhancement |
-|--------|---------|--------|-------------------|
-| **Active Users** | 65+ | 10,000+ | Enhanced onboarding with behavioral nudges |
-| **Treks Completed** | 53+ | 1,000+ | Social sharing and friend tagging |
-| **WhatsApp Community** | 200+ | 5,000+ | Intelligent invitation system |
-| **Platform Type** | Mobile-first PWA | Native-like experience | Modern UI with glass morphism |
-| **User Engagement** | Basic | Advanced | Gamified profile completion + social features |
-| **Retention Rate** | 45% | 75%+ | Behavioral psychology nudges + milestone celebrations |
-| **Page Modernization** | In Progress | 100% Modern | Landing, Events, Gallery, Admin with 2025 design |
+| Metric                 | Current          | Target                 | Phase 5B Enhancement                                  |
+| ---------------------- | ---------------- | ---------------------- | ----------------------------------------------------- |
+| **Active Users**       | 65+              | 10,000+                | Enhanced onboarding with behavioral nudges            |
+| **Treks Completed**    | 53+              | 1,000+                 | Social sharing and friend tagging                     |
+| **WhatsApp Community** | 200+             | 5,000+                 | Intelligent invitation system                         |
+| **Platform Type**      | Mobile-first PWA | Native-like experience | Modern UI with glass morphism                         |
+| **User Engagement**    | Basic            | Advanced               | Gamified profile completion + social features         |
+| **Retention Rate**     | 45%              | 75%+                   | Behavioral psychology nudges + milestone celebrations |
+| **Page Modernization** | In Progress      | 100% Modern            | Landing, Events, Gallery, Admin with 2025 design      |
 
 ---
 
 ## 🚀 Quick Start
 
 ### For Users
+
 🌐 **Visit**: [intothewild.club](https://intothewild.club)  
 📱 **Mobile-first PWA** with offline support and native app-like experience
 
 ### For Developers
+
 ```bash
 # Clone the repository
 git clone <your-repository-url>
@@ -47,12 +49,12 @@ All project documentation is organized in the `/docs/` folder:
 
 ### 🎯 **Essential Guides**
 
-| Document | Purpose | Key Topics |
-|----------|---------|------------|
-| **[📖 PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)** | Complete project setup & fundamentals | Tech stack, dependencies, setup, deployment |
-| **[🏗️ TECHNICAL_ARCHITECTURE.md](docs/TECHNICAL_ARCHITECTURE.md)** | Technical implementation details | Code organization, database management, performance, quality, security |
-| **[🎨 DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)** | UI/UX design system & components | Colors, typography, accessibility, mobile design |
-| **[💬 COMMUNICATION_SYSTEM.md](docs/COMMUNICATION_SYSTEM.md)** | Messaging & notification system | WhatsApp integration, automated reminders, admin tools |
+| Document                                                           | Purpose                               | Key Topics                                                             |
+| ------------------------------------------------------------------ | ------------------------------------- | ---------------------------------------------------------------------- |
+| **[📖 PROJECT_OVERVIEW.md](docs/PROJECT_OVERVIEW.md)**             | Complete project setup & fundamentals | Tech stack, dependencies, setup, deployment                            |
+| **[🏗️ TECHNICAL_ARCHITECTURE.md](docs/TECHNICAL_ARCHITECTURE.md)** | Technical implementation details      | Code organization, database management, performance, quality, security |
+| **[🎨 DESIGN_SYSTEM.md](docs/DESIGN_SYSTEM.md)**                   | UI/UX design system & components      | Colors, typography, accessibility, mobile design                       |
+| **[💬 COMMUNICATION_SYSTEM.md](docs/COMMUNICATION_SYSTEM.md)**     | Messaging & notification system       | WhatsApp integration, automated reminders, admin tools                 |
 
 ### 🔍 **Quick Navigation**
 
@@ -66,6 +68,7 @@ All project documentation is organized in the `/docs/` folder:
 ## 🏗️ Architecture Highlights
 
 ### **Frontend Excellence**
+
 - ⚡ **React 18** with Vite for lightning-fast development
 - 🎨 **Golden Hour Design System** with dark mode support
 - 📱 **Mobile-first PWA** optimized for Indian market
@@ -78,6 +81,7 @@ All project documentation is organized in the `/docs/` folder:
 - 📊 **GA4 Analytics Integration** with privacy-compliant tracking and consent management
 
 ### **Backend & Database**
+
 - 🗄️ **Supabase** for PostgreSQL, Auth, Storage, and Edge Functions
 - 🔐 **Row Level Security (RLS)** on all database tables
 - 📊 **70+ Database migrations** with comprehensive Phase 5 interaction schema
@@ -89,6 +93,7 @@ All project documentation is organized in the `/docs/` folder:
 - 🎪 **Milestone Celebration System** with confetti and haptic feedback
 
 ### **Quality & Standards**
+
 - 🧪 **Automated testing** with Vitest and comprehensive coverage
 - 🎯 **Code quality agents** (7 specialized automation agents)
 - ♿ **WCAG 2.1 AA compliance** for accessibility
@@ -100,6 +105,7 @@ All project documentation is organized in the `/docs/` folder:
 ## 🤝 Community & Support
 
 ### **For Trekkers**
+
 - 🏔️ **Browse treks** by difficulty, location, and date
 - 📝 **Easy registration** with indemnity acceptance
 - 💬 **WhatsApp groups** for each trek (200+ active members)
@@ -111,6 +117,7 @@ All project documentation is organized in the `/docs/` folder:
 - 🎯 **Behavioral recommendations** based on your activity
 
 ### **For Partners & Admins**
+
 - 👥 **User management** with verification workflows
 - 📊 **Comprehensive dashboard** with behavioral analytics
 - 🎯 **Bulk communication tools** with intelligent scheduling
@@ -125,6 +132,7 @@ All project documentation is organized in the `/docs/` folder:
 ## 🛠️ Development
 
 ### **Prerequisites**
+
 - **Node.js 22.x** (LTS) - Required for production compatibility
 - **npm** - Package management
 - **Docker** - Local development environment
@@ -132,6 +140,7 @@ All project documentation is organized in the `/docs/` folder:
 - **Deno** - Edge Functions runtime
 
 ### **Getting Started**
+
 ```bash
 # 1. Install dependencies
 npm install
@@ -151,6 +160,7 @@ npm run dev
 ```
 
 ### **Quality Gates**
+
 ```bash
 # Pre-commit checks (automated)
 npm run precommit          # TypeScript + ESLint + Tests

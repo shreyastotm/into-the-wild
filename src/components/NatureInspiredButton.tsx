@@ -38,7 +38,9 @@ export const NatureInspiredButton = ({
   const haptic = useHaptic();
   const [isHovered, setIsHovered] = useState(false);
   const [mousePosition, setMousePosition] = useState({ x: 50, y: 50 });
-  const [ripples, setRipples] = useState<{ id: number; x: number; y: number }[]>([]);
+  const [ripples, setRipples] = useState<
+    { id: number; x: number; y: number }[]
+  >([]);
   const buttonRef = useRef<HTMLButtonElement>(null);
 
   const handleMouseMove = (e: React.MouseEvent) => {
@@ -66,11 +68,11 @@ export const NatureInspiredButton = ({
     const y = e.clientY - rect.top;
 
     const id = Date.now();
-    setRipples(prev => [...prev, { id, x, y }]);
+    setRipples((prev) => [...prev, { id, x, y }]);
 
     // Remove ripple after animation
     setTimeout(() => {
-      setRipples(prev => prev.filter(r => r.id !== id));
+      setRipples((prev) => prev.filter((r) => r.id !== id));
     }, 1200);
   };
 
@@ -94,7 +96,7 @@ export const NatureInspiredButton = ({
         "focus:ring-2 focus:ring-offset-2 focus:ring-offset-transparent",
         isHovered && "animate-pulse",
         disabled && "opacity-50 cursor-not-allowed pointer-events-none",
-        className
+        className,
       )}
       onClick={handleClick}
       onMouseMove={handleMouseMove}
@@ -102,14 +104,14 @@ export const NatureInspiredButton = ({
       onMouseLeave={handleMouseLeave}
       disabled={disabled}
       type={type}
-        style={{
-          background: isHovered
-            ? `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%,
+      style={{
+        background: isHovered
+          ? `radial-gradient(circle at ${mousePosition.x}% ${mousePosition.y}%,
                 rgba(255,255,255,0.15) 0%,
                 rgba(244,164,96,0.3) 30%,
                 transparent 70%)`
-            : undefined,
-        }}
+          : undefined,
+      }}
       {...props}
     >
       {/* Dynamic Light Overlay - More subtle */}
@@ -146,34 +148,33 @@ export const NatureInspiredButton = ({
       )}
 
       {/* Enhanced Content */}
-      <span className="relative z-10 flex items-center gap-2">
-        {children}
-      </span>
+      <span className="relative z-10 flex items-center gap-2">{children}</span>
 
-        {/* Enhanced Ripple Effects - More subtle */}
-        {ripples.map(ripple => (
-          <div
-            key={ripple.id}
-            className="absolute rounded-full pointer-events-none"
-            style={{
-              left: ripple.x,
-              top: ripple.y,
-              width: 0,
-              height: 0,
-              background: `radial-gradient(circle,
+      {/* Enhanced Ripple Effects - More subtle */}
+      {ripples.map((ripple) => (
+        <div
+          key={ripple.id}
+          className="absolute rounded-full pointer-events-none"
+          style={{
+            left: ripple.x,
+            top: ripple.y,
+            width: 0,
+            height: 0,
+            background: `radial-gradient(circle,
                 rgba(255,255,255,0.4) 0%,
                 rgba(244,164,96,0.2) 30%,
                 transparent 60%)`,
-              animation: 'ripple-expand 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards',
-            }}
-          />
-        ))}
+            animation:
+              "ripple-expand 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards",
+          }}
+        />
+      ))}
 
       {/* Inner Glow Effect - Much more subtle */}
       <div
         className={cn(
           "absolute inset-0 rounded-lg opacity-0 group-hover:opacity-15 transition-opacity duration-700 pointer-events-none",
-          "bg-gradient-to-br from-white/10 via-golden-200/10 to-teal-200/10"
+          "bg-gradient-to-br from-white/10 via-golden-200/10 to-teal-200/10",
         )}
       />
 
@@ -181,7 +182,7 @@ export const NatureInspiredButton = ({
       <div
         className={cn(
           "absolute inset-0 rounded-lg opacity-0 group-hover:opacity-30 transition-opacity duration-700 pointer-events-none",
-          "bg-gradient-to-r from-golden-400/20 via-transparent to-teal-400/20"
+          "bg-gradient-to-r from-golden-400/20 via-transparent to-teal-400/20",
         )}
       />
     </Button>

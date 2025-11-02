@@ -1,4 +1,13 @@
-import { Clock, UserCircle, Target, Package, MapPin, Wind, Moon, Tent } from "lucide-react";
+import {
+  Clock,
+  MapPin,
+  Moon,
+  Package,
+  Target,
+  Tent,
+  UserCircle,
+  Wind,
+} from "lucide-react";
 import React from "react";
 
 import { StepProps } from "./types";
@@ -94,7 +103,9 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
         <Input
           id="instructor_name"
           value={jamYardData.instructor_name || ""}
-          onChange={(e) => updateJamYardField("instructor_name", e.target.value)}
+          onChange={(e) =>
+            updateJamYardField("instructor_name", e.target.value)
+          }
           placeholder="Instructor's full name"
         />
       </div>
@@ -155,7 +166,9 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
         </Label>
         <Select
           value={jamYardData.target_audience || ""}
-          onValueChange={(value) => updateJamYardField("target_audience", value)}
+          onValueChange={(value) =>
+            updateJamYardField("target_audience", value)
+          }
         >
           <SelectTrigger id="target_audience">
             <SelectValue placeholder="Select target audience" />
@@ -181,7 +194,12 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
           id="session_duration"
           type="number"
           value={jamYardData.session_duration || ""}
-          onChange={(e) => updateJamYardField("session_duration", parseInt(e.target.value) || 0)}
+          onChange={(e) =>
+            updateJamYardField(
+              "session_duration",
+              parseInt(e.target.value) || 0,
+            )
+          }
           placeholder="e.g., 60"
         />
       </div>
@@ -215,7 +233,10 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
           id="equipment_provided"
           value={jamYardData.equipment_provided?.join(", ") || ""}
           onChange={(e) => {
-            const items = e.target.value.split(",").map(item => item.trim()).filter(Boolean);
+            const items = e.target.value
+              .split(",")
+              .map((item) => item.trim())
+              .filter(Boolean);
             updateJamYardField("equipment_provided", items);
           }}
           placeholder="Comma-separated list (e.g., Yoga mats, water bottles, resistance bands)"
@@ -234,7 +255,9 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
         <Textarea
           id="additional_requirements"
           value={jamYardData.additional_requirements || ""}
-          onChange={(e) => updateJamYardField("additional_requirements", e.target.value)}
+          onChange={(e) =>
+            updateJamYardField("additional_requirements", e.target.value)
+          }
           placeholder="What should participants bring? (e.g., Comfortable clothing, water bottle, towel)"
           rows={2}
         />
@@ -245,9 +268,14 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
         <Checkbox
           id="weather_dependency"
           checked={jamYardData.weather_dependency || false}
-          onCheckedChange={(checked) => updateJamYardField("weather_dependency", checked)}
+          onCheckedChange={(checked) =>
+            updateJamYardField("weather_dependency", checked)
+          }
         />
-        <Label htmlFor="weather_dependency" className="flex items-center gap-2 cursor-pointer">
+        <Label
+          htmlFor="weather_dependency"
+          className="flex items-center gap-2 cursor-pointer"
+        >
           <Wind className="h-4 w-4" />
           Weather Dependent Activity
         </Label>
@@ -256,16 +284,23 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
       {/* Complement Options */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-sm">Can This Activity Complement Other Events?</CardTitle>
+          <CardTitle className="text-sm">
+            Can This Activity Complement Other Events?
+          </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           <div className="flex items-center space-x-2">
             <Checkbox
               id="can_complement_camping"
               checked={jamYardData.can_complement_camping || false}
-              onCheckedChange={(checked) => updateJamYardField("can_complement_camping", checked)}
+              onCheckedChange={(checked) =>
+                updateJamYardField("can_complement_camping", checked)
+              }
             />
-            <Label htmlFor="can_complement_camping" className="flex items-center gap-2 cursor-pointer">
+            <Label
+              htmlFor="can_complement_camping"
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <Tent className="h-4 w-4" />
               Can be offered during camping events
             </Label>
@@ -274,9 +309,14 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
             <Checkbox
               id="can_complement_trek"
               checked={jamYardData.can_complement_trek || false}
-              onCheckedChange={(checked) => updateJamYardField("can_complement_trek", checked)}
+              onCheckedChange={(checked) =>
+                updateJamYardField("can_complement_trek", checked)
+              }
             />
-            <Label htmlFor="can_complement_trek" className="flex items-center gap-2 cursor-pointer">
+            <Label
+              htmlFor="can_complement_trek"
+              className="flex items-center gap-2 cursor-pointer"
+            >
               <Moon className="h-4 w-4" />
               Can be offered alongside trek events
             </Label>
@@ -292,4 +332,3 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
     </div>
   );
 };
-

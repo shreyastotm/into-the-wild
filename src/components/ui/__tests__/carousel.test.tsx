@@ -1,34 +1,34 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it } from "vitest";
 
-import carousel from '../carousel';
+import carousel from "../carousel";
 
-describe('carousel', () => {
-
-  it('renders without crashing', () => {
+describe("carousel", () => {
+  it("renders without crashing", () => {
     render(<carousel data-testid="carousel" />);
-    expect(screen.getByTestId('carousel')).toBeInTheDocument();
+    expect(screen.getByTestId("carousel")).toBeInTheDocument();
   });
 
-  it('accepts and displays props correctly', () => {
+  it("accepts and displays props correctly", () => {
     render(<carousel title="Test Title" data-testid="carousel" />);
-    expect(screen.getByTestId('carousel')).toHaveTextContent('Test Title');
+    expect(screen.getByTestId("carousel")).toHaveTextContent("Test Title");
   });
 
-  it('handles user interactions', () => {
+  it("handles user interactions", () => {
     const handleClick = vi.fn();
     render(<carousel onClick={handleClick} data-testid="carousel" />);
-    fireEvent.click(screen.getByTestId('carousel'));
+    fireEvent.click(screen.getByTestId("carousel"));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('updates state correctly', async () => {
+  it("updates state correctly", async () => {
     render(<carousel data-testid="carousel" />);
-    fireEvent.click(screen.getByTestId('carousel'));
+    fireEvent.click(screen.getByTestId("carousel"));
     await waitFor(() => {
-      expect(screen.getByTestId('carousel')).toHaveTextContent(/updated|changed|new/i);
+      expect(screen.getByTestId("carousel")).toHaveTextContent(
+        /updated|changed|new/i,
+      );
     });
   });
-  
 });

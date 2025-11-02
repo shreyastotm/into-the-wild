@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
 import { Facebook } from "lucide-react";
+import React, { useEffect, useState } from "react";
 
 import { PasswordResetForm } from "./PasswordResetForm";
 import { SignInForm } from "./SignInForm";
@@ -23,7 +23,11 @@ interface AuthFormProps {
   onSignInEnd?: () => void;
 }
 
-export default function AuthForm({ initialMode, onSignInStart, onSignInEnd }: AuthFormProps) {
+export default function AuthForm({
+  initialMode,
+  onSignInStart,
+  onSignInEnd,
+}: AuthFormProps) {
   // Form state
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -183,10 +187,16 @@ export default function AuthForm({ initialMode, onSignInStart, onSignInEnd }: Au
           </Button>
 
           <div className="relative w-full" data-testid="authform">
-            <div className="absolute inset-0 flex items-center" data-testid="authform">
+            <div
+              className="absolute inset-0 flex items-center"
+              data-testid="authform"
+            >
               <span className="w-full border-t" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase" data-testid="authform">
+            <div
+              className="relative flex justify-center text-xs uppercase"
+              data-testid="authform"
+            >
               <span className="px-2 text-muted-foreground bg-card">
                 Or continue with
               </span>
@@ -201,7 +211,10 @@ export default function AuthForm({ initialMode, onSignInStart, onSignInEnd }: Au
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" data-testid="authform" />
+                <div
+                  className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"
+                  data-testid="authform"
+                />
                 Connecting...
               </>
             ) : (
@@ -217,7 +230,10 @@ export default function AuthForm({ initialMode, onSignInStart, onSignInEnd }: Au
           >
             {loading ? (
               <>
-                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2" data-testid="authform" />
+                <div
+                  className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"
+                  data-testid="authform"
+                />
                 Connecting...
               </>
             ) : (

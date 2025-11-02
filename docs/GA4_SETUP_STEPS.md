@@ -44,6 +44,7 @@ Environment variables are loaded when the server starts.
 #### Quick Verification
 
 Open browser console and check for:
+
 ```
 [GA4] Analytics initialized successfully
 [GA4] Page view tracked: /
@@ -72,11 +73,13 @@ Open browser console and check for:
 ## Events Being Tracked
 
 ### Automatic:
+
 - Page views (all routes)
 - User identification
 - User properties (role, device type)
 
 ### In GlassMorphismEventDetails:
+
 - Trek views
 - Registration attempts
 - Registration success/failure
@@ -109,6 +112,7 @@ Open browser console and check for:
 When deploying:
 
 1. Add to your hosting platform:
+
    ```
    VITE_ENABLE_ANALYTICS=true
    VITE_GA4_MEASUREMENT_ID=G-NW4MTHFT60
@@ -121,4 +125,3 @@ When deploying:
 ## Ready to Go! 🚀
 
 Your GA4 is fully configured. Just create `.env.local` and restart your server!
-

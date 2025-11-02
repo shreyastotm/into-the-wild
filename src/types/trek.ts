@@ -118,14 +118,20 @@ export interface CampingEvent extends BaseEvent {
 
 // Jam Yard specific types
 export interface JamYardDetails {
-  activity_focus: string;           // Yoga, Parkour, Dance, etc.
+  activity_focus: string; // Yoga, Parkour, Dance, etc.
   instructor_name: string;
   instructor_bio?: string;
   instructor_image?: string;
-  venue_type?: "outdoor_beach" | "outdoor_park" | "outdoor_campsite" | "outdoor_mountain" | "indoor_studio" | "hybrid";
+  venue_type?:
+    | "outdoor_beach"
+    | "outdoor_park"
+    | "outdoor_campsite"
+    | "outdoor_mountain"
+    | "indoor_studio"
+    | "hybrid";
   venue_details?: string;
   target_audience?: string;
-  session_duration?: number;         // Minutes
+  session_duration?: number; // Minutes
   equipment_provided?: string[];
   skill_level?: "beginner" | "intermediate" | "advanced" | "all";
   weather_dependency?: boolean;
@@ -149,7 +155,15 @@ export interface TrekEventListItem extends BaseEvent {
   // Will be gradually replaced with the new Event types
 }
 
-export type TrekCostType = 'TREK_FEE' | 'TRANSPORT' | 'ACCOMMODATION' | 'EQUIPMENT' | 'FOOD' | 'PERMIT' | 'INSURANCE' | 'OTHER';
+export type TrekCostType =
+  | "TREK_FEE"
+  | "TRANSPORT"
+  | "ACCOMMODATION"
+  | "EQUIPMENT"
+  | "FOOD"
+  | "PERMIT"
+  | "INSURANCE"
+  | "OTHER";
 
 export interface TrekCost {
   id: number;

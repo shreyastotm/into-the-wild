@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
+import { useAuth } from "@/components/auth/AuthProvider";
 import {
   AdminTrekEvent,
   FormSubmissionData,
 } from "@/components/trek/create/types";
 import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
 import { toast } from "@/components/ui/use-toast";
-import { useAuth } from "@/components/auth/AuthProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { EventType, TentInventory } from "@/types/trek";
 
@@ -21,10 +21,10 @@ export default function CreateTrekEvent() {
   useEffect(() => {
     const fetchTentInventory = async () => {
       try {
-        const { data, error } = await supabase
-        .from("tent_inventory")
-        .select("*")
-        .order("tent_type") as any;
+        const { data, error } = (await supabase
+          .from("tent_inventory")
+          .select("*")
+          .order("tent_type")) as any;
 
         if (error) {
           console.error("Error fetching tent inventory:", error);
@@ -51,15 +51,15 @@ export default function CreateTrekEvent() {
         if (!userProfile) {
           throw new Error("You must be logged in to create Jam Yard events");
         }
-        
+
         // Allow if user is admin OR micro_community (partner)
         const isPartner = userProfile.user_type === "micro_community";
         const isAdmin = userProfile.user_type === "admin";
-        
+
         if (!isPartner && !isAdmin) {
           throw new Error(
             "Only partners and admins can create Jam Yard events. " +
-            "Please contact support to become a partner."
+              "Please contact support to become a partner.",
           );
         }
       }
@@ -96,19 +96,20 @@ export default function CreateTrekEvent() {
         partner_id: isPartner ? userProfile.user_id : null,
         created_by: userProfile?.user_id || null,
         status: "Draft" as const,
-        jam_yard_details: trekData.event_type === EventType.JAM_YARD
-          ? trekData.jam_yard_details
-          : undefined,
+        jam_yard_details:
+          trekData.event_type === EventType.JAM_YARD
+            ? trekData.jam_yard_details
+            : undefined,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
       };
 
       // Step 1: Create the main trek event
-      const { data: newTrek, error: trekError } = await supabase
+      const { data: newTrek, error: trekError } = (await supabase
         .from("trek_events")
         .insert(sanitizedTrekData)
         .select("trek_id")
-        .single() as any;
+        .single()) as any;
 
       if (trekError) {
         throw new Error(`Failed to create trek: ${trekError.message}`);
@@ -124,9 +125,9 @@ export default function CreateTrekEvent() {
           mandatory: item.mandatory,
         }));
 
-        const { error: assignmentError } = await supabase
-        .from("trek_packing_list_assignments")
-        .insert(assignments) as any;
+        const { error: assignmentError } = (await supabase
+          .from("trek_packing_list_assignments")
+          .insert(assignments)) as any;
 
         if (assignmentError) {
           throw new Error(
@@ -144,9 +145,9 @@ export default function CreateTrekEvent() {
           description: cost.description || null,
         }));
 
-        const { error: costError } = await supabase
-        .from("trek_costs")
-        .insert(costData) as any;
+        const { error: costError } = (await supabase
+          .from("trek_costs")
+          .insert(costData)) as any;
 
         if (costError) {
           throw new Error(`Failed to add costs: ${costError.message}`);
@@ -165,9 +166,9 @@ export default function CreateTrekEvent() {
           total_available: Number(tent.total_available),
         }));
 
-        const { error: tentError } = await supabase
-        .from("trek_tent_assignments")
-        .insert(tentAssignments) as any;
+        const { error: tentError } = (await supabase
+          .from("trek_tent_assignments")
+          .insert(tentAssignments)) as any;
 
         if (tentError) {
           throw new Error(
@@ -176,11 +177,12 @@ export default function CreateTrekEvent() {
         }
       }
 
-      const eventTypeDisplay = trekData.event_type === EventType.JAM_YARD
-        ? "Jam Yard event"
-        : trekData.event_type === EventType.CAMPING
-        ? "camping event"
-        : "trek event";
+      const eventTypeDisplay =
+        trekData.event_type === EventType.JAM_YARD
+          ? "Jam Yard event"
+          : trekData.event_type === EventType.CAMPING
+            ? "camping event"
+            : "trek event";
 
       toast({
         title: "Event Created Successfully",

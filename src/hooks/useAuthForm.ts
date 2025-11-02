@@ -49,7 +49,7 @@ export const useAuthForm = () => {
   const handleSignIn = useCallback(
     async (formData: SignInFormData): Promise<AuthResponse> => {
       console.log("[AUTH] Sign-in attempt started with email:", formData.email);
-      
+
       if (!checkRateLimit("signin")) {
         console.log("[AUTH] Rate limit exceeded");
         return { success: false, error: "Rate limit exceeded" };
@@ -79,7 +79,10 @@ export const useAuthForm = () => {
         console.log("[AUTH] Sanitizing form data");
         const sanitizedData = sanitizeFormData(formData) as SignInFormData;
 
-        console.log("[AUTH] Calling Supabase signInWithPassword with email:", sanitizedData.email);
+        console.log(
+          "[AUTH] Calling Supabase signInWithPassword with email:",
+          sanitizedData.email,
+        );
         const { error } = await supabase.auth.signInWithPassword({
           email: sanitizedData.email,
           password: sanitizedData.password,
@@ -319,8 +322,8 @@ export const useAuthForm = () => {
         options: {
           redirectTo: `${window.location.origin}/`,
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
           },
         },
       });
@@ -368,17 +371,20 @@ export const useAuthForm = () => {
 
     try {
       console.log("[AUTH] Calling Supabase signInWithOAuth for Facebook");
-      console.log("[AUTH] Redirect URL:", `${window.location.origin}/auth/callback`);
+      console.log(
+        "[AUTH] Redirect URL:",
+        `${window.location.origin}/auth/callback`,
+      );
 
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "facebook",
         options: {
           redirectTo: `${window.location.origin}/auth/callback`,
           queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
+            access_type: "offline",
+            prompt: "consent",
             // Standard Facebook scopes - Instagram access requires separate setup
-            scope: 'email,public_profile',
+            scope: "email,public_profile",
           },
         },
       });
@@ -393,7 +399,9 @@ export const useAuthForm = () => {
         return { success: false, error: appError.userMessage };
       }
 
-      console.log("[AUTH] OAuth initiated successfully, redirecting to Facebook");
+      console.log(
+        "[AUTH] OAuth initiated successfully, redirecting to Facebook",
+      );
       return { success: true, message: "Redirecting to Facebook..." };
     } catch (error) {
       console.error("[AUTH] Facebook sign-in exception:", error);

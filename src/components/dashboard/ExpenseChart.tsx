@@ -106,7 +106,10 @@ export const ExpenseChart = () => {
   const CustomTooltip = ({ active, payload }: TooltipProps<number, string>) => {
     if (active && payload && payload.length) {
       return (
-        <div className="bg-white p-2 border rounded shadow text-sm" data-testid="expensechart">
+        <div
+          className="bg-white p-2 border rounded shadow text-sm"
+          data-testid="expensechart"
+        >
           <p className="font-semibold">{payload[0].name}</p>
           <p className="text-gray-700">
             {formatCurrency(payload[0].value ?? 0, "INR")}
@@ -121,7 +124,10 @@ export const ExpenseChart = () => {
     return (
       <Card className="w-full h-[320px] flex items-center justify-center">
         <div className="animate-pulse" data-testid="expensechart">
-          <div className="h-48 w-48 bg-gray-200 rounded-full" data-testid="expensechart" />
+          <div
+            className="h-48 w-48 bg-gray-200 rounded-full"
+            data-testid="expensechart"
+          />
         </div>
       </Card>
     );

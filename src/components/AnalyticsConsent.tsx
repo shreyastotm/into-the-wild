@@ -1,5 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import { X } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -7,15 +9,14 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from '@/components/ui/card';
-import { X } from 'lucide-react';
+} from "@/components/ui/card";
 
 /**
  * Analytics Consent Component
- * 
+ *
  * Displays a privacy-compliant consent banner for Google Analytics
  * Required for GDPR compliance in European markets and best practices globally
- * 
+ *
  * Features:
  * - Non-intrusive design that doesn't block user experience
  * - Clear explanation of what data is collected
@@ -28,11 +29,11 @@ export function AnalyticsConsent() {
 
   useEffect(() => {
     // Check if analytics is enabled
-    const analyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === 'true';
+    const analyticsEnabled = import.meta.env.VITE_ENABLE_ANALYTICS === "true";
     if (!analyticsEnabled) return;
 
     // Check if consent has been given
-    const consent = localStorage.getItem('analytics-consent');
+    const consent = localStorage.getItem("analytics-consent");
     if (!consent) {
       // Small delay to not interrupt initial page load
       const timer = setTimeout(() => {
@@ -43,10 +44,10 @@ export function AnalyticsConsent() {
   }, []);
 
   const handleAccept = () => {
-    localStorage.setItem('analytics-consent', 'accepted');
-    localStorage.setItem('analytics-consent-date', new Date().toISOString());
+    localStorage.setItem("analytics-consent", "accepted");
+    localStorage.setItem("analytics-consent-date", new Date().toISOString());
     setShowConsent(false);
-    
+
     // Reload to initialize analytics with consent
     // Use a small delay to ensure smooth UX
     setTimeout(() => {
@@ -55,8 +56,8 @@ export function AnalyticsConsent() {
   };
 
   const handleDecline = () => {
-    localStorage.setItem('analytics-consent', 'declined');
-    localStorage.setItem('analytics-consent-date', new Date().toISOString());
+    localStorage.setItem("analytics-consent", "declined");
+    localStorage.setItem("analytics-consent-date", new Date().toISOString());
     setShowConsent(false);
   };
 
@@ -84,29 +85,29 @@ export function AnalyticsConsent() {
           <div className="text-sm text-muted-foreground space-y-2">
             <p className="font-medium text-foreground">What we collect:</p>
             <ul className="list-disc list-inside space-y-1 ml-2">
-              <li>Page views and navigation patterns to understand user journeys</li>
-              <li>Trek registration and engagement data for service improvement</li>
-              <li>Device and browser information for compatibility optimization</li>
+              <li>
+                Page views and navigation patterns to understand user journeys
+              </li>
+              <li>
+                Trek registration and engagement data for service improvement
+              </li>
+              <li>
+                Device and browser information for compatibility optimization
+              </li>
               <li>Anonymous usage statistics (no personal identification)</li>
             </ul>
             <p className="pt-2 text-foreground">
-              <strong>Your privacy matters:</strong> We anonymize IP addresses and do not share personal data with third parties beyond Google Analytics (which processes data under their privacy policy).
+              <strong>Your privacy matters:</strong> We anonymize IP addresses
+              and do not share personal data with third parties beyond Google
+              Analytics (which processes data under their privacy policy).
             </p>
           </div>
         </CardContent>
         <CardFooter className="flex gap-2 pt-4">
-          <Button 
-            onClick={handleAccept} 
-            className="flex-1"
-            variant="default"
-          >
+          <Button onClick={handleAccept} className="flex-1" variant="default">
             Accept Analytics
           </Button>
-          <Button 
-            onClick={handleDecline} 
-            variant="outline" 
-            className="flex-1"
-          >
+          <Button onClick={handleDecline} variant="outline" className="flex-1">
             Decline
           </Button>
         </CardFooter>
@@ -114,4 +115,3 @@ export function AnalyticsConsent() {
     </div>
   );
 }
-

@@ -2,10 +2,10 @@ import React from "react";
 
 import { StepProps } from "./types";
 
+import { useAuth } from "@/components/auth/AuthProvider";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { useAuth } from "@/components/auth/AuthProvider";
 import { EventType } from "@/types/trek";
 
 export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
@@ -15,8 +15,9 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
   isEdit,
 }) => {
   const { userProfile } = useAuth();
-  const isPartnerOrAdmin = userProfile?.user_type === "micro_community" || 
-                          userProfile?.user_type === "admin";
+  const isPartnerOrAdmin =
+    userProfile?.user_type === "micro_community" ||
+    userProfile?.user_type === "admin";
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -103,7 +104,7 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
                   🏃 Jam Yard Event
                 </Label>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Partner-led outdoor activities: yoga, parkour, dance, fitness 
+                  Partner-led outdoor activities: yoga, parkour, dance, fitness
                   workshops. Can complement treks and camping events.
                 </p>
                 <ul className="text-xs text-muted-foreground mt-2 space-y-1">

@@ -3,19 +3,18 @@ import { useLocation } from "react-router-dom";
 import Footer from "./Footer";
 import Header from "./Header";
 
-import { BottomTabBar } from "@/components/navigation/BottomTabBar";
+import { AnalyticsConsent } from "@/components/AnalyticsConsent";
+import { useAuth } from "@/components/auth/AuthProvider";
+import { NudgeSystem } from "@/components/interactions/NudgeSystem";
+import { ProfileCompletionFunnel } from "@/components/interactions/ProfileCompletionFunnel";
 import { MobileHamburger } from "@/components/navigation/MobileHamburger";
+import { useGA4Analytics } from "@/hooks/useGA4Analytics";
+import { useProfileCompletion } from "@/hooks/useProfileCompletion";
 import { cn } from "@/lib/utils";
 
 // Phase 5 Interaction System Components
-import { NudgeSystem } from "@/components/interactions/NudgeSystem";
-import { ProfileCompletionFunnel } from "@/components/interactions/ProfileCompletionFunnel";
-import { useAuth } from "@/components/auth/AuthProvider";
-import { useProfileCompletion } from "@/hooks/useProfileCompletion";
 
 // GA4 Analytics
-import { useGA4Analytics } from "@/hooks/useGA4Analytics";
-import { AnalyticsConsent } from "@/components/AnalyticsConsent";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -31,17 +30,31 @@ const Layout: React.FC<LayoutProps> = (props) => {
 
   // Always call hooks - never conditionally (React Rules of Hooks requirement)
   // Pass empty string if no user - the hook handles this gracefully
-  const profileCompletion = useProfileCompletion(user?.id || '');
-  const { overallPercentage: completionPercentage = 0, currentStage } = profileCompletion;
+  const profileCompletion = useProfileCompletion(user?.id || "");
+  const { overallPercentage: completionPercentage = 0, currentStage } =
+    profileCompletion;
 
   // Page type checks for conditional rendering
   const isHomePage = location.pathname === "/";
   const isDashboard = location.pathname === "/dashboard";
-  const isGlassPage = location.pathname === "/glass-landing" ||
-                     location.pathname === "/glass-gallery" || 
-                     location.pathname === "/glass-events" || 
-                     location.pathname.startsWith("/glass-event-details/");
-  const isFullScreenPage = isHomePage || isDashboard || isGlassPage; // Hide BottomTabBar on these pages
+  const isProfile = location.pathname === "/profile";
+  const isCommunity = location.pathname === "/community";
+  // Glass pages now include main routes (/, /events, /gallery, /events/:id) as they all use glass theme
+  const isGlassPage =
+    location.pathname === "/" ||
+    location.pathname === "/gallery" ||
+    location.pathname === "/events" ||
+    location.pathname.startsWith("/events/") ||
+    location.pathname === "/glass-landing" ||
+    location.pathname === "/glass-gallery" ||
+    location.pathname === "/glass-events" ||
+    location.pathname.startsWith("/glass-event-details/") ||
+    isProfile ||
+    isCommunity ||
+    isDashboard ||
+    location.pathname === "/forum" ||
+    location.pathname.startsWith("/forum/");
+  const isFullScreenPage = isHomePage || isDashboard || isGlassPage;
 
   return (
     <div className="flex flex-col min-h-screen bg-background relative overflow-x-hidden">
@@ -58,8 +71,8 @@ const Layout: React.FC<LayoutProps> = (props) => {
         </div>
       )}
 
-      {/* Header - Desktop navigation */}
-      <Header />
+      {/* Header - Desktop navigation (hidden on glass pages) */}
+      {!isGlassPage && <Header />}
 
       {/* Mobile Floating Hamburger - Only on mobile, or Origami for glass pages */}
       <div className="md:hidden">
@@ -74,8 +87,6 @@ const Layout: React.FC<LayoutProps> = (props) => {
       <main
         className={cn(
           "flex-grow",
-          // Only add bottom padding for bottom nav bar (hidden on full-screen pages)
-          !isFullScreenPage && "pb-[calc(env(safe-area-inset-bottom)+80px)]",
           // Desktop padding
           "md:pb-8",
           // Desktop container
@@ -97,9 +108,6 @@ const Layout: React.FC<LayoutProps> = (props) => {
         <Footer />
       </div>
 
-      {/* Bottom Navigation - Hidden on full-screen pages (home & dashboard) */}
-      {!isFullScreenPage && <BottomTabBar />}
-
       {/* Phase 5 Interaction System Components */}
       {user && profileCompletion && (
         <>
@@ -112,11 +120,13 @@ const Layout: React.FC<LayoutProps> = (props) => {
           />
 
           {/* Profile Completion Funnel - Only show as compact widget outside profile page */}
-          {location.pathname !== '/profile' && !isFullScreenPage && completionPercentage < 100 && (
-            <div className="fixed top-4 right-4 z-40 max-w-xs">
-              {/* Compact widget will be rendered by Profile page, not here */}
-            </div>
-          )}
+          {location.pathname !== "/profile" &&
+            !isFullScreenPage &&
+            completionPercentage < 100 && (
+              <div className="fixed top-4 right-4 z-40 max-w-xs">
+                {/* Compact widget will be rendered by Profile page, not here */}
+              </div>
+            )}
         </>
       )}
 

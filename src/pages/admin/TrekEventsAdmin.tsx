@@ -1,5 +1,6 @@
 import { format } from "date-fns";
-import { CalendarIcon ,
+import {
+  CalendarIcon,
   CheckSquare,
   Copy,
   Download,
@@ -12,29 +13,13 @@ import { CalendarIcon ,
 } from "lucide-react";
 
 // Dialog imports removed - CreateTrekMultiStepFormNew handles its own dialog
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
-import { supabase } from "../../integrations/supabase/client";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
-import { TrekEventStatus, EventType } from "@/types/trek";
-import { toast } from "@/components/ui/use-toast";
 import React, { useCallback, useEffect, useState } from "react";
 
+import { supabase } from "../../integrations/supabase/client";
+
 import { TrekImagesManager } from "@/components/admin/TrekImagesManager";
+import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -61,9 +46,26 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Textarea } from "@/components/ui/textarea";
+import { toast } from "@/components/ui/use-toast";
 import { cn } from "@/lib/utils";
-import { formatIndianDate } from '@/utils/indianStandards';
+import { EventType, TrekEventStatus } from "@/types/trek";
+import { formatIndianDate } from "@/utils/indianStandards";
 
 interface TrekEvent {
   trek_id: number;
@@ -76,10 +78,6 @@ interface TrekEvent {
   end_datetime?: string | null;
   base_price?: number | null;
   max_participants: number;
-  status?: TrekEventStatus | string | null;
-  image_url?: string | null;
-  gpx_file_url?: string | null;
-  route_data?: Record<string, unknown> | null;
   event_type?: EventType;
 }
 
@@ -117,11 +115,11 @@ const TrekEventsAdmin = () => {
 
     try {
       // Fetch images from trek_event_images table
-      const { data: images, error: imgError } = await supabase
+      const { data: images, error: imgError } = (await supabase
         .from("trek_event_images")
         .select("id, trek_id, image_url, position")
         .in("trek_id", trekIds)
-        .order("position", { ascending: true }) as any;
+        .order("position", { ascending: true })) as any;
 
       if (imgError) throw imgError;
 
@@ -141,10 +139,10 @@ const TrekEventsAdmin = () => {
       });
 
       // Also check main trek_events table for image_url column
-      const { data: trekImages, error: trekImgError } = await supabase
+      const { data: trekImages, error: trekImgError } = (await supabase
         .from("trek_events")
         .select("trek_id, name, image_url, image")
-        .in("trek_id", trekIds) as any;
+        .in("trek_id", trekIds)) as any;
 
       if (trekImgError) throw trekImgError;
 
@@ -172,10 +170,10 @@ const TrekEventsAdmin = () => {
       });
 
       // Fetch videos
-      const { data: videos, error: videoError } = await supabase
+      const { data: videos, error: videoError } = (await supabase
         .from("trek_event_videos")
         .select("id, trek_id, video_url")
-        .in("trek_id", trekIds) as any;
+        .in("trek_id", trekIds)) as any;
 
       if (videoError) throw videoError;
 
@@ -201,12 +199,12 @@ const TrekEventsAdmin = () => {
   const fetchEvents = useCallback(async () => {
     setLoading(true);
     try {
-      const { data, error: fetchError } = await supabase
+      const { data, error: fetchError } = (await supabase
         .from("trek_events")
         .select(
-          "trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, status, image_url, image, gpx_file_url, route_data, event_type, government_id_required",
+          "trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, event_type",
         )
-        .order("start_datetime", { ascending: false }) as any;
+        .order("start_datetime", { ascending: false })) as any;
 
       if (fetchError) throw fetchError;
       const events = (data as TrekEvent[]) || [];
@@ -231,7 +229,7 @@ const TrekEventsAdmin = () => {
   // Enhanced fetchEvents with image fetching
 
   useEffect(() => {
-    console.log('🔍 TrekEventsAdmin: useEffect triggered');
+    console.log("🔍 TrekEventsAdmin: useEffect triggered");
     fetchEvents();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -272,10 +270,10 @@ const TrekEventsAdmin = () => {
     newStatus: TrekEventStatus,
   ) => {
     try {
-      const { error: updateError } = await supabase
+      const { error: updateError } = (await supabase
         .from("trek_events")
         .update({ status: newStatus })
-        .eq("trek_id", trekId) as any;
+        .eq("trek_id", trekId)) as any;
 
       if (updateError) throw updateError;
 
@@ -318,10 +316,10 @@ const TrekEventsAdmin = () => {
     setIsDeleting(true);
     try {
       // First, check if there are any registrations for this event
-      const { data: registrations, error: regError } = await supabase
+      const { data: registrations, error: regError } = (await supabase
         .from("trek_registrations")
         .select("registration_id")
-        .eq("trek_id", eventToDelete.trek_id) as any;
+        .eq("trek_id", eventToDelete.trek_id)) as any;
 
       if (regError) throw regError;
 
@@ -335,32 +333,32 @@ const TrekEventsAdmin = () => {
       }
 
       // Delete related data first (in order of dependencies)
-      await supabase
+      (await supabase
         .from("trek_packing_list_assignments")
         .delete()
-        .eq("trek_id", eventToDelete.trek_id) as any;
-      await supabase
+        .eq("trek_id", eventToDelete.trek_id)) as any;
+      (await supabase
         .from("trek_costs")
         .delete()
-        .eq("trek_id", eventToDelete.trek_id) as any;
-      await supabase
+        .eq("trek_id", eventToDelete.trek_id)) as any;
+      (await supabase
         .from("tent_inventory")
         .delete()
-        .eq("event_id", eventToDelete.trek_id) as any;
-      await supabase
+        .eq("event_id", eventToDelete.trek_id)) as any;
+      (await supabase
         .from("trek_event_images")
         .delete()
-        .eq("trek_id", eventToDelete.trek_id) as any;
-      await supabase
+        .eq("trek_id", eventToDelete.trek_id)) as any;
+      (await supabase
         .from("trek_event_videos")
         .delete()
-        .eq("trek_id", eventToDelete.trek_id) as any;
+        .eq("trek_id", eventToDelete.trek_id)) as any;
 
       // Finally delete the main event
-      const { error: deleteError } = await supabase
+      const { error: deleteError } = (await supabase
         .from("trek_events")
         .delete()
-        .eq("trek_id", eventToDelete.trek_id) as any;
+        .eq("trek_id", eventToDelete.trek_id)) as any;
 
       if (deleteError) throw deleteError;
 
@@ -389,7 +387,7 @@ const TrekEventsAdmin = () => {
 
   const handleDuplicate = async (event: TrekEvent) => {
     try {
-      const { data: newEvent, error: insertError } = await supabase
+      const { data: newEvent, error: insertError } = (await supabase
         .from("trek_events")
         .insert({
           name: `${event.name} (Copy)`,
@@ -402,13 +400,10 @@ const TrekEventsAdmin = () => {
           ).toISOString(), // 7 days from now
           base_price: event.base_price,
           max_participants: event.max_participants,
-          status: TrekEventStatus.DRAFT,
           event_type: event.event_type,
-          image_url: event.image_url,
-          gpx_file_url: event.gpx_file_url,
         })
         .select("trek_id")
-        .single() as any;
+        .single()) as any;
 
       if (insertError) throw insertError;
 
@@ -437,10 +432,10 @@ const TrekEventsAdmin = () => {
 
   const handleExportEvents = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("trek_events")
         .select("*")
-        .order("start_datetime", { ascending: false }) as any;
+        .order("start_datetime", { ascending: false })) as any;
 
       if (error) throw error;
 
@@ -542,10 +537,10 @@ const TrekEventsAdmin = () => {
 
     setIsBulkActionLoading(true);
     try {
-      const { error } = await supabase
+      const { error } = (await supabase
         .from("trek_events")
         .update({ status: newStatus })
-        .in("trek_id", selectedEvents) as any;
+        .in("trek_id", selectedEvents)) as any;
 
       if (error) throw error;
 
@@ -605,18 +600,18 @@ const TrekEventsAdmin = () => {
       // Step 1: Upsert the main trek data
       if (eventToEdit?.trek_id) {
         trekIdToUpdate = eventToEdit.trek_id;
-        const { error: trekError } = await supabase
+        const { error: trekError } = (await supabase
           .from("trek_events")
           .update(sanitizedTrekData)
-        .eq("trek_id", trekIdToUpdate) as any;
+          .eq("trek_id", trekIdToUpdate)) as any;
         if (trekError)
           throw new Error(`Failed to update trek: ${trekError.message}`);
       } else {
-        const { data: newTrek, error: trekError } = await supabase
+        const { data: newTrek, error: trekError } = (await supabase
           .from("trek_events")
           .insert(sanitizedTrekData)
           .select("trek_id")
-        .single() as any;
+          .single()) as any;
         if (trekError)
           throw new Error(`Failed to create trek: ${trekError.message}`);
         trekIdToUpdate = newTrek.trek_id;
@@ -631,10 +626,10 @@ const TrekEventsAdmin = () => {
         "Admin Form: Deleting existing packing list for trek",
         trekIdToUpdate,
       );
-      await supabase
+      (await supabase
         .from("trek_packing_list_assignments")
         .delete()
-        .eq("trek_id", trekIdToUpdate) as any;
+        .eq("trek_id", trekIdToUpdate)) as any;
 
       if (packingList && packingList.length > 0) {
         console.log("Admin Form: Inserting new packing list:", packingList);
@@ -643,9 +638,9 @@ const TrekEventsAdmin = () => {
           master_item_id: item.master_item_id,
           mandatory: item.mandatory,
         }));
-        const { error: assignmentError } = await supabase
+        const { error: assignmentError } = (await supabase
           .from("trek_packing_list_assignments")
-        .insert(assignments) as any;
+          .insert(assignments)) as any;
         if (assignmentError) {
           console.error(
             "Admin Form: Packing list assignment error:",
@@ -674,9 +669,9 @@ const TrekEventsAdmin = () => {
             url: cost.url,
             file_url: cost.file_url,
           }));
-        const { error: costError } = await supabase
+        const { error: costError } = (await supabase
           .from("trek_costs")
-        .insert(costsToInsert) as any;
+          .insert(costsToInsert)) as any;
         if (costError)
           throw new Error(`Failed to save costs: ${costError.message}`);
       }
@@ -688,10 +683,10 @@ const TrekEventsAdmin = () => {
         tentInventory.length > 0
       ) {
         // Clear existing tent inventory for this event
-        await supabase
+        (await supabase
           .from("tent_inventory")
           .delete()
-        .eq("event_id", trekIdToUpdate) as any;
+          .eq("event_id", trekIdToUpdate)) as any;
 
         // Insert new tent inventory
         const tentInventoryToInsert = tentInventory
@@ -704,9 +699,9 @@ const TrekEventsAdmin = () => {
           }));
 
         if (tentInventoryToInsert.length > 0) {
-          const { error: tentError } = await supabase
+          const { error: tentError } = (await supabase
             .from("tent_inventory")
-        .insert(tentInventoryToInsert) as any;
+            .insert(tentInventoryToInsert)) as any;
           if (tentError)
             throw new Error(
               `Failed to save tent inventory: ${tentError.message}`,
@@ -734,7 +729,7 @@ const TrekEventsAdmin = () => {
   };
 
   return (
-    <div className="py-6 sm:py-8">
+    <div className="py-4 sm:py-6">
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-6">
         <h1 className="text-xl sm:text-2xl font-bold">Manage Events</h1>
         <div className="flex flex-col sm:flex-row gap-2">
@@ -976,8 +971,11 @@ const TrekEventsAdmin = () => {
           </div>
 
           {/* Desktop Table Layout */}
-          <div className="hidden md:block overflow-x-auto border rounded-lg bg-card/80 dark:bg-card/60">
-            <Table>
+          <div
+            className="hidden md:block border rounded-lg bg-card/80 dark:bg-card/60"
+            style={{ overflowX: "auto", width: "100%" }}
+          >
+            <Table style={{ minWidth: "1200px", tableLayout: "auto" }}>
               <TableHeader>
                 <TableRow>
                   <TableHead className="w-12">
@@ -997,25 +995,25 @@ const TrekEventsAdmin = () => {
                       )}
                     </Button>
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">
+                  <TableHead className="text-foreground dark:text-foreground min-w-[200px]">
                     Name
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">
+                  <TableHead className="text-foreground dark:text-foreground min-w-[120px]">
                     Type
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">
+                  <TableHead className="text-foreground dark:text-foreground min-w-[150px]">
                     Start Date
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">
+                  <TableHead className="text-foreground dark:text-foreground min-w-[180px]">
                     Status
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">
+                  <TableHead className="text-foreground dark:text-foreground min-w-[100px]">
                     Price
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">
+                  <TableHead className="text-foreground dark:text-foreground min-w-[120px]">
                     Participants
                   </TableHead>
-                  <TableHead className="text-foreground dark:text-foreground">
+                  <TableHead className="text-foreground dark:text-foreground min-w-[400px]">
                     Actions
                   </TableHead>
                 </TableRow>
@@ -1041,8 +1039,10 @@ const TrekEventsAdmin = () => {
                         )}
                       </Button>
                     </TableCell>
-                    <TableCell>{event.name}</TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-[200px]">
+                      {event.name}
+                    </TableCell>
+                    <TableCell className="min-w-[120px]">
                       <span
                         className={`px-2 py-1 rounded text-xs font-medium ${
                           event.event_type === EventType.CAMPING
@@ -1055,10 +1055,10 @@ const TrekEventsAdmin = () => {
                           : "Trek"}
                       </span>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-[150px]">
                       {format(new Date(event.start_datetime), "PPP")}
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-[180px]">
                       <Select
                         value={event.status || ""}
                         onValueChange={(newStatusValue) => {
@@ -1080,14 +1080,16 @@ const TrekEventsAdmin = () => {
                         </SelectContent>
                       </Select>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-[100px]">
                       {event.base_price !== null &&
                       event.base_price !== undefined
                         ? `₹${event.base_price}`
                         : "N/A"}
                     </TableCell>
-                    <TableCell>{event.max_participants}</TableCell>
-                    <TableCell>
+                    <TableCell className="min-w-[120px]">
+                      {event.max_participants}
+                    </TableCell>
+                    <TableCell className="min-w-[400px]">
                       <div className="flex gap-2">
                         <Button
                           variant="outline"

@@ -1,16 +1,18 @@
-import { createClient } from '@supabase/supabase-js';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { createClient } from "@supabase/supabase-js";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
-import TrekPackingList from '../TrekPackingList';
+import TrekPackingList from "../TrekPackingList";
 
 // Mock Supabase client
-vi.mock('@supabase/supabase-js', () => ({
+vi.mock("@supabase/supabase-js", () => ({
   createClient: vi.fn(() => ({
     auth: {
-      getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'test-user-id' } } }),
+      getUser: vi
+        .fn()
+        .mockResolvedValue({ data: { user: { id: "test-user-id" } } }),
       signIn: vi.fn().mockResolvedValue({ data: {}, error: null }),
       signOut: vi.fn().mockResolvedValue({ error: null }),
     },
@@ -28,7 +30,9 @@ vi.mock('@supabase/supabase-js', () => ({
     storage: {
       from: vi.fn().mockReturnValue({
         upload: vi.fn().mockResolvedValue({ data: {}, error: null }),
-        getPublicUrl: vi.fn().mockReturnValue({ data: { publicUrl: 'https://example.com/image.jpg' } }),
+        getPublicUrl: vi.fn().mockReturnValue({
+          data: { publicUrl: "https://example.com/image.jpg" },
+        }),
       }),
     },
   })),
@@ -36,48 +40,52 @@ vi.mock('@supabase/supabase-js', () => ({
 
 // Wrapper for Router
 const renderWithRouter = (ui) => {
-  return render(
-    <BrowserRouter>
-      {ui}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
 
-describe('TrekPackingList', () => {
+describe("TrekPackingList", () => {
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  it('renders without crashing', () => {
+  it("renders without crashing", () => {
     renderWithRouter(<TrekPackingList data-testid="trekpackinglist" />);
-    expect(screen.getByTestId('trekpackinglist')).toBeInTheDocument();
+    expect(screen.getByTestId("trekpackinglist")).toBeInTheDocument();
   });
 
-  it('accepts and displays props correctly', () => {
-    renderWithRouter(<TrekPackingList title="Test Title" data-testid="trekpackinglist" />);
-    expect(screen.getByTestId('trekpackinglist')).toHaveTextContent('Test Title');
+  it("accepts and displays props correctly", () => {
+    renderWithRouter(
+      <TrekPackingList title="Test Title" data-testid="trekpackinglist" />,
+    );
+    expect(screen.getByTestId("trekpackinglist")).toHaveTextContent(
+      "Test Title",
+    );
   });
 
-  it('handles user interactions', () => {
+  it("handles user interactions", () => {
     const handleClick = vi.fn();
-    renderWithRouter(<TrekPackingList onClick={handleClick} data-testid="trekpackinglist" />);
-    fireEvent.click(screen.getByTestId('trekpackinglist'));
+    renderWithRouter(
+      <TrekPackingList onClick={handleClick} data-testid="trekpackinglist" />,
+    );
+    fireEvent.click(screen.getByTestId("trekpackinglist"));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('updates state correctly', async () => {
+  it("updates state correctly", async () => {
     renderWithRouter(<TrekPackingList data-testid="trekpackinglist" />);
-    fireEvent.click(screen.getByTestId('trekpackinglist'));
+    fireEvent.click(screen.getByTestId("trekpackinglist"));
     await waitFor(() => {
-      expect(screen.getByTestId('trekpackinglist')).toHaveTextContent(/updated|changed|new/i);
+      expect(screen.getByTestId("trekpackinglist")).toHaveTextContent(
+        /updated|changed|new/i,
+      );
     });
   });
 
-  it('interacts with Supabase correctly', async () => {
+  it("interacts with Supabase correctly", async () => {
     renderWithRouter(<TrekPackingList data-testid="trekpackinglist" />);
     // Verify Supabase client was created
     expect(createClient).toHaveBeenCalled();
-    
+
     // Test component behavior that uses Supabase
     // This will depend on the specific component
   });

@@ -146,8 +146,10 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
 
   // Calculate total steps based on event type
   const getTotalSteps = () => {
-    if (formData.event_type === EventType.CAMPING || 
-        formData.event_type === EventType.JAM_YARD) {
+    if (
+      formData.event_type === EventType.CAMPING ||
+      formData.event_type === EventType.JAM_YARD
+    ) {
       return 6;
     }
     return 5;
@@ -168,8 +170,10 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
       "Packing List",
       "Fixed Costs",
       step5Name,
-      (formData.event_type === EventType.CAMPING || 
-       formData.event_type === EventType.JAM_YARD) ? "Review" : "",
+      formData.event_type === EventType.CAMPING ||
+      formData.event_type === EventType.JAM_YARD
+        ? "Review"
+        : "",
     ].filter(Boolean);
 
     return steps[stepNumber - 1] || "";
@@ -364,9 +368,9 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
 
   return (
     <Dialog open onOpenChange={(isOpen) => !isOpen && onCancel()}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[95vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>
+          <DialogTitle className="text-lg sm:text-xl">
             {trekToEdit ? "Edit Event" : "Create New Event"}
           </DialogTitle>
         </DialogHeader>
@@ -377,27 +381,33 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
             <span>
               Step {step} of {totalSteps}
             </span>
-            <span>{getStepName(step)}</span>
+            <span className="text-right truncate">{getStepName(step)}</span>
           </div>
           <Progress value={progress} className="h-2" />
         </div>
 
         {/* Step Content */}
-        <div className="min-h-[400px]">{renderStep()}</div>
+        <div className="min-h-[300px] sm:min-h-[400px]">{renderStep()}</div>
 
         {/* Navigation */}
-        <div className="flex justify-between pt-4 border-t">
+        <div className="flex flex-col sm:flex-row justify-between gap-2 sm:gap-0 pt-4 border-t">
           <Button
             variant="outline"
             onClick={handlePrevious}
             disabled={!canGoPrevious || submitting}
+            className="w-full sm:w-auto order-2 sm:order-1"
           >
             <ChevronLeft className="h-4 w-4 mr-1" />
             Previous
           </Button>
 
-          <div className="flex gap-2">
-            <Button variant="ghost" onClick={onCancel} disabled={submitting}>
+          <div className="flex gap-2 w-full sm:w-auto order-1 sm:order-2">
+            <Button
+              variant="ghost"
+              onClick={onCancel}
+              disabled={submitting}
+              className="flex-1 sm:flex-none"
+            >
               Cancel
             </Button>
 
@@ -405,6 +415,7 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
               <Button
                 onClick={handleSubmit}
                 disabled={submitting || isLoadingExistingData}
+                className="flex-1 sm:flex-none"
               >
                 {submitting
                   ? trekToEdit
@@ -415,7 +426,11 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
                     : `Create ${formData.event_type === EventType.CAMPING ? "Camping Event" : "Trek"}`}
               </Button>
             ) : (
-              <Button onClick={handleNext} disabled={!canGoNext || submitting}>
+              <Button
+                onClick={handleNext}
+                disabled={!canGoNext || submitting}
+                className="flex-1 sm:flex-none"
+              >
                 Next
                 <ChevronRight className="h-4 w-4 ml-1" />
               </Button>

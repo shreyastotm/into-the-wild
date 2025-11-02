@@ -161,20 +161,21 @@ export const DewdropButton = ({
         isStatic
           ? {
               transform: isPressed ? "scale(0.95)" : "scale(1)",
-              transition: "transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+              transition:
+                "transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
             }
           : draggable
-          ? {
-              position: "fixed",
-              left: position.x,
-              top: position.y,
-              transform: isPressed ? "scale(0.95)" : "scale(1)",
-              transition: isDragging
-                ? "none"
-                : "transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
-              zIndex: 1000,
-            }
-          : {}
+            ? {
+                position: "fixed",
+                left: position.x,
+                top: position.y,
+                transform: isPressed ? "scale(0.95)" : "scale(1)",
+                transition: isDragging
+                  ? "none"
+                  : "transform 0.2s cubic-bezier(0.68, -0.55, 0.265, 1.55)",
+                zIndex: 1000,
+              }
+            : {}
       }
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
@@ -193,7 +194,9 @@ export const DewdropButton = ({
           "border border-white/40 dark:border-white/20",
           "transition-all duration-300",
           isPressed ? "shadow-lg" : "shadow-2xl",
-          !isStatic && !isPressed && "group-hover:shadow-golden group-hover:scale-105",
+          !isStatic &&
+            !isPressed &&
+            "group-hover:shadow-golden group-hover:scale-105",
         )}
         style={{
           borderRadius: "30% 70% 70% 30% / 30% 30% 70% 70%", // Organic shape
@@ -229,7 +232,7 @@ export const DewdropButton = ({
             "absolute inset-0",
             "bg-radial-gradient from-white/40 to-transparent",
             "opacity-60 group-hover:opacity-80 transition-opacity",
-            isStatic && "transition-none"
+            isStatic && "transition-none",
           )}
         />
 

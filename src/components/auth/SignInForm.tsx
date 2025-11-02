@@ -93,7 +93,8 @@ export const SignInForm: React.FC<SignInFormProps> = ({
         <div
           className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md"
           role="alert"
-         data-testid="signinform">
+          data-testid="signinform"
+        >
           {errors.general}
         </div>
       )}
@@ -106,7 +107,10 @@ export const SignInForm: React.FC<SignInFormProps> = ({
       >
         {loading ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="signinform" />
+            <div
+              className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+              data-testid="signinform"
+            />
             Signing in...
           </>
         ) : (

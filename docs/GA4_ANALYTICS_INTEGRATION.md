@@ -16,6 +16,7 @@ VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 **Get your GA4 Measurement ID:**
+
 1. Go to [Google Analytics](https://analytics.google.com/)
 2. Create or select your property
 3. Navigate to Admin → Data Streams
@@ -24,6 +25,7 @@ VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 ### 2. User Consent
 
 The `AnalyticsConsent` component automatically appears when:
+
 - Analytics is enabled (`VITE_ENABLE_ANALYTICS=true`)
 - User hasn't given consent yet
 
@@ -110,8 +112,8 @@ function GalleryImage({ image, trekName }: ImageProps) {
   };
 
   return (
-    <img 
-      src={image.url} 
+    <img
+      src={image.url}
       onClick={handleImageClick}
       alt={trekName}
     />
@@ -238,19 +240,19 @@ function ErrorBoundary({ error }: ErrorProps) {
 
 Returns an object with the following methods:
 
-| Method | Description | Parameters |
-|--------|-------------|------------|
-| `trackEvent` | Generic event tracking | `(eventName: string, parameters?: object)` |
-| `trackTrekRegistration` | Track trek registrations | `(trekId: string, trekName: string, cost: number)` |
-| `trackPaymentSuccess` | Track payment completion | `(amount: number, trekId: string, transactionId?: string)` |
-| `trackGalleryView` | Track gallery image views | `(imageId: string, trekName?: string)` |
-| `trackForumInteraction` | Track forum actions | `(action: string, threadId?: string)` |
-| `trackProfileCompletion` | Track profile completion | `(completionPercentage: number)` |
-| `trackButtonClick` | Track button clicks | `(buttonName: string, context?: object)` |
-| `trackFormSubmit` | Track form submissions | `(formName: string, success: boolean, data?: object)` |
-| `trackNavigation` | Track navigation clicks | `(destination: string, linkText?: string)` |
-| `trackError` | Track errors | `(errorMessage: string, errorType?: string, context?: object)` |
-| `isEnabled` | Check if analytics is enabled | `boolean` |
+| Method                   | Description                   | Parameters                                                     |
+| ------------------------ | ----------------------------- | -------------------------------------------------------------- |
+| `trackEvent`             | Generic event tracking        | `(eventName: string, parameters?: object)`                     |
+| `trackTrekRegistration`  | Track trek registrations      | `(trekId: string, trekName: string, cost: number)`             |
+| `trackPaymentSuccess`    | Track payment completion      | `(amount: number, trekId: string, transactionId?: string)`     |
+| `trackGalleryView`       | Track gallery image views     | `(imageId: string, trekName?: string)`                         |
+| `trackForumInteraction`  | Track forum actions           | `(action: string, threadId?: string)`                          |
+| `trackProfileCompletion` | Track profile completion      | `(completionPercentage: number)`                               |
+| `trackButtonClick`       | Track button clicks           | `(buttonName: string, context?: object)`                       |
+| `trackFormSubmit`        | Track form submissions        | `(formName: string, success: boolean, data?: object)`          |
+| `trackNavigation`        | Track navigation clicks       | `(destination: string, linkText?: string)`                     |
+| `trackError`             | Track errors                  | `(errorMessage: string, errorType?: string, context?: object)` |
+| `isEnabled`              | Check if analytics is enabled | `boolean`                                                      |
 
 ### `useEnhancedAnalytics()` Hook
 
@@ -293,6 +295,7 @@ All events include Indian market context:
 ### User Rights
 
 Users can:
+
 - Accept or decline analytics on first visit
 - Revoke consent by clearing `localStorage`
 - View privacy policy in consent dialog
@@ -300,6 +303,7 @@ Users can:
 ## Development Mode
 
 In development mode (`import.meta.env.DEV`):
+
 - GA4 status indicator appears in bottom-right corner
 - Console logs show tracked events for debugging
 - Consent dialog appears after 2 seconds
@@ -366,4 +370,3 @@ The GA4 system integrates with your existing behavioral tracking:
 - [Google Analytics 4 Documentation](https://developers.google.com/analytics/devguides/collection/ga4)
 - [React GA4 Library](https://github.com/codler/react-ga4)
 - [GDPR Compliance Guidelines](https://gdpr.eu/)
-

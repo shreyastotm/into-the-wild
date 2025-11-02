@@ -10,7 +10,7 @@ export function cn(...inputs: ClassValue[]) {
 export function truncateText(text: string, maxLength: number = 150): string {
   if (!text) return "";
   if (text.length <= maxLength) return text;
-  return `${text.substring(0, maxLength)  }...`;
+  return `${text.substring(0, maxLength)}...`;
 }
 
 export function formatDateLong(date: string | Date): string {
@@ -46,7 +46,10 @@ export function formatDateWithTime(date: string | Date): string {
   });
 }
 
-export function formatCurrency(amount: number, currency: string = "INR"): string {
+export function formatCurrency(
+  amount: number,
+  currency: string = "INR",
+): string {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency,

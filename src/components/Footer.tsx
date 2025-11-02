@@ -96,9 +96,9 @@ const Footer = () => {
                 </Link>
               </li>
               <li>
-                <a href="#faq" className="text-gray-600 hover:text-blue-600">
+                <Link to="/faq" className="text-gray-600 hover:text-blue-600">
                   FAQ
-                </a>
+                </Link>
               </li>
               <li>
                 <Link
@@ -106,6 +106,30 @@ const Footer = () => {
                   className="text-gray-600 hover:text-blue-600"
                 >
                   Packing List
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/privacy-policy"
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/data-deletion"
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  Data Deletion
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/data-callback"
+                  className="text-gray-600 hover:text-blue-600"
+                >
+                  Data Callback Instructions
                 </Link>
               </li>
             </ul>
@@ -130,6 +154,26 @@ const Footer = () => {
 
         <div className="border-t border-gray-200 pt-6 text-center text-sm text-gray-600">
           <p>© {currentYear} Into the Wild. All rights reserved.</p>
+          <div className="mt-2 space-x-4">
+            <Link
+              to="/privacy-policy"
+              className="text-gray-600 hover:text-blue-600 underline"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              to="/data-deletion"
+              className="text-gray-600 hover:text-blue-600 underline"
+            >
+              Data Deletion
+            </Link>
+            <Link
+              to="/data-callback"
+              className="text-gray-600 hover:text-blue-600 underline"
+            >
+              Data Callback
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

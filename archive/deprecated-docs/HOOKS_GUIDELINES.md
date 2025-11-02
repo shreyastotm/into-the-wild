@@ -9,12 +9,15 @@ This document establishes coding standards and best practices for React hooks in
 ## 🎯 Core Principles
 
 ### 1. **Prevent Infinite Loops**
+
 The primary goal is to avoid dependency cycles between `useEffect` and `useCallback` hooks.
 
 ### 2. **Performance First**
+
 Memoize expensive operations but avoid unnecessary dependencies.
 
 ### 3. **Predictable Behavior**
+
 Ensure hooks behave consistently across renders and user interactions.
 
 ---
@@ -30,12 +33,14 @@ const fetchData = useCallback(async (param: string) => {
   const currentSort = sortBy;
 
   // Make API call using current values
-  const result = await api.get(`/data?filter=${currentFilter}&sort=${currentSort}`);
+  const result = await api.get(
+    `/data?filter=${currentFilter}&sort=${currentSort}`,
+  );
   setData(result);
 }, []); // ✅ Empty dependencies
 
 useEffect(() => {
-  fetchData('initial');
+  fetchData("initial");
 }, [fetchData]); // ❌ This still creates a loop if fetchData depends on state
 ```
 
@@ -48,8 +53,8 @@ useEffect(() => {
 ### Pattern 2: Primitive Dependencies Only
 
 ```typescript
-const [searchTerm, setSearchTerm] = useState('');
-const [sortBy, setSortBy] = useState('date');
+const [searchTerm, setSearchTerm] = useState("");
+const [sortBy, setSortBy] = useState("date");
 
 const fetchData = useCallback(async () => {
   await api.get(`/data?search=${searchTerm}&sort=${sortBy}`);
@@ -106,9 +111,9 @@ useEffect(() => {
 
 ```typescript
 const [filterOptions, setFilterOptions] = useState({
-  search: '',
-  category: '',
-  sortBy: 'date'
+  search: "",
+  category: "",
+  sortBy: "date",
 });
 
 // ❌ DON'T DO THIS:
@@ -126,7 +131,9 @@ useEffect(() => {
 
 ```typescript
 // ❌ NEVER DO THIS:
-const helper = useCallback(() => { /* logic */ }, []);
+const helper = useCallback(() => {
+  /* logic */
+}, []);
 const fetchData = useCallback(async () => {
   await helper(); // Calls helper
 }, [helper]); // Depends on helper
@@ -139,21 +146,25 @@ const fetchData = useCallback(async () => {
 ## 📋 Page-Specific Implementations
 
 ### Dashboard.tsx ✅ SAFE
+
 - Uses proper hook ordering (all hooks before early returns)
 - Event listeners properly throttled
 - No complex data fetching patterns
 
 ### TrekEvents.tsx ✅ SAFE
+
 - fetchEvents has empty dependencies
 - useEffect depends on individual filter properties
 - No circular dependencies
 
 ### PublicGallery.tsx ⚠️ SAFE (Documented)
+
 - Uses stale closure pattern (intentionally)
 - Documented in comments
 - Safe but could be confusing without documentation
 
 ### TrekEventsAdmin.tsx ✅ FIXED
+
 - Removed unnecessary fetchTrekMedia dependency
 - Now uses empty dependencies correctly
 
@@ -164,6 +175,7 @@ const fetchData = useCallback(async () => {
 ### Fix 1: Remove Function Dependencies
 
 **Before:**
+
 ```typescript
 const fetchData = useCallback(async () => {
   await helperFunction();
@@ -175,6 +187,7 @@ useEffect(() => {
 ```
 
 **After:**
+
 ```typescript
 const fetchData = useCallback(async () => {
   await helperFunction(); // Call directly
@@ -188,21 +201,28 @@ useEffect(() => {
 ### Fix 2: Use Primitive Dependencies
 
 **Before:**
+
 ```typescript
-const [options, setOptions] = useState({ search: '', sort: '' });
-useEffect(() => { /* ... */ }, [options]);
+const [options, setOptions] = useState({ search: "", sort: "" });
+useEffect(() => {
+  /* ... */
+}, [options]);
 ```
 
 **After:**
+
 ```typescript
-const [search, setSearch] = useState('');
-const [sort, setSort] = useState('');
-useEffect(() => { /* ... */ }, [search, sort]);
+const [search, setSearch] = useState("");
+const [sort, setSort] = useState("");
+useEffect(() => {
+  /* ... */
+}, [search, sort]);
 ```
 
 ### Fix 3: Document Stale Closures
 
 **Before:**
+
 ```typescript
 const fetchData = useCallback(async () => {
   const currentFilter = filterState; // Why are we doing this?
@@ -211,6 +231,7 @@ const fetchData = useCallback(async () => {
 ```
 
 **After:**
+
 ```typescript
 const fetchData = useCallback(async () => {
   // ✅ INTENTIONAL STALE CLOSURE:
@@ -228,6 +249,7 @@ const fetchData = useCallback(async () => {
 Before committing changes involving hooks:
 
 1. **No Console Errors:**
+
    ```bash
    # Check for React warnings about hook order or dependencies
    npm run dev
@@ -235,6 +257,7 @@ Before committing changes involving hooks:
    ```
 
 2. **Performance Stable:**
+
    ```bash
    # No repeated network requests when changing filters
    # Page remains responsive during filter changes
@@ -278,4 +301,4 @@ When adding new hooks or modifying existing ones:
 
 ---
 
-*Last updated: October 2025*
+_Last updated: October 2025_

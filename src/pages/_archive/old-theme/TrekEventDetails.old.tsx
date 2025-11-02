@@ -1,28 +1,3 @@
-import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
-
-import { useTrekRegistration } from "../hooks/trek/useTrekRegistration";
-
-import { useAuth } from "@/components/auth/AuthProvider";
-import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
-import { RegistrationCard } from "@/components/trek/RegistrationCard";
-import { TentRental } from "@/components/trek/TentRental";
-import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
-import { TrekEventDetailsComponent } from "@/components/trek/TrekEventDetails";
-import { TrekEventHeader } from "@/components/trek/TrekEventHeader";
-// Import TravelCoordination directly - React Leaflet requires direct import for context access
-import { TravelCoordination } from "@/components/trek/TravelCoordination";
-import TrekPackingList from "@/components/trek/TrekPackingList";
-import { TrekParticipants } from "@/components/trek/TrekParticipants";
-import { TrekRatings } from "@/components/trek/TrekRatings";
-import { TrekRequirements } from "@/components/trek/TrekRequirements";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Card, CardTitle } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
-import { useTrekCommunity } from "@/hooks/useTrekCommunity";
-
 import {
   Award,
   ChevronLeft,
@@ -38,7 +13,30 @@ import {
   Users,
   Zap,
 } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
+import { useTrekRegistration } from "../hooks/trek/useTrekRegistration";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
+import { RegistrationCard } from "@/components/trek/RegistrationCard";
+import { TentRental } from "@/components/trek/TentRental";
+import { TravelCoordination } from "@/components/trek/TravelCoordination";
+import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
+import { TrekEventDetailsComponent } from "@/components/trek/TrekEventDetails";
+import { TrekEventHeader } from "@/components/trek/TrekEventHeader";
+// Import TravelCoordination directly - React Leaflet requires direct import for context access
+import TrekPackingList from "@/components/trek/TrekPackingList";
+import { TrekParticipants } from "@/components/trek/TrekParticipants";
+import { TrekRatings } from "@/components/trek/TrekRatings";
+import { TrekRequirements } from "@/components/trek/TrekRequirements";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Card, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
+import { useTrekCommunity } from "@/hooks/useTrekCommunity";
 import { cn } from "@/lib/utils";
 import { EventType, TrekEventStatus } from "@/types/trek";
 
@@ -192,8 +190,8 @@ export default function TrekEventDetails() {
                 className="flex-1 min-w-0 text-xs sm:text-sm relative"
               >
                 <div className="flex items-center">
-                <Shield className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
-                <span className="hidden sm:inline">Requirements</span>
+                  <Shield className="h-3 w-3 sm:h-4 sm:w-4 mr-1" />
+                  <span className="hidden sm:inline">Requirements</span>
                   {trekEvent.government_id_required && (
                     <div className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                   )}
@@ -341,28 +339,28 @@ export default function TrekEventDetails() {
 
         <div className="flex justify-center md:justify-end">
           <div className="w-full max-w-sm md:max-w-none md:w-auto">
-          <RegistrationCard
-            trek={{
-              trek_id: trekEvent.trek_id,
-              max_participants: trekEvent.max_participants,
-              participant_count: participantCount,
-              cost: trekEvent.cost,
-              name: trekEvent.trek_name,
-              status: trekEvent.status,
-            }}
-            userRegistration={userRegistration}
-            onRegister={async (indemnityAccepted, options) => {
-              return await registerForTrek(indemnityAccepted, options);
-            }}
-            onCancel={cancelRegistration}
-            isLoading={registering}
-            onUploadProof={handleUploadProof}
-            isUploadingProof={isUploadingProof}
-            canVolunteerDriver={
-              !!userProfile?.has_car &&
-              !!userProfile?.transport_volunteer_opt_in
-            }
-          />
+            <RegistrationCard
+              trek={{
+                trek_id: trekEvent.trek_id,
+                max_participants: trekEvent.max_participants,
+                participant_count: participantCount,
+                cost: trekEvent.cost,
+                name: trekEvent.trek_name,
+                status: trekEvent.status,
+              }}
+              userRegistration={userRegistration}
+              onRegister={async (indemnityAccepted, options) => {
+                return await registerForTrek(indemnityAccepted, options);
+              }}
+              onCancel={cancelRegistration}
+              isLoading={registering}
+              onUploadProof={handleUploadProof}
+              isUploadingProof={isUploadingProof}
+              canVolunteerDriver={
+                !!userProfile?.has_car &&
+                !!userProfile?.transport_volunteer_opt_in
+              }
+            />
           </div>
         </div>
       </div>

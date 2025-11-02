@@ -1,19 +1,17 @@
-import { render, screen } from '@testing-library/react';
-import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it } from "vitest";
 
-import calendar from '../calendar';
+import calendar from "../calendar";
 
-describe('calendar', () => {
-
-  it('renders without crashing', () => {
+describe("calendar", () => {
+  it("renders without crashing", () => {
     render(<calendar data-testid="calendar" />);
-    expect(screen.getByTestId('calendar')).toBeInTheDocument();
+    expect(screen.getByTestId("calendar")).toBeInTheDocument();
   });
 
-  it('accepts and displays props correctly', () => {
+  it("accepts and displays props correctly", () => {
     render(<calendar title="Test Title" data-testid="calendar" />);
-    expect(screen.getByTestId('calendar')).toHaveTextContent('Test Title');
+    expect(screen.getByTestId("calendar")).toHaveTextContent("Test Title");
   });
-  
 });

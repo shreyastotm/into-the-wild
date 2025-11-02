@@ -1,26 +1,26 @@
-import { render, screen } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
-import { vi } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { vi } from "vitest";
 
-import IdProofVerification from '../IdProofVerification';
+import IdProofVerification from "../IdProofVerification";
 
-describe('IdProofVerification', () => {
-  it('renders without crashing', () => {
+describe("IdProofVerification", () => {
+  it("renders without crashing", () => {
     render(<IdProofVerification />);
     // Basic existence check
-    expect(screen.getByTestId('idproofverification')).toBeInTheDocument();
+    expect(screen.getByTestId("idproofverification")).toBeInTheDocument();
   });
 
-  it('displays correct content', () => {
+  it("displays correct content", () => {
     render(<IdProofVerification />);
     // Check for expected content
     // Example: expect(screen.getByText('Expected Text')).toBeInTheDocument();
   });
 
-  it('handles user interactions', async () => {
+  it("handles user interactions", async () => {
     const user = userEvent.setup();
     render(<IdProofVerification />);
-    
+
     // Example: Find a button and click it
     // const button = screen.getByRole('button', { name: 'Click Me' });
     // await user.click(button);

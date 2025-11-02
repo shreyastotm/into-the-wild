@@ -176,7 +176,6 @@ function useToast() {
         listeners.splice(index, 1);
       }
     };
-     
   }, []); // Only run once on mount to avoid infinite listener registrations
 
   return {

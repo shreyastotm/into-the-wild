@@ -60,12 +60,12 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       if (!user) return;
 
       try {
-        const { data, error } = await supabase
-        .from("trek_registrations")
-        .select("*")
-        .eq("trek_id", currentTrekId)
-        .eq("user_id", user.id)
-        .maybeSingle() as any;
+        const { data, error } = (await supabase
+          .from("trek_registrations")
+          .select("*")
+          .eq("trek_id", currentTrekId)
+          .eq("user_id", user.id)
+          .maybeSingle()) as any;
 
         if (error) {
           throw error;
@@ -132,7 +132,10 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     setUploadingIdProof(idTypeId);
     try {
       // Ensure user session is valid before upload
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      const {
+        data: { session },
+        error: sessionError,
+      } = await supabase.auth.getSession();
       if (sessionError || !session) {
         toast({
           title: "Authentication Error",
@@ -148,9 +151,9 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       const fileName = `${userId}_${Date.now()}.${fileExt}`;
       const filePath = `${userId}/${fileName}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = (await supabase.storage
         .from("id-proofs")
-        .upload(filePath, file) as any;
+        .upload(filePath, file)) as any;
 
       if (uploadError) {
         throw uploadError;
@@ -162,14 +165,14 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       } = supabase.storage.from("id-proofs").getPublicUrl(filePath);
 
       // Save to database
-      const { error: dbError } = await supabase
+      const { error: dbError } = (await supabase
         .from("registration_id_proofs")
         .insert({
           registration_id: userRegistration.registration_id,
           id_type_id: idTypeId,
           proof_url: publicUrl,
           uploaded_by: userId,
-        }) as any;
+        })) as any;
 
       if (dbError) {
         // Clean up uploaded file if DB insert fails
@@ -254,11 +257,11 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     try {
       setRegistering(true);
 
-      const { data: regs, error: regsError } = await supabase
+      const { data: regs, error: regsError } = (await supabase
         .from("trek_registrations")
         .select("user_id, payment_status", { count: "exact" })
         .eq("trek_id", trekEvent.trek_id)
-        .not("payment_status", "eq", "Cancelled") as any;
+        .not("payment_status", "eq", "Cancelled")) as any;
 
       if (regsError) throw regsError;
       const uniqueUserCount = new Set((regs || []).map((r) => r.user_id)).size;
@@ -288,12 +291,12 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
         return false;
       }
 
-      const { data: existing, error: existingError } = await supabase
+      const { data: existing, error: existingError } = (await supabase
         .from("trek_registrations")
         .select("registration_id")
         .eq("trek_id", trekIdNum)
         .eq("user_id", user.id)
-        .maybeSingle() as any;
+        .maybeSingle()) as any;
 
       if (existingError) throw existingError;
 
@@ -320,20 +323,20 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
         registrant_phone: options.registrantPhone,
       };
 
-      const { error: registrationError } = await supabase
+      const { error: registrationError } = (await supabase
         .from("trek_registrations")
-        .insert(newRegistrationData) as any;
+        .insert(newRegistrationData)) as any;
 
       if (registrationError) {
         throw registrationError;
       }
       await checkUserRegistration(trekIdNum);
-      
+
       // Show appropriate success message based on ID requirements
       const successMessage = trekEvent.government_id_required
         ? "Registration successful! Next steps: 1) Upload your government ID in the Requirements tab, 2) Complete payment and upload proof."
         : "Please complete payment and upload proof to confirm your spot.";
-      
+
       toast({
         title: "Registration successful",
         description: successMessage,
@@ -392,11 +395,11 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       const fileExt = file.name.split(".").pop();
       const fileName = `payment_proofs/${user.id}_${userRegistration.trek_id}_${Date.now()}.${fileExt}`;
 
-      const { error: uploadError } = await supabase.storage
+      const { error: uploadError } = (await supabase.storage
         .from("trek_assets")
         .upload(fileName, file, {
           upsert: true,
-        }) as any;
+        })) as any;
 
       if (uploadError) throw uploadError;
 
@@ -408,7 +411,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       if (!proofUrl)
         throw new Error("Failed to get public URL for payment proof.");
 
-      const { error: updateError } = await supabase
+      const { error: updateError } = (await supabase
         .from("trek_registrations")
         .update({
           payment_proof_url: proofUrl,
@@ -416,7 +419,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
           registrant_name: registrantName.trim(),
           registrant_phone: registrantPhone.trim(),
         })
-        .eq("registration_id", userRegistration.registration_id) as any;
+        .eq("registration_id", userRegistration.registration_id)) as any;
 
       if (updateError) throw updateError;
 
@@ -457,13 +460,13 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
     if (!user || !userRegistration || !trekEvent) return false;
     try {
       setRegistering(true);
-      const { error: updateRegError } = await supabase
+      const { error: updateRegError } = (await supabase
         .from("trek_registrations")
         .update({
           payment_status: "Cancelled",
           cancellation_datetime: new Date().toISOString(),
         })
-        .eq("registration_id", userRegistration.registration_id) as any;
+        .eq("registration_id", userRegistration.registration_id)) as any;
       if (updateRegError) {
         throw updateRegError;
       }

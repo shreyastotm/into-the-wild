@@ -9,7 +9,8 @@ import React, {
   useEffect,
   useMemo,
   useRef,
- useState } from "react";
+  useState,
+} from "react";
 
 import { useToast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
       console.log("[AUTH] Session in fetchUserProfile:", {
         hasSession: !!session,
         userId: session?.user?.id,
-        userEmail: session?.user?.email
+        userEmail: session?.user?.email,
       });
 
       if (session?.user) {
@@ -97,7 +98,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
       isFetchingProfileRef.current = false;
     }
     // Removed toast dependency to prevent circular dependency
-
   }, []); // ✅ EMPTY DEPENDENCIES - NO RE-CREATION!
 
   // Add a flag to prevent automatic redirects during sign-in
@@ -113,78 +113,92 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
 
   // Handle OAuth callback - detect both hash and query string formats
   useEffect(() => {
-    console.log('[AUTH] AuthProvider mounted');
-    console.log('[AUTH] Current URL:', window.location.href);
-    console.log('[AUTH] URL search params:', window.location.search);
-    console.log('[AUTH] URL hash params:', window.location.hash);
+    console.log("[AUTH] AuthProvider mounted");
+    console.log("[AUTH] Current URL:", window.location.href);
+    console.log("[AUTH] URL search params:", window.location.search);
+    console.log("[AUTH] URL hash params:", window.location.hash);
 
     const handleAuthCallback = async () => {
       try {
         // Check for OAuth code in query string (new Google OAuth format)
         const urlParams = new URLSearchParams(window.location.search);
-        const authCode = urlParams.get('code');
-        const errorParam = urlParams.get('error');
-        const errorDescription = urlParams.get('error_description');
+        const authCode = urlParams.get("code");
+        const errorParam = urlParams.get("error");
+        const errorDescription = urlParams.get("error_description");
 
         // Check for tokens in hash (legacy format)
-        const hashParams = new URLSearchParams(window.location.hash.substring(1));
-        const accessToken = hashParams.get('access_token');
-        const refreshToken = hashParams.get('refresh_token');
+        const hashParams = new URLSearchParams(
+          window.location.hash.substring(1),
+        );
+        const accessToken = hashParams.get("access_token");
+        const refreshToken = hashParams.get("refresh_token");
 
-        console.log('[AUTH] OAuth callback detection:');
-        console.log('[AUTH] - Code from query:', authCode);
-        console.log('[AUTH] - Access token from hash:', accessToken);
-        console.log('[AUTH] - Error from query:', errorParam);
+        console.log("[AUTH] OAuth callback detection:");
+        console.log("[AUTH] - Code from query:", authCode);
+        console.log("[AUTH] - Access token from hash:", accessToken);
+        console.log("[AUTH] - Error from query:", errorParam);
 
         // Handle OAuth errors
         if (errorParam) {
-          console.error('[AUTH] OAuth error received:', errorParam, errorDescription);
+          console.error(
+            "[AUTH] OAuth error received:",
+            errorParam,
+            errorDescription,
+          );
           // Clear the error parameters from URL
           const cleanUrl = new URL(window.location.href);
-          cleanUrl.searchParams.delete('error');
-          cleanUrl.searchParams.delete('error_description');
+          cleanUrl.searchParams.delete("error");
+          cleanUrl.searchParams.delete("error_description");
           window.history.replaceState({}, document.title, cleanUrl.pathname);
           return;
         }
 
         // Handle new OAuth format (code in query string)
         if (authCode) {
-          console.log('[AUTH] Processing OAuth code:', authCode);
+          console.log("[AUTH] Processing OAuth code:", authCode);
 
           // Supabase should automatically handle the code exchange when detectSessionInUrl is true
           // But let's also try to manually trigger session refresh
-          const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-          console.log('[AUTH] Session after OAuth code:', session);
-          console.log('[AUTH] Session error:', sessionError);
+          const {
+            data: { session },
+            error: sessionError,
+          } = await supabase.auth.getSession();
+          console.log("[AUTH] Session after OAuth code:", session);
+          console.log("[AUTH] Session error:", sessionError);
 
           if (sessionError) {
-            console.error('[AUTH] Session error after OAuth:', sessionError);
+            console.error("[AUTH] Session error after OAuth:", sessionError);
           } else if (session) {
-            console.log('[AUTH] OAuth successful - session established');
-            console.log('[AUTH] User ID:', session.user.id);
-            console.log('[AUTH] User email:', session.user.email);
+            console.log("[AUTH] OAuth successful - session established");
+            console.log("[AUTH] User ID:", session.user.id);
+            console.log("[AUTH] User email:", session.user.email);
           } else {
-            console.log('[AUTH] No session found after OAuth - trying to exchange code manually');
+            console.log(
+              "[AUTH] No session found after OAuth - trying to exchange code manually",
+            );
 
             // Try to exchange the code manually
-            const { error: exchangeError } = await supabase.auth.exchangeCodeForSession(authCode);
+            const { error: exchangeError } =
+              await supabase.auth.exchangeCodeForSession(authCode);
             if (exchangeError) {
-              console.error('[AUTH] Code exchange failed:', exchangeError);
+              console.error("[AUTH] Code exchange failed:", exchangeError);
             } else {
-              console.log('[AUTH] Code exchange successful');
+              console.log("[AUTH] Code exchange successful");
             }
           }
 
           // Clear the code from URL for security
           const cleanUrl = new URL(window.location.href);
-          cleanUrl.searchParams.delete('code');
+          cleanUrl.searchParams.delete("code");
           window.history.replaceState({}, document.title, cleanUrl.pathname);
           return;
         }
 
         // Handle legacy format (tokens in hash)
         if (accessToken && refreshToken) {
-          console.log('[AUTH] Legacy OAuth format detected - setting session manually');
+          console.log(
+            "[AUTH] Legacy OAuth format detected - setting session manually",
+          );
 
           const { error } = await supabase.auth.setSession({
             access_token: accessToken,
@@ -192,20 +206,23 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
           });
 
           if (error) {
-            console.error('[AUTH] Manual session setup failed:', error);
+            console.error("[AUTH] Manual session setup failed:", error);
           } else {
-            console.log('[AUTH] Manual session setup successful');
+            console.log("[AUTH] Manual session setup successful");
           }
 
           // Clear the URL hash to prevent issues
-          window.history.replaceState({}, document.title, window.location.pathname);
+          window.history.replaceState(
+            {},
+            document.title,
+            window.location.pathname,
+          );
           return;
         }
 
-        console.log('[AUTH] No OAuth parameters found in URL');
-
+        console.log("[AUTH] No OAuth parameters found in URL");
       } catch (error) {
-        console.error('[AUTH] OAuth callback error:', error);
+        console.error("[AUTH] OAuth callback error:", error);
       }
     };
 
@@ -217,9 +234,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
 
     // Check for incognito mode or force signout first
     const urlParams = new URLSearchParams(window.location.search);
-    const isIncognito = urlParams.get('incognito') === 'true' ||
-                       urlParams.get('forceSignOut') === 'true' ||
-                       window.location.hash.includes('forceSignOut');
+    const isIncognito =
+      urlParams.get("incognito") === "true" ||
+      urlParams.get("forceSignOut") === "true" ||
+      window.location.hash.includes("forceSignOut");
 
     // Check localStorage for session data (mobile browsers might clear it)
     const isMobile = /Mobile|Android|iPhone|iPad/.test(navigator.userAgent);
@@ -227,7 +245,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     if (isMobile && typeof window !== "undefined") {
       try {
         const keys = Object.keys(localStorage).filter(
-          (k) => k.includes("supabase") || k.includes("auth") || k.includes("itw-auth"),
+          (k) =>
+            k.includes("supabase") ||
+            k.includes("auth") ||
+            k.includes("itw-auth"),
         );
 
         // If no auth keys found on mobile, try to restore from session
@@ -247,9 +268,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
 
         // Also check for any other auth-related keys
         const authKeys = Object.keys(localStorage).filter(
-          (k) => k.includes("supabase") || k.includes("auth") || k.includes("itw-auth")
+          (k) =>
+            k.includes("supabase") ||
+            k.includes("auth") ||
+            k.includes("itw-auth"),
         );
-        authKeys.forEach(key => {
+        authKeys.forEach((key) => {
           localStorage.removeItem(key);
           sessionStorage.removeItem(key);
         });
@@ -260,11 +284,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
       }
     }
 
-    console.log("[AUTH] Checking session on mount, isAuthenticating:", isAuthenticating);
+    console.log(
+      "[AUTH] Checking session on mount, isAuthenticating:",
+      isAuthenticating,
+    );
     supabase.auth
       .getSession()
       .then(({ data: { session } }) => {
-        console.log("[AUTH] getSession response:", { hasSession: !!session, userId: session?.user?.id });
+        console.log("[AUTH] getSession response:", {
+          hasSession: !!session,
+          userId: session?.user?.id,
+        });
         // Only set user if not currently authenticating (to prevent race conditions)
         if (!isAuthenticating) {
           setUser(session?.user ?? null);
@@ -272,7 +302,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
           if (session?.user) {
             // Only fetch profile if not already fetching
             if (!isFetchingProfileRef.current) {
-            fetchUserProfile();
+              fetchUserProfile();
             }
           } else {
             setLoading(false);
@@ -297,7 +327,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
         userId: session?.user?.id,
         userEmail: session?.user?.email,
         provider: session?.user?.app_metadata?.provider,
-        expiresAt: session?.expires_at
+        expiresAt: session?.expires_at,
       });
 
       // Only update user state if not currently authenticating (to prevent race conditions)
@@ -307,7 +337,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
           console.log("[AUTH] User authenticated, fetching profile");
           // Only fetch profile if not already fetching
           if (!isFetchingProfileRef.current) {
-          fetchUserProfile();
+            fetchUserProfile();
           }
         } else {
           console.log("[AUTH] No user session, clearing profile");
@@ -322,7 +352,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     });
 
     return () => subscription.unsubscribe();
-     
   }, [fetchUserProfile, isAuthenticating]); // ✅ Include isAuthenticating in dependencies
 
   const signOut = async () => {
@@ -338,13 +367,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
         sessionStorage.removeItem("supabase.auth.token");
 
         const authKeys = Object.keys(localStorage).filter(
-          (k) => k.includes("supabase") || k.includes("auth") || k.includes("itw-auth")
+          (k) =>
+            k.includes("supabase") ||
+            k.includes("auth") ||
+            k.includes("itw-auth"),
         );
-        authKeys.forEach(key => {
+        authKeys.forEach((key) => {
           localStorage.removeItem(key);
           sessionStorage.removeItem(key);
         });
-
       } catch (e) {
         console.error("[AUTH] Error clearing auth tokens during sign out:", e);
       }
@@ -365,8 +396,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = (props) => {
     };
 
     return authValue;
-     
-  }, [user, userProfile, loading, fetchUserProfile, isAuthenticating, startAuthenticating, stopAuthenticating]);
+  }, [
+    user,
+    userProfile,
+    loading,
+    fetchUserProfile,
+    isAuthenticating,
+    startAuthenticating,
+    stopAuthenticating,
+  ]);
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };

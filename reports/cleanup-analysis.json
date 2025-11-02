@@ -1,0 +1,83 @@
+{
+  "timestamp": "2025-11-01T12:31:13.187Z",
+  "summary": {
+    "filesAnalyzed": 937,
+    "unusedFiles": 508,
+    "unusedImports": 174,
+    "redundantCode": 1377,
+    "assetsFound": 36
+  },
+  "details": {
+    "unusedFiles": [
+      ".env",
+      ".env.local",
+      ".eslintignore",
+      "archive/deployment-history/DEPLOYMENT_SUCCESS.md",
+      "archive/deployment-history/DEPLOYMENT_SUMMARY.md",
+      "archive/deployment-history/DEPLOYMENT_v0.2.2_SUMMARY.md",
+      "archive/deployment-history/DEPLOYMENT_v0.2.3_SUMMARY.md",
+      "archive/deployment-history/DEPLOYMENT_v0.2.9_SUMMARY.md",
+      "archive/deployment-history/HOTFIX_v0.2.3_SUMMARY.md",
+      "archive/deployment-history/RELEASE_v0.1.1.md",
+      "archive/deployment-history/RELEASE_v0.2.0.md",
+      "archive/deployment-history/RELEASE_v0.2.1.md",
+      "archive/deployment-history/RELEASE_v0.2.2.md",
+      "archive/deployment-history/RELEASE_v0.2.3.md",
+      "archive/deployment-history/RELEASE_v0.2.5.md",
+      "archive/deployment-history/RELEASE_v0.2.9.md",
+      "archive/deployment-history/RELEASE_v0.3.2.md",
+      "archive/deployment-history/VERCEL_DEPLOYMENT_CHECKLIST.md",
+      "archive/deployment-history/VERCEL_DEPLOYMENT_PLAN.md",
+      "archive/deployment-history/VERCEL_PROJECT_FIX.md"
+    ],
+    "unusedImports": [
+      "src\\components\\admin\\AdminTable.tsx:1 - format from date-fns",
+      "src\\components\\admin\\RegistrationAdmin.tsx:2 - Check from lucide-react",
+      "src\\components\\admin\\RegistrationAdmin.tsx:2 - X from lucide-react",
+      "src\\components\\admin\\UserVerificationPanel.tsx:7 - Card from @/components/ui/card",
+      "src\\components\\admin\\UserVerificationPanel.tsx:7 - CardContent from @/components/ui/card",
+      "src\\components\\admin\\UserVerificationPanel.tsx:7 - CardHeader from @/components/ui/card",
+      "src\\components\\admin\\__tests__\\AdminSidebar.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\AdminTable.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\BulkActions.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\IdProofVerification.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\RegistrationAdmin.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\StatusBadge.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\TentRequestsAdmin.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\TrekImagesManager.test.tsx:3 - vi from vitest",
+      "src\\components\\admin\\__tests__\\UserVerificationPanel.test.tsx:3 - vi from vitest",
+      "src\\components\\auth\\__tests__\\AuthForm.test.tsx:3 - vi from vitest",
+      "src\\components\\auth\\__tests__\\AuthProvider.test.tsx:3 - vi from vitest",
+      "src\\components\\auth\\__tests__\\PasswordResetForm.test.tsx:3 - vi from vitest",
+      "src\\components\\auth\\__tests__\\SignInForm.test.tsx:3 - vi from vitest",
+      "src\\components\\auth\\__tests__\\SignUpForm.test.tsx:3 - vi from vitest"
+    ],
+    "redundantCode": [
+      "src\\App.tsx:31 - const Index = lazy(() => import(\"./pages/GlassMorphismLanding\"));",
+      "src\\App.tsx:32 - const Auth = lazy(() => import(\"./pages/Auth\"));",
+      "src\\App.tsx:33 - const AuthCallback = lazy(() => import(\"./pages/AuthCallback\"));",
+      "src\\App.tsx:34 - const TestRoute = lazy(() => import(\"./pages/TestRoute\"));",
+      "src\\App.tsx:35 - const Profile = lazy(() => import(\"./pages/Profile\"));",
+      "src\\App.tsx:36 - const Dashboard = lazy(() => import(\"./pages/Dashboard\"));",
+      "src\\App.tsx:37 - const NotFound = lazy(() => import(\"./pages/NotFound\"));",
+      "src\\App.tsx:38 - const TrekEvents = lazy(() => import(\"./pages/GlassMorphismEvents\"));",
+      "src\\App.tsx:42 - const CreateTrekEvent = lazy(() => import(\"./pages/CreateTrekEvent\"));",
+      "src\\App.tsx:43 - const PublicGallery = lazy(() => import(\"./pages/GlassMorphismGallery\"));",
+      "src\\App.tsx:44 - const TrekkingGuide = lazy(() => import(\"./pages/TrekkingGuide\"));",
+      "src\\App.tsx:45 - const SafetyTips = lazy(() => import(\"./pages/SafetyTips\"));",
+      "src\\App.tsx:46 - const PackingList = lazy(() => import(\"./pages/PackingList\"));",
+      "src\\App.tsx:47 - const FAQPage = lazy(() => import(\"./pages/FAQ\"));",
+      "src\\App.tsx:48 - const PrivacyPolicy = lazy(() => import(\"./pages/PrivacyPolicy\"));",
+      "src\\App.tsx:49 - const TermsOfService = lazy(() => import(\"./pages/TermsOfService\"));",
+      "src\\App.tsx:50 - const DataDeletion = lazy(() => import(\"./pages/DataDeletion\"));",
+      "src\\App.tsx:51 - const DataCallback = lazy(() => import(\"./pages/DataCallback\"));",
+      "src\\App.tsx:52 - const ForumHome = lazy(() => import(\"./pages/forum\"));",
+      "src\\App.tsx:53 - const ForumCategory = lazy(() => import(\"./pages/forum/Category\"));"
+    ],
+    "recommendations": [
+      "Consider removing 7 unused files",
+      "Review 174 unused imports",
+      "Clean up 1377 redundant code patterns"
+    ]
+  }
+}

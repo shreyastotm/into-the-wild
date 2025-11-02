@@ -7,12 +7,22 @@ import { ClearAuthSessions } from "@/components/auth/ClearAuthSessions";
 
 export default function Auth() {
   const location = useLocation();
-  const { user, loading, isAuthenticating, startAuthenticating, stopAuthenticating } = useAuth();
+  const {
+    user,
+    loading,
+    isAuthenticating,
+    startAuthenticating,
+    stopAuthenticating,
+  } = useAuth();
 
   // Check for OAuth callback parameters in URL
   const hasCallbackParams = useMemo(() => {
     const params = new URLSearchParams(location.search);
-    return params.has('access_token') || params.has('refresh_token') || params.has('token_type');
+    return (
+      params.has("access_token") ||
+      params.has("refresh_token") ||
+      params.has("token_type")
+    );
   }, [location.search]);
 
   // Redirect signed-in users away from auth page, but not during sign-in process

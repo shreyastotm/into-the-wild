@@ -12,7 +12,8 @@ import {
   rectSortingStrategy,
   SortableContext,
   sortableKeyboardCoordinates,
- useSortable } from "@dnd-kit/sortable";
+  useSortable,
+} from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 import {
   Check,
@@ -313,7 +314,10 @@ export function TrekImagesManager({
     return (
       <div className="space-y-3" data-testid="trekimagesmanager">
         {/* Current tags - horizontal scrollable badges */}
-        <div className="flex flex-wrap gap-2 min-h-[32px]" data-testid="trekimagesmanager">
+        <div
+          className="flex flex-wrap gap-2 min-h-[32px]"
+          data-testid="trekimagesmanager"
+        >
           {currentTags.length > 0 ? (
             currentTags.map((tagId) => {
               const tag = availableTags.find((t) => t.id === tagId);
@@ -324,7 +328,7 @@ export function TrekImagesManager({
                   variant="secondary"
                   className="cursor-pointer hover:opacity-80 transition-opacity px-3 py-1"
                   style={{
-                    backgroundColor: `${tag.color  }30`,
+                    backgroundColor: `${tag.color}30`,
                     color: tag.color,
                     borderColor: tag.color,
                   }}
@@ -358,7 +362,10 @@ export function TrekImagesManager({
           </button>
 
           {isOpen && (
-            <div className="border-t p-3 space-y-2" data-testid="trekimagesmanager">
+            <div
+              className="border-t p-3 space-y-2"
+              data-testid="trekimagesmanager"
+            >
               {/* Search input */}
               <Input
                 placeholder="Search tags..."
@@ -368,7 +375,10 @@ export function TrekImagesManager({
               />
 
               {/* Tag list - single column with better spacing */}
-              <div className="max-h-48 overflow-y-auto space-y-1" data-testid="trekimagesmanager">
+              <div
+                className="max-h-48 overflow-y-auto space-y-1"
+                data-testid="trekimagesmanager"
+              >
                 {filteredTags.length === 0 ? (
                   <p className="text-sm text-muted-foreground text-center py-4">
                     No tags found
@@ -394,7 +404,8 @@ export function TrekImagesManager({
                               ? "bg-blue-500 border-blue-500"
                               : "border-border"
                           }`}
-                         data-testid="trekimagesmanager">
+                          data-testid="trekimagesmanager"
+                        >
                           {isSelected && (
                             <Check className="w-3 h-3 text-white" />
                           )}
@@ -757,12 +768,16 @@ export function TrekImagesManager({
             {...attributes}
             {...listeners}
             className="absolute top-2 right-2 z-10 bg-background dark:bg-card rounded-full p-1 shadow-md cursor-grab active:cursor-grabbing opacity-60 hover:opacity-100"
-           data-testid="trekimagesmanager">
+            data-testid="trekimagesmanager"
+          >
             <GripVertical className="w-4 h-4" />
           </div>
 
           {/* 1. Image preview at top */}
-          <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-4" data-testid="trekimagesmanager">
+          <div
+            className="aspect-video bg-muted rounded-lg overflow-hidden mb-4"
+            data-testid="trekimagesmanager"
+          >
             {image ? (
               image instanceof File ? (
                 <img
@@ -778,7 +793,10 @@ export function TrekImagesManager({
                 />
               )
             ) : (
-              <div className="w-full h-full flex items-center justify-center text-muted-foreground" data-testid="trekimagesmanager">
+              <div
+                className="w-full h-full flex items-center justify-center text-muted-foreground"
+                data-testid="trekimagesmanager"
+              >
                 <div className="text-center" data-testid="trekimagesmanager">
                   <Upload className="w-8 h-8 mx-auto mb-2" />
                   <span className="text-sm">Click to upload</span>
@@ -796,7 +814,10 @@ export function TrekImagesManager({
             </div>
 
             {/* 3. Add and delete buttons */}
-            <div className="flex justify-center gap-2" data-testid="trekimagesmanager">
+            <div
+              className="flex justify-center gap-2"
+              data-testid="trekimagesmanager"
+            >
               <Button
                 variant="outline"
                 size="sm"
@@ -833,7 +854,10 @@ export function TrekImagesManager({
             {/* 4. Tag management below */}
             {existingImage && (
               <div className="border-t pt-3" data-testid="trekimagesmanager">
-                <div className="flex items-center justify-between mb-2" data-testid="trekimagesmanager">
+                <div
+                  className="flex items-center justify-between mb-2"
+                  data-testid="trekimagesmanager"
+                >
                   <span className="text-xs font-medium text-muted-foreground">
                     Tags
                   </span>
@@ -856,7 +880,10 @@ export function TrekImagesManager({
                 {/* Current tags display */}
                 {(selectedTags[`image_${existingImage.id}`] || []).length >
                   0 && (
-                  <div className="flex flex-wrap gap-1 mb-2" data-testid="trekimagesmanager">
+                  <div
+                    className="flex flex-wrap gap-1 mb-2"
+                    data-testid="trekimagesmanager"
+                  >
                     {(selectedTags[`image_${existingImage.id}`] || []).map(
                       (tagId) => {
                         const tag = availableTags.find((t) => t.id === tagId);
@@ -920,7 +947,10 @@ export function TrekImagesManager({
                   items={[1, 2, 3, 4, 5]}
                   strategy={rectSortingStrategy}
                 >
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4" data-testid="trekimagesmanager">
+                  <div
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4"
+                    data-testid="trekimagesmanager"
+                  >
                     {[1, 2, 3, 4, 5].map((position) => (
                       <SortableImageSlot key={position} position={position} />
                     ))}
@@ -935,7 +965,10 @@ export function TrekImagesManager({
                 </h3>
                 <Card className="max-w-md">
                   <CardContent className="p-4">
-                    <div className="aspect-video bg-muted rounded-lg overflow-hidden mb-3" data-testid="trekimagesmanager">
+                    <div
+                      className="aspect-video bg-muted rounded-lg overflow-hidden mb-3"
+                      data-testid="trekimagesmanager"
+                    >
                       {currentExistingVideo ? (
                         <video
                           src={currentExistingVideo.video_url}
@@ -949,8 +982,14 @@ export function TrekImagesManager({
                           controls
                         />
                       ) : (
-                        <div className="w-full h-full flex items-center justify-center text-muted-foreground" data-testid="trekimagesmanager">
-                          <div className="text-center" data-testid="trekimagesmanager">
+                        <div
+                          className="w-full h-full flex items-center justify-center text-muted-foreground"
+                          data-testid="trekimagesmanager"
+                        >
+                          <div
+                            className="text-center"
+                            data-testid="trekimagesmanager"
+                          >
                             <Video className="w-8 h-8 mx-auto mb-2" />
                             <span className="text-sm">
                               Click to upload video
@@ -962,9 +1001,15 @@ export function TrekImagesManager({
                     </div>
 
                     <div className="space-y-3" data-testid="trekimagesmanager">
-                      <div className="flex items-center justify-between" data-testid="trekimagesmanager">
+                      <div
+                        className="flex items-center justify-between"
+                        data-testid="trekimagesmanager"
+                      >
                         <span className="text-sm font-medium">Trek Video</span>
-                        <div className="flex gap-2" data-testid="trekimagesmanager">
+                        <div
+                          className="flex gap-2"
+                          data-testid="trekimagesmanager"
+                        >
                           <Button
                             variant="outline"
                             size="sm"
@@ -1002,8 +1047,14 @@ export function TrekImagesManager({
 
                       {/* Tag management for existing video */}
                       {currentExistingVideo && (
-                        <div className="border-t pt-3" data-testid="trekimagesmanager">
-                          <div className="flex items-center justify-between mb-2" data-testid="trekimagesmanager">
+                        <div
+                          className="border-t pt-3"
+                          data-testid="trekimagesmanager"
+                        >
+                          <div
+                            className="flex items-center justify-between mb-2"
+                            data-testid="trekimagesmanager"
+                          >
                             <span className="text-xs font-medium text-muted-foreground">
                               Tags
                             </span>
@@ -1029,7 +1080,10 @@ export function TrekImagesManager({
                             selectedTags[`video_${currentExistingVideo.id}`] ||
                             []
                           ).length > 0 && (
-                            <div className="flex flex-wrap gap-1 mb-2" data-testid="trekimagesmanager">
+                            <div
+                              className="flex flex-wrap gap-1 mb-2"
+                              data-testid="trekimagesmanager"
+                            >
                               {(
                                 selectedTags[
                                   `video_${currentExistingVideo.id}`
@@ -1072,7 +1126,10 @@ export function TrekImagesManager({
               </div>
             </div>
 
-            <div className="flex justify-end gap-2 pt-4 border-t" data-testid="trekimagesmanager">
+            <div
+              className="flex justify-end gap-2 pt-4 border-t"
+              data-testid="trekimagesmanager"
+            >
               <Button variant="outline" onClick={onClose}>
                 Cancel
               </Button>

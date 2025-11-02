@@ -29,17 +29,20 @@ This document outlines the deployment strategy for the "Into the Wild" trek mana
 **Current Status**: Committed to main branch but deployment blocked by TypeScript errors
 
 **Blocking Issues**:
+
 - Missing database schema types (user_trek_images, trek_event_images, etc.)
 - Supabase integration type mismatches
 - Missing RPC function definitions in types
 
 **Next Steps**:
+
 1. Update Supabase database schema to include missing tables
 2. Regenerate TypeScript types from database schema
 3. Fix RPC function signatures
 4. Deploy to production
 
 ### Files Modified
+
 - `src/pages/Index.tsx` - Enhanced landing page with new button components
 - `src/components/StaticBottomButton.tsx` - New two-state button component
 - `src/components/NatureInspiredButton.tsx` - Dynamic lighting button component

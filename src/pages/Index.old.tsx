@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/components/auth/AuthProvider";
-import { StaticBottomButton } from "@/components/StaticBottomButton";
 import { Button } from "@/components/ui/button";
 import { useHaptic } from "@/hooks/use-haptic";
 import { cn } from "@/lib/utils";

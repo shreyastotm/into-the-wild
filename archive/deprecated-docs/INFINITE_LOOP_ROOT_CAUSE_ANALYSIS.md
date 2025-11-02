@@ -54,11 +54,16 @@ useEffect(() => {
 ## 📋 Files Analyzed
 
 ### 1. **UserTreks.tsx** ✅ SAFE
+
 **Status:** Already correct
+
 ```typescript
-const fetchUserTrekRegistrations = useCallback(async (currentUser, page) => {
-  // ... fetch logic
-}, [itemsPerPage]);
+const fetchUserTrekRegistrations = useCallback(
+  async (currentUser, page) => {
+    // ... fetch logic
+  },
+  [itemsPerPage],
+);
 
 useEffect(() => {
   if (user) {
@@ -66,12 +71,15 @@ useEffect(() => {
   }
 }, [user?.id, currentPage]); // ✅ CORRECT: Depends only on state values
 ```
+
 **Why safe:** useEffect depends only on `user?.id` and `currentPage` (primitive values), not on the function itself.
 
 ---
 
 ### 2. **TrekEvents.tsx** ✅ SAFE
+
 **Status:** Already correct
+
 ```typescript
 const fetchEvents = useCallback(async () => {
   // ... fetch logic using current filter values ...
@@ -81,20 +89,23 @@ useEffect(() => {
   fetchEvents();
   fetchCategories();
 }, [
-  filterOptions.search,        // ✅ Primitive values
-  filterOptions.category,      // ✅ Not the object reference
-  filterOptions.priceRange,    // ✅ Individual properties
+  filterOptions.search, // ✅ Primitive values
+  filterOptions.category, // ✅ Not the object reference
+  filterOptions.priceRange, // ✅ Individual properties
   filterOptions.timeFrame,
   filterOptions.sortBy,
   filterOptions.eventType,
 ]); // ✅ CORRECT: Depends on properties, not functions
 ```
+
 **Why safe:** useEffect depends on individual primitive values from filterOptions, not on the fetchEvents function.
 
 ---
 
 ### 3. **TrekEventsAdmin.tsx** ✅ SAFE
+
 **Status:** Already fixed (fetchTrekMedia dependency removed)
+
 ```typescript
 const fetchEvents = useCallback(async () => {
   // ... fetch logic ...
@@ -105,13 +116,16 @@ useEffect(() => {
   fetchEvents();
 }, []); // ✅ CORRECT: Empty dependencies
 ```
+
 **Why safe:** useEffect has empty dependencies and only runs on mount.
 
 ---
 
 ### 4. **PublicGallery.tsx** 🔴 FIXED
+
 **Status:** Had one dependency issue
 **Previous Problem:** handleLoadMore depended on fetchTreks
+
 ```typescript
 // ❌ BEFORE (WRONG):
 const handleLoadMore = useCallback(() => {
@@ -131,6 +145,7 @@ const handleLoadMore = useCallback(() => {
 ```
 
 **Why this was a problem:**
+
 - handleLoadMore depended on fetchTreks
 - fetchTreks is called in the filter effect
 - When filters change, fetchTreks is recreated
@@ -138,6 +153,7 @@ const handleLoadMore = useCallback(() => {
 - This could potentially trigger state updates that cause loops
 
 **Why the fix works:**
+
 - handleLoadMore now only depends on state values (hasMore, loadingMore, currentPage)
 - It calls fetchTreks directly, which has empty dependencies
 - fetchTreks uses stale closure to access current state values inside the function
@@ -146,13 +162,14 @@ const handleLoadMore = useCallback(() => {
 ---
 
 ### 5. **usePageStyle.ts** ✅ SAFE
+
 **Status:** Already correct
+
 ```typescript
-const memoizedConfig = useMemo(() => config, [
-  config.overflow,
-  config.height,
-  config.minHeight,
-]);
+const memoizedConfig = useMemo(
+  () => config,
+  [config.overflow, config.height, config.minHeight],
+);
 
 useEffect(() => {
   // ... apply styles ...
@@ -161,12 +178,15 @@ useEffect(() => {
   };
 }, [memoizedConfig]); // ✅ CORRECT: depends on memoized value
 ```
+
 **Why safe:** useEffect depends on memoizedConfig, which only changes if actual style values change.
 
 ---
 
 ### 6. **Dashboard.tsx** ✅ SAFE
+
 **Status:** Already correct
+
 - Simple component with few effects
 - Event listeners properly throttled
 - No problematic dependencies
@@ -176,6 +196,7 @@ useEffect(() => {
 ## ✨ The Key Insight
 
 **The stale closure pattern is SAFE and CORRECT when:**
+
 1. The callback has empty dependencies `[]`
 2. The callback reads current state values INSIDE the function
 3. The callback is called from controlled contexts (event handlers, other effects)
@@ -187,7 +208,7 @@ const fetchData = useCallback(async () => {
   // Read current values inside (stale closure)
   const currentFilter = filterState;
   const currentSort = sortBy;
-  
+
   // Make API call with current values
   const result = await api.get(`?filter=${currentFilter}&sort=${currentSort}`);
   setData(result);
@@ -206,6 +227,7 @@ useEffect(() => {
 Before deployment, verify the fix:
 
 ### 1. Local Dev Testing
+
 ```bash
 npm run dev
 # Navigate to:
@@ -216,6 +238,7 @@ npm run dev
 ```
 
 ### 2. Browser Console Check
+
 ```
 Press F12 → Console tab
 Look for: "Maximum call stack exceeded"
@@ -223,6 +246,7 @@ Expected: No such error
 ```
 
 ### 3. Network Tab Check
+
 ```
 Press F12 → Network tab
 Perform filter changes
@@ -230,6 +254,7 @@ Expected: Single request per filter (not repeating)
 ```
 
 ### 4. Performance Profile
+
 ```
 Press F12 → Performance tab
 Click Record
@@ -243,12 +268,12 @@ Expected: No repeating patterns (no loops)
 
 ## 📊 Dependency Patterns Summary
 
-| Pattern | Safe? | Example | Notes |
-|---------|-------|---------|-------|
-| `useEffect([state])` → call function | ✅ YES | `useEffect(() => { fetch(); }, [filter])` | Function not in deps |
-| `useEffect([function])` → call function | ❌ NO | `useEffect(() => { fetch(); }, [fetch])` | Creates loop if function depends on state |
-| `useCallback([], fn)` + stale closure | ✅ YES | `useCallback(() => { const f = filter; ... }, [])` | Reads state inside, not in deps |
-| `useCallback([state], fn)` | ⚠️ CAUTION | `useCallback(() => {...}, [filter])` | Only if not in useEffect deps |
+| Pattern                                 | Safe?      | Example                                            | Notes                                     |
+| --------------------------------------- | ---------- | -------------------------------------------------- | ----------------------------------------- |
+| `useEffect([state])` → call function    | ✅ YES     | `useEffect(() => { fetch(); }, [filter])`          | Function not in deps                      |
+| `useEffect([function])` → call function | ❌ NO      | `useEffect(() => { fetch(); }, [fetch])`           | Creates loop if function depends on state |
+| `useCallback([], fn)` + stale closure   | ✅ YES     | `useCallback(() => { const f = filter; ... }, [])` | Reads state inside, not in deps           |
+| `useCallback([state], fn)`              | ⚠️ CAUTION | `useCallback(() => {...}, [filter])`               | Only if not in useEffect deps             |
 
 ---
 

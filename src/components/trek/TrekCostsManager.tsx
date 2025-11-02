@@ -1,5 +1,5 @@
 import { Loader2, Plus, Trash2 } from "lucide-react";
-import React, { useCallback, useEffect , useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -22,7 +22,7 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { TrekCost, TrekCostType } from "@/integrations/supabase/types";
 import { formatCurrency } from "@/lib/utils";
-import { calculateGSTPrice } from '@/utils/indianStandards';
+import { calculateGSTPrice } from "@/utils/indianStandards";
 
 interface TrekCostsManagerProps {
   trekId: number;
@@ -47,11 +47,11 @@ export default function TrekCostsManager({
 
   const fetchCosts = useCallback(async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("trek_costs")
         .select("*")
         .eq("trek_id", trekId)
-        .order("created_at", { ascending: true }) as any;
+        .order("created_at", { ascending: true })) as any;
 
       if (error) throw error;
       setCosts(data || []);
@@ -87,8 +87,8 @@ export default function TrekCostsManager({
       let fileUrl = "";
       if (selectedFile && newCost.cost_type === "TICKETS") {
         const { data, error: uploadError } = await supabase.storage
-        .from("trek-assets")
-        .upload(
+          .from("trek-assets")
+          .upload(
             `tickets/${trekId}/${Date.now()}_${selectedFile.name}`,
             selectedFile,
           );
@@ -96,13 +96,13 @@ export default function TrekCostsManager({
         if (uploadError) throw uploadError;
 
         const { data: urlData } = supabase.storage
-        .from("trek-assets")
-        .getPublicUrl(data.path) as any;
+          .from("trek-assets")
+          .getPublicUrl(data.path) as any;
 
         fileUrl = urlData.publicUrl;
       }
 
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("trek_costs")
         .insert([
           {
@@ -111,7 +111,7 @@ export default function TrekCostsManager({
           },
         ])
         .select()
-        .single() as any;
+        .single()) as any;
 
       if (error) throw error;
       if (!data) throw new Error("No data returned from insert");
@@ -143,10 +143,10 @@ export default function TrekCostsManager({
 
   const handleDeleteCost = async (costId: number) => {
     try {
-      const { error } = await supabase
+      const { error } = (await supabase
         .from("trek_costs")
         .delete()
-        .eq("id", costId) as any;
+        .eq("id", costId)) as any;
 
       if (error) throw error;
 

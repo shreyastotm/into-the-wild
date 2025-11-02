@@ -1,44 +1,46 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
-import { BrowserRouter } from 'react-router-dom';
-import { describe, expect, it } from 'vitest';
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import { describe, expect, it } from "vitest";
 
-import ExpenseSplitting from '../ExpenseSplitting';
+import ExpenseSplitting from "../ExpenseSplitting";
 
 // Wrapper for Router
 const renderWithRouter = (ui) => {
-  return render(
-    <BrowserRouter>
-      {ui}
-    </BrowserRouter>
-  );
+  return render(<BrowserRouter>{ui}</BrowserRouter>);
 };
 
-describe('ExpenseSplitting', () => {
-
-  it('renders without crashing', () => {
+describe("ExpenseSplitting", () => {
+  it("renders without crashing", () => {
     renderWithRouter(<ExpenseSplitting data-testid="expensesplitting" />);
-    expect(screen.getByTestId('expensesplitting')).toBeInTheDocument();
+    expect(screen.getByTestId("expensesplitting")).toBeInTheDocument();
   });
 
-  it('accepts and displays props correctly', () => {
-    renderWithRouter(<ExpenseSplitting title="Test Title" data-testid="expensesplitting" />);
-    expect(screen.getByTestId('expensesplitting')).toHaveTextContent('Test Title');
+  it("accepts and displays props correctly", () => {
+    renderWithRouter(
+      <ExpenseSplitting title="Test Title" data-testid="expensesplitting" />,
+    );
+    expect(screen.getByTestId("expensesplitting")).toHaveTextContent(
+      "Test Title",
+    );
   });
 
-  it('handles user interactions', () => {
+  it("handles user interactions", () => {
     const handleClick = vi.fn();
-    renderWithRouter(<ExpenseSplitting onClick={handleClick} data-testid="expensesplitting" />);
-    fireEvent.click(screen.getByTestId('expensesplitting'));
+    renderWithRouter(
+      <ExpenseSplitting onClick={handleClick} data-testid="expensesplitting" />,
+    );
+    fireEvent.click(screen.getByTestId("expensesplitting"));
     expect(handleClick).toHaveBeenCalledTimes(1);
   });
 
-  it('updates state correctly', async () => {
+  it("updates state correctly", async () => {
     renderWithRouter(<ExpenseSplitting data-testid="expensesplitting" />);
-    fireEvent.click(screen.getByTestId('expensesplitting'));
+    fireEvent.click(screen.getByTestId("expensesplitting"));
     await waitFor(() => {
-      expect(screen.getByTestId('expensesplitting')).toHaveTextContent(/updated|changed|new/i);
+      expect(screen.getByTestId("expensesplitting")).toHaveTextContent(
+        /updated|changed|new/i,
+      );
     });
   });
-  
 });

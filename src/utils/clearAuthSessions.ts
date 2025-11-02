@@ -17,10 +17,13 @@ export const clearAllAuthSessions = (): void => {
 
     // Clear any other auth-related keys
     const authKeys = Object.keys(localStorage).filter(
-      (key) => key.includes("supabase") || key.includes("auth") || key.includes("itw-auth")
+      (key) =>
+        key.includes("supabase") ||
+        key.includes("auth") ||
+        key.includes("itw-auth"),
     );
 
-    authKeys.forEach(key => {
+    authKeys.forEach((key) => {
       localStorage.removeItem(key);
       sessionStorage.removeItem(key);
     });
@@ -49,7 +52,7 @@ export const hasPersistentAuthSession = (): boolean => {
       "sb-refresh-token",
     ];
 
-    return authKeys.some(key => {
+    return authKeys.some((key) => {
       try {
         return localStorage.getItem(key) !== null;
       } catch {

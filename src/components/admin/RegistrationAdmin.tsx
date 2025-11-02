@@ -45,7 +45,9 @@ export default function RegistrationAdmin() {
 
   async function fetchRegistrations() {
     setLoading(true);
-    const { data, error } = await supabase.from("trek_registrations").select("*") as any;
+    const { data, error } = (await supabase
+      .from("trek_registrations")
+      .select("*")) as any;
     // Add filtering/pagination as needed
 
     if (error) {
@@ -133,7 +135,7 @@ export default function RegistrationAdmin() {
   // Find duplicate registrations (same user, same trek)
   const duplicates = registrations.reduce(
     (acc, reg) => {
-      const key = `${reg.user_id  }_${  reg.trek_id}`;
+      const key = `${reg.user_id}_${reg.trek_id}`;
       acc[key] = acc[key] ? [...acc[key], reg] : [reg];
       return acc;
     },
@@ -167,14 +169,22 @@ export default function RegistrationAdmin() {
 
   // Group duplicates for rendering
   const duplicateGroupsForRendering = duplicateGroups.map((group, i) => (
-    <div key={i} className="border rounded p-3 bg-yellow-50" data-testid="registrationadmin">
+    <div
+      key={i}
+      className="border rounded p-3 bg-yellow-50"
+      data-testid="registrationadmin"
+    >
       <div className="font-semibold mb-2" data-testid="registrationadmin">
         User: {group[0].user?.name || group[0].user_id} ({group[0].user?.email})
         | Trek: {group[0].trek_event?.name || group[0].trek_id}
       </div>
       <div className="space-y-2" data-testid="registrationadmin">
         {group.map((reg) => (
-          <div key={reg.registration_id} className="flex items-center gap-4" data-testid="registrationadmin">
+          <div
+            key={reg.registration_id}
+            className="flex items-center gap-4"
+            data-testid="registrationadmin"
+          >
             <span className="text-xs text-gray-700">
               Registered on: {new Date(reg.booking_datetime).toLocaleString()}
             </span>
@@ -228,7 +238,10 @@ export default function RegistrationAdmin() {
               </div>
             )}
             {nonDuplicateRegistrations.length > 0 && (
-              <div className="border rounded p-3 bg-gray-50" data-testid="registrationadmin">
+              <div
+                className="border rounded p-3 bg-gray-50"
+                data-testid="registrationadmin"
+              >
                 <h2 className="text-xl font-semibold mb-3">
                   Non-Duplicate Registrations
                 </h2>

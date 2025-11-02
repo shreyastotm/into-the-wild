@@ -14,6 +14,7 @@ import { Link, useParams } from "react-router-dom";
 
 import { TentRequestsAdmin } from "@/components/admin/TentRequestsAdmin";
 import { useAuth } from "@/components/auth/AuthProvider";
+import { TravelCoordination } from "@/components/trek/TravelCoordination";
 import TrekCostsManager from "@/components/trek/TrekCostsManager";
 import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
 import { Button } from "@/components/ui/button";
@@ -29,7 +30,6 @@ import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/utils";
 // Import TravelCoordination directly - React Leaflet requires direct import for context access
-import { TravelCoordination } from "@/components/trek/TravelCoordination";
 
 // Define a more flexible interface to handle field name variations
 interface TrekEvent {
@@ -139,8 +139,10 @@ export default function AdminTrekDetails() {
       try {
         const { data, error } = await supabase
           .from("trek_registrations")
-          .select("registration_id, user_id, booking_datetime, payment_status, payment_proof_url, indemnity_agreed_at")
-        .eq("trek_id", id)
+          .select(
+            "registration_id, user_id, booking_datetime, payment_status, payment_proof_url, indemnity_agreed_at",
+          )
+          .eq("trek_id", id)
           .order("booking_datetime", { ascending: false });
 
         if (!error && data) {
@@ -234,13 +236,13 @@ export default function AdminTrekDetails() {
   const handleVerifyPayment = async (registrationId: number) => {
     if (!trekId) return;
     try {
-      const { error } = await supabase
+      const { error } = (await supabase
         .from("trek_registrations")
         .update({
           payment_status: "Paid",
           payment_verified_at: new Date().toISOString(),
         })
-        .eq("registration_id", registrationId) as any;
+        .eq("registration_id", registrationId)) as any;
 
       if (error) throw error;
 
@@ -382,7 +384,7 @@ export default function AdminTrekDetails() {
               <TabsTrigger value="discussion">
                 <Users className="h-4 w-4 mr-2" /> Discussion
               </TabsTrigger>
-            {trek.event_type === "camping" && (
+              {trek.event_type === "camping" && (
                 <TabsTrigger value="tent-requests">
                   <Tent className="h-4 w-4 mr-2" /> Tent Requests
                 </TabsTrigger>

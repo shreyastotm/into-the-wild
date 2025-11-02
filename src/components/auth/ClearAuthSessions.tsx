@@ -4,9 +4,18 @@ import React, { useState } from "react";
 import { useAuth } from "./AuthProvider";
 
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { toast } from "@/components/ui/use-toast";
-import { clearAllAuthSessions, hasPersistentAuthSession } from "@/utils/clearAuthSessions";
+import {
+  clearAllAuthSessions,
+  hasPersistentAuthSession,
+} from "@/utils/clearAuthSessions";
 
 export const ClearAuthSessions: React.FC = () => {
   const [isClearing, setIsClearing] = useState(false);
@@ -24,7 +33,8 @@ export const ClearAuthSessions: React.FC = () => {
 
       toast({
         title: "Sessions Cleared",
-        description: "All authentication sessions have been cleared. Please refresh the page.",
+        description:
+          "All authentication sessions have been cleared. Please refresh the page.",
       });
 
       // Refresh the page after a short delay
@@ -55,7 +65,8 @@ export const ClearAuthSessions: React.FC = () => {
           Authentication Issue
         </CardTitle>
         <CardDescription className="text-red-600">
-          Persistent authentication sessions detected. This may cause automatic login.
+          Persistent authentication sessions detected. This may cause automatic
+          login.
         </CardDescription>
       </CardHeader>
       <CardContent>

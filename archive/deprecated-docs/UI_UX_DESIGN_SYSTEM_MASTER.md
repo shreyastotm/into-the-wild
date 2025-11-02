@@ -16,9 +16,9 @@
 3. [Design System Foundation](#3-design-system-foundation)
 4. [Component Library](#4-component-library)
 5. [Enhanced Button Effects System](#5-enhanced-button-effects-system)
-5.1 [StaticBottomButton Component](#51-staticbottombutton-component)
-5.2 [NatureInspiredButton Component](#52-natureinspiredbutton-component)
-5.3 [EventCard Component](#53-eventcard-component)
+   5.1 [StaticBottomButton Component](#51-staticbottombutton-component)
+   5.2 [NatureInspiredButton Component](#52-natureinspiredbutton-component)
+   5.3 [EventCard Component](#53-eventcard-component)
 6. [Animation & Interaction System](#6-animation--interaction-system)
 7. [Responsive & Mobile Design](#7-responsive--mobile-design)
 8. [Accessibility & Admin UI](#8-accessibility--admin-ui)
@@ -1318,16 +1318,19 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 #### Key Features
 
 **🌅 Realistic Light Reflection:**
+
 - Sunlight travels diagonally across button surfaces like light on wet rock
 - Multi-layered gradient overlays simulate depth and refraction
 - Dynamic opacity changes (60% → 45% → 30%) feel like light filtering through mountain mist
 
 **💧 Water Droplet Effects:**
+
 - Animated water droplets appear on hover with internal light reflections
 - Realistic shadows and highlights simulate morning dew on mountain surfaces
 - Staggered animation timing creates natural, organic movement
 
 **🏔️ Rock Surface Texture:**
+
 - Multiple radial gradients create natural rock-like irregularities
 - Surface shimmer animation mimics light reflecting off wet stone
 - Enhanced transparency feels like light passing through misty air
@@ -1335,6 +1338,7 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 #### Button Effect Variants
 
 **1. Rock Glossy Button (btn-rock-glossy)**
+
 ```css
 .btn-rock-glossy {
   position: relative;
@@ -1345,38 +1349,46 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 /* Multi-layered glossy overlays */
 .btn-rock-glossy::before {
   /* Base reflection layer - white/golden/teal gradient */
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     rgba(255, 255, 255, 0.4) 0%,
     rgba(244, 164, 96, 0.25) 25%,
     transparent 40%,
     rgba(0, 139, 139, 0.15) 60%,
-    rgba(255, 255, 255, 0.2) 100%);
+    rgba(255, 255, 255, 0.2) 100%
+  );
 }
 
 .btn-rock-glossy::after {
   /* Sun glistening layer - animated light beam */
-  background: linear-gradient(45deg,
+  background: linear-gradient(
+    45deg,
     transparent 20%,
     rgba(255, 255, 255, 0.6) 45%,
     rgba(244, 164, 96, 0.4) 50%,
     rgba(255, 255, 255, 0.3) 55%,
-    transparent 80%);
+    transparent 80%
+  );
   animation: sun-glisten 2s ease-in-out;
 }
 
 /* Water droplets with internal shine */
 .water-droplet {
-  background: radial-gradient(circle,
+  background: radial-gradient(
+    circle,
     rgba(255, 255, 255, 0.8) 0%,
     rgba(244, 164, 96, 0.5) 40%,
     rgba(255, 255, 255, 0.3) 70%,
-    transparent 100%);
-  box-shadow: 0 0 4px rgba(255, 255, 255, 0.4),
-              inset 0 1px 2px rgba(255, 255, 255, 0.6);
+    transparent 100%
+  );
+  box-shadow:
+    0 0 4px rgba(255, 255, 255, 0.4),
+    inset 0 1px 2px rgba(255, 255, 255, 0.6);
 }
 ```
 
 **2. Enhanced Transparency System**
+
 ```css
 /* Natural transparency progression */
 .btn-rock-glossy {
@@ -1396,15 +1408,18 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 ```
 
 **3. Dark Mode Adaptations**
+
 ```css
 /* Twilight/Night mode effects */
 .dark .btn-rock-glossy::before {
-  background: linear-gradient(135deg,
+  background: linear-gradient(
+    135deg,
     rgba(255, 255, 255, 0.2) 0%,
     rgba(244, 164, 96, 0.15) 25%,
     transparent 40%,
     rgba(0, 139, 139, 0.1) 60%,
-    rgba(255, 255, 255, 0.1) 100%);
+    rgba(255, 255, 255, 0.1) 100%
+  );
 }
 
 .dark .btn-rock-glossy:hover {
@@ -1415,6 +1430,7 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 #### Implementation Examples
 
 **Landing Page Buttons:**
+
 ```tsx
 <div className="relative">
   <Button className="btn-rock-glossy bg-white/60 dark:bg-primary/50 ...">
@@ -1431,6 +1447,7 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 ```
 
 **StaticBottomButton Enhancement:**
+
 ```tsx
 <div className="btn-rock-glossy backdrop-blur-2xl bg-gradient-to-br from-white/25 via-white/20 to-white/15">
   {/* Enhanced golden hour shimmer */}
@@ -1449,12 +1466,14 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 #### Performance Optimizations
 
 **GPU-Accelerated Animations:**
+
 - All effects use `transform`, `opacity`, and `filter` properties
 - No layout-triggering properties (width, height, margin)
 - `will-change: transform` for frequently animated elements
 - 60fps smooth animations across all devices
 
 **Smart Animation Timing:**
+
 - Sun glistening: 2-2.5s duration with realistic easing
 - Water droplets: 3-4s staggered timing for natural feel
 - Surface shimmer: 2.5-3s continuous loop
@@ -1474,11 +1493,13 @@ The Enhanced Button Effects System transforms standard buttons into premium, nat
 The transparency system is designed to feel **natural and organic**, like light filtering through mountain mist or water evaporating from rock surfaces:
 
 **Light Mode Progression:**
+
 - Base: 60% opacity (like dry rock)
 - Hover: 45% opacity (like wet rock reflecting light)
 - Active: 30% opacity (like compressing wet moss)
 
 **Dark Mode Progression:**
+
 - Base: 50% opacity (like rock in twilight)
 - Hover: 40% opacity (like wet rock in moonlight)
 - Active: 25% opacity (like pressing into damp earth)
@@ -1486,12 +1507,14 @@ The transparency system is designed to feel **natural and organic**, like light 
 #### Visual Effects Integration
 
 **Layered Transparency:**
+
 1. **Button Background:** Primary transparency layer
 2. **Glossy Overlays:** Semi-transparent light reflections (15-40% opacity)
 3. **Surface Texture:** Very subtle texture overlay (5-15% opacity)
 4. **Water Droplets:** Highest opacity for realism (30-70% opacity)
 
 **Natural Transitions:**
+
 - Smooth 0.3-0.4s easing curves
 - Maintains readability in all states
 - Preserves brand colors while adding depth
@@ -1517,11 +1540,11 @@ The StaticBottomButton is a sophisticated bottom-center positioned button with a
 ### Implementation
 
 ```tsx
-import { StaticBottomButton } from '@/components/StaticBottomButton';
+import { StaticBottomButton } from "@/components/StaticBottomButton";
 
 function LandingPage() {
   const handleExploreTreks = () => {
-    navigate('/events');
+    navigate("/events");
   };
 
   return (
@@ -1536,11 +1559,13 @@ function LandingPage() {
 ### States & Animations
 
 **Idle State (Dark)**:
+
 - Shows `itw_butt_dark.png` image
 - No glow effects
 - Scale: 100%
 
 **Active State (Lit)**:
+
 - Shows `itw_butt_lit.png` image
 - Golden hour glow effect (25px blur)
 - Breathing ring animation (4s cycle)
@@ -1574,14 +1599,14 @@ Enhanced button component with dynamic lighting effects that respond to mouse po
 ### Implementation
 
 ```tsx
-import { NatureInspiredButton } from '@/components/NatureInspiredButton';
+import { NatureInspiredButton } from "@/components/NatureInspiredButton";
 
 function Navigation() {
   return (
     <NatureInspiredButton
       variant="nature"
       size="lg"
-      onClick={() => navigate('/gallery')}
+      onClick={() => navigate("/gallery")}
     >
       <Camera className="mr-2 h-5 w-5" />
       Gallery
@@ -1593,6 +1618,7 @@ function Navigation() {
 ### Variants
 
 **Available Variants:**
+
 - `nature` - Primary nature-themed styling
 - `mountain` - Mountain-inspired effects
 - `parallax` - Enhanced parallax integration
@@ -1625,7 +1651,7 @@ Specialized card component for displaying live trek events with enhanced visual 
 ### Implementation
 
 ```tsx
-import { EventCard } from '@/components/trek/EventCard';
+import { EventCard } from "@/components/trek/EventCard";
 
 function EventsList() {
   return (
@@ -1640,7 +1666,7 @@ function EventsList() {
         cost: 8500,
         max_participants: 20,
         participant_count: 15,
-        image_url: "/trek-images/valley.jpg"
+        image_url: "/trek-images/valley.jpg",
       }}
       onClick={(trekId) => navigate(`/trek/${trekId}`)}
       showProgress={true}
@@ -1695,6 +1721,7 @@ The StaticBottomButton now features the same rock surface treatment:
 #### Animation Enhancements
 
 **Combined Effects:**
+
 - Wet rock glow (2s infinite pulse)
 - Rock surface shimmer (2.5s infinite)
 - Multiple shimmer layers (3s and 4s timing)
@@ -2756,18 +2783,21 @@ This document includes:
 ## 16. Performance Optimizations
 
 ### 16.1 Code Splitting Strategy
+
 - **Vendor Chunks**: React, Supabase, UI libraries separated
 - **Feature Chunks**: Admin, Trek, Profile, Forum modules
 - **Route-based Lazy Loading**: All pages load on-demand
 
 ### 16.2 Bundle Size Optimization
-| Metric | Before | After | Improvement |
-|--------|--------|-------|-------------|
-| Main Bundle | 1,230 KB | 349 KB | 71.6% reduction |
-| Total Chunks | 1 | 33 | Better caching |
-| Initial Load | ~1.2 MB | ~350 KB | 3.4x faster |
+
+| Metric       | Before   | After   | Improvement     |
+| ------------ | -------- | ------- | --------------- |
+| Main Bundle  | 1,230 KB | 349 KB  | 71.6% reduction |
+| Total Chunks | 1        | 33      | Better caching  |
+| Initial Load | ~1.2 MB  | ~350 KB | 3.4x faster     |
 
 ### 16.3 Loading States
+
 - **LoadingSpinner Component**: Consistent loading UX
 - **Suspense Boundaries**: Graceful fallbacks
 - **Progressive Enhancement**: Core content loads first

@@ -25,12 +25,7 @@ interface CreateTrekMultiStepFormProps {
  */
 export const CreateTrekMultiStepFormNew: React.FC<
   CreateTrekMultiStepFormProps
-> = ({
-  trekToEdit,
-  onFormSubmit,
-  onCancel,
-  tentInventory = []
-}) => {
+> = ({ trekToEdit, onFormSubmit, onCancel, tentInventory = [] }) => {
   // Validate required props
   if (!onFormSubmit || !onCancel) {
     console.error("CreateTrekMultiStepFormNew: Missing required props");

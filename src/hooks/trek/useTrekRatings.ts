@@ -73,10 +73,10 @@ export function useTrekRatings(trekId: string | undefined) {
     setLoading(true);
     try {
       // Fetch all ratings
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("trek_ratings")
         .select("*")
-        .eq("trek_id", trekId) as any;
+        .eq("trek_id", trekId)) as any;
 
       if (error) throw error;
 
@@ -130,11 +130,11 @@ export function useTrekRatings(trekId: string | undefined) {
     if (!trekId) return;
 
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("trek_registrations")
         .select("user_id, users(user_id, full_name)")
         .eq("trek_id", trekId)
-        .not("payment_status", "eq", "Cancelled") as any;
+        .not("payment_status", "eq", "Cancelled")) as any;
 
       if (error) throw error;
 
@@ -154,11 +154,11 @@ export function useTrekRatings(trekId: string | undefined) {
 
     try {
       // Fetch ratings given by the current user
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("trek_ratings")
         .select("*")
         .eq("trek_id", trekId)
-        .eq("rated_by_user_id", user.id) as any;
+        .eq("rated_by_user_id", user.id)) as any;
 
       if (error) throw error;
 
@@ -187,17 +187,17 @@ export function useTrekRatings(trekId: string | undefined) {
 
       if (hasRated && myRating) {
         // Update existing rating
-        const { error } = await supabase
-        .from("trek_ratings")
-        .update(ratingData)
-        .eq("id", myRating.id) as any;
+        const { error } = (await supabase
+          .from("trek_ratings")
+          .update(ratingData)
+          .eq("id", myRating.id)) as any;
 
         if (error) throw error;
       } else {
         // Insert new rating
-        const { error } = await supabase
-        .from("trek_ratings")
-        .insert(ratingData) as any;
+        const { error } = (await supabase
+          .from("trek_ratings")
+          .insert(ratingData)) as any;
 
         if (error) throw error;
       }
@@ -263,17 +263,17 @@ export function useTrekRatings(trekId: string | undefined) {
 
       if (existingRating) {
         // Update existing rating
-        const { error } = await supabase
-        .from("trek_participant_ratings")
-        .update(ratingData)
-        .eq("id", existingRating.id) as any;
+        const { error } = (await supabase
+          .from("trek_participant_ratings")
+          .update(ratingData)
+          .eq("id", existingRating.id)) as any;
 
         if (error) throw error;
       } else {
         // Insert new rating
-        const { error } = await supabase
-        .from("trek_participant_ratings")
-        .insert(ratingData) as any;
+        const { error } = (await supabase
+          .from("trek_participant_ratings")
+          .insert(ratingData)) as any;
 
         if (error) throw error;
       }

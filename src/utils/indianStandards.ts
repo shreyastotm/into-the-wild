@@ -43,13 +43,16 @@ export interface CurrencyOptions {
 
 // Overloaded function for backward compatibility
 export function formatCurrency(amount: number): string;
-export function formatCurrency(amount: number, options: CurrencyOptions): string;
+export function formatCurrency(
+  amount: number,
+  options: CurrencyOptions,
+): string;
 export function formatCurrency(
   amount: number,
   options: CurrencyOptions | string = {},
 ): string {
   // Handle backward compatibility with string parameter
-  const opts = typeof options === 'string' ? {} : options;
+  const opts = typeof options === "string" ? {} : options;
   const { includeGST = false, gstRate = 18, showBreakdown = false } = opts;
 
   // Format base amount
@@ -93,15 +96,15 @@ export function formatIndianDate(
   const dateObj = typeof date === "string" ? new Date(date) : date;
 
   // Format as DD/MM/YYYY
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+  const day = String(dateObj.getDate()).padStart(2, "0");
+  const month = String(dateObj.getMonth() + 1).padStart(2, "0");
   const year = dateObj.getFullYear();
-  
+
   const dateString = `${day}/${month}/${year}`;
-  
+
   if (includeTime) {
-    const hours = String(dateObj.getHours()).padStart(2, '0');
-    const minutes = String(dateObj.getMinutes()).padStart(2, '0');
+    const hours = String(dateObj.getHours()).padStart(2, "0");
+    const minutes = String(dateObj.getMinutes()).padStart(2, "0");
     return `${dateString} ${hours}:${minutes}`;
   }
 
@@ -349,15 +352,15 @@ export const INDIAN_STATE_CODES: Record<string, string> = {
   TS: "36",
   LA: "37", // Ladakh (was duplicate LD)
   OD: "38",
-  DN: "39" // Daman and Nagar Haveli (updated)
+  DN: "39", // Daman and Nagar Haveli (updated)
 };
 
 /**
  * Calculate price with GST (18% standard rate)
- * 
+ *
  * @param amount - Base amount without GST
  * @returns Amount with GST included
- * 
+ *
  * @example
  * ```typescript
  * calculateGSTPrice(100) // 118

@@ -1,7 +1,7 @@
 import { format, formatRelative } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 import { Calendar, MapPin, Navigation, Users } from "lucide-react";
-import React, { useCallback, useEffect , useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 import { Badge } from "@/components/ui/badge";
@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency, getUniqueParticipantCount } from "@/lib/utils";
-import { formatIndianDate } from '@/utils/indianStandards';
+import { formatIndianDate } from "@/utils/indianStandards";
 
 interface Trek {
   trek_id: number;
@@ -58,13 +58,15 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
       const now = new Date().toISOString();
 
       // Simplified query using current schema names - filter out cancelled treks
-      const { data, error } = await supabase
-        .from('trek_events')
-        .select('trek_id, name, category, difficulty, start_datetime, base_price, max_participants, description, image_url, status')
+      const { data, error } = (await supabase
+        .from("trek_events")
+        .select(
+          "trek_id, name, category, difficulty, start_datetime, base_price, max_participants, description, image_url, status",
+        )
         .gt("start_datetime", now)
         .neq("status", "Cancelled")
         .order("start_datetime", { ascending: true })
-        .limit(limit) as any;
+        .limit(limit)) as any;
 
       if (error) {
         throw error;
@@ -79,9 +81,9 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
           let imageUrl = null;
           if (trek.image_url) {
             try {
-              const { data: urlData } = await supabase.storage
-        .from("trek_assets")
-        .getPublicUrl(trek.image_url) as any;
+              const { data: urlData } = (await supabase.storage
+                .from("trek_assets")
+                .getPublicUrl(trek.image_url)) as any;
               imageUrl = urlData.publicUrl;
             } catch (error) {
               console.error("Error getting image URL:", error);
@@ -130,11 +132,11 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
           try {
             // Get an accurate count by just counting all non-cancelled registrations
             // Removed head: true to potentially avoid 500 errors, fetch minimal column instead.
-            const { count, error } = await supabase
-        .from("trek_registrations")
-        .select("registration_id", { count: "exact" }) // Select minimal column, keep count
-        .eq("trek_id", trek.trek_id)
-        .not("payment_status", "eq", "Cancelled") as any;
+            const { count, error } = (await supabase
+              .from("trek_registrations")
+              .select("registration_id", { count: "exact" }) // Select minimal column, keep count
+              .eq("trek_id", trek.trek_id)
+              .not("payment_status", "eq", "Cancelled")) as any;
 
             if (error) {
               console.error(

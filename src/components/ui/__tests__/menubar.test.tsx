@@ -1,19 +1,17 @@
-import { render, screen } from '@testing-library/react';
-import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it } from "vitest";
 
-import menubar from '../menubar';
+import menubar from "../menubar";
 
-describe('menubar', () => {
-
-  it('renders without crashing', () => {
+describe("menubar", () => {
+  it("renders without crashing", () => {
     render(<menubar data-testid="menubar" />);
-    expect(screen.getByTestId('menubar')).toBeInTheDocument();
+    expect(screen.getByTestId("menubar")).toBeInTheDocument();
   });
 
-  it('accepts and displays props correctly', () => {
+  it("accepts and displays props correctly", () => {
     render(<menubar title="Test Title" data-testid="menubar" />);
-    expect(screen.getByTestId('menubar')).toHaveTextContent('Test Title');
+    expect(screen.getByTestId("menubar")).toHaveTextContent("Test Title");
   });
-  
 });

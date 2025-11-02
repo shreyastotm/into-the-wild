@@ -38,6 +38,7 @@ npm run dev
 ### 3. Accept Analytics Consent
 
 When you load the app:
+
 1. Wait 2 seconds - consent dialog will appear
 2. Click **"Accept Analytics"**
 3. Page reloads - GA4 initializes automatically
@@ -45,17 +46,21 @@ When you load the app:
 ### 4. Verify It's Working
 
 #### Check Browser Console
+
 Look for these messages:
+
 ```
 [GA4] Analytics initialized successfully
 [GA4] Page view tracked: /
 ```
 
 #### Check Network Tab
+
 - Filter by "gtag" or "googletagmanager"
 - You should see: `https://www.googletagmanager.com/gtag/js?id=G-NW4MTHFT60`
 
 #### Check Real-Time Reports
+
 1. Go to [Google Analytics](https://analytics.google.com/)
 2. Select property: **G-NW4MTHFT60**
 3. Navigate to **Reports** → **Real-Time**
@@ -64,11 +69,13 @@ Look for these messages:
 ## Events Being Tracked
 
 ### Automatic Tracking
+
 - ✅ **Page Views** - Every route change
 - ✅ **User Identification** - When users log in
 - ✅ **User Properties** - User role, device type, etc.
 
 ### Custom Events (GlassMorphismEventDetails)
+
 - ✅ **trek_view** - When viewing a trek event page
 - ✅ **trek_registration** - When user clicks register
 - ✅ **trek_registration_success** - Successful registration
@@ -86,27 +93,28 @@ Run this in your browser console after accepting consent:
 
 ```javascript
 // Verify gtag.js is loaded
-console.log('✅ gtag loaded:', typeof window.gtag === 'function');
+console.log("✅ gtag loaded:", typeof window.gtag === "function");
 
 // Verify dataLayer exists
-console.log('✅ dataLayer items:', window.dataLayer?.length || 0);
+console.log("✅ dataLayer items:", window.dataLayer?.length || 0);
 
 // Verify Measurement ID
-console.log('✅ Measurement ID:', 'G-NW4MTHFT60');
+console.log("✅ Measurement ID:", "G-NW4MTHFT60");
 
 // Send test event
 if (window.gtag) {
-  window.gtag('event', 'test_setup', {
-    event_category: 'Setup',
-    event_label: 'Manual Verification'
+  window.gtag("event", "test_setup", {
+    event_category: "Setup",
+    event_label: "Manual Verification",
   });
-  console.log('✅ Test event sent! Check GA4 Real-Time reports.');
+  console.log("✅ Test event sent! Check GA4 Real-Time reports.");
 }
 ```
 
 ### Expected Console Output
 
 In development mode, you should see:
+
 ```
 [GA4] Analytics initialized successfully
 [GA4] Page view tracked: /
@@ -119,6 +127,7 @@ In development mode, you should see:
 ### Analytics Not Initializing
 
 1. **Check Environment Variables:**
+
    ```bash
    # Verify .env.local exists and has:
    VITE_ENABLE_ANALYTICS=true
@@ -126,9 +135,10 @@ In development mode, you should see:
    ```
 
 2. **Check Consent:**
+
    ```javascript
    // In browser console:
-   localStorage.getItem('analytics-consent')
+   localStorage.getItem("analytics-consent");
    // Should return: "accepted"
    ```
 
@@ -155,6 +165,7 @@ In development mode, you should see:
 ### Development Indicator
 
 Look for this in the bottom-right corner (dev mode only):
+
 ```
 GA4: ✅ Active
 ```
@@ -182,10 +193,12 @@ When deploying to production:
 ## What's Tracked
 
 ### Page Views
+
 - All route changes automatically tracked
 - Includes page path, title, and user context
 
 ### User Interactions
+
 - Trek views
 - Registration attempts
 - Gallery image views
@@ -194,12 +207,14 @@ When deploying to production:
 - Form submissions
 
 ### Business Events
+
 - Trek registrations (with cost in INR)
 - Payment success
 - Profile completion
 - Forum interactions
 
 ### Error Tracking
+
 - Registration errors
 - Share errors
 - Other critical errors
@@ -207,12 +222,14 @@ When deploying to production:
 ## Privacy & Compliance
 
 ✅ **GDPR Compliant:**
+
 - Consent required before tracking
 - IP anonymization enabled
 - Google signals disabled
 - Ad personalization disabled
 
 ✅ **User Rights:**
+
 - Users can accept/decline
 - Consent stored locally
 - Can revoke by clearing localStorage
@@ -244,4 +261,3 @@ Your GA4 analytics is fully configured and ready to track:
 - ✅ Indian market context (INR, India)
 
 **Just create `.env.local` and restart your dev server to activate!**
-

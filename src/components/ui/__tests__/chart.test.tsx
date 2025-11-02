@@ -1,19 +1,17 @@
-import { render, screen } from '@testing-library/react';
-import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { render, screen } from "@testing-library/react";
+import React from "react";
+import { describe, expect, it } from "vitest";
 
-import chart from '../chart';
+import chart from "../chart";
 
-describe('chart', () => {
-
-  it('renders without crashing', () => {
+describe("chart", () => {
+  it("renders without crashing", () => {
     render(<chart data-testid="chart" />);
-    expect(screen.getByTestId('chart')).toBeInTheDocument();
+    expect(screen.getByTestId("chart")).toBeInTheDocument();
   });
 
-  it('accepts and displays props correctly', () => {
+  it("accepts and displays props correctly", () => {
     render(<chart title="Test Title" data-testid="chart" />);
-    expect(screen.getByTestId('chart')).toHaveTextContent('Test Title');
+    expect(screen.getByTestId("chart")).toHaveTextContent("Test Title");
   });
-  
 });

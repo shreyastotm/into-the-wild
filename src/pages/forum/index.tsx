@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
   Flame,
   Loader2,
@@ -13,6 +14,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { useAuth } from "@/components/auth/AuthProvider";
+import { OrigamiHamburger } from "@/components/navigation/OrigamiHamburger";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -123,6 +125,39 @@ const Campfire = () => (
         50% { transform: translateY(-40px) translateX(10px); opacity: 0.8; }
         100% { transform: translateY(-80px) translateX(-5px); opacity: 0; }
       }
+
+      @keyframes smoke-rise {
+        0% {
+          transform: translateY(0) translateX(var(--smoke-x, 0)) scale(0.5);
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 0.5;
+        }
+        100% {
+          transform: translateY(-100vh) translateX(calc(var(--smoke-x, 0) + 100px)) scale(1.5);
+          opacity: 0;
+        }
+      }
+
+      @keyframes firefly {
+        0%, 100% {
+          transform: translateY(0) translateX(0);
+          opacity: 0.4;
+        }
+        25% {
+          transform: translateY(-20px) translateX(10px);
+          opacity: 1;
+        }
+        50% {
+          transform: translateY(-40px) translateX(-5px);
+          opacity: 0.8;
+        }
+        75% {
+          transform: translateY(-20px) translateX(15px);
+          opacity: 0.6;
+        }
+      }
     `}</style>
   </div>
 );
@@ -152,38 +187,45 @@ const LogSeat = ({
       <div
         className={cn(
           "relative overflow-hidden rounded-3xl p-6",
-          "bg-gradient-to-br from-amber-900/80 to-amber-800/80",
-          "backdrop-blur-sm border-2 border-amber-700/50",
-          "shadow-2xl hover:shadow-orange-500/20",
-          "transition-all duration-300",
-          "hover:scale-102 hover:-translate-y-1",
+          "bg-white/8 dark:bg-gray-900/8",
+          "backdrop-blur-xl backdrop-saturate-150",
+          "border border-orange-400/30 dark:border-orange-400/20",
+          "ring-0 ring-orange-400/0",
+          "hover:ring-2 hover:ring-orange-400/60 hover:ring-offset-2",
+          "shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-orange-500/20",
+          "transition-all duration-500 ease-out",
+          "hover:scale-[1.02]",
+          // Glass Surface Texture
+          "before:absolute before:inset-0 before:rounded-3xl",
+          "before:bg-gradient-to-br before:from-white/20 before:via-transparent before:to-transparent",
+          "before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-300",
         )}
       >
-        {/* Wood grain texture */}
+        {/* Wood grain texture overlay (reduced opacity) */}
         <div
-          className="absolute inset-0 opacity-10 bg-repeat"
+          className="absolute inset-0 opacity-5 bg-repeat rounded-3xl pointer-events-none"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='100' height='100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 0h100v2H0zM0 10h100v2H0zM0 20h100v1H0zM0 25h100v1H0zM0 30h100v2H0z' fill='%23000' fill-opacity='0.2'/%3E%3C/svg%3E")`,
           }}
         />
 
-        {/* Warm glow effect */}
-        <div className="absolute -inset-4 bg-orange-500/10 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+        {/* Enhanced animated glow effect */}
+        <div className="absolute -inset-4 bg-orange-500/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
         {/* Content */}
-        <div className="relative">
+        <div className="relative z-10">
           <div className="flex items-start justify-between mb-3">
-            <h3 className="text-2xl font-bold text-amber-100 group-hover:text-white transition-colors">
+            <h3 className="text-2xl font-bold text-white/95 group-hover:text-white transition-colors">
               {category.name}
             </h3>
-            <div className="flex items-center gap-1 text-amber-200">
+            <div className="flex items-center gap-1 text-white/70">
               <MessageSquare className="h-5 w-5" />
               <span className="font-semibold">{threadCount}</span>
             </div>
           </div>
 
           {category.description && (
-            <p className="text-amber-200/80 text-sm leading-relaxed">
+            <p className="text-white/70 text-sm leading-relaxed">
               {category.description}
             </p>
           )}
@@ -213,32 +255,50 @@ const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
     >
       <div
         className={cn(
-          "relative overflow-hidden rounded-2xl p-5",
-          "bg-gradient-to-br from-amber-50 to-yellow-50/80",
-          "dark:from-amber-950/40 dark:to-yellow-950/20",
-          "border-2 border-amber-200/50 dark:border-amber-800/50",
-          "shadow-md hover:shadow-xl transition-all duration-300",
-          "hover:scale-[1.02] hover:-translate-y-1",
+          "relative overflow-hidden rounded-3xl p-5",
+          "bg-white/8 dark:bg-gray-900/8",
+          "backdrop-blur-xl backdrop-saturate-150",
+          "border border-orange-400/30 dark:border-orange-400/20",
+          "ring-0 ring-orange-400/0",
+          "hover:ring-2 hover:ring-orange-400/60 hover:ring-offset-2",
+          "shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-orange-500/20",
+          "transition-all duration-500 ease-out",
+          "hover:scale-[1.02]",
+          // Glass Surface Texture
+          "before:absolute before:inset-0 before:rounded-3xl",
+          "before:bg-gradient-to-br before:from-white/20 before:via-transparent before:to-transparent",
+          "before:opacity-0 group-hover:before:opacity-100 before:transition-opacity before:duration-300",
         )}
       >
-        {/* Paper texture */}
+        {/* Paper texture overlay (reduced opacity) */}
         <div
-          className="absolute inset-0 opacity-5"
+          className="absolute inset-0 opacity-3 bg-repeat rounded-3xl"
           style={{
             backgroundImage: `url("data:image/svg+xml,%3Csvg width='200' height='200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence baseFrequency='0.8' numOctaves='4' /%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.3'/%3E%3C/svg%3E")`,
           }}
         />
 
-        {/* Torn edge effect at top */}
+        {/* Enhanced animated glow effect */}
         <div
-          className="absolute -top-1 left-0 right-0 h-3 bg-amber-100 dark:bg-amber-900/20"
+          className="absolute inset-0 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+          style={{
+            background:
+              "linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(239, 68, 68, 0.08))",
+            filter: "blur(25px)",
+            transform: "scale(1.15)",
+          }}
+        />
+
+        {/* Torn edge effect at top (reduced opacity) */}
+        <div
+          className="absolute -top-1 left-0 right-0 h-3 bg-orange-400/20 rounded-t-3xl z-10"
           style={{
             clipPath:
               "polygon(0 0, 5% 100%, 10% 20%, 15% 80%, 20% 40%, 25% 90%, 30% 10%, 35% 70%, 40% 30%, 45% 85%, 50% 15%, 55% 75%, 60% 35%, 65% 90%, 70% 20%, 75% 80%, 80% 40%, 85% 85%, 90% 25%, 95% 70%, 100% 10%, 100% 0)",
           }}
         />
 
-        <div className="relative flex items-start gap-4">
+        <div className="relative z-10 flex items-start gap-4">
           {/* Wax Seal Avatar */}
           <div className="relative flex-shrink-0">
             <div className="absolute -inset-1 bg-gradient-to-br from-red-900 to-red-700 rounded-full blur-sm opacity-50" />
@@ -257,14 +317,17 @@ const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
                 {thread.pinned && (
                   <Badge
                     variant="secondary"
-                    className="text-xs bg-amber-200 dark:bg-amber-900 border-amber-400 dark:border-amber-700"
+                    className="text-xs bg-orange-400/20 border-orange-400/40 text-white/90"
                   >
                     <Pin className="h-3 w-3 mr-1" />
                     Pinned
                   </Badge>
                 )}
                 {thread.locked && (
-                  <Badge variant="outline" className="text-xs border-gray-500">
+                  <Badge
+                    variant="outline"
+                    className="text-xs border-white/30 text-white/70"
+                  >
                     <Lock className="h-3 w-3 mr-1" />
                     Locked
                   </Badge>
@@ -272,8 +335,8 @@ const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
               </div>
             )}
 
-            {/* Title - Handwritten style */}
-            <h4 className="font-semibold text-lg text-amber-900 dark:text-amber-100 group-hover:text-amber-700 dark:group-hover:text-amber-300 transition-colors mb-2 leading-tight">
+            {/* Title */}
+            <h4 className="font-semibold text-lg text-white/95 group-hover:text-white transition-colors mb-2 leading-tight">
               {thread.title}
             </h4>
 
@@ -284,18 +347,21 @@ const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
                   <Badge
                     key={tag.id}
                     variant="outline"
-                    className="text-xs px-2 py-0.5"
+                    className="text-xs px-2 py-0.5 border-white/30 text-white/80"
                     style={{
                       borderColor: tag.color,
                       color: tag.color,
-                      backgroundColor: `${tag.color}10`,
+                      backgroundColor: `${tag.color}20`,
                     }}
                   >
                     {tag.name}
                   </Badge>
                 ))}
                 {thread.tags.length > 3 && (
-                  <Badge variant="outline" className="text-xs px-2 py-0.5">
+                  <Badge
+                    variant="outline"
+                    className="text-xs px-2 py-0.5 border-white/30 text-white/70"
+                  >
                     +{thread.tags.length - 3}
                   </Badge>
                 )}
@@ -303,7 +369,7 @@ const ParchmentThread = ({ thread }: { thread: ForumThread }) => {
             )}
 
             {/* Meta info - Date stamp style */}
-            <div className="flex items-center gap-3 text-xs text-amber-700 dark:text-amber-400">
+            <div className="flex items-center gap-3 text-xs text-white/70">
               <span className="font-medium">{thread.author_name}</span>
               <span>•</span>
               <span>{formatDate(thread.created_at)}</span>
@@ -335,6 +401,16 @@ export default function ForumHome() {
 
   useEffect(() => {
     fetchForumData();
+  }, []);
+
+  // Apply minimal glassmorphic scrollbar styling to html/body
+  useEffect(() => {
+    document.documentElement.classList.add("glass-theme-active");
+    document.body.classList.add("glass-theme-active");
+    return () => {
+      document.documentElement.classList.remove("glass-theme-active");
+      document.body.classList.remove("glass-theme-active");
+    };
   }, []);
 
   const fetchForumData = async () => {
@@ -489,10 +565,15 @@ export default function ForumHome() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-amber-950">
+      <div
+        className={cn(
+          "glass-forum-theme min-h-screen flex items-center justify-center",
+          "bg-gradient-to-br from-slate-900/95 via-orange-900/20 to-red-900/15",
+        )}
+      >
         <div className="text-center">
           <Campfire />
-          <p className="text-amber-900 dark:text-amber-100 font-medium">
+          <p className="text-white/90 font-medium">
             Gathering around the campfire...
           </p>
         </div>
@@ -501,40 +582,104 @@ export default function ForumHome() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 dark:from-gray-900 dark:via-gray-800 dark:to-amber-950">
-      {/* Fireflies/particles background */}
-      <div className="fixed inset-0 pointer-events-none overflow-hidden">
-        {[...Array(15)].map((_, i) => (
-          <div
-            key={i}
-            className="absolute w-1 h-1 bg-yellow-400 rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animation: `firefly ${3 + Math.random() * 3}s ease-in-out infinite`,
-              animationDelay: `${Math.random() * 3}s`,
-            }}
-          />
-        ))}
+    <div
+      className={cn(
+        "glass-forum-theme min-h-screen relative overflow-hidden",
+        "bg-gradient-to-br from-slate-900/95 via-orange-900/20 to-red-900/15",
+        "scrollbar-nature",
+      )}
+    >
+      {/* Origami Hamburger Menu */}
+      <OrigamiHamburger />
+      {/* Enhanced Fireflies with orange glow */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {[...Array(20)].map((_, i) => {
+          const duration = 3 + Math.random() * 3;
+          const delay = Math.random() * 3;
+          return (
+            <div
+              key={i}
+              className="absolute w-1.5 h-1.5 bg-orange-400 rounded-full"
+              style={{
+                left: `${Math.random() * 100}%`,
+                top: `${Math.random() * 100}%`,
+                boxShadow:
+                  "0 0 10px rgba(249, 115, 22, 0.8), 0 0 20px rgba(249, 115, 22, 0.4)",
+                animationName: "firefly",
+                animationDuration: `${duration}s`,
+                animationTimingFunction: "ease-in-out",
+                animationIterationCount: "infinite",
+                animationDelay: `${delay}s`,
+              }}
+            />
+          );
+        })}
       </div>
 
-      <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      {/* Smoke particles */}
+      <div className="fixed inset-0 pointer-events-none overflow-hidden z-0">
+        {[...Array(8)].map((_, i) => {
+          const duration = 8 + Math.random() * 4;
+          return (
+            <div
+              key={`smoke-${i}`}
+              className="absolute w-2 h-2 bg-gray-400/20 rounded-full blur-sm"
+              style={{
+                left: "50%",
+                bottom: "10%",
+                animationName: "smoke-rise",
+                animationDuration: `${duration}s`,
+                animationTimingFunction: "ease-out",
+                animationIterationCount: "infinite",
+                animationDelay: `${i * 1.5}s`,
+                transform: `translateX(${(i - 4) * 40}px)`,
+              }}
+            />
+          );
+        })}
+      </div>
+
+      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header with Campfire */}
-        <div className="text-center mb-12">
-          <Campfire />
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className={cn(
+            "text-center mb-12 p-6 rounded-3xl",
+            "bg-white/8 dark:bg-gray-900/8",
+            "backdrop-blur-xl backdrop-saturate-150",
+            "border border-orange-400/30 dark:border-orange-400/20",
+            "ring-0 ring-orange-400/0",
+            "hover:ring-2 hover:ring-orange-400/40 hover:ring-offset-2",
+            "shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-orange-500/20",
+            "transition-all duration-500 ease-out",
+          )}
+        >
+          {/* Campfire with Glass Container */}
+          <div
+            className={cn(
+              "relative w-40 h-40 mx-auto mb-6",
+              "bg-white/5 backdrop-blur-sm rounded-full",
+              "border border-orange-400/20",
+              "shadow-2xl shadow-orange-500/30",
+            )}
+          >
+            <Campfire />
+          </div>
           <h1
-            className="text-4xl md:text-5xl font-bold text-amber-900 dark:text-amber-100 mb-4"
+            className="text-4xl md:text-5xl font-bold text-white/95 mb-4"
             style={{
-              textShadow: "2px 2px 4px rgba(0,0,0,0.1)",
+              textShadow: "2px 2px 4px rgba(0,0,0,0.3)",
             }}
           >
             Campfire Conversations
           </h1>
-          <p className="text-lg text-amber-800 dark:text-amber-200 max-w-2xl mx-auto">
-            <Flame className="inline-block w-5 h-5 mr-2" />
+          <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            <Flame className="inline-block w-5 h-5 mr-2 text-orange-400" />
             Gather 'round, share your tales, and learn from fellow adventurers
           </p>
-        </div>
+        </motion.div>
 
         {/* Create Thread Button */}
         {user && (

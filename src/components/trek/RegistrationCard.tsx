@@ -148,7 +148,9 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
     <Card className="sticky top-4 sm:top-6 mx-auto max-w-sm w-full sm:max-w-none border-border/50 dark:border-border/30 shadow-lg dark:shadow-xl flex flex-col h-fit">
       <CardHeader className="bg-muted/50 dark:bg-muted/30 rounded-t-lg p-4 sm:p-6 flex-shrink-0">
         <CardTitle className="text-lg sm:text-xl flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-          <span className="text-foreground dark:text-foreground">Registration</span>
+          <span className="text-foreground dark:text-foreground">
+            Registration
+          </span>
           <span className="text-xl sm:text-2xl font-bold text-foreground dark:text-foreground">
             {formatCurrency(trek.cost, "INR")}
           </span>
@@ -157,141 +159,150 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
       <CardContent className="p-4 sm:p-6 bg-card dark:bg-card flex-1 flex flex-col justify-center flex-shrink-0">
         {!userRegistration ? (
           /* Show participants info when not registered */
-        <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <div className="flex items-center">
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <div className="flex items-center">
                 <Users className="h-5 w-5 text-muted-foreground mr-2" />
-                <span className="text-foreground dark:text-foreground">Participants</span>
-            </div>
-            <div>
-              <Badge
-                variant={availableSpots > 5 ? "outline" : "secondary"}
-                className={
-                  availableSpots <= 5 && availableSpots > 0
+                <span className="text-foreground dark:text-foreground">
+                  Participants
+                </span>
+              </div>
+              <div>
+                <Badge
+                  variant={availableSpots > 5 ? "outline" : "secondary"}
+                  className={
+                    availableSpots <= 5 && availableSpots > 0
                       ? "bg-amber-100 dark:bg-amber-950/30 text-amber-800 dark:text-amber-200 border-amber-200 dark:border-amber-800"
-                    : ""
-                }
-              >
-                {availableSpots} spots left
-              </Badge>
+                      : ""
+                  }
+                >
+                  {availableSpots} spots left
+                </Badge>
+              </div>
             </div>
-          </div>
 
-          <div className="space-y-1">
+            <div className="space-y-1">
               <div className="flex justify-between text-xs text-muted-foreground dark:text-muted-foreground">
-              <span>{participantCount} registered</span>
-              <span>{trek.max_participants} maximum</span>
+                <span>{participantCount} registered</span>
+                <span>{trek.max_participants} maximum</span>
+              </div>
+              <Progress value={spotsFillPercent} className="h-2" />
             </div>
-            <Progress value={spotsFillPercent} className="h-2" />
           </div>
-        </div>
         ) : userRegistration ? (
           /* Show registration success and payment proof section when registered */
           <div className="flex flex-col justify-center h-full">
             <div className="rounded-md bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-800 p-4 flex items-start space-x-3 mb-6">
               <CheckCircle className="h-5 w-5 text-green-500 dark:text-green-400 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h4 className="font-medium text-green-800 dark:text-green-200">You're registered!</h4>
+                <h4 className="font-medium text-green-800 dark:text-green-200">
+                  You're registered!
+                </h4>
                 <p className="text-sm text-green-700 dark:text-green-300">
-                Registered on{" "}
-                {new Date(
-                  userRegistration.booking_datetime,
-                ).toLocaleDateString()}
-              </p>
-              {userRegistration.payment_status === "Pending" && (
+                  Registered on{" "}
+                  {new Date(
+                    userRegistration.booking_datetime,
+                  ).toLocaleDateString()}
+                </p>
+                {userRegistration.payment_status === "Pending" && (
                   <div className="flex justify-center">
-                <FormSection
-                  title="Upload Payment Proof"
-                  description="Please provide the payer's details and upload payment proof"
-                  variant="bordered"
+                    <FormSection
+                      title="Upload Payment Proof"
+                      description="Please provide the payer's details and upload payment proof"
+                      variant="bordered"
                       className="w-full max-w-md"
-                >
-                  <div className="space-y-4">
-                    <FormField
-                      label="Payer's Name"
-                      name="registrant-name"
-                      type="text"
-                      value={registrantName}
-                      onChange={setRegistrantName}
-                      placeholder="Name of person making payment"
-                      required
-                      disabled={
-                        isUploadingProof || !!userRegistration.payment_proof_url
-                      }
-                      icon={<User className="h-4 w-4" />}
-                      helpText="This may be you or someone paying on your behalf"
-                    />
-
-                    <FormField
-                      label="Payer's Phone Number"
-                      name="registrant-phone"
-                      type="tel"
-                      value={registrantPhone}
-                      onChange={setRegistrantPhone}
-                      placeholder="Phone number used for payment"
-                      required
-                      disabled={
-                        isUploadingProof || !!userRegistration.payment_proof_url
-                      }
-                      icon={<Phone className="h-4 w-4" />}
-                      helpText="Phone number from which payment was made"
-                    />
-
-                    <FormField
-                      label="Payment Proof (Screenshot/Receipt)"
-                      name="payment-proof"
-                      type="file"
-                      onChange={(value) => setPaymentProofFile(value)}
-                      required
-                      disabled={
-                        isUploadingProof || !!userRegistration.payment_proof_url
-                      }
-                      icon={<FileText className="h-4 w-4" />}
-                      helpText="Upload image or PDF of payment receipt"
-                      accept="image/*,.pdf"
-                    />
-
-                    {paymentProofFile &&
-                      !userRegistration.payment_proof_url && (
-                        <Button
-                          onClick={handleUploadProof}
+                    >
+                      <div className="space-y-4">
+                        <FormField
+                          label="Payer's Name"
+                          name="registrant-name"
+                          type="text"
+                          value={registrantName}
+                          onChange={setRegistrantName}
+                          placeholder="Name of person making payment"
+                          required
                           disabled={
                             isUploadingProof ||
-                            !paymentProofFile ||
-                            !registrantName.trim() ||
-                            !registrantPhone.trim()
+                            !!userRegistration.payment_proof_url
                           }
-                          className="w-full text-sm"
-                          size="sm"
-                        >
-                          {isUploadingProof ? "Uploading..." : "Upload Proof"}
-                          <UploadCloud className="ml-2 h-4 w-4" />
-                        </Button>
-                      )}
+                          icon={<User className="h-4 w-4" />}
+                          helpText="This may be you or someone paying on your behalf"
+                        />
 
-                    {userRegistration.payment_proof_url && (
+                        <FormField
+                          label="Payer's Phone Number"
+                          name="registrant-phone"
+                          type="tel"
+                          value={registrantPhone}
+                          onChange={setRegistrantPhone}
+                          placeholder="Phone number used for payment"
+                          required
+                          disabled={
+                            isUploadingProof ||
+                            !!userRegistration.payment_proof_url
+                          }
+                          icon={<Phone className="h-4 w-4" />}
+                          helpText="Phone number from which payment was made"
+                        />
+
+                        <FormField
+                          label="Payment Proof (Screenshot/Receipt)"
+                          name="payment-proof"
+                          type="file"
+                          onChange={(value) => setPaymentProofFile(value)}
+                          required
+                          disabled={
+                            isUploadingProof ||
+                            !!userRegistration.payment_proof_url
+                          }
+                          icon={<FileText className="h-4 w-4" />}
+                          helpText="Upload image or PDF of payment receipt"
+                          accept="image/*,.pdf"
+                        />
+
+                        {paymentProofFile &&
+                          !userRegistration.payment_proof_url && (
+                            <Button
+                              onClick={handleUploadProof}
+                              disabled={
+                                isUploadingProof ||
+                                !paymentProofFile ||
+                                !registrantName.trim() ||
+                                !registrantPhone.trim()
+                              }
+                              className="w-full text-sm"
+                              size="sm"
+                            >
+                              {isUploadingProof
+                                ? "Uploading..."
+                                : "Upload Proof"}
+                              <UploadCloud className="ml-2 h-4 w-4" />
+                            </Button>
+                          )}
+
+                        {userRegistration.payment_proof_url && (
                           <p className="text-xs text-green-600 dark:text-green-400">
-                        ✓ Proof uploaded. Awaiting admin verification.
-                      </p>
-                    )}
+                            ✓ Proof uploaded. Awaiting admin verification.
+                          </p>
+                        )}
+                      </div>
+                    </FormSection>
                   </div>
-                </FormSection>
+                )}
+                {userRegistration.payment_status === "ProofUploaded" && (
+                  <div className="flex justify-center">
+                    <p className="text-sm text-blue-700 dark:text-blue-300 text-center">
+                      Payment proof uploaded. Awaiting verification.
+                    </p>
                   </div>
-              )}
-              {userRegistration.payment_status === "ProofUploaded" && (
-                <div className="flex justify-center">
-                  <p className="text-sm text-blue-700 dark:text-blue-300 text-center">
-                  Payment proof uploaded. Awaiting verification.
-                </p>
-                </div>
-              )}
-              {userRegistration.payment_status === "Paid" && (
-                <div className="flex justify-center">
-                  <p className="text-sm text-green-700 dark:text-green-300 text-center">
-                  Payment confirmed. See you there!
-                </p>
-                </div>
-              )}
+                )}
+                {userRegistration.payment_status === "Paid" && (
+                  <div className="flex justify-center">
+                    <p className="text-sm text-green-700 dark:text-green-300 text-center">
+                      Payment confirmed. See you there!
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -300,10 +311,12 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
             <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 p-4 flex items-start space-x-3 max-w-md w-full">
               <AlertCircle className="h-5 w-5 text-amber-500 dark:text-amber-400 mt-0.5 flex-shrink-0" />
               <div className="flex-1">
-                <h4 className="font-medium text-amber-800 dark:text-amber-200">This trek is full</h4>
+                <h4 className="font-medium text-amber-800 dark:text-amber-200">
+                  This trek is full
+                </h4>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
-                Please check back later or explore other treks.
-              </p>
+                  Please check back later or explore other treks.
+                </p>
               </div>
             </div>
           </div>
@@ -315,137 +328,137 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
           userRegistration.payment_status !== "Cancelled" &&
           userRegistration.payment_status !== "Paid" && (
             <div className="flex justify-center w-full">
-            <Button
-              variant="outline"
+              <Button
+                variant="outline"
                 className="hover:bg-destructive hover:text-destructive-foreground dark:hover:bg-destructive dark:hover:text-destructive-foreground"
-              onClick={onCancel}
-              disabled={isLoading}
-            >
-              {isLoading ? "Processing..." : "Cancel Registration"}
-            </Button>
+                onClick={onCancel}
+                disabled={isLoading}
+              >
+                {isLoading ? "Processing..." : "Cancel Registration"}
+              </Button>
             </div>
           )
         ) : (
           <>
             {/* Registration Form */}
             <div className="flex justify-center">
-            <FormSection
-              title="Registration Details"
-              description="Please provide your details to register for this trek"
-              variant="bordered"
+              <FormSection
+                title="Registration Details"
+                description="Please provide your details to register for this trek"
+                variant="bordered"
                 className="w-full max-w-md"
-            >
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <FormField
-                    label="Your Name"
-                    name="reg-name"
-                    type="text"
-                    value={registrantName}
-                    onChange={setRegistrantName}
-                    placeholder="Full name"
-                    required
-                    disabled={isLoading || isFull}
-                    error={errors.registrantName}
-                    icon={<User className="h-4 w-4" />}
-                  />
-
-                  <FormField
-                    label="Phone Number"
-                    name="reg-phone"
-                    type="tel"
-                    value={registrantPhone}
-                    onChange={handlePhoneChange}
-                    placeholder="Contact number"
-                    required
-                    disabled={isLoading || isFull}
-                    error={errors.registrantPhone}
-                    icon={<Phone className="h-4 w-4" />}
-                    helpText="Enter 10-digit Indian phone number"
-                  />
-                </div>
-
-                {/* Indemnity Agreement */}
-                <FormField
-                  label={indemnityText}
-                  name="indemnity"
-                  type="checkbox"
-                  value={indemnityAccepted}
-                  onChange={setIndemnityAccepted}
-                  disabled={isLoading || isFull}
-                  required
-                />
-
-                {/* Driver Volunteer Option */}
-                {canVolunteerDriver && (
-                  <div className="space-y-3">
+              >
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <FormField
-                      label="Volunteer as driver for this event"
-                      name="volunteer_driver"
-                      type="checkbox"
-                      value={volunteerAsDriver}
-                      onChange={setVolunteerAsDriver}
+                      label="Your Name"
+                      name="reg-name"
+                      type="text"
+                      value={registrantName}
+                      onChange={setRegistrantName}
+                      placeholder="Full name"
+                      required
                       disabled={isLoading || isFull}
+                      error={errors.registrantName}
+                      icon={<User className="h-4 w-4" />}
                     />
 
-                    {volunteerAsDriver && (
-                      <FormField
-                        label="Seats you can offer (excluding you)"
-                        name="offered_seats"
-                        type="number"
-                        value={offeredSeats}
-                        onChange={setOfferedSeats}
-                        placeholder="0"
-                        min={0}
-                        disabled={isLoading || isFull}
-                        error={errors.offeredSeats}
-                        helpText="Number of additional passengers you can accommodate"
-                      />
-                    )}
+                    <FormField
+                      label="Phone Number"
+                      name="reg-phone"
+                      type="tel"
+                      value={registrantPhone}
+                      onChange={handlePhoneChange}
+                      placeholder="Contact number"
+                      required
+                      disabled={isLoading || isFull}
+                      error={errors.registrantPhone}
+                      icon={<Phone className="h-4 w-4" />}
+                      helpText="Enter 10-digit Indian phone number"
+                    />
                   </div>
-                )}
-              </div>
-            </FormSection>
+
+                  {/* Indemnity Agreement */}
+                  <FormField
+                    label={indemnityText}
+                    name="indemnity"
+                    type="checkbox"
+                    value={indemnityAccepted}
+                    onChange={setIndemnityAccepted}
+                    disabled={isLoading || isFull}
+                    required
+                  />
+
+                  {/* Driver Volunteer Option */}
+                  {canVolunteerDriver && (
+                    <div className="space-y-3">
+                      <FormField
+                        label="Volunteer as driver for this event"
+                        name="volunteer_driver"
+                        type="checkbox"
+                        value={volunteerAsDriver}
+                        onChange={setVolunteerAsDriver}
+                        disabled={isLoading || isFull}
+                      />
+
+                      {volunteerAsDriver && (
+                        <FormField
+                          label="Seats you can offer (excluding you)"
+                          name="offered_seats"
+                          type="number"
+                          value={offeredSeats}
+                          onChange={setOfferedSeats}
+                          placeholder="0"
+                          min={0}
+                          disabled={isLoading || isFull}
+                          error={errors.offeredSeats}
+                          helpText="Number of additional passengers you can accommodate"
+                        />
+                      )}
+                    </div>
+                  )}
+                </div>
+              </FormSection>
             </div>
 
             {/* Registration Button */}
             <div className="flex justify-center">
-            <Button
+              <Button
                 className="max-w-md w-full"
-              onClick={() =>
-                onRegister(indemnityAccepted, {
-                  isDriver: volunteerAsDriver,
-                  offeredSeats: volunteerAsDriver
-                    ? parseInt(offeredSeats || "0", 10) || 0
-                    : null,
-                  registrantName: registrantName.trim(),
-                  registrantPhone: registrantPhone.trim(),
-                })
-              }
-              disabled={
-                isLoading ||
-                !canRegister ||
-                !indemnityAccepted ||
-                !registrantName.trim() ||
-                !registrantPhone.trim()
-              }
-            >
-              {isLoading
-                ? "Processing..."
-                : !canRegister
-                  ? trek.status === TrekEventStatus.REGISTRATION_CLOSED
-                    ? "Registration Closed"
-                    : trek.status === TrekEventStatus.COMPLETED
-                      ? "Trek Completed"
-                      : trek.status === TrekEventStatus.CANCELLED
-                        ? "Trek Cancelled"
-                        : trek.status === TrekEventStatus.ONGOING
-                          ? "Trek Ongoing"
-                          : isFull
-                            ? "Trek is Full"
-                            : "Registration Not Open"
-                  : "Register Now"}
-            </Button>
+                onClick={() =>
+                  onRegister(indemnityAccepted, {
+                    isDriver: volunteerAsDriver,
+                    offeredSeats: volunteerAsDriver
+                      ? parseInt(offeredSeats || "0", 10) || 0
+                      : null,
+                    registrantName: registrantName.trim(),
+                    registrantPhone: registrantPhone.trim(),
+                  })
+                }
+                disabled={
+                  isLoading ||
+                  !canRegister ||
+                  !indemnityAccepted ||
+                  !registrantName.trim() ||
+                  !registrantPhone.trim()
+                }
+              >
+                {isLoading
+                  ? "Processing..."
+                  : !canRegister
+                    ? trek.status === TrekEventStatus.REGISTRATION_CLOSED
+                      ? "Registration Closed"
+                      : trek.status === TrekEventStatus.COMPLETED
+                        ? "Trek Completed"
+                        : trek.status === TrekEventStatus.CANCELLED
+                          ? "Trek Cancelled"
+                          : trek.status === TrekEventStatus.ONGOING
+                            ? "Trek Ongoing"
+                            : isFull
+                              ? "Trek is Full"
+                              : "Registration Not Open"
+                    : "Register Now"}
+              </Button>
             </div>
           </>
         )}

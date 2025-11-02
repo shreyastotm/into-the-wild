@@ -206,8 +206,14 @@ export default function UserVerificationPanel() {
       <h2 className="text-2xl font-bold mb-6">User Verification Management</h2>
 
       {/* Filters */}
-      <div className="mb-6 flex gap-4 items-center flex-wrap" data-testid="userverificationpanel">
-        <div className="flex items-center gap-2" data-testid="userverificationpanel">
+      <div
+        className="mb-6 flex gap-4 items-center flex-wrap"
+        data-testid="userverificationpanel"
+      >
+        <div
+          className="flex items-center gap-2"
+          data-testid="userverificationpanel"
+        >
           <label htmlFor="userTypeFilter" className="font-medium">
             User Type:
           </label>
@@ -224,7 +230,10 @@ export default function UserVerificationPanel() {
           </select>
         </div>
 
-        <div className="flex items-center gap-2" data-testid="userverificationpanel">
+        <div
+          className="flex items-center gap-2"
+          data-testid="userverificationpanel"
+        >
           <label htmlFor="verificationStatusFilter" className="font-medium">
             Verification Status:
           </label>
@@ -246,7 +255,10 @@ export default function UserVerificationPanel() {
         </div>
       </div>
 
-      <div className="overflow-x-auto border rounded-lg bg-card/80 dark:bg-card/60" data-testid="userverificationpanel">
+      <div
+        className="overflow-x-auto border rounded-lg bg-card/80 dark:bg-card/60"
+        data-testid="userverificationpanel"
+      >
         <Table>
           <TableHeader>
             <TableRow>
@@ -282,7 +294,10 @@ export default function UserVerificationPanel() {
                     <TableCell>{user.email}</TableCell>
                     <TableCell>{user.user_type}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-2" data-testid="userverificationpanel">
+                      <div
+                        className="flex items-center gap-2"
+                        data-testid="userverificationpanel"
+                      >
                         {levelInfo.icon}
                         <div data-testid="userverificationpanel">
                           <Badge className={levelInfo.badgeClass}>
@@ -296,7 +311,10 @@ export default function UserVerificationPanel() {
                     </TableCell>
                     <TableCell>
                       {user.verification_docs?.aadhaar?.front_url && (
-                        <div className="space-x-2" data-testid="userverificationpanel">
+                        <div
+                          className="space-x-2"
+                          data-testid="userverificationpanel"
+                        >
                           <a
                             href={user.verification_docs.aadhaar.front_url}
                             target="_blank"
@@ -318,7 +336,10 @@ export default function UserVerificationPanel() {
                         </div>
                       )}
                       {user.verification_docs?.secondary_id?.front_url && (
-                        <div className="space-x-2 mt-1" data-testid="userverificationpanel">
+                        <div
+                          className="space-x-2 mt-1"
+                          data-testid="userverificationpanel"
+                        >
                           <span className="text-sm text-muted-foreground">
                             {user.verification_docs.secondary_id.type}:
                           </span>
@@ -346,7 +367,10 @@ export default function UserVerificationPanel() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2" data-testid="userverificationpanel">
+                      <div
+                        className="flex gap-2"
+                        data-testid="userverificationpanel"
+                      >
                         {user.verification_status === "PENDING_REVIEW" && (
                           <>
                             <Button

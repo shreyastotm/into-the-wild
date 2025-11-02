@@ -35,7 +35,7 @@ import {
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency, getTrekStatusBadgeProps } from "@/lib/utils";
 import { TrekEventStatus } from "@/types/trek";
-import { formatIndianDate } from '@/utils/indianStandards';
+import { formatIndianDate } from "@/utils/indianStandards";
 
 export interface TrekCardBaseProps {
   trek: {
@@ -375,7 +375,9 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
             <Calendar className="h-4 w-4" />
             <span>{formatIndianDate(startDate)}</span>
           </div>
-          <div className="font-bold text-lg">{formatCurrency(trek.cost, "INR")}</div>
+          <div className="font-bold text-lg">
+            {formatCurrency(trek.cost, "INR")}
+          </div>
         </div>
 
         {actions ||

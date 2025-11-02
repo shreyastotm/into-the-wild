@@ -76,8 +76,8 @@ export default tseslint.config(
   {
     files: ["src/pages/**/*.tsx"],
     rules: {
-      "react-hooks/exhaustive-deps": "warn"
-    }
+      "react-hooks/exhaustive-deps": "warn",
+    },
   },
 
   // Stricter rules for components that handle data fetching
@@ -85,11 +85,11 @@ export default tseslint.config(
     files: [
       "src/components/**/*.tsx",
       "src/pages/**/*.tsx",
-      "src/hooks/**/*.ts"
+      "src/hooks/**/*.ts",
     ],
     rules: {
-      "react-hooks/exhaustive-deps": "warn"
-    }
+      "react-hooks/exhaustive-deps": "warn",
+    },
   },
 
   // Specific rules for test files

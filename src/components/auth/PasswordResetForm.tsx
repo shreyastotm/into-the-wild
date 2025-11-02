@@ -54,7 +54,8 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
         <div
           className="p-3 text-sm text-red-600 bg-red-50 border border-red-200 rounded-md"
           role="alert"
-         data-testid="passwordresetform">
+          data-testid="passwordresetform"
+        >
           {errors.general}
         </div>
       )}
@@ -67,7 +68,10 @@ export const PasswordResetForm: React.FC<PasswordResetFormProps> = ({
       >
         {loading ? (
           <>
-            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" data-testid="passwordresetform" />
+            <div
+              className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"
+              data-testid="passwordresetform"
+            />
             Sending reset link...
           </>
         ) : (

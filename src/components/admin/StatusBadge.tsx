@@ -292,7 +292,10 @@ export const StatusIndicator: React.FC<{
   };
 
   return (
-    <div className={`${sizeClasses[size]} ${config.color} ${className}`} data-testid="statusbadge">
+    <div
+      className={`${sizeClasses[size]} ${config.color} ${className}`}
+      data-testid="statusbadge"
+    >
       {config.icon}
     </div>
   );

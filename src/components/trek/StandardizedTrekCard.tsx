@@ -14,7 +14,7 @@ import React, { Component } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { formatIndianDate } from '@/utils/indianStandards';
+import { formatIndianDate } from "@/utils/indianStandards";
 
 interface StandardizedTrekCardProps {
   trek: {

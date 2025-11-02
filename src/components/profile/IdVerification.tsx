@@ -27,6 +27,7 @@ import {
   UserVerificationStatus,
   VerificationDocs,
 } from "@/integrations/supabase/types";
+import { cn } from "@/lib/utils";
 
 interface VerificationTier {
   id: "auto" | "quick" | "full";
@@ -549,7 +550,17 @@ const IdVerification = () => {
   };
 
   return (
-    <Card>
+    <Card
+      className={cn(
+        "bg-white/8 dark:bg-gray-900/8",
+        "backdrop-blur-xl backdrop-saturate-150",
+        "border border-amber-400/30 dark:border-amber-400/20",
+        "ring-0 ring-amber-400/0",
+        "hover:ring-2 hover:ring-amber-400/40 hover:ring-offset-2",
+        "shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-amber-500/20",
+        "transition-all duration-500 ease-out",
+      )}
+    >
       <CardHeader>
         <CardTitle className="flex justify-between items-center">
           <span>Government ID Verification</span>

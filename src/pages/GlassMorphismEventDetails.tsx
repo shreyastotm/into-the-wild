@@ -1,48 +1,49 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  X, 
-  Heart, 
-  Share2, 
-  Calendar,
-  MapPin,
-  Clock,
-  Users,
-  IndianRupee,
-  TreePine,
-  Mountain,
-  Zap,
-  Timer,
-  UserPlus,
-  Star,
-  MessageSquare,
-  Camera,
-  Shield,
-  Backpack,
-  Route,
-  Phone,
-  Mail,
-  CheckCircle,
+import { AnimatePresence, motion } from "framer-motion";
+import {
   AlertCircle,
-  Info
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useAuth } from '@/components/auth/AuthProvider';
-import { supabase } from '@/integrations/supabase/client';
-import { formatIndianDate } from '@/utils/indianStandards';
-import { GlassThemeHeader } from '@/components/navigation/GlassThemeHeader';
-import { OrigamiHamburger } from '@/components/navigation/OrigamiHamburger';
-import { useTrekEventDetails } from '@/hooks/trek/useTrekEventDetails';
-import { useTrekRegistration } from '@/hooks/trek/useTrekRegistration';
-import { useTrekCommunity } from '@/hooks/useTrekCommunity';
-import { useTrekCosts } from '@/hooks/trek/useTrekCosts';
-import { useGA4Analytics } from '@/hooks/useGA4Analytics';
+  Backpack,
+  Calendar,
+  Camera,
+  CheckCircle,
+  ChevronLeft,
+  ChevronRight,
+  Clock,
+  Heart,
+  IndianRupee,
+  Info,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Mountain,
+  Phone,
+  Route,
+  Share2,
+  Shield,
+  Star,
+  Timer,
+  TreePine,
+  UserPlus,
+  Users,
+  X,
+  Zap,
+} from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+
+import { useAuth } from "@/components/auth/AuthProvider";
+import { GlassThemeHeader } from "@/components/navigation/GlassThemeHeader";
+import { OrigamiHamburger } from "@/components/navigation/OrigamiHamburger";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
+import { useTrekEventDetails } from "@/hooks/trek/useTrekEventDetails";
+import { useTrekRegistration } from "@/hooks/trek/useTrekRegistration";
+import { useGA4Analytics } from "@/hooks/useGA4Analytics";
+import { useTrekCommunity } from "@/hooks/useTrekCommunity";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
+import { formatIndianDate } from "@/utils/indianStandards";
 
 // Glass Panel Component
 interface GlassPanelProps {
@@ -51,12 +52,16 @@ interface GlassPanelProps {
   delay?: number;
 }
 
-const GlassPanel: React.FC<GlassPanelProps> = ({ children, className, delay = 0 }) => (
+const GlassPanel: React.FC<GlassPanelProps> = ({
+  children,
+  className,
+  delay = 0,
+}) => (
   <motion.div
     className={cn(
-      'backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-2xl',
-      'bg-white/10',
-      className
+      "backdrop-blur-xl border border-white/20 rounded-2xl p-6 shadow-2xl",
+      "bg-white/10",
+      className,
     )}
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
@@ -137,10 +142,10 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, eventName }) => {
               key={index}
               onClick={() => setCurrentIndex(index)}
               className={cn(
-                'w-2 h-2 rounded-full transition-all duration-300',
-                index === currentIndex 
-                  ? 'bg-blue-400 w-8' 
-                  : 'bg-white/40 hover:bg-white/60'
+                "w-2 h-2 rounded-full transition-all duration-300",
+                index === currentIndex
+                  ? "bg-blue-400 w-8"
+                  : "bg-white/40 hover:bg-white/60",
               )}
             />
           ))}
@@ -163,17 +168,20 @@ interface ParticipantAvatarProps {
   index: number;
 }
 
-const ParticipantAvatar: React.FC<ParticipantAvatarProps> = ({ participant, index }) => (
+const ParticipantAvatar: React.FC<ParticipantAvatarProps> = ({
+  participant,
+  index,
+}) => (
   <motion.div
     className="relative group"
     initial={{ scale: 0, rotate: -180 }}
     animate={{ scale: 1, rotate: 0 }}
-    transition={{ delay: index * 0.1, type: 'spring', stiffness: 200 }}
+    transition={{ delay: index * 0.1, type: "spring", stiffness: 200 }}
   >
     <div className="w-12 h-12 rounded-full border-2 border-white/30 backdrop-blur-sm bg-white/10 flex items-center justify-center overflow-hidden">
       {participant.avatar ? (
-        <img 
-          src={participant.avatar} 
+        <img
+          src={participant.avatar}
           alt={participant.name}
           className="w-full h-full object-cover"
         />
@@ -181,7 +189,7 @@ const ParticipantAvatar: React.FC<ParticipantAvatarProps> = ({ participant, inde
         <Users className="w-6 h-6 text-white" />
       )}
     </div>
-    
+
     {/* Tooltip */}
     <div className="absolute -top-10 left-1/2 -translate-x-1/2 px-2 py-1 bg-black/80 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
       {participant.name}
@@ -196,41 +204,45 @@ const GlassMorphismEventDetails = () => {
   const { user } = useAuth();
   const [event, setEvent] = useState<any>(null);
   const [images, setImages] = useState<string[]>([]);
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState("overview");
 
   // Use hooks for data fetching
   const { trekEvent, loading: trekLoading } = useTrekEventDetails(id);
-  const { 
-    registerForTrek, 
-    userRegistration, 
+  const {
+    registerForTrek,
+    userRegistration,
     registering,
     cancelRegistration,
-    uploadPaymentProof
+    uploadPaymentProof,
   } = useTrekRegistration(id);
-  const { participants, participantCount, loading: communityLoading } = useTrekCommunity(id);
+  const {
+    participants,
+    participantCount,
+    loading: communityLoading,
+  } = useTrekCommunity(id);
   const { costs, loading: costsLoading } = useTrekCosts(id);
 
   // GA4 Analytics
-  const { 
-    trackEvent, 
-    trackTrekRegistration, 
+  const {
+    trackEvent,
+    trackTrekRegistration,
     trackGalleryView,
-    trackButtonClick 
+    trackButtonClick,
   } = useGA4Analytics();
 
   const loading = trekLoading || communityLoading;
-  const isRegistered = !!userRegistration && userRegistration.payment_status !== "Cancelled";
+  const isRegistered =
+    !!userRegistration && userRegistration.payment_status !== "Cancelled";
 
   // Fetch images for the trek
   useEffect(() => {
     const fetchImages = async () => {
       if (!id) return;
-      
+
       try {
         const numericId = id ? parseInt(id, 10) : null;
         if (!numericId || isNaN(numericId)) return;
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const { data: imagesData, error: imagesError } = await (supabase
           .from("trek_event_images")
           .select("image_url")
@@ -248,13 +260,13 @@ const GlassMorphismEventDetails = () => {
             "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
             "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80",
             "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
-            "https://images.unsplash.com/photo-1574263867128-a3d5c1b1deac?w=800&q=80"
+            "https://images.unsplash.com/photo-1574263867128-a3d5c1b1deac?w=800&q=80",
           ]);
         }
       } catch (error) {
         console.error("Error fetching images:", error);
         setImages([
-          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80"
+          "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
         ]);
       }
     };
@@ -265,13 +277,13 @@ const GlassMorphismEventDetails = () => {
   // Track page view when event loads
   useEffect(() => {
     if (event && trekEvent) {
-      trackEvent('trek_view', {
-        event_category: 'Trek',
-        event_label: trekEvent.trek_name || 'Unknown Trek',
+      trackEvent("trek_view", {
+        event_category: "Trek",
+        event_label: trekEvent.trek_name || "Unknown Trek",
         trek_id: id,
         trek_name: trekEvent.trek_name,
-        trek_difficulty: trekEvent.difficulty || 'Unknown',
-        trek_cost: costs?.[0]?.amount || trekEvent.cost || 0
+        trek_difficulty: trekEvent.difficulty || "Unknown",
+        trek_cost: costs?.[0]?.amount || trekEvent.cost || 0,
       });
     }
   }, [event, trekEvent, id, costs, trackEvent]);
@@ -290,12 +302,19 @@ const GlassMorphismEventDetails = () => {
         tags.push({ id: 1, name: trekEvent.difficulty });
       }
       if (trekEvent.location) {
-        const locationStr = typeof trekEvent.location === 'string' 
-          ? trekEvent.location 
-          : JSON.stringify(trekEvent.location);
-        if (locationStr.toLowerCase().includes('himalaya') || locationStr.toLowerCase().includes('himachal')) {
+        const locationStr =
+          typeof trekEvent.location === "string"
+            ? trekEvent.location
+            : JSON.stringify(trekEvent.location);
+        if (
+          locationStr.toLowerCase().includes("himalaya") ||
+          locationStr.toLowerCase().includes("himachal")
+        ) {
           tags.push({ id: 2, name: "Mountain" });
-        } else if (locationStr.toLowerCase().includes('goa') || locationStr.toLowerCase().includes('coast')) {
+        } else if (
+          locationStr.toLowerCase().includes("goa") ||
+          locationStr.toLowerCase().includes("coast")
+        ) {
           tags.push({ id: 3, name: "Coastal" });
         } else {
           tags.push({ id: 4, name: "Adventure" });
@@ -314,7 +333,7 @@ const GlassMorphismEventDetails = () => {
         "Trekking boots",
         "Warm clothing",
         "Personal water bottle",
-        "First aid kit"
+        "First aid kit",
       );
       return requirements;
     };
@@ -325,22 +344,33 @@ const GlassMorphismEventDetails = () => {
         return trekEvent.itinerary.map((item: any, index: number) => ({
           day: index + 1,
           title: item.title || `Day ${index + 1}`,
-          description: item.description || item.activities || "Trek activities"
+          description: item.description || item.activities || "Trek activities",
         }));
       }
-      
+
       // Fallback to duration-based itinerary
       const days = parseInt(trekEvent.duration || "3");
       return Array.from({ length: days }, (_, i) => ({
         day: i + 1,
-        title: i === 0 ? "Arrival & Orientation" : i === days - 1 ? "Departure" : "Trek Day",
-        description: i === 0 ? "Check-in and briefing" : i === days - 1 ? "Final day and departure" : `Day ${i + 1} trek activities`
+        title:
+          i === 0
+            ? "Arrival & Orientation"
+            : i === days - 1
+              ? "Departure"
+              : "Trek Day",
+        description:
+          i === 0
+            ? "Check-in and briefing"
+            : i === days - 1
+              ? "Final day and departure"
+              : `Day ${i + 1} trek activities`,
       }));
     };
 
-    const locationStr = typeof trekEvent.location === 'string' 
-      ? trekEvent.location 
-      : (trekEvent.location as any)?.name || "Location TBD";
+    const locationStr =
+      typeof trekEvent.location === "string"
+        ? trekEvent.location
+        : (trekEvent.location as any)?.name || "Location TBD";
 
     setEvent({
       trek_id: trekEvent.trek_id,
@@ -353,105 +383,111 @@ const GlassMorphismEventDetails = () => {
       base_price: trekEvent.cost || 0,
       max_participants: trekEvent.max_participants || 20,
       participant_count: participantCount || 0,
-      images: images.length > 0 ? images : [
-        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80"
-      ],
+      images:
+        images.length > 0
+          ? images
+          : [
+              "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+            ],
       tags: generateTags(),
       requirements: generateRequirements(),
       itinerary: generateItinerary(),
       government_id_required: trekEvent.government_id_required || false,
-      costs: costs || []
+      costs: costs || [],
     });
   }, [trekEvent, participantCount, images, costs]);
 
   const handleRegister = async () => {
     if (!user) {
       // Track login redirect
-      trackButtonClick('register_login_redirect', {
+      trackButtonClick("register_login_redirect", {
         trek_id: id,
-        trek_name: trekEvent?.trek_name
+        trek_name: trekEvent?.trek_name,
       });
-      navigate('/login');
+      navigate("/login");
       return;
     }
-    
+
     if (!trekEvent || !user) return;
-    
+
     // Track registration attempt
     const trekCost = costs?.[0]?.amount || trekEvent.cost || 0;
     trackTrekRegistration(
-      id || 'unknown',
-      trekEvent.trek_name || 'Unknown Trek',
-      trekCost
+      id || "unknown",
+      trekEvent.trek_name || "Unknown Trek",
+      trekCost,
     );
-    
+
     // For glass pages, we'll show a simple registration flow
     // Users can complete full registration with details later
     try {
       // Check if user has profile details
       const userProfile = user.user_metadata || {};
-      const registrantName = userProfile.full_name || user.email?.split('@')[0] || "User";
+      const registrantName =
+        userProfile.full_name || user.email?.split("@")[0] || "User";
       const registrantPhone = userProfile.phone || "";
-      
+
       const success = await registerForTrek(
         true, // indemnityAccepted - for glass UI, we accept by default
         {
           registrantName,
-          registrantPhone: registrantPhone || undefined
-        }
+          registrantPhone: registrantPhone || undefined,
+        },
       );
-      
+
       if (success) {
         // Track successful registration
-        trackEvent('trek_registration_success', {
-          event_category: 'Trek',
+        trackEvent("trek_registration_success", {
+          event_category: "Trek",
           event_label: trekEvent.trek_name,
           trek_id: id,
           trek_name: trekEvent.trek_name,
-          trek_cost: trekCost
+          trek_cost: trekCost,
         });
       }
-      
+
       if (!success && !registrantPhone) {
         // Prompt for phone number if missing
-        const phone = prompt("Please enter your phone number to complete registration:");
+        const phone = prompt(
+          "Please enter your phone number to complete registration:",
+        );
         if (phone) {
           const retrySuccess = await registerForTrek(true, {
             registrantName,
-            registrantPhone: phone
+            registrantPhone: phone,
           });
           if (retrySuccess) {
-            trackEvent('trek_registration_success', {
-              event_category: 'Trek',
+            trackEvent("trek_registration_success", {
+              event_category: "Trek",
               event_label: trekEvent.trek_name,
               trek_id: id,
               trek_name: trekEvent.trek_name,
-              trek_cost: trekCost
+              trek_cost: trekCost,
             });
           }
         }
       }
     } catch (error) {
       console.error("Registration error:", error);
-      trackEvent('trek_registration_error', {
-        event_category: 'Trek',
-        event_label: 'Registration Error',
+      trackEvent("trek_registration_error", {
+        event_category: "Trek",
+        event_label: "Registration Error",
         trek_id: id,
-        error_message: error instanceof Error ? error.message : 'Unknown error'
+        error_message: error instanceof Error ? error.message : "Unknown error",
       });
     }
   };
 
   const handleShare = async () => {
     if (!event) return;
-    
+
     // Track share attempt
-    trackButtonClick('share_trek', {
+    trackButtonClick("share_trek", {
       trek_id: id,
       trek_name: event.name,
-      share_method: navigator.share ? 'native' : 'clipboard'
+      share_method: navigator.share ? "native" : "clipboard",
     });
-    
+
     if (navigator.share) {
       try {
         await navigator.share({
@@ -460,40 +496,41 @@ const GlassMorphismEventDetails = () => {
           url: window.location.href,
         });
         // Track successful share
-        trackEvent('trek_shared', {
-          event_category: 'Social',
+        trackEvent("trek_shared", {
+          event_category: "Social",
           event_label: event.name,
           trek_id: id,
-          share_method: 'native'
+          share_method: "native",
         });
       } catch (error) {
         // User cancelled or error - track cancellation
-        trackEvent('trek_share_cancelled', {
-          event_category: 'Social',
+        trackEvent("trek_share_cancelled", {
+          event_category: "Social",
           event_label: event.name,
-          trek_id: id
+          trek_id: id,
         });
-        console.log('Share cancelled:', error);
+        console.log("Share cancelled:", error);
       }
     } else {
       // Fallback: copy to clipboard
       try {
         await navigator.clipboard.writeText(window.location.href);
         // Track successful clipboard copy
-        trackEvent('trek_shared', {
-          event_category: 'Social',
+        trackEvent("trek_shared", {
+          event_category: "Social",
           event_label: event.name,
           trek_id: id,
-          share_method: 'clipboard'
+          share_method: "clipboard",
         });
         // You could show a toast here
       } catch (error) {
-        console.error('Failed to copy URL:', error);
-        trackEvent('trek_share_error', {
-          event_category: 'Social',
-          event_label: 'Share Error',
+        console.error("Failed to copy URL:", error);
+        trackEvent("trek_share_error", {
+          event_category: "Social",
+          event_label: "Share Error",
           trek_id: id,
-          error_message: error instanceof Error ? error.message : 'Unknown error'
+          error_message:
+            error instanceof Error ? error.message : "Unknown error",
         });
       }
     }
@@ -512,9 +549,17 @@ const GlassMorphismEventDetails = () => {
       <div className="glass-details-theme min-h-screen flex items-center justify-center">
         <div className="text-center">
           <AlertCircle className="w-16 h-16 text-white/40 mx-auto mb-4" />
-          <h2 className="text-2xl font-bold text-white/80 mb-2">Event Not Found</h2>
-          <p className="text-white/60 mb-4">The event you're looking for doesn't exist.</p>
-          <Button onClick={() => navigate('/glass-events')} variant="outline" className="text-white border-white/20">
+          <h2 className="text-2xl font-bold text-white/80 mb-2">
+            Event Not Found
+          </h2>
+          <p className="text-white/60 mb-4">
+            The event you're looking for doesn't exist.
+          </p>
+          <Button
+            onClick={() => navigate("/glass-events")}
+            variant="outline"
+            className="text-white border-white/20"
+          >
             Back to Events
           </Button>
         </div>
@@ -524,49 +569,61 @@ const GlassMorphismEventDetails = () => {
 
   const getDifficultyConfig = (difficulty: string) => {
     switch (difficulty?.toLowerCase()) {
-      case 'easy':
-        return { icon: TreePine, color: 'text-green-400', bg: 'bg-green-500/20' };
-      case 'moderate':
-        return { icon: Mountain, color: 'text-yellow-400', bg: 'bg-yellow-500/20' };
-      case 'hard':
-        return { icon: Zap, color: 'text-red-400', bg: 'bg-red-500/20' };
-      case 'expert':
-        return { icon: Zap, color: 'text-purple-400', bg: 'bg-purple-500/20' };
+      case "easy":
+        return {
+          icon: TreePine,
+          color: "text-green-400",
+          bg: "bg-green-500/20",
+        };
+      case "moderate":
+        return {
+          icon: Mountain,
+          color: "text-yellow-400",
+          bg: "bg-yellow-500/20",
+        };
+      case "hard":
+        return { icon: Zap, color: "text-red-400", bg: "bg-red-500/20" };
+      case "expert":
+        return { icon: Zap, color: "text-purple-400", bg: "bg-purple-500/20" };
       default:
-        return { icon: Mountain, color: 'text-gray-400', bg: 'bg-gray-500/20' };
+        return { icon: Mountain, color: "text-gray-400", bg: "bg-gray-500/20" };
     }
   };
 
-  const difficultyConfig = getDifficultyConfig(event.difficulty || 'moderate');
+  const difficultyConfig = getDifficultyConfig(event.difficulty || "moderate");
   const DifficultyIcon = difficultyConfig.icon;
 
-  const registrationProgress = event.max_participants > 0 
-    ? (event.participant_count / event.max_participants) * 100 
-    : 0;
-  const spotsLeft = Math.max(0, event.max_participants - event.participant_count);
-  
+  const registrationProgress =
+    event.max_participants > 0
+      ? (event.participant_count / event.max_participants) * 100
+      : 0;
+  const spotsLeft = Math.max(
+    0,
+    event.max_participants - event.participant_count,
+  );
+
   // Transform participants to format expected by UI
   const formattedParticipants = participants.map((p, index) => ({
     id: parseInt(p.id) || index + 1,
     name: p.name || "Unknown User",
-    avatar: p.avatar || null
+    avatar: p.avatar || null,
   }));
 
   return (
     <div className="glass-details-theme min-h-screen relative overflow-hidden">
       {/* Golden Hour Adventure Background */}
       <div className="fixed inset-0 z-0">
-        <div 
+        <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: `url('https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1920&q=80')`,
-            filter: 'blur(8px) brightness(0.65) saturate(1.4)'
+            filter: "blur(8px) brightness(0.65) saturate(1.4)",
           }}
         />
         {/* Adventure Blue-Purple Gradient Overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-blue-900/25 via-purple-900/20 to-indigo-900/15" />
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 via-transparent to-blue-900/25" />
-        
+
         {/* Subtle Floating Elements */}
         <div className="absolute inset-0 overflow-hidden">
           {[...Array(15)].map((_, i) => (
@@ -599,7 +656,7 @@ const GlassMorphismEventDetails = () => {
 
       {/* Back Button */}
       <motion.button
-        onClick={() => navigate('/glass-events')}
+        onClick={() => navigate("/glass-events")}
         className="fixed top-20 left-4 z-40 p-3 rounded-full backdrop-blur-sm bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-all duration-200"
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
@@ -624,17 +681,19 @@ const GlassMorphismEventDetails = () => {
                 {/* Title and Status */}
                 <div>
                   <div className="flex items-center gap-3 mb-2">
-                    <Badge className={cn(
-                      'px-3 py-1 backdrop-blur-sm border',
-                      difficultyConfig.bg,
-                      difficultyConfig.color,
-                      'border-white/20'
-                    )}>
+                    <Badge
+                      className={cn(
+                        "px-3 py-1 backdrop-blur-sm border",
+                        difficultyConfig.bg,
+                        difficultyConfig.color,
+                        "border-white/20",
+                      )}
+                    >
                       <DifficultyIcon className="w-4 h-4 mr-1" />
-                      {event.difficulty || 'Moderate'}
+                      {event.difficulty || "Moderate"}
                     </Badge>
                     <Badge className="bg-blue-500/20 text-blue-400 border-blue-400/30">
-                      {spotsLeft > 0 ? 'Open' : 'Full'}
+                      {spotsLeft > 0 ? "Open" : "Full"}
                     </Badge>
                   </div>
                   <h1 className="text-3xl md:text-4xl font-bold text-white mb-2">
@@ -667,7 +726,9 @@ const GlassMorphismEventDetails = () => {
                     <Clock className="w-5 h-5 text-blue-400" />
                     <div>
                       <div className="text-sm text-white/60">Duration</div>
-                      <div className="font-medium">{event.duration || '1'} days</div>
+                      <div className="font-medium">
+                        {event.duration || "1"} days
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-white/80">
@@ -675,7 +736,7 @@ const GlassMorphismEventDetails = () => {
                     <div>
                       <div className="text-sm text-white/60">Cost</div>
                       <div className="font-medium">
-                        ₹{(event.base_price || 0).toLocaleString('en-IN')}
+                        ₹{(event.base_price || 0).toLocaleString("en-IN")}
                       </div>
                     </div>
                   </div>
@@ -703,12 +764,12 @@ const GlassMorphismEventDetails = () => {
                     onClick={handleRegister}
                     disabled={isRegistered || spotsLeft <= 0 || registering}
                     className={cn(
-                      'flex-1 backdrop-blur-sm border transition-all duration-200',
-                      isRegistered 
-                        ? 'bg-green-500/20 text-green-400 border-green-400/30'
+                      "flex-1 backdrop-blur-sm border transition-all duration-200",
+                      isRegistered
+                        ? "bg-green-500/20 text-green-400 border-green-400/30"
                         : spotsLeft <= 0
-                        ? 'bg-gray-500/20 text-gray-400 border-gray-400/30 cursor-not-allowed'
-                        : 'bg-white/10 hover:bg-white/20 text-white border-white/20 hover:border-white/40'
+                          ? "bg-gray-500/20 text-gray-400 border-gray-400/30 cursor-not-allowed"
+                          : "bg-white/10 hover:bg-white/20 text-white border-white/20 hover:border-white/40",
                     )}
                   >
                     {registering ? (
@@ -719,7 +780,11 @@ const GlassMorphismEventDetails = () => {
                     ) : (
                       <>
                         <UserPlus className="w-4 h-4 mr-2" />
-                        {isRegistered ? 'Registered' : spotsLeft <= 0 ? 'Full' : 'Register Now'}
+                        {isRegistered
+                          ? "Registered"
+                          : spotsLeft <= 0
+                            ? "Full"
+                            : "Register Now"}
                       </>
                     )}
                   </Button>
@@ -744,13 +809,15 @@ const GlassMorphismEventDetails = () => {
               </h3>
             </div>
             <div className="flex flex-wrap gap-3">
-              {formattedParticipants.slice(0, 10).map((participant: any, index: number) => (
-                <ParticipantAvatar 
-                  key={participant.id || index} 
-                  participant={participant} 
-                  index={index} 
-                />
-              ))}
+              {formattedParticipants
+                .slice(0, 10)
+                .map((participant: any, index: number) => (
+                  <ParticipantAvatar
+                    key={participant.id || index}
+                    participant={participant}
+                    index={index}
+                  />
+                ))}
               {event.participant_count > formattedParticipants.length && (
                 <div className="w-12 h-12 rounded-full border-2 border-white/30 backdrop-blur-sm bg-white/10 flex items-center justify-center">
                   <span className="text-white text-sm font-bold">
@@ -758,29 +825,48 @@ const GlassMorphismEventDetails = () => {
                   </span>
                 </div>
               )}
-              {formattedParticipants.length === 0 && event.participant_count === 0 && (
-                <div className="text-white/60 text-sm">No participants yet. Be the first to register!</div>
-              )}
+              {formattedParticipants.length === 0 &&
+                event.participant_count === 0 && (
+                  <div className="text-white/60 text-sm">
+                    No participants yet. Be the first to register!
+                  </div>
+                )}
             </div>
           </GlassPanel>
 
           {/* Detailed Information Tabs */}
           <GlassPanel delay={0.6}>
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <Tabs
+              value={activeTab}
+              onValueChange={setActiveTab}
+              className="w-full"
+            >
               <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm border border-white/20">
-                <TabsTrigger value="overview" className="text-white data-[state=active]:bg-white/20">
+                <TabsTrigger
+                  value="overview"
+                  className="text-white data-[state=active]:bg-white/20"
+                >
                   <Info className="w-4 h-4 mr-2" />
                   Overview
                 </TabsTrigger>
-                <TabsTrigger value="itinerary" className="text-white data-[state=active]:bg-white/20">
+                <TabsTrigger
+                  value="itinerary"
+                  className="text-white data-[state=active]:bg-white/20"
+                >
                   <Route className="w-4 h-4 mr-2" />
                   Itinerary
                 </TabsTrigger>
-                <TabsTrigger value="requirements" className="text-white data-[state=active]:bg-white/20">
+                <TabsTrigger
+                  value="requirements"
+                  className="text-white data-[state=active]:bg-white/20"
+                >
                   <Backpack className="w-4 h-4 mr-2" />
                   Requirements
                 </TabsTrigger>
-                <TabsTrigger value="contact" className="text-white data-[state=active]:bg-white/20">
+                <TabsTrigger
+                  value="contact"
+                  className="text-white data-[state=active]:bg-white/20"
+                >
                   <Phone className="w-4 h-4 mr-2" />
                   Contact
                 </TabsTrigger>
@@ -788,14 +874,19 @@ const GlassMorphismEventDetails = () => {
 
               <TabsContent value="overview" className="mt-6">
                 <div className="space-y-4 text-white/80">
-                  <h4 className="text-lg font-semibold text-white">About This Adventure</h4>
+                  <h4 className="text-lg font-semibold text-white">
+                    About This Adventure
+                  </h4>
                   <p className="leading-relaxed">
-                    {event.description || "Join us for an incredible adventure that will challenge and inspire you. Experience the beauty of nature while creating lasting memories with fellow adventurers."}
+                    {event.description ||
+                      "Join us for an incredible adventure that will challenge and inspire you. Experience the beauty of nature while creating lasting memories with fellow adventurers."}
                   </p>
-                  
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     <div className="space-y-2">
-                      <h5 className="font-semibold text-white">What's Included</h5>
+                      <h5 className="font-semibold text-white">
+                        What's Included
+                      </h5>
                       <ul className="space-y-1 text-sm">
                         <li className="flex items-center gap-2">
                           <CheckCircle className="w-4 h-4 text-green-400" />
@@ -816,7 +907,9 @@ const GlassMorphismEventDetails = () => {
                       </ul>
                     </div>
                     <div className="space-y-2">
-                      <h5 className="font-semibold text-white">What to Expect</h5>
+                      <h5 className="font-semibold text-white">
+                        What to Expect
+                      </h5>
                       <ul className="space-y-1 text-sm">
                         <li className="flex items-center gap-2">
                           <Star className="w-4 h-4 text-yellow-400" />
@@ -842,7 +935,9 @@ const GlassMorphismEventDetails = () => {
 
               <TabsContent value="itinerary" className="mt-6">
                 <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-white">Day-by-Day Itinerary</h4>
+                  <h4 className="text-lg font-semibold text-white">
+                    Day-by-Day Itinerary
+                  </h4>
                   {event.itinerary.map((day: any, index: number) => (
                     <motion.div
                       key={day.day}
@@ -855,8 +950,12 @@ const GlassMorphismEventDetails = () => {
                         {day.day}
                       </div>
                       <div>
-                        <h5 className="font-semibold text-white">{day.title}</h5>
-                        <p className="text-white/70 text-sm">{day.description}</p>
+                        <h5 className="font-semibold text-white">
+                          {day.title}
+                        </h5>
+                        <p className="text-white/70 text-sm">
+                          {day.description}
+                        </p>
                       </div>
                     </motion.div>
                   ))}
@@ -865,27 +964,35 @@ const GlassMorphismEventDetails = () => {
 
               <TabsContent value="requirements" className="mt-6">
                 <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-white">What You Need to Bring</h4>
+                  <h4 className="text-lg font-semibold text-white">
+                    What You Need to Bring
+                  </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {event.requirements.map((requirement: string, index: number) => (
-                      <motion.div
-                        key={index}
-                        className="flex items-center gap-2 p-2 rounded-lg bg-white/5"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        transition={{ delay: index * 0.05 }}
-                      >
-                        <Shield className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                        <span className="text-white/80 text-sm">{requirement}</span>
-                      </motion.div>
-                    ))}
+                    {event.requirements.map(
+                      (requirement: string, index: number) => (
+                        <motion.div
+                          key={index}
+                          className="flex items-center gap-2 p-2 rounded-lg bg-white/5"
+                          initial={{ opacity: 0, scale: 0.9 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          transition={{ delay: index * 0.05 }}
+                        >
+                          <Shield className="w-4 h-4 text-blue-400 flex-shrink-0" />
+                          <span className="text-white/80 text-sm">
+                            {requirement}
+                          </span>
+                        </motion.div>
+                      ),
+                    )}
                   </div>
                 </div>
               </TabsContent>
 
               <TabsContent value="contact" className="mt-6">
                 <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-white">Get in Touch</h4>
+                  <h4 className="text-lg font-semibold text-white">
+                    Get in Touch
+                  </h4>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-3">
                       <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
@@ -899,7 +1006,9 @@ const GlassMorphismEventDetails = () => {
                         <Mail className="w-5 h-5 text-blue-400" />
                         <div>
                           <div className="text-sm text-white/60">Email</div>
-                          <div className="text-white">adventures@intothewild.com</div>
+                          <div className="text-white">
+                            adventures@intothewild.com
+                          </div>
                         </div>
                       </div>
                     </div>

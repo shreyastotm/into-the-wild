@@ -19,11 +19,11 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
     if (!user) return false;
 
     // Query the users table directly
-    const { data, error } = await supabase
-        .from("users")
-        .select("user_type")
-        .eq("user_id", user.id)
-        .single() as any;
+    const { data, error } = (await supabase
+      .from("users")
+      .select("user_type")
+      .eq("user_id", user.id)
+      .single()) as any;
 
     if (error) {
       console.error("Error checking admin status:", error);
@@ -43,11 +43,11 @@ export async function isCurrentUserAdmin(): Promise<boolean> {
  */
 export async function isUserAdmin(userId: string): Promise<boolean> {
   try {
-    const { data, error } = await supabase
-        .from("users")
-        .select("user_type")
-        .eq("user_id", userId)
-        .single() as any;
+    const { data, error } = (await supabase
+      .from("users")
+      .select("user_type")
+      .eq("user_id", userId)
+      .single()) as any;
 
     if (error) {
       console.error("Error checking admin status:", error);

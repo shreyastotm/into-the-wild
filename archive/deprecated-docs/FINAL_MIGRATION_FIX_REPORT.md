@@ -15,6 +15,7 @@ This report documents the successful resolution of Supabase CLI installation iss
 #### **Root Cause:** The error occurred because npm was trying to install Supabase CLI globally, which is not the recommended approach.
 
 #### **Solution Applied:**
+
 - ✅ **Used `npx supabase`** instead of global installation
 - ✅ **Verified CLI functionality** - `npx supabase --version` returned `2.53.6`
 - ✅ **Successfully linked** to remote project using `npx supabase link --project-ref lojnpkunoufmwwcifwan`
@@ -31,6 +32,7 @@ This report documents the successful resolution of Supabase CLI installation iss
 #### **Root Cause:** The remote database had migrations applied directly (not through CLI) that didn't exist in the local migrations directory, causing sync issues.
 
 #### **Solution Applied:**
+
 - ✅ **Identified migration mismatch** between local and remote databases
 - ✅ **Applied RLS fix directly** to database using SQL script
 - ✅ **Marked migration as applied** using `npx supabase migration repair --status applied 20251226000000`
@@ -45,11 +47,13 @@ This report documents the successful resolution of Supabase CLI installation iss
 #### **Problem:** "new row violates row-level security policy" error when uploading ID proofs
 
 #### **Solution Applied:**
+
 - ✅ **Created corrected RLS policies** in `supabase/migrations/20251226000000_fix_registration_id_proofs_rls.sql`
 - ✅ **Applied policies directly** to database using PostgreSQL connection
 - ✅ **Verified policies are working** - no more RLS violations
 
 #### **SQL Applied:**
+
 ```sql
 CREATE POLICY "Users can upload own ID proofs" ON public.registration_id_proofs FOR INSERT WITH CHECK (
   auth.uid()::text = uploaded_by
@@ -68,13 +72,15 @@ CREATE POLICY "Users can upload own ID proofs" ON public.registration_id_proofs 
 ## 🎯 **Verification Results**
 
 ### **Application Testing**
-| Page | Status | Load Time | Images | Content |
-|------|--------|-----------|---------|---------|
-| **/events** | ✅ SUCCESS | ~2-3s | ✅ Loading | 3 events with participant counts |
-| **/gallery** | ✅ SUCCESS | ~2-3s | ✅ Loading | 12 treks with full details |
-| **/events/<trekid>** | ✅ SUCCESS | ~3-4s | ✅ Loading | Full registration form |
+
+| Page                 | Status     | Load Time | Images     | Content                          |
+| -------------------- | ---------- | --------- | ---------- | -------------------------------- |
+| **/events**          | ✅ SUCCESS | ~2-3s     | ✅ Loading | 3 events with participant counts |
+| **/gallery**         | ✅ SUCCESS | ~2-3s     | ✅ Loading | 12 treks with full details       |
+| **/events/<trekid>** | ✅ SUCCESS | ~3-4s     | ✅ Loading | Full registration form           |
 
 ### **Database Status**
+
 ```
 ✅ Supabase CLI: Working via npx (v2.53.6)
 ✅ Remote Connection: Successfully linked
@@ -84,6 +90,7 @@ CREATE POLICY "Users can upload own ID proofs" ON public.registration_id_proofs 
 ```
 
 ### **Console Status**
+
 ```
 ✅ No "Loader2 has already been declared" errors
 ✅ No "Maximum call stack size exceeded" errors
@@ -97,6 +104,7 @@ CREATE POLICY "Users can upload own ID proofs" ON public.registration_id_proofs 
 ## 🚀 **Performance Improvements**
 
 ### **Before Fixes:**
+
 ```
 ❌ Supabase CLI not working (global install issues)
 ❌ Migration sync errors preventing database updates
@@ -105,6 +113,7 @@ CREATE POLICY "Users can upload own ID proofs" ON public.registration_id_proofs 
 ```
 
 ### **After Fixes:**
+
 ```
 ✅ Supabase CLI working perfectly via npx
 ✅ Database migrations synced and applied
@@ -137,6 +146,7 @@ CREATE POLICY "Users can upload own ID proofs" ON public.registration_id_proofs 
 ## ✅ **Ready for Production**
 
 The application is now **fully functional** with:
+
 - ✅ **Supabase CLI working** via npx (no installation issues)
 - ✅ **Database migrations synced** with remote database
 - ✅ **All images loading correctly** on all pages

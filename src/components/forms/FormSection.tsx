@@ -32,6 +32,7 @@ export interface FormSectionProps {
   actions?: React.ReactNode;
   showSeparator?: boolean;
   separatorClassName?: string;
+  theme?: "default" | "profile" | "community" | "forum";
 }
 
 const FormSection: React.FC<FormSectionProps> = ({
@@ -54,8 +55,47 @@ const FormSection: React.FC<FormSectionProps> = ({
   actions,
   showSeparator = true,
   separatorClassName = "",
+  theme = "default",
 }) => {
   const [collapsed, setCollapsed] = React.useState(defaultCollapsed);
+
+  // Get glass morphism classes based on theme
+  const getGlassClasses = () => {
+    if (theme === "profile") {
+      return cn(
+        "bg-white/8 dark:bg-gray-900/8",
+        "backdrop-blur-xl backdrop-saturate-150",
+        "border border-amber-400/30 dark:border-amber-400/20",
+        "ring-0 ring-amber-400/0",
+        "hover:ring-2 hover:ring-amber-400/40 hover:ring-offset-2",
+        "shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-amber-500/20",
+        "transition-all duration-500 ease-out",
+      );
+    }
+    if (theme === "community") {
+      return cn(
+        "bg-white/8 dark:bg-gray-900/8",
+        "backdrop-blur-xl backdrop-saturate-150",
+        "border border-teal-400/30 dark:border-teal-400/20",
+        "ring-0 ring-teal-400/0",
+        "hover:ring-2 hover:ring-teal-400/40 hover:ring-offset-2",
+        "shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-teal-500/20",
+        "transition-all duration-500 ease-out",
+      );
+    }
+    if (theme === "forum") {
+      return cn(
+        "bg-white/8 dark:bg-gray-900/8",
+        "backdrop-blur-xl backdrop-saturate-150",
+        "border border-orange-400/30 dark:border-orange-400/20",
+        "ring-0 ring-orange-400/0",
+        "hover:ring-2 hover:ring-orange-400/40 hover:ring-offset-2",
+        "shadow-lg shadow-black/5 hover:shadow-2xl hover:shadow-orange-500/20",
+        "transition-all duration-500 ease-out",
+      );
+    }
+    return ""; // Default styling
+  };
 
   const handleToggle = () => {
     if (collapsible) {
@@ -167,7 +207,15 @@ const FormSection: React.FC<FormSectionProps> = ({
   // Bordered variant - div with border
   if (variant === "bordered") {
     return (
-      <div className={cn("border border-border/50 dark:border-border/30 rounded-lg p-4 space-y-4 bg-card/50 dark:bg-card/30", className)}>
+      <div
+        className={cn(
+          "border border-border/50 dark:border-border/30 rounded-lg p-4 space-y-4",
+          theme !== "default"
+            ? getGlassClasses()
+            : "bg-card/50 dark:bg-card/30",
+          className,
+        )}
+      >
         {renderHeader()}
         {renderContent()}
         {renderSeparator()}
@@ -178,7 +226,7 @@ const FormSection: React.FC<FormSectionProps> = ({
   // Card variant - wrapped in card
   if (variant === "card") {
     return (
-      <Card className={cn(cardClassName, className)}>
+      <Card className={cn(cardClassName, className, getGlassClasses())}>
         {(title || description || actions) && (
           <CardHeader className={sizeClasses[size]}>
             {renderHeader()}
@@ -194,7 +242,12 @@ const FormSection: React.FC<FormSectionProps> = ({
 
   // Default variant - simple div with background
   return (
-    <div className={cn("bg-muted/30 dark:bg-muted/20 rounded-lg p-4 space-y-4 border border-border/50", className)}>
+    <div
+      className={cn(
+        "bg-muted/30 dark:bg-muted/20 rounded-lg p-4 space-y-4 border border-border/50",
+        className,
+      )}
+    >
       {renderHeader()}
       {renderContent()}
       {renderSeparator()}

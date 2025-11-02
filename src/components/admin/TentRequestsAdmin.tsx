@@ -6,7 +6,7 @@ import {
   Users,
   XCircle,
 } from "lucide-react";
-import React, { useCallback, useEffect , useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -59,11 +59,13 @@ export const TentRequestsAdmin: React.FC<TentRequestsAdminProps> = ({
 
       const { data, error } = await supabase
         .from("tent_requests")
-        .select(`
+        .select(
+          `
           *,
           user:profiles(id, full_name, email),
           tent_type:tent_types(*)
-        `)
+        `,
+        )
         .eq("event_id", eventId)
         .order("created_at", { ascending: false });
 
@@ -184,7 +186,9 @@ export const TentRequestsAdmin: React.FC<TentRequestsAdminProps> = ({
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center py-4" data-testid="tentrequestsadmin">Loading tent requests...</div>
+          <div className="text-center py-4" data-testid="tentrequestsadmin">
+            Loading tent requests...
+          </div>
         </CardContent>
       </Card>
     );
@@ -246,20 +250,32 @@ export const TentRequestsAdmin: React.FC<TentRequestsAdminProps> = ({
                   <TableRow key={request.id}>
                     <TableCell>
                       <div data-testid="tentrequestsadmin">
-                        <div className="font-medium" data-testid="tentrequestsadmin">
+                        <div
+                          className="font-medium"
+                          data-testid="tentrequestsadmin"
+                        >
                           {request.user?.full_name || "Unknown User"}
                         </div>
-                        <div className="text-sm text-muted-foreground" data-testid="tentrequestsadmin">
+                        <div
+                          className="text-sm text-muted-foreground"
+                          data-testid="tentrequestsadmin"
+                        >
                           {request.user?.email}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div data-testid="tentrequestsadmin">
-                        <div className="font-medium" data-testid="tentrequestsadmin">
+                        <div
+                          className="font-medium"
+                          data-testid="tentrequestsadmin"
+                        >
                           {request.tent_type?.name}
                         </div>
-                        <div className="text-sm text-muted-foreground flex items-center gap-1" data-testid="tentrequestsadmin">
+                        <div
+                          className="text-sm text-muted-foreground flex items-center gap-1"
+                          data-testid="tentrequestsadmin"
+                        >
                           <Users className="h-3 w-3" />
                           {request.tent_type?.capacity} people
                         </div>
@@ -267,19 +283,28 @@ export const TentRequestsAdmin: React.FC<TentRequestsAdminProps> = ({
                     </TableCell>
                     <TableCell>{request.quantity_requested}</TableCell>
                     <TableCell>
-                      <div className="flex items-center gap-1" data-testid="tentrequestsadmin">
+                      <div
+                        className="flex items-center gap-1"
+                        data-testid="tentrequestsadmin"
+                      >
                         <Calendar className="h-3 w-3" />
                         {request.nights}
                       </div>
                     </TableCell>
                     <TableCell>₹{request.total_cost}</TableCell>
                     <TableCell>
-                      <div className="max-w-32 truncate text-sm" data-testid="tentrequestsadmin">
+                      <div
+                        className="max-w-32 truncate text-sm"
+                        data-testid="tentrequestsadmin"
+                      >
                         {request.request_notes || "-"}
                       </div>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2" data-testid="tentrequestsadmin">
+                      <div
+                        className="flex gap-2"
+                        data-testid="tentrequestsadmin"
+                      >
                         <Button
                           size="sm"
                           onClick={() =>
@@ -333,20 +358,32 @@ export const TentRequestsAdmin: React.FC<TentRequestsAdminProps> = ({
                   <TableRow key={request.id}>
                     <TableCell>
                       <div data-testid="tentrequestsadmin">
-                        <div className="font-medium" data-testid="tentrequestsadmin">
+                        <div
+                          className="font-medium"
+                          data-testid="tentrequestsadmin"
+                        >
                           {request.user?.full_name || "Unknown User"}
                         </div>
-                        <div className="text-sm text-muted-foreground" data-testid="tentrequestsadmin">
+                        <div
+                          className="text-sm text-muted-foreground"
+                          data-testid="tentrequestsadmin"
+                        >
                           {request.user?.email}
                         </div>
                       </div>
                     </TableCell>
                     <TableCell>
                       <div data-testid="tentrequestsadmin">
-                        <div className="font-medium" data-testid="tentrequestsadmin">
+                        <div
+                          className="font-medium"
+                          data-testid="tentrequestsadmin"
+                        >
                           {request.tent_type?.name}
                         </div>
-                        <div className="text-sm text-muted-foreground" data-testid="tentrequestsadmin">
+                        <div
+                          className="text-sm text-muted-foreground"
+                          data-testid="tentrequestsadmin"
+                        >
                           ₹{request.total_cost}
                         </div>
                       </div>
@@ -361,7 +398,10 @@ export const TentRequestsAdmin: React.FC<TentRequestsAdminProps> = ({
                     </TableCell>
                     <TableCell>{getStatusBadge(request.status)}</TableCell>
                     <TableCell>
-                      <div className="max-w-32 truncate text-sm" data-testid="tentrequestsadmin">
+                      <div
+                        className="max-w-32 truncate text-sm"
+                        data-testid="tentrequestsadmin"
+                      >
                         {request.admin_notes || "-"}
                       </div>
                     </TableCell>

@@ -249,8 +249,8 @@ If something goes wrong:
 
 **Final Checks:**
 
-- [ ] Production URL working: ************\_************
-- [ ] Custom domain working: ************\_************
+- [ ] Production URL working: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
+- [ ] Custom domain working: \***\*\*\*\*\*\*\***\_\***\*\*\*\*\*\*\***
 - [ ] All features tested
 - [ ] Monitoring active
 - [ ] Team notified
@@ -261,9 +261,9 @@ If something goes wrong:
 ---
 
 **Checklist Version:** 1.0  
-**Date Deployed:** ****\_\_****  
-**Deployed By:** ****\_\_****  
-**Production URL:** ****\_\_****  
+**Date Deployed:** \***\*\_\_\*\***  
+**Deployed By:** \***\*\_\_\*\***  
+**Production URL:** \***\*\_\_\*\***  
 **Notes:**
 
 ---

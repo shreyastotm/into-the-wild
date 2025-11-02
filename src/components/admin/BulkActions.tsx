@@ -54,9 +54,7 @@ const BulkActions: React.FC<BulkActionsProps> = ({
   variant = "default",
   position = "top",
 }) => {
-  const visibleActions = actions.filter(
-    (action) => !action.hidden?.([]),
-  );
+  const visibleActions = actions.filter((action) => !action.hidden?.([]));
   const hasSelection = selectedCount > 0;
   const isAllSelected = selectedCount === totalCount && totalCount > 0;
 
@@ -125,7 +123,10 @@ const BulkActions: React.FC<BulkActionsProps> = ({
   );
 
   const renderDefaultActions = () => (
-    <div className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border" data-testid="bulkactions">
+    <div
+      className="flex items-center justify-between p-4 bg-muted/50 rounded-lg border"
+      data-testid="bulkactions"
+    >
       <div className="flex items-center space-x-4" data-testid="bulkactions">
         <div className="flex items-center space-x-2" data-testid="bulkactions">
           <Checkbox
@@ -177,7 +178,10 @@ const BulkActions: React.FC<BulkActionsProps> = ({
 
   const renderFloatingActions = () => (
     <div className="fixed bottom-4 right-4 z-50" data-testid="bulkactions">
-      <div className="bg-background border rounded-lg shadow-lg p-3" data-testid="bulkactions">
+      <div
+        className="bg-background border rounded-lg shadow-lg p-3"
+        data-testid="bulkactions"
+      >
         <div className="flex items-center space-x-2" data-testid="bulkactions">
           <span className="text-sm font-medium">{selectedCount} selected</span>
           {visibleActions.slice(0, 3).map((action) => (
@@ -248,7 +252,12 @@ const BulkActions: React.FC<BulkActionsProps> = ({
   };
 
   return (
-    <div className={`${positionClasses[position]} ${className}`} data-testid="bulkactions">{content}</div>
+    <div
+      className={`${positionClasses[position]} ${className}`}
+      data-testid="bulkactions"
+    >
+      {content}
+    </div>
   );
 };
 

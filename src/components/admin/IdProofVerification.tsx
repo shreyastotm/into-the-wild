@@ -64,11 +64,11 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
 
   const loadIdTypes = async () => {
     try {
-      const { data, error } = await supabase
+      const { data, error } = (await supabase
         .from("id_types")
         .select("*")
         .eq("is_active", true)
-        .order("display_name") as any;
+        .order("display_name")) as any;
 
       if (error) {
         console.error("Error loading ID types:", error);
@@ -150,7 +150,7 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
         return;
       }
 
-      const { error } = await supabase
+      const { error } = (await supabase
         .from("registration_id_proofs")
         .update({
           verification_status: status,
@@ -158,7 +158,7 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
           verified_at: new Date().toISOString(),
           admin_notes: notes || null,
         })
-        .eq("proof_id", proofId) as any;
+        .eq("proof_id", proofId)) as any;
 
       if (error) {
         throw error;
@@ -198,9 +198,18 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
 
   if (loading) {
     return (
-      <div className="animate-pulse space-y-4" data-testid="idproofverification">
-        <div className="h-4 bg-muted rounded w-3/4" data-testid="idproofverification" />
-        <div className="h-32 bg-muted rounded" data-testid="idproofverification" />
+      <div
+        className="animate-pulse space-y-4"
+        data-testid="idproofverification"
+      >
+        <div
+          className="h-4 bg-muted rounded w-3/4"
+          data-testid="idproofverification"
+        />
+        <div
+          className="h-32 bg-muted rounded"
+          data-testid="idproofverification"
+        />
       </div>
     );
   }
@@ -238,7 +247,10 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
       {proofs.map((proof) => (
         <Card key={proof.proof_id} className="border-l-4 border-l-blue-500">
           <CardHeader className="pb-3">
-            <div className="flex items-center justify-between" data-testid="idproofverification">
+            <div
+              className="flex items-center justify-between"
+              data-testid="idproofverification"
+            >
               <div data-testid="idproofverification">
                 <CardTitle className="text-lg">
                   {proof.id_type?.display_name}
@@ -277,7 +289,10 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
               </Button>
             </div>
 
-            <div className="text-sm text-muted-foreground" data-testid="idproofverification">
+            <div
+              className="text-sm text-muted-foreground"
+              data-testid="idproofverification"
+            >
               <p>
                 Uploaded: {new Date(proof.uploaded_at).toLocaleDateString()}
               </p>
@@ -285,7 +300,10 @@ export const IdProofVerification: React.FC<IdProofVerificationProps> = ({
             </div>
 
             {proof.verification_status === "pending" && (
-              <div className="space-y-3 border-t pt-3" data-testid="idproofverification">
+              <div
+                className="space-y-3 border-t pt-3"
+                data-testid="idproofverification"
+              >
                 <div data-testid="idproofverification">
                   <Label htmlFor={`notes-${proof.proof_id}`}>
                     Verification Notes (Optional)

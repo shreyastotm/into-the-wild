@@ -1,4 +1,10 @@
-import { AlertCircle, ArrowLeft, DollarSign, Loader2, Users } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowLeft,
+  DollarSign,
+  Loader2,
+  Users,
+} from "lucide-react";
 import React, { useEffect, useState } from "react";
 
 import { useAuth } from "@/components/auth/AuthProvider";
@@ -34,11 +40,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { formatCurrency } from "@/lib/utils";
-import {
-  CreateExpenseInput,
-  Expense,
-  ExpenseCategory,
-} from "@/types/expense";
+import { CreateExpenseInput, Expense, ExpenseCategory } from "@/types/expense";
 // Temporarily disabled GST calculations
 // import { calculateGSTPrice } from '@/utils/indianStandards';
 

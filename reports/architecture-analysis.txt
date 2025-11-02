@@ -1,0 +1,98 @@
+ARCHITECTURE IMPROVEMENT REPORT
+===============================
+Date: 2025-11-01T12:32:19.489Z
+Project: Into The Wild
+
+CURRENT STRUCTURE ANALYSIS:
+📁 Total Files: 927
+📂 Total Directories: 102
+🔄 Max Depth: 4 levels
+
+FILE TYPE DISTRIBUTION:
+  .tsx: 262 files
+  .sql: 169 files
+  .md: 107 files
+  .js: 97 files
+  .map: 90 files
+  .ts: 71 files
+  .json: 21 files
+  .txt: 16 files
+  .png: 15 files
+  .svg: 10 files
+  .jpg: 9 files
+  .ps1: 9 files
+  .docx: 8 files
+  .cjs: 8 files
+  .mjs: 8 files
+  .css: 5 files
+  .sh: 4 files
+  no extension: 4 files
+  .ico: 2 files
+  .html: 2 files
+  .toml: 2 files
+  .lockb: 1 files
+  .yml: 1 files
+  .sample: 1 files
+  .code-workspace: 1 files
+  .pbf: 1 files
+  .jar: 1 files
+  .bat: 1 files
+  .tsbuildinfo: 1 files
+
+CODE COMPLEXITY METRICS:
+🧠 Cyclomatic Complexity: 3504
+📈 Maintainability Index: 89/100
+💳 Technical Debt Items: 1
+
+IMMEDIATE RECOMMENDATIONS:
+🏗️ Consider grouping related components in feature-based folders
+🏗️ Separate shared utilities from component-specific logic
+🏗️ Create dedicated folders for types and interfaces
+🏗️ Create dedicated folder for Indian market utilities (currency, dates, GST)
+🏗️ Separate localization logic for Indian market requirements
+
+IMPORT OPTIMIZATION:
+📦 Consider consolidating 20 frequently used imports
+📦 High external dependency count (206) - consider bundling optimization
+📦 Consider using path aliases for 56 long import paths
+
+FRONTEND/BACKEND SEPARATION:
+🖥️ Separate React components and pages into src/frontend/
+🖧 Move API routes and database logic to src/backend/
+
+NAMING CONVENTIONS:
+📝 Use consistent naming patterns (kebab-case for files, PascalCase for components)
+📝 Follow React naming conventions (hooks start with "use", components are PascalCase)
+
+🇮🇳 INDIAN MARKET ARCHITECTURE:
+  - Currency utilities: Well organized in utils/indianStandards.ts
+  - Date formatting: Centralized in formatIndianDate utility
+  - GST calculations: Properly implemented in calculateGST functions
+  - Mobile responsiveness: 631 patterns across components
+  - Dark mode support: 280 theme implementations
+
+PROPOSED NEW STRUCTURE:
+src/
+├── frontend/           # React components, pages, hooks
+│   ├── components/     # All UI components
+│   ├── pages/         # All page components
+│   ├── hooks/         # Custom React hooks
+│   └── styles/        # Component-specific styles
+├── backend/           # API routes, database logic
+│   ├── routes/        # API route handlers
+│   ├── middleware/    # Express middleware
+│   └── models/        # Database models
+├── shared/            # Shared utilities and types
+│   ├── types/         # TypeScript type definitions
+│   ├── utils/         # Shared utility functions
+│   └── constants/     # Application constants
+└── tests/             # All test files organized by feature
+
+NEXT STEPS:
+1. Review current structure in reports/architecture-analysis.json
+2. Plan frontend/backend separation migration
+3. Implement folder reorganization
+4. Update import paths throughout codebase
+5. Run 'npm run refactor' for improvements
+
+Report saved to: reports/architecture-analysis.json

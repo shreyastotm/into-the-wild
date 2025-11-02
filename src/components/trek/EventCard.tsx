@@ -14,7 +14,8 @@ import React, { Component } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { formatIndianDate } from '@/utils/indianStandards';
+import { cn } from "@/lib/utils";
+import { formatIndianDate } from "@/utils/indianStandards";
 
 interface EventCardProps {
   trek: {
@@ -107,129 +108,153 @@ export const EventCard: React.FC<EventCardProps> = ({
 
   return (
     <div
-      className="mobile-trek-card"
-      data-type="event"
+      className={cn(
+        "group relative overflow-hidden rounded-2xl transition-all duration-300",
+        "bg-white/10 dark:bg-gray-800/10",
+        "backdrop-blur-md border border-white/20 dark:border-gray-700/30",
+        "hover:shadow-2xl hover:border-primary/50 hover:scale-105",
+        "hover:bg-white/15 dark:hover:bg-gray-800/20",
+        onClick ? "cursor-pointer active:scale-95" : "",
+      )}
       onClick={() => onClick?.(trek.trek_id)}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
     >
-      {/* Image Section */}
-      <div className="mobile-trek-card-image">
+      {/* Image Section - Glass Morphism Enhancement */}
+      <div className="relative h-40 sm:h-48 overflow-hidden">
         {imageUrl ? (
-          <img
-            src={imageUrl}
-            alt={trek.name}
-            loading="lazy"
-            className="w-full h-full object-cover"
-          />
+          <>
+            <img
+              src={imageUrl}
+              alt={trek.name}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
+              loading="lazy"
+            />
+            {/* Overlay Gradient */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+          </>
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-primary/10 to-secondary/20 dark:from-primary/5 dark:to-secondary/10">
-            <Mountain className="w-12 h-12 text-muted-foreground" />
+          <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary/20 flex items-center justify-center">
+            <Mountain className="w-12 h-12 text-muted-foreground/30" />
           </div>
         )}
 
-        {/* Badges overlay */}
-        <div className="absolute top-2 right-2 flex flex-col gap-1">
-          {/* Event Type Badge */}
-          {trek.event_type && (
-            <Badge 
-              variant={
-                trek.event_type === 'jam_yard' ? 'secondary' : 
-                trek.event_type === 'camping' ? 'default' : 
-                'outline'
-              }
-              className={
-                trek.event_type === 'jam_yard' 
-                  ? 'bg-orange-500 text-white hover:bg-orange-600' 
-                  : ''
-              }
+        {/* Category Badge */}
+        {trek.category && (
+          <div className="absolute top-3 left-3">
+            <Badge
+              variant="secondary"
+              className="backdrop-blur-md bg-black/40 text-white border-white/20"
             >
-              {trek.event_type === 'jam_yard' && '🏃 Jam Yard'}
-              {trek.event_type === 'camping' && '🏕️ Camping'}
-              {trek.event_type === 'trek' && '🥾 Trek'}
+              {trek.category}
             </Badge>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Difficulty Badge */}
+        {trek.difficulty && (
+          <div className="absolute top-3 right-3">
+            <Badge
+              variant="outline"
+              className="backdrop-blur-md bg-black/40 text-white border-white/20 flex items-center gap-1"
+            >
+              {getDifficultyIcon(trek.difficulty)}
+              <span className="capitalize text-xs">{trek.difficulty}</span>
+            </Badge>
+          </div>
+        )}
       </div>
 
       {/* Content Section */}
-      <div className="mobile-trek-card-content">
-        {/* Title - moved below image */}
-        <h3 className="mobile-trek-card-title text-base font-bold text-foreground mb-2 truncate">
-          {trek.name}
-        </h3>
-
-        {/* Category badge - horizontal */}
-        {trek.category && (
-          <div className="mb-3">
-            <Badge variant="outline" className="text-xs">
-              {trek.category.charAt(0).toUpperCase() + trek.category.slice(1)}
-            </Badge>
-          </div>
-        )}
-
-        {/* Meta Information with Difficulty Icon */}
-        <div className="mobile-trek-card-meta">
-          {trek.location && (
-            <div className="flex items-center gap-1">
-              <MapPin className="w-4 h-4 flex-shrink-0" />
-              <span className="truncate">{trek.location}</span>
-            </div>
-          )}
-
-          <div className="flex items-center gap-1">
-            <Calendar className="w-4 h-4 flex-shrink-0" />
-            <span>{formattedDate}</span>
-          </div>
-
-          {trek.duration && (
-            <div className="flex items-center gap-1">
-              <Clock className="w-4 h-4 flex-shrink-0" />
-              <span>{trek.duration}</span>
-            </div>
-          )}
-
-          {/* Difficulty as visual icon in meta section */}
-          {trek.difficulty && (
-            <div className="flex items-center gap-1">
-              {getDifficultyIcon(trek.difficulty)}
-              <span className="capitalize">{trek.difficulty}</span>
-            </div>
+      <div className="p-4 sm:p-6 space-y-4">
+        {/* Title */}
+        <div className="space-y-2">
+          <h3 className="text-lg sm:text-xl font-bold text-foreground group-hover:text-primary transition-colors line-clamp-2">
+            {trek.name}
+          </h3>
+          {trek.description && (
+            <p className="text-sm text-muted-foreground line-clamp-2">
+              {trek.description}
+            </p>
           )}
         </div>
 
-        {/* Description */}
-        {trek.description && (
-          <p className="mobile-trek-card-description">{trek.description}</p>
-        )}
+        {/* Quick Info Grid */}
+        <div className="grid grid-cols-2 gap-3">
+          {/* Date */}
+          <div className="flex items-center gap-2 text-sm">
+            <Calendar className="w-4 h-4 text-primary flex-shrink-0" />
+            <span className="text-muted-foreground">{formattedDate}</span>
+          </div>
 
-        {/* Spots Left Counter - consistently positioned above footer */}
-        {showProgress && maxParticipants > 0 && (
-          <div className="flex justify-between items-center text-sm font-medium mb-2">
-            <div className="flex items-center gap-1">
-              <Users className="w-4 h-4" />
-              <span>
-                {participantCount} / {maxParticipants}
+          {/* Duration */}
+          {trek.duration && (
+            <div className="flex items-center gap-2 text-sm">
+              <Clock className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="text-muted-foreground">{trek.duration}</span>
+            </div>
+          )}
+
+          {/* Location */}
+          {trek.location && (
+            <div className="flex items-center gap-2 text-sm col-span-2">
+              <MapPin className="w-4 h-4 text-primary flex-shrink-0" />
+              <span className="text-muted-foreground truncate">
+                {trek.location}
               </span>
             </div>
-            <span className="text-muted-foreground">
-              {availableSpots} spots left
+          )}
+        </div>
+
+        {/* Price and Participants */}
+        <div className="flex justify-between items-center pt-2 border-t border-white/10">
+          <div className="flex items-center gap-1">
+            <IndianRupee className="w-4 h-4 text-primary" />
+            <span className="font-bold text-foreground">{price}</span>
+          </div>
+          <div className="flex items-center gap-1 text-muted-foreground">
+            <Users className="w-4 h-4" />
+            <span className="text-sm">
+              {participantCount}/{maxParticipants}
             </span>
+          </div>
+        </div>
+
+        {/* Progress Bar */}
+        {showProgress && (
+          <div className="space-y-2">
+            <Progress
+              value={spotsFillPercent}
+              className="h-2 bg-white/10 backdrop-blur-sm"
+            />
+            <div className="flex justify-between text-xs text-muted-foreground">
+              <span>{availableSpots} spots left</span>
+              <span>{Math.round(spotsFillPercent)}% full</span>
+            </div>
           </div>
         )}
 
-        {/* Footer */}
-        <div className="mobile-trek-card-footer">
-          <div className="flex items-center gap-1 font-bold text-lg text-primary">
-            <IndianRupee className="w-4 h-4" />
-            {price.toLocaleString("en-IN")}
-          </div>
-
-          <Button size="sm" variant="default">
-            View Details
-          </Button>
-        </div>
+        {/* CTA Button */}
+        <Button
+          onClick={(e) => {
+            e.stopPropagation();
+            onClick?.(trek.trek_id);
+          }}
+          className={cn(
+            "w-full",
+            "bg-gradient-to-r from-primary/80 to-accent/80",
+            "hover:from-primary hover:to-accent",
+            "text-white font-semibold",
+            "transition-all duration-300",
+            "backdrop-blur-sm border border-white/20",
+          )}
+        >
+          View Details
+        </Button>
       </div>
+
+      {/* Hover Glow Effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary/0 group-hover:from-primary/5 to-transparent pointer-events-none transition-opacity duration-300" />
     </div>
   );
 };
