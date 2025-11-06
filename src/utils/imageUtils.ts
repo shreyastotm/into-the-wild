@@ -16,7 +16,7 @@ export function base64ToBlob(base64: string): Blob {
   }
   const mimeType = matches[1] || "image/jpeg";
   const base64Data = matches[2];
-  
+
   // Convert base64 to binary
   const byteCharacters = atob(base64Data);
   const byteNumbers = new Array(byteCharacters.length);
@@ -24,7 +24,7 @@ export function base64ToBlob(base64: string): Blob {
     byteNumbers[i] = byteCharacters.charCodeAt(i);
   }
   const byteArray = new Uint8Array(byteNumbers);
-  
+
   return new Blob([byteArray], { type: mimeType });
 }
 
@@ -38,4 +38,3 @@ export function base64ToFile(base64: string, filename: string): File {
   const blob = base64ToBlob(base64);
   return new File([blob], filename, { type: blob.type || "image/jpeg" });
 }
-

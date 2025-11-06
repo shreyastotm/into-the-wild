@@ -25,8 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { formatIndianDate, parseDuration } from "@/utils/indianStandards";
 import { getTrekImageUrl } from "@/utils/imageStorage";
+import { formatIndianDate, parseDuration } from "@/utils/indianStandards";
 import {
   checkUserRegistration,
   fetchTrekEngagement,
@@ -77,11 +77,12 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
 
   // Fix: Check if images array is empty, not just falsy
   // Empty arrays [] are truthy, so || won't trigger fallback
-  const images = (event.images && event.images.length > 0) 
-    ? event.images 
-    : [
-        "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80",
-      ];
+  const images =
+    event.images && event.images.length > 0
+      ? event.images
+      : [
+          "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80",
+        ];
 
   // Auto-rotate images
   useEffect(() => {
@@ -96,7 +97,7 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
   // Get difficulty icon and color
   const getDifficultyConfig = (difficulty: string) => {
     const diffLower = difficulty?.toLowerCase();
-    
+
     // Handle skill levels (for Jam Yard events)
     if (diffLower === "beginner" || diffLower === "all levels") {
       return {
@@ -115,7 +116,7 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
     if (diffLower === "advanced") {
       return { icon: Zap, color: "text-red-400", bg: "bg-red-500/20" };
     }
-    
+
     // Handle traditional difficulty levels
     switch (diffLower) {
       case "easy":
@@ -304,9 +305,12 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.5 }}
               onError={(e) => {
-                console.warn("Failed to load image:", images[currentImageIndex]);
+                console.warn(
+                  "Failed to load image:",
+                  images[currentImageIndex],
+                );
                 // Hide broken image and show placeholder
-                e.currentTarget.style.display = 'none';
+                e.currentTarget.style.display = "none";
               }}
             />
           </AnimatePresence>
@@ -500,7 +504,9 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
           {event.cost !== undefined && event.cost !== null && (
             <div className="flex items-center gap-1 font-semibold text-green-400">
               {event.cost === 0 ? (
-                <Badge variant="secondary" className="text-white">Free</Badge>
+                <Badge variant="secondary" className="text-white">
+                  Free
+                </Badge>
               ) : (
                 <>
                   <IndianRupee className="w-4 h-4" />
@@ -561,11 +567,15 @@ const GlassMorphismEvents = () => {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  
+
   // Debug: Log component mount to verify file is being used
   useEffect(() => {
-    console.log("🔵 GlassMorphismEvents component mounted/updated - File: GlassMorphismEvents.tsx");
-    console.log("🔵 Registration query: Excluding 'Cancelled', including all other statuses");
+    console.log(
+      "🔵 GlassMorphismEvents component mounted/updated - File: GlassMorphismEvents.tsx",
+    );
+    console.log(
+      "🔵 Registration query: Excluding 'Cancelled', including all other statuses",
+    );
     console.log("🔵 Tags: max-w removed, 14 char limit, min-w-fit");
   }, []);
 
@@ -586,12 +596,15 @@ const GlassMorphismEvents = () => {
 
         // DEBUG: Log duration values from database
         if (treks) {
-          treks.forEach(trek => {
-            console.log(`🔍 DEBUG: Trek ${trek.trek_id} (${trek.name}) duration:`, {
-              raw: trek.duration,
-              type: typeof trek.duration,
-              parsed: parseDuration(trek.duration)
-            });
+          treks.forEach((trek) => {
+            console.log(
+              `🔍 DEBUG: Trek ${trek.trek_id} (${trek.name}) duration:`,
+              {
+                raw: trek.duration,
+                type: typeof trek.duration,
+                parsed: parseDuration(trek.duration),
+              },
+            );
           });
         }
 
@@ -605,19 +618,22 @@ const GlassMorphismEvents = () => {
 
         const trekIds = treks.map((t) => t.trek_id);
         console.log("🔍 Fetching images for treks:", trekIds);
-        console.log("🔍 Trek IDs type check:", trekIds.map(id => ({ id, type: typeof id })));
+        console.log(
+          "🔍 Trek IDs type check:",
+          trekIds.map((id) => ({ id, type: typeof id })),
+        );
 
         // DEBUG: Direct query with all fields to see what's actually in the database
         const { data: debugImages, error: debugError } = await supabase
           .from("trek_event_images")
           .select("*")
           .in("trek_id", trekIds);
-        
+
         console.log("🔍 DEBUG: Direct query result:", {
           count: debugImages?.length || 0,
           error: debugError,
           trekIdsQueried: trekIds,
-          imagesFound: debugImages
+          imagesFound: debugImages,
         });
 
         // DEBUG: Check individual treks one by one
@@ -626,24 +642,30 @@ const GlassMorphismEvents = () => {
             .from("trek_event_images")
             .select("*")
             .eq("trek_id", trekId);
-          console.log(`🔍 DEBUG: Trek ${trekId} has ${singleTrekImages?.length || 0} images`, {
-            error: singleError,
-            images: singleTrekImages
-          });
+          console.log(
+            `🔍 DEBUG: Trek ${trekId} has ${singleTrekImages?.length || 0} images`,
+            {
+              error: singleError,
+              images: singleTrekImages,
+            },
+          );
         }
 
         // DEBUG: Check what's in trek_events.image_url for these treks
-        treks.forEach(trek => {
-          console.log(`🔍 DEBUG: Trek ${trek.trek_id} (${trek.name}) image_url:`, {
-            value: trek.image_url,
-            type: typeof trek.image_url,
-            isStringNull: trek.image_url === "null",
-            isActualNull: trek.image_url === null,
-            isUndefined: trek.image_url === undefined,
-            isEmpty: trek.image_url === "",
-            truthy: !!trek.image_url,
-            rawValue: JSON.stringify(trek.image_url)
-          });
+        treks.forEach((trek) => {
+          console.log(
+            `🔍 DEBUG: Trek ${trek.trek_id} (${trek.name}) image_url:`,
+            {
+              value: trek.image_url,
+              type: typeof trek.image_url,
+              isStringNull: trek.image_url === "null",
+              isActualNull: trek.image_url === null,
+              isUndefined: trek.image_url === undefined,
+              isEmpty: trek.image_url === "",
+              truthy: !!trek.image_url,
+              rawValue: JSON.stringify(trek.image_url),
+            },
+          );
         });
 
         // Fetch admin-uploaded images from trek_event_images table
@@ -661,18 +683,30 @@ const GlassMorphismEvents = () => {
           console.error("❌ Query details:", {
             table: "trek_event_images",
             trekIds,
-            queryType: "SELECT with IN clause"
+            queryType: "SELECT with IN clause",
           });
         } else {
-          console.log("✅ Fetched from trek_event_images:", images?.length || 0, "admin images for", trekIds.length, "treks");
+          console.log(
+            "✅ Fetched from trek_event_images:",
+            images?.length || 0,
+            "admin images for",
+            trekIds.length,
+            "treks",
+          );
           if (images && images.length > 0) {
-            console.log("📸 Images found:", images.map(img => ({
-              trek_id: img.trek_id,
-              position: img.position,
-              url_preview: img.image_url?.substring(0, 60) + "..."
-            })));
+            console.log(
+              "📸 Images found:",
+              images.map((img) => ({
+                trek_id: img.trek_id,
+                position: img.position,
+                url_preview: `${img.image_url?.substring(0, 60)}...`,
+              })),
+            );
           } else {
-            console.warn("⚠️ No images found in trek_event_images for treks:", trekIds);
+            console.warn(
+              "⚠️ No images found in trek_event_images for treks:",
+              trekIds,
+            );
           }
         }
 
@@ -687,18 +721,20 @@ const GlassMorphismEvents = () => {
         if (userImgError) {
           console.warn("⚠️ Error fetching user_trek_images:", userImgError);
         } else {
-          console.log(`✅ Fetched ${userImages?.length || 0} approved user images for ${trekIds.length} treks`);
+          console.log(
+            `✅ Fetched ${userImages?.length || 0} approved user images for ${trekIds.length} treks`,
+          );
         }
 
         // Combine both sources: admin images first, then user images
         const allImages = [
-          ...(images || []).map((img: any) => ({ ...img, source: 'admin' })),
-          ...(userImages || []).map((img: any) => ({ 
-            trek_id: img.trek_id, 
-            image_url: img.image_url, 
+          ...(images || []).map((img: any) => ({ ...img, source: "admin" })),
+          ...(userImages || []).map((img: any) => ({
+            trek_id: img.trek_id,
+            image_url: img.image_url,
             position: 999, // User images go after admin images
-            source: 'user' 
-          }))
+            source: "user",
+          })),
         ];
 
         // Use centralized image URL conversion utility
@@ -714,75 +750,106 @@ const GlassMorphismEvents = () => {
             const publicUrl = getTrekImageUrl(img.image_url);
             if (publicUrl && publicUrl.trim() !== "") {
               imagesByTrek[img.trek_id].push(publicUrl);
-              console.log(`✅ Processed ${img.source} image for trek ${img.trek_id} at position ${img.position}: ${publicUrl.substring(0, 60)}...`);
+              console.log(
+                `✅ Processed ${img.source} image for trek ${img.trek_id} at position ${img.position}: ${publicUrl.substring(0, 60)}...`,
+              );
             } else {
-              console.warn(`⚠️ Failed to process image URL for trek ${img.trek_id}:`, img.image_url);
+              console.warn(
+                `⚠️ Failed to process image URL for trek ${img.trek_id}:`,
+                img.image_url,
+              );
             }
           }
         });
 
-        console.log("📊 Images by trek from trek_event_images:", Object.keys(imagesByTrek).length, "treks have images");
-        
+        console.log(
+          "📊 Images by trek from trek_event_images:",
+          Object.keys(imagesByTrek).length,
+          "treks have images",
+        );
+
         // Check image_url from trek_events table for treks that don't have images
         const treksNeedingFallback = treks.filter(
-          (t) => !imagesByTrek[t.trek_id] || imagesByTrek[t.trek_id].length === 0
+          (t) =>
+            !imagesByTrek[t.trek_id] || imagesByTrek[t.trek_id].length === 0,
         );
-        
-        console.log("🔍 Treks needing fallback from trek_events.image_url:", treksNeedingFallback.map(t => ({
-          trek_id: t.trek_id,
-          name: t.name,
-          has_image_url: !!t.image_url,
-          image_url: t.image_url ? `${t.image_url.substring(0, 50)}...` : 'null'
-        })));
+
+        console.log(
+          "🔍 Treks needing fallback from trek_events.image_url:",
+          treksNeedingFallback.map((t) => ({
+            trek_id: t.trek_id,
+            name: t.name,
+            has_image_url: !!t.image_url,
+            image_url: t.image_url
+              ? `${t.image_url.substring(0, 50)}...`
+              : "null",
+          })),
+        );
 
         // Add image_url from trek_events as fallback for treks without images
         treksNeedingFallback.forEach((trek) => {
           // Handle both actual null and string "null" case
           const imageUrl = trek.image_url;
-          const isValidUrl = imageUrl && 
-                            typeof imageUrl === 'string' && 
-                            imageUrl.trim() !== "" && 
-                            imageUrl.toLowerCase() !== "null" &&
-                            imageUrl.toLowerCase() !== "undefined";
-          
+          const isValidUrl =
+            imageUrl &&
+            typeof imageUrl === "string" &&
+            imageUrl.trim() !== "" &&
+            imageUrl.toLowerCase() !== "null" &&
+            imageUrl.toLowerCase() !== "undefined";
+
           if (isValidUrl) {
             if (!imagesByTrek[trek.trek_id]) {
               imagesByTrek[trek.trek_id] = [];
             }
-            
+
             // Check if it's a base64 data URL (like Trek 190)
-            const isBase64 = imageUrl.startsWith('data:image/');
-            
+            const isBase64 = imageUrl.startsWith("data:image/");
+
             if (isBase64) {
               // Use base64 images directly without conversion
               imagesByTrek[trek.trek_id].push(imageUrl);
-              console.log(`✅ Added base64 image from trek_events.image_url for trek ${trek.trek_id}: ${imageUrl.substring(0, 60)}...`);
+              console.log(
+                `✅ Added base64 image from trek_events.image_url for trek ${trek.trek_id}: ${imageUrl.substring(0, 60)}...`,
+              );
             } else {
               // For storage paths, use getTrekImageUrl conversion
               const publicUrl = getTrekImageUrl(imageUrl);
               if (publicUrl && publicUrl.trim() !== "") {
                 imagesByTrek[trek.trek_id].push(publicUrl);
-                console.log(`✅ Added fallback image from trek_events.image_url for trek ${trek.trek_id}: ${publicUrl.substring(0, 60)}...`);
+                console.log(
+                  `✅ Added fallback image from trek_events.image_url for trek ${trek.trek_id}: ${publicUrl.substring(0, 60)}...`,
+                );
               } else {
-                console.warn(`⚠️ Failed to convert image_url for trek ${trek.trek_id}:`, {
-                  original: imageUrl,
-                  converted: publicUrl
-                });
+                console.warn(
+                  `⚠️ Failed to convert image_url for trek ${trek.trek_id}:`,
+                  {
+                    original: imageUrl,
+                    converted: publicUrl,
+                  },
+                );
               }
             }
           } else {
-            console.warn(`⚠️ Invalid image_url for trek ${trek.trek_id} (${trek.name}):`, {
-              value: imageUrl,
-              type: typeof imageUrl,
-              isNull: imageUrl === null,
-              isStringNull: imageUrl === "null",
-              isEmpty: imageUrl === "",
-              needsManualCheck: "Check database - image_url may need to be set or images uploaded to trek_event_images"
-            });
+            console.warn(
+              `⚠️ Invalid image_url for trek ${trek.trek_id} (${trek.name}):`,
+              {
+                value: imageUrl,
+                type: typeof imageUrl,
+                isNull: imageUrl === null,
+                isStringNull: imageUrl === "null",
+                isEmpty: imageUrl === "",
+                needsManualCheck:
+                  "Check database - image_url may need to be set or images uploaded to trek_event_images",
+              },
+            );
           }
         });
 
-        console.log("📊 Final images by trek:", Object.keys(imagesByTrek).length, "treks have images after fallback");
+        console.log(
+          "📊 Final images by trek:",
+          Object.keys(imagesByTrek).length,
+          "treks have images after fallback",
+        );
 
         // Fetch registration counts - include all non-cancelled registrations
         // Payment status can be: Paid, paid, Confirmed, confirmed, Pending, pending, etc.
@@ -795,13 +862,18 @@ const GlassMorphismEvents = () => {
         if (regError) {
           console.warn("Error fetching registrations:", regError);
         } else {
-          console.log(`✅ Fetched ${registrations?.length || 0} registrations (excluding cancelled) for ${trekIds.length} treks`);
+          console.log(
+            `✅ Fetched ${registrations?.length || 0} registrations (excluding cancelled) for ${trekIds.length} treks`,
+          );
           // Log payment status breakdown for debugging
           if (registrations && registrations.length > 0) {
-            const statusBreakdown = registrations.reduce((acc: any, reg: any) => {
-              acc[reg.payment_status] = (acc[reg.payment_status] || 0) + 1;
-              return acc;
-            }, {});
+            const statusBreakdown = registrations.reduce(
+              (acc: any, reg: any) => {
+                acc[reg.payment_status] = (acc[reg.payment_status] || 0) + 1;
+                return acc;
+              },
+              {},
+            );
             console.log("📊 Payment status breakdown:", statusBreakdown);
           }
         }
@@ -812,7 +884,7 @@ const GlassMorphismEvents = () => {
           registrationCounts[reg.trek_id] =
             (registrationCounts[reg.trek_id] || 0) + 1;
         });
-        
+
         console.log("📊 Registration counts by trek:", registrationCounts);
 
         // Fetch participants and engagement for all treks in parallel
@@ -837,12 +909,16 @@ const GlassMorphismEvents = () => {
         });
 
         // Fetch tags for all treks from database (gracefully handle missing table)
-        let tagsByTrek: Record<number, Array<{ id: number; name: string }>> = {};
-        
+        let tagsByTrek: Record<
+          number,
+          Array<{ id: number; name: string }>
+        > = {};
+
         try {
           const { data: allTags, error: tagsError } = await supabase
             .from("trek_event_tag_assignments")
-            .select(`
+            .select(
+              `
               trek_id,
               tag_id,
               trek_event_tags:tag_id (
@@ -851,13 +927,19 @@ const GlassMorphismEvents = () => {
                 color,
                 category
               )
-            `)
+            `,
+            )
             .in("trek_id", trekIds);
 
           if (tagsError) {
             // Check if it's a "table not found" error
-            if (tagsError.code === "PGRST205" || tagsError.message?.includes("Could not find the table")) {
-              console.warn("⚠️ Tags table not found - using fallback tags. Migration may need to be applied.");
+            if (
+              tagsError.code === "PGRST205" ||
+              tagsError.message?.includes("Could not find the table")
+            ) {
+              console.warn(
+                "⚠️ Tags table not found - using fallback tags. Migration may need to be applied.",
+              );
             } else {
               console.warn("Error fetching tags:", tagsError);
             }
@@ -889,9 +971,15 @@ const GlassMorphismEvents = () => {
           }
           if (trek.location) {
             const locationLower = trek.location.toLowerCase();
-            if (locationLower.includes("himalaya") || locationLower.includes("himachal")) {
+            if (
+              locationLower.includes("himalaya") ||
+              locationLower.includes("himachal")
+            ) {
               fallbackTags.push({ id: 2, name: "Mountain" });
-            } else if (locationLower.includes("goa") || locationLower.includes("coast")) {
+            } else if (
+              locationLower.includes("goa") ||
+              locationLower.includes("coast")
+            ) {
               fallbackTags.push({ id: 3, name: "Coastal" });
             } else if (
               locationLower.includes("karnataka") ||
@@ -902,7 +990,10 @@ const GlassMorphismEvents = () => {
               locationLower.includes("gokarna")
             ) {
               fallbackTags.push({ id: 4, name: "Western Ghats" });
-            } else if (locationLower.includes("kerala") || locationLower.includes("forest")) {
+            } else if (
+              locationLower.includes("kerala") ||
+              locationLower.includes("forest")
+            ) {
               fallbackTags.push({ id: 5, name: "Forest" });
             } else {
               fallbackTags.push({ id: 6, name: "Adventure" });
@@ -914,7 +1005,9 @@ const GlassMorphismEvents = () => {
           } else if (trek.event_type === "jam_yard") {
             fallbackTags.push({ id: 8, name: "Jam Yard" });
           }
-          return fallbackTags.length > 0 ? fallbackTags : [{ id: 1, name: "Adventure" }];
+          return fallbackTags.length > 0
+            ? fallbackTags
+            : [{ id: 1, name: "Adventure" }];
         };
 
         const calculateDaysUntil = (dateString: string) => {
@@ -940,12 +1033,13 @@ const GlassMorphismEvents = () => {
         const transformedEvents = treks.map((trek, index) => {
           // For Jam Yard events, use skill_level from jam_yard_details instead of difficulty
           let displayDifficulty: string;
-          
+
           if (trek.event_type === "jam_yard" && trek.jam_yard_details) {
             const skillLevel = trek.jam_yard_details?.skill_level;
             if (skillLevel) {
               // Capitalize skill level for display (beginner -> Beginner, etc.)
-              displayDifficulty = skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1);
+              displayDifficulty =
+                skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1);
               // Handle "all" -> "All Levels"
               if (skillLevel === "all") {
                 displayDifficulty = "All Levels";
@@ -958,12 +1052,14 @@ const GlassMorphismEvents = () => {
             // For non-Jam Yard events, use difficulty field
             displayDifficulty = trek.difficulty || "Moderate";
           }
-          
+
           // Debug logging for difficulty
           if (!displayDifficulty) {
-            console.warn(`⚠️ Trek ${trek.trek_id} (${trek.name}) has no difficulty/skill_level value`);
+            console.warn(
+              `⚠️ Trek ${trek.trek_id} (${trek.name}) has no difficulty/skill_level value`,
+            );
           }
-          
+
           return {
             trek_id: trek.trek_id,
             name: trek.name,
@@ -972,75 +1068,84 @@ const GlassMorphismEvents = () => {
               `Join us for an exciting ${displayDifficulty?.toLowerCase() || "moderate"} adventure in ${trek.location || "beautiful landscapes"}.`,
             location: trek.location || "Location TBD",
             difficulty: displayDifficulty,
-          duration: parseDuration(trek.duration),
-          start_datetime: trek.start_datetime,
-          cost: trek.base_price,
-          max_participants: trek.max_participants || 20,
-          participant_count: registrationCounts[trek.trek_id] || 0,
-          images: (() => {
-            const dbImages = imagesByTrek[trek.trek_id];
-            if (dbImages && dbImages.length > 0) {
-              console.log(`✅ Using ${dbImages.length} DB images for trek ${trek.trek_id}`);
-              return dbImages;
-            }
-            // This should not happen since we already added trek.image_url in the fallback above
-            // But keeping as extra safety check
-            if (trek.image_url && trek.image_url.trim() !== "") {
-              console.log(`⚠️ Using trek_events.image_url fallback (late check) for trek ${trek.trek_id}`);
-              // Process the URL through getTrekImageUrl to ensure it's a valid public URL
-              const processedUrl = getTrekImageUrl(trek.image_url);
-              return processedUrl ? [processedUrl] : [];
-            }
-            console.log(`❌ Using placeholder images for trek ${trek.trek_id} (no DB images)`);
-            console.log(`   Trek data: name="${trek.name}", image_url="${trek.image_url || 'null'}"`);
-            return [
-                  // Each event gets 3 rotating images based on index (final fallback)
-                  ...(function () {
-                    const imageGroups = [
-                      // Group 1: Mountain Adventures
-                      [
-                        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80", // Mountain Lake
-                        "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80", // Mountain Peak
-                        "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80", // Snow peaks
-                      ],
-                      // Group 2: Coastal Adventures
-                      [
-                        "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80", // Coastal
-                        "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=800&q=80", // Ocean
-                        "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80", // Beach sunset
-                      ],
-                      // Group 3: Forest Adventures
-                      [
-                        "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80", // Forest
-                        "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80", // Forest path
-                        "https://images.unsplash.com/photo-1574263867128-a3d5c1b1deac?w=800&q=80", // Waterfall
-                      ],
-                      // Group 4: Desert Adventures
-                      [
-                        "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&q=80", // Desert
-                        "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80", // Sunrise
-                        "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80", // Desert dunes
-                      ],
-                      // Group 5: Valley Adventures
-                      [
-                        "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80", // Valley
-                        "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80", // Wildlife
-                        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80", // Mountain Lake
-                      ],
-                      // Group 6: Night Adventures
-                      [
-                        "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&q=80", // Night sky
-                        "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80", // Mountain Lake
-                        "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80", // Snow peaks
-                      ],
-                    ];
-                    return imageGroups[index % imageGroups.length];
-                  })(),
-                ];
-          })(),
-            tags: tagsByTrek[trek.trek_id]?.length > 0 
-              ? tagsByTrek[trek.trek_id] 
-              : generateFallbackTags(trek),
+            duration: parseDuration(trek.duration),
+            start_datetime: trek.start_datetime,
+            cost: trek.base_price,
+            max_participants: trek.max_participants || 20,
+            participant_count: registrationCounts[trek.trek_id] || 0,
+            images: (() => {
+              const dbImages = imagesByTrek[trek.trek_id];
+              if (dbImages && dbImages.length > 0) {
+                console.log(
+                  `✅ Using ${dbImages.length} DB images for trek ${trek.trek_id}`,
+                );
+                return dbImages;
+              }
+              // This should not happen since we already added trek.image_url in the fallback above
+              // But keeping as extra safety check
+              if (trek.image_url && trek.image_url.trim() !== "") {
+                console.log(
+                  `⚠️ Using trek_events.image_url fallback (late check) for trek ${trek.trek_id}`,
+                );
+                // Process the URL through getTrekImageUrl to ensure it's a valid public URL
+                const processedUrl = getTrekImageUrl(trek.image_url);
+                return processedUrl ? [processedUrl] : [];
+              }
+              console.log(
+                `❌ Using placeholder images for trek ${trek.trek_id} (no DB images)`,
+              );
+              console.log(
+                `   Trek data: name="${trek.name}", image_url="${trek.image_url || "null"}"`,
+              );
+              return [
+                // Each event gets 3 rotating images based on index (final fallback)
+                ...(function () {
+                  const imageGroups = [
+                    // Group 1: Mountain Adventures
+                    [
+                      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80", // Mountain Lake
+                      "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80", // Mountain Peak
+                      "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80", // Snow peaks
+                    ],
+                    // Group 2: Coastal Adventures
+                    [
+                      "https://images.unsplash.com/photo-1559827260-dc66d52bef19?w=800&q=80", // Coastal
+                      "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?w=800&q=80", // Ocean
+                      "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&q=80", // Beach sunset
+                    ],
+                    // Group 3: Forest Adventures
+                    [
+                      "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80", // Forest
+                      "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?w=800&q=80", // Forest path
+                      "https://images.unsplash.com/photo-1574263867128-a3d5c1b1deac?w=800&q=80", // Waterfall
+                    ],
+                    // Group 4: Desert Adventures
+                    [
+                      "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?w=800&q=80", // Desert
+                      "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&q=80", // Sunrise
+                      "https://images.unsplash.com/photo-1547036967-23d11aacaee0?w=800&q=80", // Desert dunes
+                    ],
+                    // Group 5: Valley Adventures
+                    [
+                      "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=800&q=80", // Valley
+                      "https://images.unsplash.com/photo-1518837695005-2083093ee35b?w=800&q=80", // Wildlife
+                      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80", // Mountain Lake
+                    ],
+                    // Group 6: Night Adventures
+                    [
+                      "https://images.unsplash.com/photo-1419242902214-272b3f66ee7a?w=800&q=80", // Night sky
+                      "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80", // Mountain Lake
+                      "https://images.unsplash.com/photo-1551632811-561732d1e306?w=800&q=80", // Snow peaks
+                    ],
+                  ];
+                  return imageGroups[index % imageGroups.length];
+                })(),
+              ];
+            })(),
+            tags:
+              tagsByTrek[trek.trek_id]?.length > 0
+                ? tagsByTrek[trek.trek_id]
+                : generateFallbackTags(trek),
             registration_status: "open" as const,
             days_until_event: calculateDaysUntil(trek.start_datetime),
             registeredFriends: participantsByTrek[trek.trek_id] || [],
@@ -1223,4 +1328,3 @@ const GlassMorphismEvents = () => {
 };
 
 export default GlassMorphismEvents;
-

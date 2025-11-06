@@ -21,8 +21,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { formatIndianDate } from "@/utils/indianStandards";
 import { getTrekImageUrl } from "@/utils/imageStorage";
+import { formatIndianDate } from "@/utils/indianStandards";
 import {
   fetchTrekEngagement,
   fetchTrekParticipants,

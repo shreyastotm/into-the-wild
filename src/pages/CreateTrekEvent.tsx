@@ -45,7 +45,13 @@ export default function CreateTrekEvent() {
 
   const handleFormSubmit = async (data: FormSubmissionData) => {
     try {
-      const { trekData, packingList, costs, tentInventory: tentData, tags } = data;
+      const {
+        trekData,
+        packingList,
+        costs,
+        tentInventory: tentData,
+        tags,
+      } = data;
 
       // ✅ VALIDATION: Restrict Jam Yard creation to partners/admins
       if (trekData.event_type === EventType.JAM_YARD) {
@@ -200,15 +206,19 @@ export default function CreateTrekEvent() {
       }
 
       // Step 6: Handle image uploads (up to 5 images)
-      const imagesToUpload = trekData.images?.filter((img): img is string => !!img) || 
-                            (trekData.image ? [trekData.image] : []);
-      
+      const imagesToUpload =
+        trekData.images?.filter((img): img is string => !!img) ||
+        (trekData.image ? [trekData.image] : []);
+
       if (imagesToUpload.length > 0) {
         const uploadPromises = imagesToUpload.map(async (base64Data, index) => {
           try {
             // Convert base64 data URL to File (without using fetch to avoid CSP violation)
             const { base64ToFile } = await import("@/utils/imageUtils");
-            const file = base64ToFile(base64Data, `trek-${trekId}-image-${index + 1}.jpg`);
+            const file = base64ToFile(
+              base64Data,
+              `trek-${trekId}-image-${index + 1}.jpg`,
+            );
 
             // Upload image to storage
             const imageUrl = await uploadTrekImage(file, trekId, index + 1);
@@ -223,7 +233,10 @@ export default function CreateTrekEvent() {
               });
 
             if (imgError) {
-              console.warn(`Failed to save image ${index + 1} to trek_event_images:`, imgError);
+              console.warn(
+                `Failed to save image ${index + 1} to trek_event_images:`,
+                imgError,
+              );
               // For the first image, also try saving to trek_events.image_url as fallback
               if (index === 0) {
                 await supabase
@@ -242,7 +255,10 @@ export default function CreateTrekEvent() {
                   .update({ image_url: base64Data })
                   .eq("trek_id", trekId);
               } catch (fallbackError) {
-                console.error("Failed to save image even as fallback:", fallbackError);
+                console.error(
+                  "Failed to save image even as fallback:",
+                  fallbackError,
+                );
               }
             }
           }

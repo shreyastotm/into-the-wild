@@ -59,15 +59,26 @@ const GlassMorphismLandingTrial: React.FC = () => {
       {/* SVG Filters for Sketch Effects */}
       <svg xmlns="http://www.w3.org/2000/svg" className="absolute w-0 h-0">
         <filter id="sketch-filter">
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="4" result="noise"/>
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="1.5" xChannelSelector="R" yChannelSelector="G"/>
-          <feGaussianBlur stdDeviation="0.5" result="blur"/>
+          <feTurbulence
+            type="fractalNoise"
+            baseFrequency="0.9"
+            numOctaves="4"
+            result="noise"
+          />
+          <feDisplacementMap
+            in="SourceGraphic"
+            in2="noise"
+            scale="1.5"
+            xChannelSelector="R"
+            yChannelSelector="G"
+          />
+          <feGaussianBlur stdDeviation="0.5" result="blur" />
         </filter>
         <filter id="anime-glow">
-          <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+          <feGaussianBlur stdDeviation="4" result="coloredBlur" />
           <feMerge>
-            <feMergeNode in="coloredBlur"/>
-            <feMergeNode in="SourceGraphic"/>
+            <feMergeNode in="coloredBlur" />
+            <feMergeNode in="SourceGraphic" />
           </feMerge>
         </filter>
       </svg>
@@ -77,14 +88,17 @@ const GlassMorphismLandingTrial: React.FC = () => {
       {/* Section 1: Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Dynamic Background with Parallax */}
-        <motion.div className="absolute inset-0 -z-10" style={{ y: backgroundY }}>
+        <motion.div
+          className="absolute inset-0 -z-10"
+          style={{ y: backgroundY }}
+        >
           <img
             src="/itw_new_BG.jpg"
             alt="Karnataka Western Ghats mountain landscape"
             className="absolute inset-0 w-full h-full object-cover object-center"
-            style={{ 
+            style={{
               filter: "blur(0px) brightness(0.4) saturate(1.3)",
-              objectPosition: "50% 40%"
+              objectPosition: "50% 40%",
             }}
           />
           {/* Enhanced gradient overlay for glass morphism theme */}
@@ -127,7 +141,9 @@ const GlassMorphismLandingTrial: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
             >
-              From Bengaluru to the Western Ghats and beyond. Discover Karnataka's hidden gems and India's incredible wilderness with friends. Create memories that last a lifetime.
+              From Bengaluru to the Western Ghats and beyond. Discover
+              Karnataka's hidden gems and India's incredible wilderness with
+              friends. Create memories that last a lifetime.
             </motion.p>
 
             {/* Primary CTA */}
@@ -213,7 +229,10 @@ const GlassMorphismLandingTrial: React.FC = () => {
               </h2>
 
               <p className="text-lg text-white/80 leading-relaxed">
-                Join curated treks across Karnataka's Western Ghats - from Coorg's misty hills to Kudremukh's rolling peaks, Gokarna's pristine beaches, and Chikmagalur's coffee plantations. Weekend getaways designed for Bengaluru adventurers.
+                Join curated treks across Karnataka's Western Ghats - from
+                Coorg's misty hills to Kudremukh's rolling peaks, Gokarna's
+                pristine beaches, and Chikmagalur's coffee plantations. Weekend
+                getaways designed for Bengaluru adventurers.
               </p>
 
               {/* Feature Points */}
@@ -302,7 +321,10 @@ const GlassMorphismLandingTrial: React.FC = () => {
               </h2>
 
               <p className="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
-                Perfect for friends looking for quick escapes. Every Sunday day treks and weekend camping events - all within 2 hours from Bengaluru. Adventure that fits your schedule and brings friends together.
+                Perfect for friends looking for quick escapes. Every Sunday day
+                treks and weekend camping events - all within 2 hours from
+                Bengaluru. Adventure that fits your schedule and brings friends
+                together.
               </p>
             </motion.div>
           </div>
@@ -320,11 +342,16 @@ const GlassMorphismLandingTrial: React.FC = () => {
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-yellow-400 to-amber-500 flex items-center justify-center">
                   <Calendar className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Every Sunday Day Treks</h3>
+                <h3 className="text-2xl font-bold text-white">
+                  Every Sunday Day Treks
+                </h3>
               </div>
 
               <p className="text-white/80 mb-6 leading-relaxed">
-                Start your week with adventure! Quick escapes from Bengaluru - perfect for groups of friends. Early morning start, evening return. Gather your friends and make every Sunday special. No overnight stays needed.
+                Start your week with adventure! Quick escapes from Bengaluru -
+                perfect for groups of friends. Early morning start, evening
+                return. Gather your friends and make every Sunday special. No
+                overnight stays needed.
               </p>
 
               <div className="space-y-3 mb-6">
@@ -387,11 +414,16 @@ const GlassMorphismLandingTrial: React.FC = () => {
                 <div className="w-10 h-10 rounded-full bg-gradient-to-r from-indigo-400 to-purple-500 flex items-center justify-center">
                   <Target className="w-5 h-5 text-white" />
                 </div>
-                <h3 className="text-2xl font-bold text-white">Camping Experiences</h3>
+                <h3 className="text-2xl font-bold text-white">
+                  Camping Experiences
+                </h3>
               </div>
 
               <p className="text-white/80 mb-6 leading-relaxed">
-                Overnight camping events combining adventure, community, and nature. Gather your friends for multi-activity formats perfect for groups. Connect under the stars and create lasting memories together.
+                Overnight camping events combining adventure, community, and
+                nature. Gather your friends for multi-activity formats perfect
+                for groups. Connect under the stars and create lasting memories
+                together.
               </p>
 
               <div className="space-y-3 mb-6">
@@ -485,7 +517,9 @@ const GlassMorphismLandingTrial: React.FC = () => {
               </h2>
 
               <p className="text-lg text-white/80 leading-relaxed">
-                Create a visual diary of your adventures with friends. Share photos, tag your adventure buddies, and build a collection of memories together. Every moment is better when shared.
+                Create a visual diary of your adventures with friends. Share
+                photos, tag your adventure buddies, and build a collection of
+                memories together. Every moment is better when shared.
               </p>
 
               {/* Achievement Badges */}
@@ -566,7 +600,9 @@ const GlassMorphismLandingTrial: React.FC = () => {
               </h2>
 
               <p className="text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
-                Start your adventure right from Bengaluru. Convenient pickup points, smart route planning, and seamless group coordination. We handle logistics so you can focus on the adventure ahead.
+                Start your adventure right from Bengaluru. Convenient pickup
+                points, smart route planning, and seamless group coordination.
+                We handle logistics so you can focus on the adventure ahead.
               </p>
             </motion.div>
           </div>
@@ -584,13 +620,15 @@ const GlassMorphismLandingTrial: React.FC = () => {
               {
                 icon: Calendar,
                 title: "Weekend Escapes",
-                description: "Perfect 2-3 day trips designed for working professionals",
+                description:
+                  "Perfect 2-3 day trips designed for working professionals",
                 color: "from-blue-400 to-indigo-500",
               },
               {
                 icon: MapPin,
                 title: "Smart Pickup Points",
-                description: "Multiple pickup locations across Bengaluru for your convenience",
+                description:
+                  "Multiple pickup locations across Bengaluru for your convenience",
                 color: "from-orange-400 to-red-500",
               },
               {
@@ -692,7 +730,10 @@ const GlassMorphismLandingTrial: React.FC = () => {
               </h2>
 
               <p className="text-lg text-white/80 leading-relaxed">
-                Connect with thousands of adventure enthusiasts across Karnataka and India. Share tips, plan expeditions with friends to Western Ghats, Himalayas, and beyond. Be part of India's growing outdoor community.
+                Connect with thousands of adventure enthusiasts across Karnataka
+                and India. Share tips, plan expeditions with friends to Western
+                Ghats, Himalayas, and beyond. Be part of India's growing outdoor
+                community.
               </p>
 
               {/* Community Stats */}
@@ -725,10 +766,14 @@ const GlassMorphismLandingTrial: React.FC = () => {
                   <div className="w-10 h-10 rounded-full bg-gradient-to-r from-purple-400 to-pink-500 flex items-center justify-center">
                     <Sparkles className="w-5 h-5 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-white">Exclusive Jam Yard Access</h3>
+                  <h3 className="text-xl font-bold text-white">
+                    Exclusive Jam Yard Access
+                  </h3>
                 </div>
                 <p className="text-white/90 mb-4 text-sm leading-relaxed">
-                  Join our community to access exclusive partner-led workshops and activities designed to complement your adventures with friends.
+                  Join our community to access exclusive partner-led workshops
+                  and activities designed to complement your adventures with
+                  friends.
                 </p>
                 <div className="grid grid-cols-2 gap-2 mb-4">
                   {[
@@ -752,7 +797,8 @@ const GlassMorphismLandingTrial: React.FC = () => {
                   ))}
                 </div>
                 <p className="text-white/70 text-xs">
-                  Perfect for groups - combine with treks and camping for complete adventure experiences.
+                  Perfect for groups - combine with treks and camping for
+                  complete adventure experiences.
                 </p>
               </div>
 
@@ -800,7 +846,10 @@ const GlassMorphismLandingTrial: React.FC = () => {
             </h2>
 
             <p className="text-xl text-white/80 mb-12 max-w-2xl mx-auto leading-relaxed">
-              From the Western Ghats to the Himalayas, join thousands of adventurers from Bengaluru and across India who've discovered the joy of exploring nature with friends. Adventure is always better together.
+              From the Western Ghats to the Himalayas, join thousands of
+              adventurers from Bengaluru and across India who've discovered the
+              joy of exploring nature with friends. Adventure is always better
+              together.
             </p>
 
             {/* Dual CTA */}

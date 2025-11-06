@@ -43,8 +43,12 @@ const EventCardsPreview: React.FC = () => {
         // Fetch Karnataka/Bangalore events or camping/jam_yard events
         const { data: events, error } = await supabase
           .from("trek_events")
-          .select("trek_id, name, location, event_type, start_datetime, duration, difficulty, max_participants, image_url")
-          .or("location.ilike.%Karnataka%,location.ilike.%Bengaluru%,location.ilike.%Bangalore%,event_type.eq.camping,event_type.eq.jam_yard")
+          .select(
+            "trek_id, name, location, event_type, start_datetime, duration, difficulty, max_participants, image_url",
+          )
+          .or(
+            "location.ilike.%Karnataka%,location.ilike.%Bengaluru%,location.ilike.%Bangalore%,event_type.eq.camping,event_type.eq.jam_yard",
+          )
           .gt("start_datetime", new Date().toISOString())
           .order("start_datetime", { ascending: true })
           .limit(3);
@@ -67,12 +71,14 @@ const EventCardsPreview: React.FC = () => {
           return;
         }
 
-        const trekIds = validEvents.map((e) => {
-          if (typeof e === 'object' && e !== null && 'trek_id' in e) {
-            return e.trek_id;
-          }
-          return null;
-        }).filter((id): id is number => id !== null);
+        const trekIds = validEvents
+          .map((e) => {
+            if (typeof e === "object" && e !== null && "trek_id" in e) {
+              return e.trek_id;
+            }
+            return null;
+          })
+          .filter((id): id is number => id !== null);
 
         // Fetch images for these events
         const { data: images, error: imgError } = await supabase
@@ -91,10 +97,20 @@ const EventCardsPreview: React.FC = () => {
         const imagesByTrek: Record<number, string[]> = {};
         if (images && Array.isArray(images)) {
           images.forEach((img: any) => {
-            if (img && typeof img === 'object' && 'trek_id' in img && 'image_url' in img) {
+            if (
+              img &&
+              typeof img === "object" &&
+              "trek_id" in img &&
+              "image_url" in img
+            ) {
               const trekId = img.trek_id;
               const imageUrl = img.image_url;
-              if (trekId && imageUrl && typeof imageUrl === 'string' && imageUrl.trim() !== '') {
+              if (
+                trekId &&
+                imageUrl &&
+                typeof imageUrl === "string" &&
+                imageUrl.trim() !== ""
+              ) {
                 if (!imagesByTrek[trekId]) {
                   imagesByTrek[trekId] = [];
                 }
@@ -108,76 +124,96 @@ const EventCardsPreview: React.FC = () => {
         }
 
         // Transform to EventCard format with type safety
-        const transformedEvents: EventCard[] = validEvents.map((event, index) => {
-          // Type guard for event object
-          if (typeof event !== 'object' || event === null) {
-            return null;
-          }
+        const transformedEvents: EventCard[] = validEvents
+          .map((event, index) => {
+            // Type guard for event object
+            if (typeof event !== "object" || event === null) {
+              return null;
+            }
 
-          const eventTrekId = 'trek_id' in event ? event.trek_id : null;
-          if (eventTrekId === null) return null;
+            const eventTrekId = "trek_id" in event ? event.trek_id : null;
+            if (eventTrekId === null) return null;
 
-          const eventImages = imagesByTrek[eventTrekId] || [];
-          // Use first image from database, fallback to event.image_url
-          const eventImageUrl = 'image_url' in event && typeof event.image_url === 'string' 
-            ? getTrekImageUrl(event.image_url)
-            : null;
-          const primaryImage = eventImages[0] || eventImageUrl;
-          
-          // Only use database images - no placeholder/fallback images
-          const allImages = primaryImage
-            ? [primaryImage, ...eventImages.slice(1)]
-            : eventImages.length > 0
-            ? eventImages
-            : eventImageUrl
-            ? [eventImageUrl]
-            : []; // Empty array - will show placeholder or no image in UI
+            const eventImages = imagesByTrek[eventTrekId] || [];
+            // Use first image from database, fallback to event.image_url
+            const eventImageUrl =
+              "image_url" in event && typeof event.image_url === "string"
+                ? getTrekImageUrl(event.image_url)
+                : null;
+            const primaryImage = eventImages[0] || eventImageUrl;
 
-          const eventName = 'name' in event && typeof event.name === 'string' ? event.name : "Adventure Trek";
-          const eventLocation = 'location' in event && typeof event.location === 'string' ? event.location : "Karnataka";
-          const eventStartDatetime = 'start_datetime' in event && typeof event.start_datetime === 'string' 
-            ? event.start_datetime 
-            : new Date().toISOString();
-          const eventDifficulty = 'difficulty' in event && typeof event.difficulty === 'string'
-            ? (event.difficulty.toLowerCase() as "easy" | "moderate" | "hard")
-            : "moderate";
-          const eventMaxParticipants = 'max_participants' in event && typeof event.max_participants === 'number'
-            ? event.max_participants
-            : 20;
-          const eventDuration = 'duration' in event && typeof event.duration === 'string'
-            ? event.duration
-            : "2 Days";
-          const eventType = 'event_type' in event && typeof event.event_type === 'string'
-            ? event.event_type
-            : null;
-          const eventLocationLower = eventLocation.toLowerCase();
+            // Only use database images - no placeholder/fallback images
+            const allImages = primaryImage
+              ? [primaryImage, ...eventImages.slice(1)]
+              : eventImages.length > 0
+                ? eventImages
+                : eventImageUrl
+                  ? [eventImageUrl]
+                  : []; // Empty array - will show placeholder or no image in UI
 
-          return {
-            id: eventTrekId,
-            title: eventName,
-            location: eventLocation,
-            date: new Date(eventStartDatetime).toLocaleDateString("en-IN", {
-              day: "numeric",
-              month: "short",
-              year: "numeric",
-            }),
-            difficulty: eventDifficulty,
-            participants: Math.floor(eventMaxParticipants * 0.6),
-            maxParticipants: eventMaxParticipants,
-            cost: 0,
-            duration: eventDuration,
-            images: allImages,
-            tags: eventType === "camping" 
-              ? ["Camping", "Adventure", "Community"]
-              : eventType === "jam_yard"
-              ? ["Workshop", "Skill", "Community"]
-              : eventLocationLower.includes("coorg")
-              ? ["Coffee", "Misty Hills", "Western Ghats"]
-              : eventLocationLower.includes("gokarna")
-              ? ["Beach", "Camping", "Sunset"]
-              : ["Western Ghats", "Nature", "Friends"],
-          };
-        }).filter((event): event is EventCard => event !== null);
+            const eventName =
+              "name" in event && typeof event.name === "string"
+                ? event.name
+                : "Adventure Trek";
+            const eventLocation =
+              "location" in event && typeof event.location === "string"
+                ? event.location
+                : "Karnataka";
+            const eventStartDatetime =
+              "start_datetime" in event &&
+              typeof event.start_datetime === "string"
+                ? event.start_datetime
+                : new Date().toISOString();
+            const eventDifficulty =
+              "difficulty" in event && typeof event.difficulty === "string"
+                ? (event.difficulty.toLowerCase() as
+                    | "easy"
+                    | "moderate"
+                    | "hard")
+                : "moderate";
+            const eventMaxParticipants =
+              "max_participants" in event &&
+              typeof event.max_participants === "number"
+                ? event.max_participants
+                : 20;
+            const eventDuration =
+              "duration" in event && typeof event.duration === "string"
+                ? event.duration
+                : "2 Days";
+            const eventType =
+              "event_type" in event && typeof event.event_type === "string"
+                ? event.event_type
+                : null;
+            const eventLocationLower = eventLocation.toLowerCase();
+
+            return {
+              id: eventTrekId,
+              title: eventName,
+              location: eventLocation,
+              date: new Date(eventStartDatetime).toLocaleDateString("en-IN", {
+                day: "numeric",
+                month: "short",
+                year: "numeric",
+              }),
+              difficulty: eventDifficulty,
+              participants: Math.floor(eventMaxParticipants * 0.6),
+              maxParticipants: eventMaxParticipants,
+              cost: 0,
+              duration: eventDuration,
+              images: allImages,
+              tags:
+                eventType === "camping"
+                  ? ["Camping", "Adventure", "Community"]
+                  : eventType === "jam_yard"
+                    ? ["Workshop", "Skill", "Community"]
+                    : eventLocationLower.includes("coorg")
+                      ? ["Coffee", "Misty Hills", "Western Ghats"]
+                      : eventLocationLower.includes("gokarna")
+                        ? ["Beach", "Camping", "Sunset"]
+                        : ["Western Ghats", "Nature", "Friends"],
+            };
+          })
+          .filter((event): event is EventCard => event !== null);
 
         if (transformedEvents.length > 0) {
           setDbEvents(transformedEvents);
@@ -320,7 +356,9 @@ const EventCardsPreview: React.FC = () => {
               <div className="flex flex-col sm:flex-row">
                 {/* Image Section */}
                 <div className="relative w-full sm:w-48 h-48 sm:h-auto overflow-hidden">
-                  {event.images && event.images.length > 0 && event.images[currentImageIndex] ? (
+                  {event.images &&
+                  event.images.length > 0 &&
+                  event.images[currentImageIndex] ? (
                     <AnimatePresence mode="wait">
                       <motion.img
                         key={currentImageIndex}
@@ -332,8 +370,11 @@ const EventCardsPreview: React.FC = () => {
                         exit={{ opacity: 0, scale: 0.9 }}
                         transition={{ duration: 0.5 }}
                         onError={(e) => {
-                          console.warn("Failed to load image:", event.images[currentImageIndex]);
-                          e.currentTarget.style.display = 'none';
+                          console.warn(
+                            "Failed to load image:",
+                            event.images[currentImageIndex],
+                          );
+                          e.currentTarget.style.display = "none";
                         }}
                       />
                     </AnimatePresence>

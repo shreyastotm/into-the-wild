@@ -18,7 +18,9 @@ interface BasicDetailsStepProps extends StepProps {
   imagePreview: string | null; // For backward compatibility
   imagePreviews?: (string | null)[]; // New: array of image previews
   handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // For backward compatibility
-  handleImageChangeAtIndex?: (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleImageChangeAtIndex?: (
+    index: number,
+  ) => (e: React.ChangeEvent<HTMLInputElement>) => void;
   removeImageAtIndex?: (index: number) => void;
   gpxFile: File | null;
   handleGpxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -38,39 +40,46 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
 }) => {
   const [imgErrors, setImgErrors] = useState<Record<number, string>>({});
 
-  const handleImageInputChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImgErrors((prev) => {
-      const newErrors = { ...prev };
-      delete newErrors[index];
-      return newErrors;
-    });
-    const file = e.target.files?.[0];
-    if (!file) {
+  const handleImageInputChange =
+    (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      setImgErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors[index];
+        return newErrors;
+      });
+      const file = e.target.files?.[0];
+      if (!file) {
+        if (handleImageChangeAtIndex) {
+          handleImageChangeAtIndex(index)(e);
+        } else if (index === 0) {
+          handleImageChange(e);
+        }
+        return;
+      }
+
+      const validTypes = ["image/jpeg", "image/png", "image/webp"];
+      if (!validTypes.includes(file.type)) {
+        setImgErrors((prev) => ({
+          ...prev,
+          [index]: "Only JPG, PNG, or WEBP images are allowed.",
+        }));
+        return;
+      }
+
+      if (file.size > 2 * 1024 * 1024) {
+        setImgErrors((prev) => ({
+          ...prev,
+          [index]: "Image must be less than 2MB.",
+        }));
+        return;
+      }
+
       if (handleImageChangeAtIndex) {
         handleImageChangeAtIndex(index)(e);
       } else if (index === 0) {
         handleImageChange(e);
       }
-      return;
-    }
-
-    const validTypes = ["image/jpeg", "image/png", "image/webp"];
-    if (!validTypes.includes(file.type)) {
-      setImgErrors((prev) => ({ ...prev, [index]: "Only JPG, PNG, or WEBP images are allowed." }));
-      return;
-    }
-
-    if (file.size > 2 * 1024 * 1024) {
-      setImgErrors((prev) => ({ ...prev, [index]: "Image must be less than 2MB." }));
-      return;
-    }
-
-    if (handleImageChangeAtIndex) {
-      handleImageChangeAtIndex(index)(e);
-    } else if (index === 0) {
-      handleImageChange(e);
-    }
-  };
+    };
 
   const eventTypeLabel =
     formData.event_type === EventType.CAMPING ? "Camping Event" : "Trek";
@@ -129,7 +138,8 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
           <Label>Event Images (up to 5)</Label>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {Array.from({ length: 5 }).map((_, index) => {
-              const preview = imagePreviews[index] || (index === 0 ? imagePreview : null);
+              const preview =
+                imagePreviews[index] || (index === 0 ? imagePreview : null);
               return (
                 <div key={index} className="space-y-2">
                   <Label htmlFor={`trek-image-${index}`} className="text-sm">
@@ -142,7 +152,9 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
                     onChange={handleImageInputChange(index)}
                   />
                   {imgErrors[index] && (
-                    <div className="text-red-500 text-xs">{imgErrors[index]}</div>
+                    <div className="text-red-500 text-xs">
+                      {imgErrors[index]}
+                    </div>
                   )}
                   {preview && (
                     <div className="relative mt-2">
@@ -168,7 +180,8 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
             })}
           </div>
           <div className="text-gray-500 text-xs">
-            Upload up to 5 high-quality images (JPG, PNG, or WEBP, max 2MB each). The first image will be used as the primary image.
+            Upload up to 5 high-quality images (JPG, PNG, or WEBP, max 2MB
+            each). The first image will be used as the primary image.
           </div>
         </div>
 

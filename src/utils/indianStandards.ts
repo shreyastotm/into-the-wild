@@ -148,10 +148,10 @@ export function formatIndianNumber(
 
 /**
  * Parse PostgreSQL INTERVAL duration to number of days
- * 
+ *
  * @param duration - Duration string from PostgreSQL INTERVAL type
  * @returns Number of days as string (e.g., "1", "2", "3")
- * 
+ *
  * @example
  * ```typescript
  * parseDuration("3 days") // "3"
@@ -162,21 +162,21 @@ export function formatIndianNumber(
  */
 export function parseDuration(duration: string | null | undefined): string {
   if (!duration) return "1";
-  
+
   const durationStr = String(duration);
-  
+
   // Handle PostgreSQL INTERVAL format: "3 days", "2 days 12:00:00", etc.
   const daysMatch = durationStr.match(/(\d+)\s*days?/i);
   if (daysMatch) {
     return daysMatch[1];
   }
-  
+
   // Try to match just a number at the start
   const numMatch = durationStr.match(/^(\d+)/);
   if (numMatch) {
     return numMatch[1];
   }
-  
+
   // Fallback: try to parse as integer
   const num = parseInt(durationStr, 10);
   return isNaN(num) ? "1" : num.toString();

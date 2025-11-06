@@ -32,26 +32,26 @@ import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
 import { useAuth } from "@/components/auth/AuthProvider";
+import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
 import { GlassThemeHeader } from "@/components/navigation/GlassThemeHeader";
 import { OrigamiHamburger } from "@/components/navigation/OrigamiHamburger";
-import { TrekRequirements } from "@/components/trek/TrekRequirements";
-import TrekPackingList from "@/components/trek/TrekPackingList";
 import { TravelCoordination } from "@/components/trek/TravelCoordination";
 import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
-import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
+import TrekPackingList from "@/components/trek/TrekPackingList";
+import { TrekRequirements } from "@/components/trek/TrekRequirements";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
 import { useTrekEventDetails } from "@/hooks/trek/useTrekEventDetails";
 import { useTrekRegistration } from "@/hooks/trek/useTrekRegistration";
-import { EventType } from "@/types/trek";
 import { useGA4Analytics } from "@/hooks/useGA4Analytics";
 import { useTrekCommunity } from "@/hooks/useTrekCommunity";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { formatIndianDate, parseDuration } from "@/utils/indianStandards";
+import { EventType } from "@/types/trek";
 import { getTrekImageUrl } from "@/utils/imageStorage";
+import { formatIndianDate, parseDuration } from "@/utils/indianStandards";
 
 // Glass Panel Component
 interface GlassPanelProps {
@@ -266,9 +266,16 @@ const GlassMorphismEventDetails = () => {
           .order("position", { ascending: true });
 
         if (imagesError) {
-          console.error("❌ Error fetching trek_event_images for trek", numericId, ":", imagesError);
+          console.error(
+            "❌ Error fetching trek_event_images for trek",
+            numericId,
+            ":",
+            imagesError,
+          );
         } else {
-          console.log(`✅ Fetched ${imagesData?.length || 0} admin images from trek_event_images for trek ${numericId}`);
+          console.log(
+            `✅ Fetched ${imagesData?.length || 0} admin images from trek_event_images for trek ${numericId}`,
+          );
         }
 
         // ALSO fetch approved user-contributed images
@@ -280,14 +287,21 @@ const GlassMorphismEventDetails = () => {
           .order("created_at", { ascending: true });
 
         if (userImagesError) {
-          console.error("❌ Error fetching user_trek_images for trek", numericId, ":", userImagesError);
+          console.error(
+            "❌ Error fetching user_trek_images for trek",
+            numericId,
+            ":",
+            userImagesError,
+          );
         } else {
-          console.log(`✅ Fetched ${userImagesData?.length || 0} approved user images for trek ${numericId}`);
+          console.log(
+            `✅ Fetched ${userImagesData?.length || 0} approved user images for trek ${numericId}`,
+          );
         }
 
         // Combine both sources: admin images first (ordered by position), then user images (ordered by date)
         const allImageUrls: string[] = [];
-        
+
         // Add admin images first
         if (imagesData && imagesData.length > 0) {
           imagesData.forEach((img: any) => {
@@ -296,7 +310,7 @@ const GlassMorphismEventDetails = () => {
             }
           });
         }
-        
+
         // Add approved user images
         if (userImagesData && userImagesData.length > 0) {
           userImagesData.forEach((img: any) => {
@@ -311,19 +325,27 @@ const GlassMorphismEventDetails = () => {
           .map((url: string) => getTrekImageUrl(url))
           .filter((url: string) => url !== "");
 
-        console.log(`📊 Valid images after filtering: ${validImages.length} for trek ${numericId} (${imagesData?.length || 0} admin + ${userImagesData?.length || 0} user)`);
+        console.log(
+          `📊 Valid images after filtering: ${validImages.length} for trek ${numericId} (${imagesData?.length || 0} admin + ${userImagesData?.length || 0} user)`,
+        );
 
         if (validImages.length > 0) {
-          console.log(`✅ Using ${validImages.length} DB images for trek ${numericId}`);
+          console.log(
+            `✅ Using ${validImages.length} DB images for trek ${numericId}`,
+          );
           setImages(validImages);
         } else {
           // Try to use image_url from trek_events as fallback
           if (trekEvent?.image_url && trekEvent.image_url.trim() !== "") {
-            console.log(`⚠️ Using trek_events.image_url fallback for trek ${numericId}`);
+            console.log(
+              `⚠️ Using trek_events.image_url fallback for trek ${numericId}`,
+            );
             const fallbackUrl = getTrekImageUrl(trekEvent.image_url);
             setImages(fallbackUrl ? [fallbackUrl] : []);
           } else {
-            console.log(`❌ Using placeholder images for trek ${numericId} (no DB images)`);
+            console.log(
+              `❌ Using placeholder images for trek ${numericId} (no DB images)`,
+            );
             // Final fallback to default images
             setImages([
               "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
@@ -374,7 +396,8 @@ const GlassMorphismEventDetails = () => {
         // Fetch packing list items assigned to this trek
         const { data: assignments, error } = await supabase
           .from("trek_packing_list_assignments")
-          .select(`
+          .select(
+            `
             master_item_id,
             mandatory,
             item_order,
@@ -382,7 +405,8 @@ const GlassMorphismEventDetails = () => {
               name,
               category
             )
-          `)
+          `,
+          )
           .eq("trek_id", numericId)
           .order("item_order", { ascending: true });
 
@@ -397,20 +421,20 @@ const GlassMorphismEventDetails = () => {
           const mandatoryItems = assignments
             .filter((a: any) => a.mandatory && a.master_packing_items)
             .map((a: any) => a.master_packing_items.name);
-          
+
           const optionalItems = assignments
             .filter((a: any) => !a.mandatory && a.master_packing_items)
             .map((a: any) => a.master_packing_items.name);
 
           // Combine: mandatory first, then optional
           const allItems = [...mandatoryItems, ...optionalItems];
-          
+
           // Always include ID proof requirement
           const reqs = ["Valid ID proof"];
           if (trekEvent.government_id_required) {
             reqs.push("Government ID verification");
           }
-          
+
           // Add database items (avoid duplicates)
           allItems.forEach((item) => {
             if (item && !reqs.includes(item)) {
@@ -484,7 +508,9 @@ const GlassMorphismEventDetails = () => {
             fallbackTags.push({ id: 5, name: "Adventure" });
           }
         }
-        return fallbackTags.length > 0 ? fallbackTags : [{ id: 1, name: "Adventure" }];
+        return fallbackTags.length > 0
+          ? fallbackTags
+          : [{ id: 1, name: "Adventure" }];
       };
 
       try {
@@ -498,7 +524,8 @@ const GlassMorphismEventDetails = () => {
         try {
           const { data: tagsData, error } = await supabase
             .from("trek_event_tag_assignments")
-            .select(`
+            .select(
+              `
               tag_id,
               trek_event_tags:tag_id (
                 id,
@@ -506,13 +533,19 @@ const GlassMorphismEventDetails = () => {
                 color,
                 category
               )
-            `)
+            `,
+            )
             .eq("trek_id", numericId);
 
           if (error) {
             // Check if it's a "table not found" error
-            if (error.code === "PGRST205" || error.message?.includes("Could not find the table")) {
-              console.warn("⚠️ Tags table not found - using fallback tags. Migration may need to be applied.");
+            if (
+              error.code === "PGRST205" ||
+              error.message?.includes("Could not find the table")
+            ) {
+              console.warn(
+                "⚠️ Tags table not found - using fallback tags. Migration may need to be applied.",
+              );
             } else {
               console.warn("Error fetching tags:", error);
             }
@@ -527,7 +560,7 @@ const GlassMorphismEventDetails = () => {
                 id: t.trek_event_tags.id,
                 name: t.trek_event_tags.name,
               }));
-            
+
             if (dbTags.length > 0) {
               setTags(dbTags);
               return;
@@ -535,7 +568,10 @@ const GlassMorphismEventDetails = () => {
           }
         } catch (dbError) {
           // Handle table not found or other database errors
-          if ((dbError as any)?.code === "PGRST205" || (dbError as any)?.message?.includes("Could not find the table")) {
+          if (
+            (dbError as any)?.code === "PGRST205" ||
+            (dbError as any)?.message?.includes("Could not find the table")
+          ) {
             console.warn("⚠️ Tags table not found - using fallback tags.");
           } else {
             console.error("Error fetching tags:", dbError);
@@ -546,7 +582,10 @@ const GlassMorphismEventDetails = () => {
         setTags(generateFallbackTags());
       } catch (error) {
         console.error("Error in tags fetch:", error);
-        const generateFallbackTags = (): Array<{ id: number; name: string }> => {
+        const generateFallbackTags = (): Array<{
+          id: number;
+          name: string;
+        }> => {
           return [{ id: 1, name: "Adventure" }];
         };
         setTags(generateFallbackTags());
@@ -601,9 +640,9 @@ const GlassMorphismEventDetails = () => {
         }));
       }
 
-        // Fallback to duration-based itinerary
-        // Parse PostgreSQL interval format (e.g., "3 days" or "2 days 12:00:00")
-        const days = parseInt(parseDuration(trekEvent.duration), 10) || 3;
+      // Fallback to duration-based itinerary
+      // Parse PostgreSQL interval format (e.g., "3 days" or "2 days 12:00:00")
+      const days = parseInt(parseDuration(trekEvent.duration), 10) || 3;
       return Array.from({ length: days }, (_, i) => ({
         day: i + 1,
         title:
@@ -628,11 +667,15 @@ const GlassMorphismEventDetails = () => {
 
     // For Jam Yard events, use skill_level from jam_yard_details instead of difficulty
     let displayDifficulty: string;
-    if (trekEvent.event_type === EventType.JAM_YARD && trekEvent.jam_yard_details) {
+    if (
+      trekEvent.event_type === EventType.JAM_YARD &&
+      trekEvent.jam_yard_details
+    ) {
       const skillLevel = trekEvent.jam_yard_details?.skill_level;
       if (skillLevel) {
         // Capitalize skill level for display (beginner -> Beginner, etc.)
-        displayDifficulty = skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1);
+        displayDifficulty =
+          skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1);
         // Handle "all" -> "All Levels"
         if (skillLevel === "all") {
           displayDifficulty = "All Levels";
@@ -664,14 +707,19 @@ const GlassMorphismEventDetails = () => {
               "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
             ],
       tags: generateTags(),
-      requirements: requirements.length > 0 ? requirements : [
-        "Valid ID proof",
-        ...(trekEvent.government_id_required ? ["Government ID verification"] : []),
-        "Trekking boots",
-        "Warm clothing",
-        "Personal water bottle",
-        "First aid kit",
-      ],
+      requirements:
+        requirements.length > 0
+          ? requirements
+          : [
+              "Valid ID proof",
+              ...(trekEvent.government_id_required
+                ? ["Government ID verification"]
+                : []),
+              "Trekking boots",
+              "Warm clothing",
+              "Personal water bottle",
+              "First aid kit",
+            ],
       itinerary: generateItinerary(),
       government_id_required: trekEvent.government_id_required || false,
       costs: costs || [],
@@ -695,18 +743,18 @@ const GlassMorphismEventDetails = () => {
         setTabClientWidth(tabsListRef.current.clientWidth);
       }
     };
-    
+
     // Initial update
     updateScrollMetrics();
-    
+
     // Update on resize
-    window.addEventListener('resize', updateScrollMetrics);
-    
+    window.addEventListener("resize", updateScrollMetrics);
+
     // Small delay to ensure DOM is ready (only when event exists)
     const timeoutId = event ? setTimeout(updateScrollMetrics, 100) : null;
-    
+
     return () => {
-      window.removeEventListener('resize', updateScrollMetrics);
+      window.removeEventListener("resize", updateScrollMetrics);
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [
@@ -887,7 +935,7 @@ const GlassMorphismEventDetails = () => {
 
   const getDifficultyConfig = (difficulty: string) => {
     const diffLower = difficulty?.toLowerCase();
-    
+
     // Handle skill levels (for Jam Yard events)
     if (diffLower === "beginner" || diffLower === "all levels") {
       return {
@@ -906,7 +954,7 @@ const GlassMorphismEventDetails = () => {
     if (diffLower === "advanced") {
       return { icon: Zap, color: "text-red-400", bg: "bg-red-500/20" };
     }
-    
+
     // Handle traditional difficulty levels
     switch (diffLower) {
       case "easy":
@@ -963,7 +1011,14 @@ const GlassMorphismEventDetails = () => {
   const tabsToShow = [
     { id: "overview", label: "Overview", mobileLabel: "Overview", icon: Info },
     ...(hasItinerary
-      ? [{ id: "itinerary", label: "Itinerary", mobileLabel: "Itinerary", icon: Route }]
+      ? [
+          {
+            id: "itinerary",
+            label: "Itinerary",
+            mobileLabel: "Itinerary",
+            icon: Route,
+          },
+        ]
       : []),
     {
       id: "requirements",
@@ -977,7 +1032,12 @@ const GlassMorphismEventDetails = () => {
       mobileLabel: "Travel",
       icon: MapPin,
     },
-    { id: "expense", label: "Expense", mobileLabel: "Expense", icon: DollarSign },
+    {
+      id: "expense",
+      label: "Expense",
+      mobileLabel: "Expense",
+      icon: DollarSign,
+    },
     { id: "chat", label: "Chat", mobileLabel: "Chat", icon: MessageSquare },
   ];
 
@@ -1048,7 +1108,10 @@ const GlassMorphismEventDetails = () => {
             </div>
 
             {/* Event Info Panel - Match height with carousel on desktop */}
-            <GlassPanel delay={0.2} className="lg:h-[600px] lg:flex lg:flex-col">
+            <GlassPanel
+              delay={0.2}
+              className="lg:h-[600px] lg:flex lg:flex-col"
+            >
               <div className="space-y-6 flex-1 flex flex-col lg:overflow-y-auto lg:pr-2">
                 {/* Title and Status */}
                 <div>
@@ -1081,7 +1144,9 @@ const GlassMorphismEventDetails = () => {
                   <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
                     <Calendar className="w-5 h-5 text-blue-400 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs sm:text-sm text-white/60">Date</div>
+                      <div className="text-xs sm:text-sm text-white/60">
+                        Date
+                      </div>
                       <div className="font-medium text-sm sm:text-base truncate">
                         {formatIndianDate(new Date(event.start_datetime))}
                       </div>
@@ -1090,14 +1155,20 @@ const GlassMorphismEventDetails = () => {
                   <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
                     <MapPin className="w-5 h-5 text-blue-400 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs sm:text-sm text-white/60">Location</div>
-                      <div className="font-medium text-sm sm:text-base truncate">{event.location}</div>
+                      <div className="text-xs sm:text-sm text-white/60">
+                        Location
+                      </div>
+                      <div className="font-medium text-sm sm:text-base truncate">
+                        {event.location}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
                     <Clock className="w-5 h-5 text-blue-400 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs sm:text-sm text-white/60">Duration</div>
+                      <div className="text-xs sm:text-sm text-white/60">
+                        Duration
+                      </div>
                       <div className="font-medium text-sm sm:text-base">
                         {(() => {
                           const days = parseDuration(event.duration);
@@ -1109,10 +1180,14 @@ const GlassMorphismEventDetails = () => {
                   <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
                     <IndianRupee className="w-5 h-5 text-blue-400 flex-shrink-0" />
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs sm:text-sm text-white/60">Cost</div>
+                      <div className="text-xs sm:text-sm text-white/60">
+                        Cost
+                      </div>
                       <div className="font-medium text-sm sm:text-base">
                         {event.base_price === 0 ? (
-                          <Badge variant="secondary" className="text-white">Free</Badge>
+                          <Badge variant="secondary" className="text-white">
+                            Free
+                          </Badge>
                         ) : (
                           `₹${(event.base_price || 0).toLocaleString("en-IN")}`
                         )}
@@ -1226,7 +1301,7 @@ const GlassMorphismEventDetails = () => {
                 {tabScrollLeft > 0 && (
                   <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white/20 via-white/10 to-transparent pointer-events-none z-10 sm:hidden rounded-l-lg" />
                 )}
-                
+
                 {/* Right Gradient Fade Indicator */}
                 {tabScrollLeft < tabScrollWidth - tabClientWidth - 10 && (
                   <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white/20 via-white/10 to-transparent pointer-events-none z-10 sm:hidden rounded-r-lg" />
@@ -1299,11 +1374,14 @@ const GlassMorphismEventDetails = () => {
                     <div className="p-4 rounded-lg bg-amber-500/20 border border-amber-400/30 mt-6">
                       <div className="flex items-center gap-2 text-amber-300">
                         <Shield className="w-5 h-5" />
-                        <span className="font-semibold">Government ID Required</span>
+                        <span className="font-semibold">
+                          Government ID Required
+                        </span>
                       </div>
                       <p className="text-sm text-amber-200/80 mt-2">
-                        This trek requires government ID verification for participants.
-                        Please upload your ID in the Requirements tab.
+                        This trek requires government ID verification for
+                        participants. Please upload your ID in the Requirements
+                        tab.
                       </p>
                     </div>
                   )}
@@ -1366,9 +1444,10 @@ const GlassMorphismEventDetails = () => {
                       Day-by-Day Itinerary
                     </h4>
                     {trekEvent?.itinerary?.days &&
-                      Array.isArray(trekEvent.itinerary.days) &&
-                      trekEvent.itinerary.days.length > 0 ? (
-                        trekEvent.itinerary.days.map((day: any, index: number) => (
+                    Array.isArray(trekEvent.itinerary.days) &&
+                    trekEvent.itinerary.days.length > 0 ? (
+                      trekEvent.itinerary.days.map(
+                        (day: any, index: number) => (
                           <motion.div
                             key={day.day || index}
                             className="flex gap-4 p-4 rounded-lg bg-white/5 border border-white/10"
@@ -1385,25 +1464,39 @@ const GlassMorphismEventDetails = () => {
                               </h5>
                               {day.accommodation && (
                                 <p className="text-white/80 text-sm mt-1">
-                                  <span className="font-medium">Accommodation:</span>{" "}
+                                  <span className="font-medium">
+                                    Accommodation:
+                                  </span>{" "}
                                   {day.accommodation}
                                 </p>
                               )}
-                              {day.activities && Array.isArray(day.activities) && day.activities.length > 0 && (
-                                <div className="mt-2">
-                                  <p className="text-white/70 text-sm font-medium mb-1">
-                                    Activities:
-                                  </p>
-                                  <ul className="text-white/70 text-sm space-y-1">
-                                    {day.activities.map((activity: string, actIndex: number) => (
-                                      <li key={actIndex} className="flex items-start gap-2">
-                                        <span className="text-blue-400 mt-1">•</span>
-                                        <span>{activity}</span>
-                                      </li>
-                                    ))}
-                                  </ul>
-                                </div>
-                              )}
+                              {day.activities &&
+                                Array.isArray(day.activities) &&
+                                day.activities.length > 0 && (
+                                  <div className="mt-2">
+                                    <p className="text-white/70 text-sm font-medium mb-1">
+                                      Activities:
+                                    </p>
+                                    <ul className="text-white/70 text-sm space-y-1">
+                                      {day.activities.map(
+                                        (
+                                          activity: string,
+                                          actIndex: number,
+                                        ) => (
+                                          <li
+                                            key={actIndex}
+                                            className="flex items-start gap-2"
+                                          >
+                                            <span className="text-blue-400 mt-1">
+                                              •
+                                            </span>
+                                            <span>{activity}</span>
+                                          </li>
+                                        ),
+                                      )}
+                                    </ul>
+                                  </div>
+                                )}
                               {day.description && (
                                 <p className="text-white/70 text-sm mt-2">
                                   {day.description}
@@ -1411,10 +1504,13 @@ const GlassMorphismEventDetails = () => {
                               )}
                             </div>
                           </motion.div>
-                        ))
-                      ) : (
-                        <p className="text-white/60">Itinerary details will be available soon.</p>
-                      )}
+                        ),
+                      )
+                    ) : (
+                      <p className="text-white/60">
+                        Itinerary details will be available soon.
+                      </p>
+                    )}
                   </div>
                 </TabsContent>
               )}
@@ -1430,16 +1526,24 @@ const GlassMorphismEventDetails = () => {
                       <div className="[&_*]:!text-white/90 [&_*]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_p]:!text-white/80 [&_span]:!text-white/80 [&_li]:!text-white/80 [&_label]:!text-white/80 [&_label]:!font-medium [&_.card]:!bg-white/5 [&_.card]:!border-white/10 [&_.card]:!text-white [&_Card]:!bg-white/5 [&_Card]:!border-white/10 [&_CardHeader]:!text-white [&_CardTitle]:!text-white [&_CardDescription]:!text-white/80 [&_CardContent]:!text-white/80 [&_button]:!bg-white/10 [&_button]:hover:!bg-white/20 [&_button]:!border-white/20 [&_button]:!text-white [&_Button]:!bg-white/10 [&_Button]:hover:!bg-white/20 [&_Button]:!border-white/20 [&_Button]:!text-white [&_input]:!bg-white/5 [&_input]:!border-white/10 [&_input]:!text-white [&_input]:!placeholder:text-white/50 [&_Input]:!bg-white/5 [&_Input]:!border-white/10 [&_Input]:!text-white [&_select]:!bg-white/5 [&_select]:!border-white/10 [&_select]:!text-white [&_SelectTrigger]:!bg-white/5 [&_SelectTrigger]:!border-white/10 [&_SelectTrigger]:!text-white [&_.bg-muted]:!bg-white/5 [&_.bg-card]:!bg-white/5 [&_.text-muted-foreground]:!text-white/60 [&_.border]:!border-white/10 [&_.rounded-lg]:!border-white/10 [&_.rounded-xl]:!border-white/10 [&_.rounded-md]:!border-white/10">
                         <TrekRequirements
                           trekId={parseInt(id || "0", 10)}
-                          governmentIdRequired={trekEvent.government_id_required}
+                          governmentIdRequired={
+                            trekEvent.government_id_required
+                          }
                           userRegistration={userRegistration || undefined}
-                          onUploadProof={async (idTypeId: number, file: File) => {
+                          onUploadProof={async (
+                            idTypeId: number,
+                            file: File,
+                          ) => {
                             // Handle ID proof upload through the registration hook if available
                             if (uploadPaymentProof) {
                               try {
                                 // Note: This is a placeholder - adjust based on actual uploadPaymentProof signature
                                 return true;
                               } catch (error) {
-                                console.error("Error uploading ID proof:", error);
+                                console.error(
+                                  "Error uploading ID proof:",
+                                  error,
+                                );
                                 return false;
                               }
                             }

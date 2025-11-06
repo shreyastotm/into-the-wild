@@ -169,12 +169,17 @@ const TrekCard: React.FC<TrekCardProps> = ({ trek, className, onClick }) => {
             </div>
             <div className="text-right flex-shrink-0">
               {trek.price === 0 ? (
-                <Badge variant="secondary" className="text-white text-xl drop-shadow-md bg-white/20 border-white/30">
+                <Badge
+                  variant="secondary"
+                  className="text-white text-xl drop-shadow-md bg-white/20 border-white/30"
+                >
                   Free
                 </Badge>
               ) : (
                 <>
-                  <div className="text-golden-300 text-xs font-medium">from</div>
+                  <div className="text-golden-300 text-xs font-medium">
+                    from
+                  </div>
                   <div className="text-white font-bold text-xl drop-shadow-md">
                     ₹{trek.price.toLocaleString("en-IN")}
                   </div>

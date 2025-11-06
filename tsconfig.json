@@ -10,7 +10,7 @@
     "moduleDetection": "force",
     "noEmit": true,
     "composite": true,
-    "jsx": "react",
+    "jsx": "react-jsx",
     "strict": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,

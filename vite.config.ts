@@ -11,14 +11,17 @@ const cspPlugin = (isDev: boolean): Plugin => ({
     if (isDev) {
       // Remove any existing CSP meta tag and inject a new one without nonce
       const cspMeta = `<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; style-src 'self' 'unsafe-inline' https: http: data:; font-src 'self' data: https: http:; img-src 'self' data: https: http: blob:; connect-src 'self' ws: wss: https: http:; frame-src 'self' https: http:; base-uri 'self'; object-src 'none';">`;
-      
+
       // Remove existing CSP meta tags
-      html = html.replace(/<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*>/gi, "");
-      
+      html = html.replace(
+        /<meta\s+http-equiv=["']Content-Security-Policy["'][^>]*>/gi,
+        "",
+      );
+
       // Insert new CSP meta tag right after viewport meta tag
       html = html.replace(
         /(<meta\s+name=["']viewport["'][^>]*>)/i,
-        `$1\n    ${cspMeta}`
+        `$1\n    ${cspMeta}`,
       );
     }
     return html;
@@ -32,9 +35,13 @@ export default defineConfig(({ mode }) => ({
     port: 8080,
     // Relax CSP headers in development - explicitly NO nonce to allow browser extensions
     // When nonce is present, 'unsafe-inline' is ignored per CSP spec
-    headers: mode === "development" ? {
-      "Content-Security-Policy": "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; style-src 'self' 'unsafe-inline' https: http: data:; font-src 'self' data: https: http:; img-src 'self' data: https: http: blob:; connect-src 'self' ws: wss: https: http:; frame-src 'self' https: http:; base-uri 'self'; object-src 'none';"
-    } : undefined,
+    headers:
+      mode === "development"
+        ? {
+            "Content-Security-Policy":
+              "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: https: http:; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: http: data: blob:; style-src 'self' 'unsafe-inline' https: http: data:; font-src 'self' data: https: http:; img-src 'self' data: https: http: blob:; connect-src 'self' ws: wss: https: http:; frame-src 'self' https: http:; base-uri 'self'; object-src 'none';",
+          }
+        : undefined,
   },
   plugins: [
     react({

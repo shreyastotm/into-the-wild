@@ -325,8 +325,8 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
               Transport details not available
             </h4>
             <p className="text-white/80 text-sm leading-relaxed">
-              Transport details have not been added for this trek yet. Check back
-              closer to the event date.
+              Transport details have not been added for this trek yet. Check
+              back closer to the event date.
             </p>
           </div>
         </div>

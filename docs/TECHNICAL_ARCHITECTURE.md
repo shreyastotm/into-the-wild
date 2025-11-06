@@ -106,6 +106,7 @@ src/
 The application uses React Router v6 for client-side navigation:
 
 **Main Routes:**
+
 - `/` - Main landing page (GlassMorphismLandingTrial - Karnataka/Bengaluru focus, anime sketch effects)
 - `/landing-trial` - Alternative route to trial landing page (redirects to main)
 - `/glass-landing` - Previous landing page (GlassMorphismLanding)
@@ -473,6 +474,50 @@ supabase db push   # Push specific migrations
 
 ### 3.3 Database Management System {#database-management-system}
 
+#### Database Cleanup Agent
+
+The Database Cleanup Agent (9th Quality Agent) helps identify and remove unused database tables, columns, and migrations:
+
+```bash
+# Analyze unused tables and migrations
+npm run db:cleanup
+
+# Generate detailed cleanup report
+npm run db:cleanup:report
+
+# Generate SQL suggestions for cleanup
+npm run db:cleanup:suggest
+```
+
+**Features:**
+- Scans codebase for `.from()` queries to find used tables
+- Compares defined tables vs. used tables
+- Identifies orphaned migrations
+- Generates cleanup SQL scripts
+- Keeps critical tables (users, trek_events, trek_drivers, etc.)
+
+#### Migration Consolidation Agent
+
+The Migration Consolidation Agent (10th Quality Agent) consolidates and cleans up migration files:
+
+```bash
+# Analyze migrations
+npm run db:migrations:analyze
+
+# Consolidate and archive migrations
+npm run db:migrations:consolidate
+
+# Generate consolidation report
+npm run db:migrations:report
+```
+
+**Features:**
+- Merges archived migrations into consolidated schema
+- Removes duplicate migrations
+- Cleans up conflict folders
+- Validates migration order and dependencies
+- Archives temporary REMOTE_APPLY files
+
 #### Overview
 
 The project implements a comprehensive **Database Schema Management System** that provides automated schema management, migration consolidation, health checks, and synchronization between local and remote databases. This system ensures reliable, secure, and performant database operations throughout the development lifecycle.
@@ -547,6 +592,16 @@ npm run db:validate
 | `npm run db:consolidate` | Consolidate migrations into clean schema | Creates single consolidated migration   |
 | `npm run db:backup`      | Create timestamped database backup       | Backup current state                    |
 | `npm run db:health`      | Run comprehensive health checks          | Quick health assessment                 |
+| `npm run db:cleanup`     | Analyze unused tables and migrations     | Database cleanup analysis               |
+| `npm run db:cleanup:report` | Generate detailed cleanup report     | Review cleanup recommendations          |
+| `npm run db:cleanup:suggest` | Generate SQL cleanup suggestions    | Get SQL for cleanup operations          |
+| `npm run db:migrations:analyze` | Analyze migration files            | Review migration structure              |
+| `npm run db:migrations:consolidate` | Consolidate migrations        | Archive and organize migrations         |
+| `npm run db:migrations:report` | Generate migration report        | Detailed migration analysis             |
+
+**New Agents:**
+- **DatabaseCleanupAgent** (9th Quality Agent) - Identifies unused tables, columns, and orphaned migrations
+- **MigrationConsolidationAgent** (10th Quality Agent) - Consolidates and archives migration files
 
 ##### Complete Workflows
 
@@ -807,6 +862,7 @@ serve(async (req) => {
 **Social Features Foundation** (Multiple Tables)
 
 **User Connections** (`public.user_connections`)
+
 - Connection ID: UUID primary key
 - Requester/Addressee: Bidirectional relationships
 - Status: pending, accepted, blocked
@@ -817,6 +873,7 @@ serve(async (req) => {
 - RLS: Users can view own connections, admins see all
 
 **User Posts** (`public.user_posts`)
+
 - Post ID: UUID primary key
 - User ID: References users(user_id) with CASCADE delete
 - Content: TEXT (required), media_urls JSONB array
@@ -837,6 +894,7 @@ serve(async (req) => {
 - Migration: Applied via `REMOTE_APPLY_user_posts.sql` (February 2026)
 
 **Post Reactions** (`public.post_reactions`)
+
 - Reaction ID: UUID primary key
 - Post ID: References user_posts(post_id) with CASCADE delete
 - User ID: References users(user_id) with CASCADE delete
@@ -852,6 +910,7 @@ serve(async (req) => {
 - Migration: Applied via `REMOTE_APPLY_user_posts.sql` (February 2026)
 
 **Image Tagging System**
+
 - Image-to-tag associations through `public.image_tag_assignments`
 - Multi-tag filtering and category-based organization
 - Friend tagging on gallery past adventures (Phase 5B feature)
@@ -907,26 +966,31 @@ serve(async (req) => {
 The nudge system uses behavioral psychology principles to guide user actions:
 
 **Onboarding Nudges** (Trigger: onboarding)
+
 - `first_profile_setup`: Complete your profile to unlock features
 - `complete_profile`: Join 1000+ trekkers with complete profiles
 - `continue_momentum`: You're 20% there! Complete your profile to unlock more
 
 **Engagement Nudges** (Trigger: engagement)
+
 - `first_trek_urgency`: Limited spots available for your first trek!
 - `trek_discovery`: Discover treks matching your interests
 - `community_join`: Connect with fellow trekkers on your next adventure
 
 **Retention Nudges** (Trigger: retention)
+
 - `trek_recommendation`: Based on your profile, you might enjoy these treks
 - `social_connection`: Tag friends in your trek photos to share memories
 - `profile_update`: Update your interests to get better trek recommendations
 
 **Conversion Nudges** (Trigger: conversion)
+
 - `registration_complete`: Complete your registration to secure your spot
 - `payment_pending`: Secure your trek spot - payment verification pending
 - `early_bird`: Register early to get exclusive discounts
 
 **Social Nudges** (Trigger: social)
+
 - `friend_connect`: Connect with friends who share your trek interests
 - `post_share`: Share your trek experience with the community
 - `tag_friends`: Tag friends in gallery photos to relive memories together
@@ -1008,6 +1072,7 @@ The nudge system uses behavioral psychology principles to guide user actions:
 **Setup & Configuration**
 
 Environment variables required:
+
 ```env
 VITE_ENABLE_ANALYTICS=true
 VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
@@ -1025,18 +1090,18 @@ VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 
 **Available Tracking Methods**
 
-| Method | Description | Parameters |
-|--------|-------------|------------|
-| `trackEvent` | Generic event tracking | `(eventName: string, parameters?: object)` |
-| `trackTrekRegistration` | Track trek registrations | `(trekId: string, trekName: string, cost: number)` |
-| `trackPaymentSuccess` | Track payment completion | `(amount: number, trekId: string, transactionId?: string)` |
-| `trackGalleryView` | Track gallery image views | `(imageId: string, trekName?: string)` |
-| `trackForumInteraction` | Track forum actions | `(action: string, threadId?: string)` |
-| `trackProfileCompletion` | Track profile completion | `(completionPercentage: number)` |
-| `trackButtonClick` | Track button clicks | `(buttonName: string, context?: object)` |
-| `trackFormSubmit` | Track form submissions | `(formName: string, success: boolean, data?: object)` |
-| `trackNavigation` | Track navigation clicks | `(destination: string, linkText?: string)` |
-| `trackError` | Track errors | `(errorMessage: string, errorType?: string, context?: object)` |
+| Method                   | Description               | Parameters                                                     |
+| ------------------------ | ------------------------- | -------------------------------------------------------------- |
+| `trackEvent`             | Generic event tracking    | `(eventName: string, parameters?: object)`                     |
+| `trackTrekRegistration`  | Track trek registrations  | `(trekId: string, trekName: string, cost: number)`             |
+| `trackPaymentSuccess`    | Track payment completion  | `(amount: number, trekId: string, transactionId?: string)`     |
+| `trackGalleryView`       | Track gallery image views | `(imageId: string, trekName?: string)`                         |
+| `trackForumInteraction`  | Track forum actions       | `(action: string, threadId?: string)`                          |
+| `trackProfileCompletion` | Track profile completion  | `(completionPercentage: number)`                               |
+| `trackButtonClick`       | Track button clicks       | `(buttonName: string, context?: object)`                       |
+| `trackFormSubmit`        | Track form submissions    | `(formName: string, success: boolean, data?: object)`          |
+| `trackNavigation`        | Track navigation clicks   | `(destination: string, linkText?: string)`                     |
+| `trackError`             | Track errors              | `(errorMessage: string, errorType?: string, context?: object)` |
 
 **Events Tracked**
 
@@ -1061,7 +1126,7 @@ VITE_GA4_MEASUREMENT_ID=G-XXXXXXXXXX
 **Usage Example**
 
 ```typescript
-import { useGA4Analytics } from '@/hooks/useGA4Analytics';
+import { useGA4Analytics } from "@/hooks/useGA4Analytics";
 
 function TrekRegistrationForm() {
   const { trackTrekRegistration } = useGA4Analytics();
@@ -1075,10 +1140,10 @@ function TrekRegistrationForm() {
 
 **Documentation References**
 
-- Complete Setup: [GA4_ANALYTICS_INTEGRATION.md](docs/GA4_ANALYTICS_INTEGRATION.md)
-- Quick Start: [GA4_QUICK_START.md](docs/GA4_QUICK_START.md)
-- Setup Steps: [GA4_SETUP_STEPS.md](docs/GA4_SETUP_STEPS.md)
-- Verification: [GA4_SETUP_VERIFICATION.md](docs/GA4_SETUP_VERIFICATION.md)
+- Complete Setup: [GA4_ANALYTICS_INTEGRATION.md](./GA4_ANALYTICS_INTEGRATION.md)
+- Quick Start: [GA4_QUICK_START.md](./GA4_QUICK_START.md)
+- Setup Steps: [GA4_SETUP_STEPS.md](./GA4_SETUP_STEPS.md)
+- Verification: [GA4_SETUP_VERIFICATION.md](./GA4_SETUP_VERIFICATION.md)
 
 ### 5.6 Performance Monitoring
 
@@ -1264,7 +1329,7 @@ const LOADING_STATES = {
 **For detailed implementation examples, see:**
 
 - [Project Overview Guide](PROJECT_OVERVIEW.md)
-- [Technical Architecture Guide](docs/TECHNICAL_ARCHITECTURE.md#5-interaction-system-architecture)
+- [Technical Architecture Guide](#5-interaction-system-architecture)
 - [Design System Reference](DESIGN_SYSTEM.md)
 - [Communication System Guide](COMMUNICATION_SYSTEM.md)
 - [Phase 5 Interaction System Guide](PHASE5_INTERACTION_SYSTEM.md)

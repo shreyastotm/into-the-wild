@@ -275,7 +275,7 @@ VITE_GA4_MEASUREMENT_ID=G-NW4MTHFT60
 # Add other environment variables as needed
 ```
 
-**Note:** See [GA4 Analytics Integration Guide](docs/GA4_ANALYTICS_INTEGRATION.md) for complete setup instructions.
+**Note:** See [GA4 Analytics Integration Guide](./GA4_ANALYTICS_INTEGRATION.md) for complete setup instructions.
 
 #### Restart Development Server
 
@@ -545,9 +545,9 @@ npm run analyze:accessibility
 
 ### 5.7 Quality Automation System
 
-#### 8 Automated Quality Agents
+#### 13 Automated Quality Agents
 
-The project implements a comprehensive automated quality system with 8 specialized agents:
+The project implements a comprehensive automated quality system with 13 specialized agents:
 
 | Agent                           | Purpose                     | Command                     | Integration               |
 | ------------------------------- | --------------------------- | --------------------------- | ------------------------- |
@@ -559,6 +559,11 @@ The project implements a comprehensive automated quality system with 8 specializ
 | **Beautification Agent**        | Format and style            | `npm run beautify:all`      | Quality gates             |
 | **Deployment Validation Agent** | Production readiness        | `npm run deploy:validate`   | Pre-deployment            |
 | **📚 Documentation Agent**      | Documentation workflow      | `npm run docs:*`            | All quality gates         |
+| **🗄️ Database Cleanup Agent**   | Remove unused tables/columns | `npm run db:cleanup`        | Database maintenance      |
+| **🔄 Migration Consolidation**  | Consolidate migrations      | `npm run db:migrations:*`   | Database maintenance      |
+| **💀 Dead Code Detection**      | Find unused files/functions | `npm run cleanup:dead-code` | Code cleanup              |
+| **📦 Dependency Analysis**       | Optimize dependencies       | `npm run analyze:dependencies` | Dependency management |
+| **📋 File Redundancy Agent**     | Find duplicate files        | `npm run cleanup:redundant-files` | File cleanup      |
 
 #### Documentation Agent Workflow
 
@@ -583,8 +588,8 @@ npm run quality-check      # TypeScript + ESLint + Tests + Documentation
 # Enhanced quality check (strict mode with full documentation)
 npm run quality-check:strict  # Strict mode + enhanced tests + full documentation workflow
 
-# Complete project analysis (all 8 agents)
-npm run full-analysis      # All quality agents including documentation
+# Complete project analysis (all 13 agents)
+npm run full-analysis      # All quality agents including documentation, database cleanup, and file redundancy checks
 ```
 
 #### Deployment Authorization

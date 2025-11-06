@@ -513,7 +513,7 @@ export function TrekImagesManager({
       position?: number,
     ): Promise<{ url: string; type: "image" | "video" }> => {
       const isVideo = file.type.startsWith("video/");
-      
+
       // For images, use centralized utility
       if (!isVideo && position) {
         const url = await uploadTrekImage(file, trekId, position);
@@ -522,7 +522,7 @@ export function TrekImagesManager({
           type: "image" as const,
         };
       }
-      
+
       // For videos, handle separately (videos use different path structure)
       const fileExt = file.name.split(".").pop();
       const timestamp = Date.now();

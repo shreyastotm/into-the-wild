@@ -168,9 +168,9 @@ export const OrigamiHamburger: React.FC<OrigamiHamburgerProps> = ({
     const path = location.pathname;
     if (path === "/gallery" || path.startsWith("/glass-gallery"))
       return "gallery";
-    if (path === "/glass-events" || path.startsWith("/glass-events")) return "events";
-    if (path.startsWith("/glass-event-details/"))
-      return "details";
+    if (path === "/glass-events" || path.startsWith("/glass-events"))
+      return "events";
+    if (path.startsWith("/glass-event-details/")) return "details";
     if (path === "/") return "landing";
     if (path === "/profile") return "profile";
     if (path === "/community") return "community";

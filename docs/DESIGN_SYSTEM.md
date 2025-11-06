@@ -475,6 +475,7 @@ const DialogContent = React.forwardRef<
 Located at `/landing-trial`, this trial landing page features:
 
 **Key Features:**
+
 - **Karnataka/Bengaluru Focus**: Contextual content highlighting Western Ghats, local adventures
 - **Anime Sketch Effects**: Hand-drawn sketchy aesthetic with blur and bloom effects
 - **Database Integration**: Real event and gallery images from Supabase
@@ -483,6 +484,7 @@ Located at `/landing-trial`, this trial landing page features:
 - **Jam Yard Integration**: Exclusive workshop access details
 
 **Anime Sketch Effect Classes** (defined in `src/index.css`):
+
 - `.anime-sketch-blur` - Blurred background with sketchy glow
 - `.sketchy-border` - Hand-drawn style borders
 - `.anime-bloom` - Bloom/glow effect with pulse animation
@@ -492,6 +494,7 @@ Located at `/landing-trial`, this trial landing page features:
 - `.anime-sketch-text` - Text with glow and shadow effects
 
 **Component Structure:**
+
 ```tsx
 // src/components/landing/EventCardsPreview.tsx
 // Displays upcoming events with:
@@ -510,11 +513,13 @@ Located at `/landing-trial`, this trial landing page features:
 ```
 
 **Routing:**
+
 - Gallery buttons route to `/gallery` (not `/glass-gallery`)
 - Event buttons route to `/events` or `/glass-events`
 - All routes follow React Router v6 conventions
 
 **Database Queries:**
+
 ```typescript
 // EventCardsPreview - Fetches upcoming events
 const { data } = await supabase

@@ -1,17 +1,17 @@
 {
-  "timestamp": "2025-11-01T12:31:05.606Z",
+  "timestamp": "2025-11-06T13:40:55.963Z",
   "summary": {
-    "total": 1146,
+    "total": 1188,
     "errors": 0,
-    "warnings": 145,
-    "info": 1001,
+    "warnings": 153,
+    "info": 1035,
     "autoApplied": 0
   },
   "categories": {
     "syntax": 0,
     "style": 0,
-    "performance": 632,
-    "accessibility": 513,
+    "performance": 658,
+    "accessibility": 529,
     "security": 0,
     "indian-compliance": 1
   },
@@ -546,7 +546,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 335,
+      "line": 336,
       "column": 19,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -557,7 +557,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 351,
+      "line": 352,
       "column": 11,
       "issue": "Button missing accessible name",
       "fix": "Add aria-label or aria-labelledby for screen readers",
@@ -568,7 +568,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 352,
+      "line": 353,
       "column": 13,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -579,7 +579,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 390,
+      "line": 391,
       "column": 23,
       "issue": "Button missing accessible name",
       "fix": "Add aria-label or aria-labelledby for screen readers",
@@ -590,7 +590,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 392,
+      "line": 393,
       "column": 25,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -601,7 +601,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 783,
+      "line": 793,
       "column": 17,
       "issue": "Image missing alt attribute",
       "fix": "Add descriptive alt text for accessibility",
@@ -612,7 +612,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 789,
+      "line": 799,
       "column": 17,
       "issue": "Image missing alt attribute",
       "fix": "Add descriptive alt text for accessibility",
@@ -623,7 +623,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 824,
+      "line": 834,
       "column": 17,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -634,7 +634,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 843,
+      "line": 853,
       "column": 19,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -645,7 +645,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 867,
+      "line": 877,
       "column": 21,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -656,7 +656,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 1016,
+      "line": 1026,
       "column": 29,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -667,7 +667,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 1036,
+      "line": 1046,
       "column": 31,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -678,7 +678,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 1064,
+      "line": 1074,
       "column": 31,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -689,7 +689,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 1133,
+      "line": 1143,
       "column": 41,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -700,7 +700,7 @@
     },
     {
       "file": "src\\components\\admin\\TrekImagesManager.tsx",
-      "line": 1137,
+      "line": 1147,
       "column": 17,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -843,7 +843,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 258,
+      "line": 259,
       "column": 13,
       "issue": "Image missing alt attribute",
       "fix": "Add descriptive alt text for accessibility",
@@ -854,7 +854,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 324,
+      "line": 329,
       "column": 17,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -865,7 +865,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 365,
+      "line": 370,
       "column": 19,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -876,7 +876,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 396,
+      "line": 401,
       "column": 23,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -887,7 +887,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 421,
+      "line": 426,
       "column": 13,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -898,7 +898,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 435,
+      "line": 440,
       "column": 19,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -909,7 +909,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 456,
+      "line": 461,
       "column": 19,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -920,7 +920,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 471,
+      "line": 476,
       "column": 19,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",
@@ -931,7 +931,7 @@
     },
     {
       "file": "src\\components\\dashboard\\UserTreks.tsx",
-      "line": 482,
+      "line": 487,
       "column": 13,
       "issue": "Interactive element may need focus management",
       "fix": "Consider adding tabIndex or using proper interactive elements",

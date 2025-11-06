@@ -335,7 +335,7 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       // Show appropriate success message based on cost and ID requirements
       const isFree = (trekEvent.cost || 0) === 0;
       let successMessage: string;
-      
+
       if (isFree) {
         successMessage = trekEvent.government_id_required
           ? "Registration successful! Next step: Upload your government ID in the Requirements tab."

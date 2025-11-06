@@ -1,23 +1,23 @@
 ARCHITECTURE IMPROVEMENT REPORT
 ===============================
-Date: 2025-11-01T12:32:19.489Z
+Date: 2025-11-06T13:42:11.510Z
 Project: Into The Wild
 
 CURRENT STRUCTURE ANALYSIS:
-📁 Total Files: 927
-📂 Total Directories: 102
+📁 Total Files: 924
+📂 Total Directories: 104
 🔄 Max Depth: 4 levels
 
 FILE TYPE DISTRIBUTION:
-  .tsx: 262 files
-  .sql: 169 files
+  .tsx: 263 files
+  .sql: 173 files
   .md: 107 files
-  .js: 97 files
-  .map: 90 files
-  .ts: 71 files
+  .js: 91 files
+  .map: 84 files
+  .ts: 73 files
   .json: 21 files
-  .txt: 16 files
-  .png: 15 files
+  .txt: 17 files
+  .png: 17 files
   .svg: 10 files
   .jpg: 9 files
   .ps1: 9 files
@@ -26,7 +26,7 @@ FILE TYPE DISTRIBUTION:
   .mjs: 8 files
   .css: 5 files
   .sh: 4 files
-  no extension: 4 files
+  no extension: 3 files
   .ico: 2 files
   .html: 2 files
   .toml: 2 files
@@ -40,7 +40,7 @@ FILE TYPE DISTRIBUTION:
   .tsbuildinfo: 1 files
 
 CODE COMPLEXITY METRICS:
-🧠 Cyclomatic Complexity: 3504
+🧠 Cyclomatic Complexity: 3788
 📈 Maintainability Index: 89/100
 💳 Technical Debt Items: 1
 
@@ -52,9 +52,9 @@ IMMEDIATE RECOMMENDATIONS:
 🏗️ Separate localization logic for Indian market requirements
 
 IMPORT OPTIMIZATION:
-📦 Consider consolidating 20 frequently used imports
-📦 High external dependency count (206) - consider bundling optimization
-📦 Consider using path aliases for 56 long import paths
+📦 Consider consolidating 21 frequently used imports
+📦 High external dependency count (207) - consider bundling optimization
+📦 Consider using path aliases for 68 long import paths
 
 FRONTEND/BACKEND SEPARATION:
 🖥️ Separate React components and pages into src/frontend/

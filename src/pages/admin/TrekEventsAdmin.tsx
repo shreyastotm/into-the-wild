@@ -19,8 +19,8 @@ import React, { useCallback, useEffect, useState } from "react";
 import { supabase } from "../../integrations/supabase/client";
 
 import { TrekImagesManager } from "@/components/admin/TrekImagesManager";
-import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
 import { AdminTrekEvent } from "@/components/trek/create/types";
+import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -651,9 +651,10 @@ const TrekEventsAdmin = () => {
       // Preserve status if present
       status: trekData.status || undefined,
       // Include jam_yard_details for Jam Yard events
-      jam_yard_details: trekData.event_type === EventType.JAM_YARD 
-        ? trekData.jam_yard_details 
-        : undefined,
+      jam_yard_details:
+        trekData.event_type === EventType.JAM_YARD
+          ? trekData.jam_yard_details
+          : undefined,
     };
 
     // Validate required fields before submission
@@ -784,21 +785,28 @@ const TrekEventsAdmin = () => {
       }
 
       // Step 5: Handle image uploads (up to 5 images)
-      const imagesToUpload = images?.filter((img): img is string => !!img) || 
-                            (image ? [image] : []);
-      
+      const imagesToUpload =
+        images?.filter((img): img is string => !!img) || (image ? [image] : []);
+
       if (imagesToUpload.length > 0) {
         // Import uploadTrekImage dynamically to avoid circular dependencies
         const { uploadTrekImage } = await import("@/utils/imageStorage");
-        
+
         const uploadPromises = imagesToUpload.map(async (base64Data, index) => {
           try {
             // Convert base64 data URL to File (without using fetch to avoid CSP violation)
             const { base64ToFile } = await import("@/utils/imageUtils");
-            const file = base64ToFile(base64Data, `trek-${trekIdToUpdate}-image-${index + 1}.jpg`);
+            const file = base64ToFile(
+              base64Data,
+              `trek-${trekIdToUpdate}-image-${index + 1}.jpg`,
+            );
 
             // Upload image to storage
-            const imageUrl = await uploadTrekImage(file, trekIdToUpdate, index + 1);
+            const imageUrl = await uploadTrekImage(
+              file,
+              trekIdToUpdate,
+              index + 1,
+            );
 
             // Check if image at this position already exists
             const { data: existingImages, error: checkError } = await supabase
@@ -808,12 +816,18 @@ const TrekEventsAdmin = () => {
               .eq("position", index + 1)
               .limit(1);
 
-            if (checkError && checkError.code !== 'PGRST116') {
+            if (checkError && checkError.code !== "PGRST116") {
               // PGRST116 is "no rows returned" which is fine, ignore it
-              console.warn(`Error checking for existing image ${index + 1}:`, checkError);
+              console.warn(
+                `Error checking for existing image ${index + 1}:`,
+                checkError,
+              );
             }
 
-            const existingImage = existingImages && existingImages.length > 0 ? existingImages[0] : null;
+            const existingImage =
+              existingImages && existingImages.length > 0
+                ? existingImages[0]
+                : null;
 
             if (existingImage) {
               // Update existing image
@@ -821,9 +835,12 @@ const TrekEventsAdmin = () => {
                 .from("trek_event_images")
                 .update({ image_url: imageUrl })
                 .eq("id", existingImage.id);
-              
+
               if (updateError) {
-                console.warn(`Failed to update image ${index + 1}:`, updateError);
+                console.warn(
+                  `Failed to update image ${index + 1}:`,
+                  updateError,
+                );
               }
             } else {
               // Insert new image
@@ -836,7 +853,10 @@ const TrekEventsAdmin = () => {
                 });
 
               if (insertError) {
-                console.warn(`Failed to save image ${index + 1} to trek_event_images:`, insertError);
+                console.warn(
+                  `Failed to save image ${index + 1} to trek_event_images:`,
+                  insertError,
+                );
                 // For the first image, also try saving to trek_events.image_url as fallback
                 if (index === 0) {
                   await supabase
@@ -856,7 +876,10 @@ const TrekEventsAdmin = () => {
                   .update({ image_url: base64Data })
                   .eq("trek_id", trekIdToUpdate);
               } catch (fallbackError) {
-                console.error("Failed to save image even as fallback:", fallbackError);
+                console.error(
+                  "Failed to save image even as fallback:",
+                  fallbackError,
+                );
               }
             }
           }

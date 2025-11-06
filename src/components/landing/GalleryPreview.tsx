@@ -47,7 +47,9 @@ const GalleryPreview: React.FC = () => {
           .from("trek_events")
           .select("trek_id, name, location, start_datetime, image_url")
           .lt("start_datetime", new Date().toISOString())
-          .or("location.ilike.%Karnataka%,location.ilike.%Bengaluru%,location.ilike.%Bangalore%")
+          .or(
+            "location.ilike.%Karnataka%,location.ilike.%Bengaluru%,location.ilike.%Bangalore%",
+          )
           .order("start_datetime", { ascending: false })
           .limit(4);
 
@@ -77,13 +79,16 @@ const GalleryPreview: React.FC = () => {
 
           // Transform to GalleryItem format
           const transformedItems: GalleryItem[] = events.map((event, index) => {
-            const galleryImage = firstImageByTrek[event.trek_id] || event.image_url;
+            const galleryImage =
+              firstImageByTrek[event.trek_id] || event.image_url;
             const locationParts = (event.location || "Karnataka").split(",");
             const shortLocation = locationParts[0] || "Karnataka";
 
             return {
               id: event.trek_id,
-              image: galleryImage || "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80",
+              image:
+                galleryImage ||
+                "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=600&q=80",
               title: event.name || "Adventure Memory",
               location: event.location || "Karnataka",
               date: new Date(event.start_datetime).toLocaleDateString("en-IN", {
@@ -97,29 +102,30 @@ const GalleryPreview: React.FC = () => {
               tags: shortLocation.toLowerCase().includes("coorg")
                 ? ["Coffee", "Misty Hills", "Friends"]
                 : shortLocation.toLowerCase().includes("gokarna")
-                ? ["Beach", "Sunset", "Camping"]
-                : shortLocation.toLowerCase().includes("nandi")
-                ? ["Sunrise", "Day Trek", "Friends"]
-                : ["Nature", "Adventure", "Friends"],
-              achievement: index === 0
-                ? {
-                    icon: Trophy,
-                    label: "Peak Conqueror",
-                    color: "from-yellow-400 to-orange-500",
-                  }
-                : index === 1
-                ? {
-                    icon: Star,
-                    label: "Nature Photographer",
-                    color: "from-purple-400 to-pink-500",
-                  }
-                : index === 2
-                ? {
-                    icon: Compass,
-                    label: "Trail Blazer",
-                    color: "from-green-400 to-teal-500",
-                  }
-                : undefined,
+                  ? ["Beach", "Sunset", "Camping"]
+                  : shortLocation.toLowerCase().includes("nandi")
+                    ? ["Sunrise", "Day Trek", "Friends"]
+                    : ["Nature", "Adventure", "Friends"],
+              achievement:
+                index === 0
+                  ? {
+                      icon: Trophy,
+                      label: "Peak Conqueror",
+                      color: "from-yellow-400 to-orange-500",
+                    }
+                  : index === 1
+                    ? {
+                        icon: Star,
+                        label: "Nature Photographer",
+                        color: "from-purple-400 to-pink-500",
+                      }
+                    : index === 2
+                      ? {
+                          icon: Compass,
+                          label: "Trail Blazer",
+                          color: "from-green-400 to-teal-500",
+                        }
+                      : undefined,
             };
           });
 
@@ -216,7 +222,8 @@ const GalleryPreview: React.FC = () => {
   };
 
   // Use real gallery items if available, otherwise use mock items
-  const displayGalleryItems = dbGalleryItems.length > 0 ? dbGalleryItems : mockGalleryItems;
+  const displayGalleryItems =
+    dbGalleryItems.length > 0 ? dbGalleryItems : mockGalleryItems;
 
   return (
     <div className="relative">

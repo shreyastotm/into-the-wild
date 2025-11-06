@@ -61,7 +61,9 @@ const GlassMorphismEventDetails = lazy(
   () => import("./pages/GlassMorphismEventDetails"),
 );
 const GlassMorphismLanding = lazy(() => import("./pages/GlassMorphismLanding"));
-const GlassMorphismLandingTrial = lazy(() => import("./pages/GlassMorphismLandingTrial"));
+const GlassMorphismLandingTrial = lazy(
+  () => import("./pages/GlassMorphismLandingTrial"),
+);
 
 const AppLayout = () => (
   <Layout>

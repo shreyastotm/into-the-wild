@@ -1,10 +1,10 @@
 {
-  "timestamp": "2025-11-01T12:32:27.966Z",
+  "timestamp": "2025-11-06T13:42:14.385Z",
   "summary": {
-    "filesAnalyzed": 326,
+    "filesAnalyzed": 329,
     "formattingApplied": 0,
-    "namingIssues": 6986,
-    "documentationIssues": 223,
+    "namingIssues": 7389,
+    "documentationIssues": 225,
     "importOrganization": 2,
     "readabilityScore": 35
   },
@@ -19,7 +19,7 @@
       },
       {
         "file": "src\\App.tsx",
-        "line": 77,
+        "line": 78,
         "issue": "Function starts with uppercase: App",
         "suggestion": "Use camelCase for functions (start with lowercase)",
         "type": "function"
@@ -184,30 +184,30 @@
       "src\\components\\admin\\AdminSidebar.tsx:133 - Line too long (205 characters)",
       "src\\components\\admin\\AdminSidebar.tsx:144 - Line too long (176 characters)",
       "src\\components\\admin\\TentRequestsAdmin.tsx:137 - Line too long (109 characters)",
-      "src\\components\\admin\\TrekImagesManager.tsx:353 - Line too long (151 characters)",
-      "src\\components\\admin\\TrekImagesManager.tsx:394 - Line too long (113 characters)",
-      "src\\components\\admin\\TrekImagesManager.tsx:416 - Line too long (104 characters)",
-      "src\\components\\admin\\TrekImagesManager.tsx:770 - Line too long (169 characters)",
-      "src\\components\\admin\\TrekImagesManager.tsx:986 - Line too long (106 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:354 - Line too long (151 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:395 - Line too long (113 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:417 - Line too long (104 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:516 - Trailing whitespace",
+      "src\\components\\admin\\TrekImagesManager.tsx:525 - Trailing whitespace",
+      "src\\components\\admin\\TrekImagesManager.tsx:780 - Line too long (169 characters)",
+      "src\\components\\admin\\TrekImagesManager.tsx:996 - Line too long (106 characters)",
       "src\\components\\admin\\UserVerificationPanel.tsx:224 - Line too long (198 characters)",
       "src\\components\\AnalyticsConsent.tsx:15 - Inconsistent indentation",
       "src\\components\\AnalyticsConsent.tsx:16 - Inconsistent indentation",
       "src\\components\\AnalyticsConsent.tsx:17 - Inconsistent indentation",
       "src\\components\\AnalyticsConsent.tsx:18 - Inconsistent indentation",
       "src\\components\\AnalyticsConsent.tsx:19 - Inconsistent indentation",
-      "src\\components\\AnalyticsConsent.tsx:20 - Inconsistent indentation",
-      "src\\components\\AnalyticsConsent.tsx:21 - Inconsistent indentation",
-      "src\\components\\AnalyticsConsent.tsx:22 - Inconsistent indentation"
+      "src\\components\\AnalyticsConsent.tsx:20 - Inconsistent indentation"
     ]
   },
   "metrics": {
-    "averageLineLength": 30.508018569318423,
-    "commentRatio": 3.2707322219877613,
+    "averageLineLength": 30.522188257615685,
+    "commentRatio": 3.288710867502899,
     "functionComplexity": 0
   },
   "recommendations": [
-    "Fix 6986 naming convention issues",
-    "Add JSDoc documentation for 223 functions",
+    "Fix 7389 naming convention issues",
+    "Add JSDoc documentation for 225 functions",
     "Organize imports in 2 files",
     "Add more inline comments to explain complex logic",
     "Apply consistent indentation (2 spaces recommended)",

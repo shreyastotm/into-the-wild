@@ -18,7 +18,7 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
   const isPartnerOrAdmin =
     userProfile?.user_type === "micro_community" ||
     userProfile?.user_type === "admin";
-  
+
   const handleCardClick = (eventType: EventType) => {
     setFormData((prev) => ({ ...prev, event_type: eventType }));
   };
@@ -41,7 +41,7 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
         }
         className="space-y-4"
       >
-        <Card 
+        <Card
           className="p-4 hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => handleCardClick(EventType.TREK)}
           role="button"
@@ -75,7 +75,7 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
           </div>
         </Card>
 
-        <Card 
+        <Card
           className="p-4 hover:shadow-md transition-shadow cursor-pointer"
           onClick={() => handleCardClick(EventType.CAMPING)}
           role="button"
@@ -116,7 +116,7 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
 
         {/* Jam Yard card - only shown for partners and admins */}
         {isPartnerOrAdmin && (
-          <Card 
+          <Card
             className="p-4 hover:shadow-md transition-shadow cursor-pointer border-orange-200"
             onClick={() => handleCardClick(EventType.JAM_YARD)}
             role="button"

@@ -131,7 +131,9 @@ export async function deleteTrekImage(imageUrl: string): Promise<void> {
     // If it's a public URL, extract the path and bucket
     if (imageUrl.includes("/storage/v1/object/public/")) {
       // Extract bucket name and path
-      const match = imageUrl.match(/\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/);
+      const match = imageUrl.match(
+        /\/storage\/v1\/object\/public\/([^/]+)\/(.+)$/,
+      );
       if (match && match[1] && match[2]) {
         bucketToUse = match[1]; // Use the bucket from the URL
         path = decodeURIComponent(match[2]);
@@ -164,4 +166,3 @@ export async function deleteTrekImage(imageUrl: string): Promise<void> {
     throw error;
   }
 }
-

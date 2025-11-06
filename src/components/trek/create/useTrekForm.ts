@@ -29,7 +29,9 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [imagePreviews, setImagePreviews] = useState<(string | null)[]>(Array(5).fill(null));
+  const [imagePreviews, setImagePreviews] = useState<(string | null)[]>(
+    Array(5).fill(null),
+  );
   const [gpxFile, setGpxFile] = useState<File | null>(null);
 
   // Handle single image upload (for backward compatibility)

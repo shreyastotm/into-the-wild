@@ -210,91 +210,92 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                     userRegistration.booking_datetime,
                   ).toLocaleDateString()}
                 </p>
-                {userRegistration.payment_status === "Pending" && trek.cost > 0 && (
-                  <div className="flex justify-center">
-                    <FormSection
-                      title="Upload Payment Proof"
-                      description="Please provide the payer's details and upload payment proof"
-                      variant="bordered"
-                      className="w-full max-w-md"
-                    >
-                      <div className="space-y-4">
-                        <FormField
-                          label="Payer's Name"
-                          name="registrant-name"
-                          type="text"
-                          value={registrantName}
-                          onChange={setRegistrantName}
-                          placeholder="Name of person making payment"
-                          required
-                          disabled={
-                            isUploadingProof ||
-                            !!userRegistration.payment_proof_url
-                          }
-                          icon={<User className="h-4 w-4" />}
-                          helpText="This may be you or someone paying on your behalf"
-                        />
+                {userRegistration.payment_status === "Pending" &&
+                  trek.cost > 0 && (
+                    <div className="flex justify-center">
+                      <FormSection
+                        title="Upload Payment Proof"
+                        description="Please provide the payer's details and upload payment proof"
+                        variant="bordered"
+                        className="w-full max-w-md"
+                      >
+                        <div className="space-y-4">
+                          <FormField
+                            label="Payer's Name"
+                            name="registrant-name"
+                            type="text"
+                            value={registrantName}
+                            onChange={setRegistrantName}
+                            placeholder="Name of person making payment"
+                            required
+                            disabled={
+                              isUploadingProof ||
+                              !!userRegistration.payment_proof_url
+                            }
+                            icon={<User className="h-4 w-4" />}
+                            helpText="This may be you or someone paying on your behalf"
+                          />
 
-                        <FormField
-                          label="Payer's Phone Number"
-                          name="registrant-phone"
-                          type="tel"
-                          value={registrantPhone}
-                          onChange={setRegistrantPhone}
-                          placeholder="Phone number used for payment"
-                          required
-                          disabled={
-                            isUploadingProof ||
-                            !!userRegistration.payment_proof_url
-                          }
-                          icon={<Phone className="h-4 w-4" />}
-                          helpText="Phone number from which payment was made"
-                        />
+                          <FormField
+                            label="Payer's Phone Number"
+                            name="registrant-phone"
+                            type="tel"
+                            value={registrantPhone}
+                            onChange={setRegistrantPhone}
+                            placeholder="Phone number used for payment"
+                            required
+                            disabled={
+                              isUploadingProof ||
+                              !!userRegistration.payment_proof_url
+                            }
+                            icon={<Phone className="h-4 w-4" />}
+                            helpText="Phone number from which payment was made"
+                          />
 
-                        <FormField
-                          label="Payment Proof (Screenshot/Receipt)"
-                          name="payment-proof"
-                          type="file"
-                          onChange={(value) => setPaymentProofFile(value)}
-                          required
-                          disabled={
-                            isUploadingProof ||
-                            !!userRegistration.payment_proof_url
-                          }
-                          icon={<FileText className="h-4 w-4" />}
-                          helpText="Upload image or PDF of payment receipt"
-                          accept="image/*,.pdf"
-                        />
+                          <FormField
+                            label="Payment Proof (Screenshot/Receipt)"
+                            name="payment-proof"
+                            type="file"
+                            onChange={(value) => setPaymentProofFile(value)}
+                            required
+                            disabled={
+                              isUploadingProof ||
+                              !!userRegistration.payment_proof_url
+                            }
+                            icon={<FileText className="h-4 w-4" />}
+                            helpText="Upload image or PDF of payment receipt"
+                            accept="image/*,.pdf"
+                          />
 
-                        {paymentProofFile &&
-                          !userRegistration.payment_proof_url && (
-                            <Button
-                              onClick={handleUploadProof}
-                              disabled={
-                                isUploadingProof ||
-                                !paymentProofFile ||
-                                !registrantName.trim() ||
-                                !registrantPhone.trim()
-                              }
-                              className="w-full text-sm"
-                              size="sm"
-                            >
-                              {isUploadingProof
-                                ? "Uploading..."
-                                : "Upload Proof"}
-                              <UploadCloud className="ml-2 h-4 w-4" />
-                            </Button>
+                          {paymentProofFile &&
+                            !userRegistration.payment_proof_url && (
+                              <Button
+                                onClick={handleUploadProof}
+                                disabled={
+                                  isUploadingProof ||
+                                  !paymentProofFile ||
+                                  !registrantName.trim() ||
+                                  !registrantPhone.trim()
+                                }
+                                className="w-full text-sm"
+                                size="sm"
+                              >
+                                {isUploadingProof
+                                  ? "Uploading..."
+                                  : "Upload Proof"}
+                                <UploadCloud className="ml-2 h-4 w-4" />
+                              </Button>
+                            )}
+
+                          {userRegistration.payment_proof_url && (
+                            <p className="text-xs text-green-600 dark:text-green-400">
+                              ✓ Proof uploaded. Awaiting admin verification.
+                            </p>
                           )}
-
-                        {userRegistration.payment_proof_url && (
-                          <p className="text-xs text-green-600 dark:text-green-400">
-                            ✓ Proof uploaded. Awaiting admin verification.
-                          </p>
-                        )}
-                      </div>
-                    </FormSection>
-                  </div>
-                )}
+                        </div>
+                      </FormSection>
+                    </div>
+                  )}
                 {userRegistration.payment_status === "ProofUploaded" && (
                   <div className="flex justify-center">
                     <p className="text-sm text-blue-700 dark:text-blue-300 text-center">
