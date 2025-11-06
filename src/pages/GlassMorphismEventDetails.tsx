@@ -8,6 +8,7 @@ import {
   ChevronLeft,
   ChevronRight,
   Clock,
+  DollarSign,
   Heart,
   IndianRupee,
   Info,
@@ -33,6 +34,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/components/auth/AuthProvider";
 import { GlassThemeHeader } from "@/components/navigation/GlassThemeHeader";
 import { OrigamiHamburger } from "@/components/navigation/OrigamiHamburger";
+import { TrekRequirements } from "@/components/trek/TrekRequirements";
+import TrekPackingList from "@/components/trek/TrekPackingList";
+import { TravelCoordination } from "@/components/trek/TravelCoordination";
+import { TrekDiscussion } from "@/components/trek/TrekDiscussion";
+import { ExpenseSplitting } from "@/components/expenses/ExpenseSplitting";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -205,6 +211,10 @@ const GlassMorphismEventDetails = () => {
   const [event, setEvent] = useState<any>(null);
   const [images, setImages] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState("overview");
+  const [tabScrollLeft, setTabScrollLeft] = useState(0);
+  const [tabScrollWidth, setTabScrollWidth] = useState(0);
+  const [tabClientWidth, setTabClientWidth] = useState(0);
+  const tabsListRef = React.useRef<HTMLDivElement>(null);
 
   // Use hooks for data fetching
   const { trekEvent, loading: trekLoading } = useTrekEventDetails(id);
@@ -219,6 +229,9 @@ const GlassMorphismEventDetails = () => {
     participants,
     participantCount,
     loading: communityLoading,
+    comments,
+    commentsLoading,
+    addComment,
   } = useTrekCommunity(id);
   const { costs, loading: costsLoading } = useTrekCosts(id);
 
@@ -243,25 +256,84 @@ const GlassMorphismEventDetails = () => {
         const numericId = id ? parseInt(id, 10) : null;
         if (!numericId || isNaN(numericId)) return;
 
-        const { data: imagesData, error: imagesError } = await (supabase
+        // Fetch images with ordering by position
+        const { data: imagesData, error: imagesError } = await supabase
           .from("trek_event_images")
-          .select("image_url")
-          .eq("trek_id", numericId as any) as any);
+          .select("image_url, position")
+          .eq("trek_id", numericId)
+          .order("position", { ascending: true });
 
         if (imagesError) {
-          console.error("Error fetching images:", imagesError);
+          console.error("❌ Error fetching images for trek", numericId, ":", imagesError);
+        } else {
+          console.log(`✅ Fetched ${imagesData?.length || 0} images for trek ${numericId}`);
+          if (imagesData && imagesData.length > 0) {
+            console.log("📸 Sample image:", imagesData[0]);
+          }
         }
 
-        if (imagesData && imagesData.length > 0) {
-          setImages(imagesData.map((img: any) => img.image_url));
+        // Helper function to convert storage path to public URL if needed
+        const getImageUrl = (imageUrl: string): string => {
+          if (!imageUrl || imageUrl.trim() === "") return "";
+          
+          // If it's already a full URL (http/https), check if it needs bucket migration
+          if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+            // If URL points to old trek-images bucket, update to trek-assets bucket
+            if (imageUrl.includes("/storage/v1/object/public/trek-images/")) {
+              const updatedUrl = imageUrl.replace("/storage/v1/object/public/trek-images/", "/storage/v1/object/public/trek-assets/");
+              console.log(`🔄 Migrated URL from trek-images to trek-assets: ${imageUrl.substring(0, 80)}... -> ${updatedUrl.substring(0, 80)}...`);
+              return updatedUrl;
+            }
+            // If it already points to trek-assets or is external, return as is
+            return imageUrl;
+          }
+          
+          // If it's a storage path (starts with treks/), convert to public URL
+          // Trek images are stored in trek-assets bucket
+          if (imageUrl.startsWith("treks/") || imageUrl.startsWith("trek-assets/") || imageUrl.startsWith("trek-images/")) {
+            let path = imageUrl;
+            if (imageUrl.startsWith("trek-assets/")) {
+              path = imageUrl.replace("trek-assets/", "");
+            } else if (imageUrl.startsWith("trek-images/")) {
+              path = imageUrl.replace("trek-images/", "");
+            } else if (imageUrl.startsWith("treks/")) {
+              // Keep treks/ prefix as is for trek-assets bucket
+              path = imageUrl;
+            }
+            const { data } = supabase.storage.from("trek-assets").getPublicUrl(path);
+            return data.publicUrl;
+          }
+          
+          // Return as is (might be a relative path or other format)
+          return imageUrl;
+        };
+
+        // Validate and filter image URLs, converting storage paths to public URLs
+        const validImages = imagesData
+          ?.filter((img: any) => img.image_url && img.image_url.trim() !== "")
+          .map((img: any) => getImageUrl(img.image_url))
+          .filter((url: string) => url !== "") || [];
+
+        console.log(`📊 Valid images after filtering: ${validImages.length} for trek ${numericId}`);
+
+        if (validImages.length > 0) {
+          console.log(`✅ Using ${validImages.length} DB images for trek ${numericId}`);
+          setImages(validImages);
         } else {
-          // Fallback to default images if none found
-          setImages([
-            "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
-            "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80",
-            "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
-            "https://images.unsplash.com/photo-1574263867128-a3d5c1b1deac?w=800&q=80",
-          ]);
+          // Try to use image_url from trek_events as fallback
+          if (trekEvent?.image_url && trekEvent.image_url.trim() !== "") {
+            console.log(`⚠️ Using trek_events.image_url fallback for trek ${numericId}`);
+            const fallbackUrl = getImageUrl(trekEvent.image_url);
+            setImages(fallbackUrl ? [fallbackUrl] : []);
+          } else {
+            console.log(`❌ Using placeholder images for trek ${numericId} (no DB images)`);
+            // Final fallback to default images
+            setImages([
+              "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=800&q=80",
+              "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
+              "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=800&q=80",
+            ]);
+          }
         }
       } catch (error) {
         console.error("Error fetching images:", error);
@@ -272,7 +344,7 @@ const GlassMorphismEventDetails = () => {
     };
 
     fetchImages();
-  }, [id]);
+  }, [id, trekEvent]);
 
   // Track page view when event loads
   useEffect(() => {
@@ -288,6 +360,205 @@ const GlassMorphismEventDetails = () => {
     }
   }, [event, trekEvent, id, costs, trackEvent]);
 
+  // Fetch requirements from database
+  const [requirements, setRequirements] = useState<string[]>([]);
+
+  useEffect(() => {
+    const loadRequirements = async () => {
+      if (!id || !trekEvent) return;
+
+      try {
+        const numericId = parseInt(id, 10);
+        if (isNaN(numericId)) {
+          setRequirements(getDefaultRequirements());
+          return;
+        }
+
+        // Fetch packing list items assigned to this trek
+        const { data: assignments, error } = await supabase
+          .from("trek_packing_list_assignments")
+          .select(`
+            master_item_id,
+            mandatory,
+            item_order,
+            master_packing_items:master_item_id (
+              name,
+              category
+            )
+          `)
+          .eq("trek_id", numericId)
+          .order("item_order", { ascending: true });
+
+        if (error) {
+          console.warn("Error fetching requirements:", error);
+          setRequirements(getDefaultRequirements());
+          return;
+        }
+
+        if (assignments && assignments.length > 0) {
+          // Extract item names, prioritizing mandatory items first
+          const mandatoryItems = assignments
+            .filter((a: any) => a.mandatory && a.master_packing_items)
+            .map((a: any) => a.master_packing_items.name);
+          
+          const optionalItems = assignments
+            .filter((a: any) => !a.mandatory && a.master_packing_items)
+            .map((a: any) => a.master_packing_items.name);
+
+          // Combine: mandatory first, then optional
+          const allItems = [...mandatoryItems, ...optionalItems];
+          
+          // Always include ID proof requirement
+          const reqs = ["Valid ID proof"];
+          if (trekEvent.government_id_required) {
+            reqs.push("Government ID verification");
+          }
+          
+          // Add database items (avoid duplicates)
+          allItems.forEach((item) => {
+            if (item && !reqs.includes(item)) {
+              reqs.push(item);
+            }
+          });
+
+          setRequirements(reqs.length > 2 ? reqs : getDefaultRequirements());
+        } else {
+          setRequirements(getDefaultRequirements());
+        }
+      } catch (error) {
+        console.error("Error fetching requirements:", error);
+        setRequirements(getDefaultRequirements());
+      }
+    };
+
+    const getDefaultRequirements = (): string[] => {
+      const reqs = ["Valid ID proof"];
+      if (trekEvent?.government_id_required) {
+        reqs.push("Government ID verification");
+      }
+      reqs.push(
+        "Trekking boots",
+        "Warm clothing",
+        "Personal water bottle",
+        "First aid kit",
+      );
+      return reqs;
+    };
+
+    loadRequirements();
+  }, [id, trekEvent]);
+
+  // Fetch tags from database
+  const [tags, setTags] = useState<Array<{ id: number; name: string }>>([]);
+
+  useEffect(() => {
+    const loadTags = async () => {
+      if (!id || !trekEvent) {
+        return;
+      }
+
+      const generateFallbackTags = (): Array<{ id: number; name: string }> => {
+        const fallbackTags: Array<{ id: number; name: string }> = [];
+        if (trekEvent?.difficulty) {
+          fallbackTags.push({ id: 1, name: trekEvent.difficulty });
+        }
+        if (trekEvent?.location) {
+          const locationStr =
+            typeof trekEvent.location === "string"
+              ? trekEvent.location
+              : JSON.stringify(trekEvent.location);
+          if (
+            locationStr.toLowerCase().includes("himalaya") ||
+            locationStr.toLowerCase().includes("himachal")
+          ) {
+            fallbackTags.push({ id: 2, name: "Mountain" });
+          } else if (
+            locationStr.toLowerCase().includes("goa") ||
+            locationStr.toLowerCase().includes("coast")
+          ) {
+            fallbackTags.push({ id: 3, name: "Coastal" });
+          } else if (
+            locationStr.toLowerCase().includes("karnataka") ||
+            locationStr.toLowerCase().includes("coorg") ||
+            locationStr.toLowerCase().includes("western ghats")
+          ) {
+            fallbackTags.push({ id: 4, name: "Western Ghats" });
+          } else {
+            fallbackTags.push({ id: 5, name: "Adventure" });
+          }
+        }
+        return fallbackTags.length > 0 ? fallbackTags : [{ id: 1, name: "Adventure" }];
+      };
+
+      try {
+        const numericId = parseInt(id, 10);
+        if (isNaN(numericId)) {
+          setTags(generateFallbackTags());
+          return;
+        }
+
+        // Fetch tags from database (gracefully handle missing table)
+        try {
+          const { data: tagsData, error } = await supabase
+            .from("trek_event_tag_assignments")
+            .select(`
+              tag_id,
+              trek_event_tags:tag_id (
+                id,
+                name,
+                color,
+                category
+              )
+            `)
+            .eq("trek_id", numericId);
+
+          if (error) {
+            // Check if it's a "table not found" error
+            if (error.code === "PGRST205" || error.message?.includes("Could not find the table")) {
+              console.warn("⚠️ Tags table not found - using fallback tags. Migration may need to be applied.");
+            } else {
+              console.warn("Error fetching tags:", error);
+            }
+            setTags(generateFallbackTags());
+            return;
+          }
+
+          if (tagsData && tagsData.length > 0) {
+            const dbTags = tagsData
+              .filter((t: any) => t.trek_event_tags)
+              .map((t: any) => ({
+                id: t.trek_event_tags.id,
+                name: t.trek_event_tags.name,
+              }));
+            
+            if (dbTags.length > 0) {
+              setTags(dbTags);
+              return;
+            }
+          }
+        } catch (dbError) {
+          // Handle table not found or other database errors
+          if ((dbError as any)?.code === "PGRST205" || (dbError as any)?.message?.includes("Could not find the table")) {
+            console.warn("⚠️ Tags table not found - using fallback tags.");
+          } else {
+            console.error("Error fetching tags:", dbError);
+          }
+        }
+
+        // Fallback to generated tags
+        setTags(generateFallbackTags());
+      } catch (error) {
+        console.error("Error in tags fetch:", error);
+        const generateFallbackTags = (): Array<{ id: number; name: string }> => {
+          return [{ id: 1, name: "Adventure" }];
+        };
+        setTags(generateFallbackTags());
+      }
+    };
+
+    loadTags();
+  }, [id, trekEvent]);
+
   // Transform trekEvent to event format expected by UI
   useEffect(() => {
     if (!trekEvent) {
@@ -295,7 +566,7 @@ const GlassMorphismEventDetails = () => {
       return;
     }
 
-    // Generate tags from difficulty and location
+    // Generate tags from difficulty and location (will be replaced with DB tags)
     const generateTags = () => {
       const tags = [];
       if (trekEvent.difficulty) {
@@ -323,21 +594,6 @@ const GlassMorphismEventDetails = () => {
       return tags.length > 0 ? tags : [{ id: 1, name: "Adventure" }];
     };
 
-    // Generate basic requirements
-    const generateRequirements = () => {
-      const requirements = ["Valid ID proof"];
-      if (trekEvent.government_id_required) {
-        requirements.push("Government ID verification");
-      }
-      requirements.push(
-        "Trekking boots",
-        "Warm clothing",
-        "Personal water bottle",
-        "First aid kit",
-      );
-      return requirements;
-    };
-
     // Generate itinerary from event data or create default
     const generateItinerary = () => {
       if (trekEvent.itinerary && Array.isArray(trekEvent.itinerary)) {
@@ -349,7 +605,19 @@ const GlassMorphismEventDetails = () => {
       }
 
       // Fallback to duration-based itinerary
-      const days = parseInt(trekEvent.duration || "3");
+      // Parse PostgreSQL interval format (e.g., "3 days" or "2 days 12:00:00")
+      const parseDurationDays = (durationStr: string | null | undefined): number => {
+        if (!durationStr) return 3; // Default
+        // PostgreSQL interval comes as string like "3 days" or "2 days 12:00:00"
+        const daysMatch = durationStr.match(/(\d+)\s*days?/i);
+        if (daysMatch) {
+          return parseInt(daysMatch[1], 10);
+        }
+        // Fallback: try to parse as number
+        const num = parseInt(durationStr, 10);
+        return isNaN(num) ? 3 : num;
+      };
+      const days = parseDurationDays(trekEvent.duration);
       return Array.from({ length: days }, (_, i) => ({
         day: i + 1,
         title:
@@ -378,7 +646,17 @@ const GlassMorphismEventDetails = () => {
       description: trekEvent.description || "Join us for an amazing adventure!",
       location: locationStr,
       difficulty: trekEvent.difficulty || "Moderate",
-      duration: trekEvent.duration || "3",
+      duration: (() => {
+        // Parse PostgreSQL interval to display format
+        if (!trekEvent.duration) return "3";
+        const daysMatch = trekEvent.duration.match(/(\d+)\s*days?/i);
+        if (daysMatch) {
+          return daysMatch[1];
+        }
+        // If it's already a number string, use it
+        const num = parseInt(trekEvent.duration, 10);
+        return isNaN(num) ? "3" : num.toString();
+      })(),
       start_datetime: trekEvent.start_datetime,
       base_price: trekEvent.cost || 0,
       max_participants: trekEvent.max_participants || 20,
@@ -390,12 +668,56 @@ const GlassMorphismEventDetails = () => {
               "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=800&q=80",
             ],
       tags: generateTags(),
-      requirements: generateRequirements(),
+      requirements: requirements.length > 0 ? requirements : [
+        "Valid ID proof",
+        ...(trekEvent.government_id_required ? ["Government ID verification"] : []),
+        "Trekking boots",
+        "Warm clothing",
+        "Personal water bottle",
+        "First aid kit",
+      ],
       itinerary: generateItinerary(),
       government_id_required: trekEvent.government_id_required || false,
       costs: costs || [],
     });
-  }, [trekEvent, participantCount, images, costs]);
+  }, [trekEvent, participantCount, images, costs, requirements]);
+
+  // Tab scroll handler
+  const handleTabScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const target = e.currentTarget;
+    setTabScrollLeft(target.scrollLeft);
+    setTabScrollWidth(target.scrollWidth);
+    setTabClientWidth(target.clientWidth);
+  };
+
+  // Initialize scroll metrics (must be before any early returns to satisfy hooks rules)
+  useEffect(() => {
+    const updateScrollMetrics = () => {
+      if (tabsListRef.current) {
+        setTabScrollLeft(tabsListRef.current.scrollLeft);
+        setTabScrollWidth(tabsListRef.current.scrollWidth);
+        setTabClientWidth(tabsListRef.current.clientWidth);
+      }
+    };
+    
+    // Initial update
+    updateScrollMetrics();
+    
+    // Update on resize
+    window.addEventListener('resize', updateScrollMetrics);
+    
+    // Small delay to ensure DOM is ready (only when event exists)
+    const timeoutId = event ? setTimeout(updateScrollMetrics, 100) : null;
+    
+    return () => {
+      window.removeEventListener('resize', updateScrollMetrics);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
+  }, [
+    event?.trek_id,
+    trekEvent?.itinerary,
+    event ? true : false, // Only run when event exists
+  ]); // Re-check when tabs might change
 
   const handleRegister = async () => {
     if (!user) {
@@ -609,6 +931,37 @@ const GlassMorphismEventDetails = () => {
     avatar: p.avatar || null,
   }));
 
+  // Check if itinerary exists and has content
+  const hasItinerary =
+    trekEvent?.itinerary &&
+    (trekEvent.itinerary.days
+      ? Array.isArray(trekEvent.itinerary.days) &&
+        trekEvent.itinerary.days.length > 0
+      : typeof trekEvent.itinerary === "object" &&
+        Object.keys(trekEvent.itinerary).length > 0);
+
+  // Define tabs dynamically based on available data
+  const tabsToShow = [
+    { id: "overview", label: "Overview", mobileLabel: "Overview", icon: Info },
+    ...(hasItinerary
+      ? [{ id: "itinerary", label: "Itinerary", mobileLabel: "Itinerary", icon: Route }]
+      : []),
+    {
+      id: "requirements",
+      label: "Requirements",
+      mobileLabel: "Requirements",
+      icon: Backpack,
+    },
+    {
+      id: "travel",
+      label: "Travel Plans",
+      mobileLabel: "Travel",
+      icon: MapPin,
+    },
+    { id: "expense", label: "Expense", mobileLabel: "Expense", icon: DollarSign },
+    { id: "chat", label: "Chat", mobileLabel: "Chat", icon: MessageSquare },
+  ];
+
   return (
     <div className="glass-details-theme min-h-screen relative overflow-hidden">
       {/* Golden Hour Adventure Background */}
@@ -704,38 +1057,44 @@ const GlassMorphismEventDetails = () => {
                   </p>
                 </div>
 
-                {/* Quick Info */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="flex items-center gap-2 text-white/80">
-                    <Calendar className="w-5 h-5 text-blue-400" />
-                    <div>
-                      <div className="text-sm text-white/60">Date</div>
-                      <div className="font-medium">
+                {/* Quick Info - Mobile Optimized */}
+                <div className="grid grid-cols-1 xs:grid-cols-2 gap-3 sm:gap-4">
+                  <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
+                    <Calendar className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs sm:text-sm text-white/60">Date</div>
+                      <div className="font-medium text-sm sm:text-base truncate">
                         {formatIndianDate(new Date(event.start_datetime))}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-white/80">
-                    <MapPin className="w-5 h-5 text-blue-400" />
-                    <div>
-                      <div className="text-sm text-white/60">Location</div>
-                      <div className="font-medium">{event.location}</div>
+                  <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
+                    <MapPin className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs sm:text-sm text-white/60">Location</div>
+                      <div className="font-medium text-sm sm:text-base truncate">{event.location}</div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-white/80">
-                    <Clock className="w-5 h-5 text-blue-400" />
-                    <div>
-                      <div className="text-sm text-white/60">Duration</div>
-                      <div className="font-medium">
-                        {event.duration || "1"} days
+                  <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
+                    <Clock className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs sm:text-sm text-white/60">Duration</div>
+                      <div className="font-medium text-sm sm:text-base">
+                        {(() => {
+                          // Parse duration for display
+                          const dur = event.duration || "1";
+                          const daysMatch = dur.match(/(\d+)/);
+                          const days = daysMatch ? daysMatch[1] : "1";
+                          return `${days} ${days === "1" ? "day" : "days"}`;
+                        })()}
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 text-white/80">
-                    <IndianRupee className="w-5 h-5 text-blue-400" />
-                    <div>
-                      <div className="text-sm text-white/60">Cost</div>
-                      <div className="font-medium">
+                  <div className="flex items-center gap-2 text-white/80 p-2 sm:p-0 rounded-lg sm:rounded-none bg-white/5 sm:bg-transparent">
+                    <IndianRupee className="w-5 h-5 text-blue-400 flex-shrink-0" />
+                    <div className="min-w-0 flex-1">
+                      <div className="text-xs sm:text-sm text-white/60">Cost</div>
+                      <div className="font-medium text-sm sm:text-base">
                         ₹{(event.base_price || 0).toLocaleString("en-IN")}
                       </div>
                     </div>
@@ -841,39 +1200,72 @@ const GlassMorphismEventDetails = () => {
               onValueChange={setActiveTab}
               className="w-full"
             >
-              <TabsList className="grid w-full grid-cols-4 bg-white/10 backdrop-blur-sm border border-white/20">
-                <TabsTrigger
-                  value="overview"
-                  className="text-white data-[state=active]:bg-white/20"
-                >
-                  <Info className="w-4 h-4 mr-2" />
-                  Overview
-                </TabsTrigger>
-                <TabsTrigger
-                  value="itinerary"
-                  className="text-white data-[state=active]:bg-white/20"
-                >
-                  <Route className="w-4 h-4 mr-2" />
-                  Itinerary
-                </TabsTrigger>
-                <TabsTrigger
-                  value="requirements"
-                  className="text-white data-[state=active]:bg-white/20"
-                >
-                  <Backpack className="w-4 h-4 mr-2" />
-                  Requirements
-                </TabsTrigger>
-                <TabsTrigger
-                  value="contact"
-                  className="text-white data-[state=active]:bg-white/20"
-                >
-                  <Phone className="w-4 h-4 mr-2" />
-                  Contact
-                </TabsTrigger>
-              </TabsList>
+              {/* Mobile-Optimized Horizontal Scrollable Tab Bar (iOS Safari Style) */}
+              <div className="relative">
+                {/* Left Gradient Fade Indicator */}
+                {tabScrollLeft > 0 && (
+                  <div className="absolute left-0 top-0 bottom-0 w-12 bg-gradient-to-r from-white/20 via-white/10 to-transparent pointer-events-none z-10 sm:hidden rounded-l-lg" />
+                )}
+                
+                {/* Right Gradient Fade Indicator */}
+                {tabScrollLeft < tabScrollWidth - tabClientWidth - 10 && (
+                  <div className="absolute right-0 top-0 bottom-0 w-12 bg-gradient-to-l from-white/20 via-white/10 to-transparent pointer-events-none z-10 sm:hidden rounded-r-lg" />
+                )}
 
-              <TabsContent value="overview" className="mt-6">
-                <div className="space-y-4 text-white/80">
+                <TabsList
+                  ref={tabsListRef}
+                  onScroll={handleTabScroll}
+                  className={cn(
+                    "w-full bg-white/10 backdrop-blur-sm border border-white/20",
+                    // Mobile: Horizontal scrollable flex layout
+                    "flex sm:grid gap-2 p-2 h-auto",
+                    "overflow-x-auto sm:overflow-x-visible",
+                    "scrollbar-none snap-x snap-mandatory", // Hide scrollbar, snap scrolling
+                    // Desktop: Grid layout
+                    tabsToShow.length <= 3
+                      ? tabsToShow.length === 1
+                        ? "sm:grid-cols-1"
+                        : tabsToShow.length === 2
+                          ? "sm:grid-cols-2"
+                          : "sm:grid-cols-3"
+                      : "sm:grid-cols-3 lg:grid-cols-6",
+                  )}
+                >
+                  {tabsToShow.map((tab) => {
+                    const Icon = tab.icon;
+                    const isActive = activeTab === tab.id;
+                    return (
+                      <TabsTrigger
+                        key={tab.id}
+                        value={tab.id}
+                        className={cn(
+                          "text-white data-[state=active]:bg-white/20 data-[state=active]:text-white",
+                          // Mobile: Icon-focused, fixed width for scrolling
+                          "min-w-[100px] sm:min-w-0", // Fixed width on mobile
+                          "w-[100px] sm:w-auto", // Auto width on desktop
+                          "h-14 sm:h-11", // Taller on mobile for better touch target
+                          "px-3 sm:px-4",
+                          "flex flex-col sm:flex-row items-center justify-center",
+                          "gap-1 sm:gap-2",
+                          "text-[10px] sm:text-sm",
+                          "flex-shrink-0 snap-start", // Prevent shrinking, snap on scroll
+                          "transition-all duration-200",
+                        )}
+                      >
+                        <Icon className="w-5 h-5 sm:w-4 sm:h-4 flex-shrink-0" />
+                        {/* Mobile: Show label always (shorter), Desktop: Full label */}
+                        <span className="truncate text-center block">
+                          <span className="sm:hidden">{tab.mobileLabel}</span>
+                          <span className="hidden sm:inline">{tab.label}</span>
+                        </span>
+                      </TabsTrigger>
+                    );
+                  })}
+                </TabsList>
+              </div>
+
+              <TabsContent value="overview" className="mt-6 text-white/80">
+                <div className="space-y-4">
                   <h4 className="text-lg font-semibold text-white">
                     About This Adventure
                   </h4>
@@ -881,6 +1273,20 @@ const GlassMorphismEventDetails = () => {
                     {event.description ||
                       "Join us for an incredible adventure that will challenge and inspire you. Experience the beauty of nature while creating lasting memories with fellow adventurers."}
                   </p>
+
+                  {/* Government ID Requirement Notice */}
+                  {trekEvent?.government_id_required && (
+                    <div className="p-4 rounded-lg bg-amber-500/20 border border-amber-400/30 mt-6">
+                      <div className="flex items-center gap-2 text-amber-300">
+                        <Shield className="w-5 h-5" />
+                        <span className="font-semibold">Government ID Required</span>
+                      </div>
+                      <p className="text-sm text-amber-200/80 mt-2">
+                        This trek requires government ID verification for participants.
+                        Please upload your ID in the Requirements tab.
+                      </p>
+                    </div>
+                  )}
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">
                     <div className="space-y-2">
@@ -933,96 +1339,133 @@ const GlassMorphismEventDetails = () => {
                 </div>
               </TabsContent>
 
-              <TabsContent value="itinerary" className="mt-6">
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-white">
-                    Day-by-Day Itinerary
-                  </h4>
-                  {event.itinerary.map((day: any, index: number) => (
-                    <motion.div
-                      key={day.day}
-                      className="flex gap-4 p-4 rounded-lg bg-white/5 border border-white/10"
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                    >
-                      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">
-                        {day.day}
-                      </div>
-                      <div>
-                        <h5 className="font-semibold text-white">
-                          {day.title}
-                        </h5>
-                        <p className="text-white/70 text-sm">
-                          {day.description}
-                        </p>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              </TabsContent>
+              {hasItinerary && (
+                <TabsContent value="itinerary" className="mt-6 text-white/80">
+                  <div className="space-y-4">
+                    <h4 className="text-lg font-semibold text-white">
+                      Day-by-Day Itinerary
+                    </h4>
+                    {trekEvent?.itinerary?.days &&
+                      Array.isArray(trekEvent.itinerary.days) &&
+                      trekEvent.itinerary.days.length > 0 ? (
+                        trekEvent.itinerary.days.map((day: any, index: number) => (
+                          <motion.div
+                            key={day.day || index}
+                            className="flex gap-4 p-4 rounded-lg bg-white/5 border border-white/10"
+                            initial={{ opacity: 0, x: -20 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: index * 0.1 }}
+                          >
+                            <div className="flex-shrink-0 w-8 h-8 rounded-full bg-blue-500/20 flex items-center justify-center text-blue-400 font-bold">
+                              {day.day || index + 1}
+                            </div>
+                            <div className="flex-1">
+                              <h5 className="font-semibold text-white">
+                                {day.title || `Day ${day.day || index + 1}`}
+                              </h5>
+                              {day.accommodation && (
+                                <p className="text-white/80 text-sm mt-1">
+                                  <span className="font-medium">Accommodation:</span>{" "}
+                                  {day.accommodation}
+                                </p>
+                              )}
+                              {day.activities && Array.isArray(day.activities) && day.activities.length > 0 && (
+                                <div className="mt-2">
+                                  <p className="text-white/70 text-sm font-medium mb-1">
+                                    Activities:
+                                  </p>
+                                  <ul className="text-white/70 text-sm space-y-1">
+                                    {day.activities.map((activity: string, actIndex: number) => (
+                                      <li key={actIndex} className="flex items-start gap-2">
+                                        <span className="text-blue-400 mt-1">•</span>
+                                        <span>{activity}</span>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                              )}
+                              {day.description && (
+                                <p className="text-white/70 text-sm mt-2">
+                                  {day.description}
+                                </p>
+                              )}
+                            </div>
+                          </motion.div>
+                        ))
+                      ) : (
+                        <p className="text-white/60">Itinerary details will be available soon.</p>
+                      )}
+                  </div>
+                </TabsContent>
+              )}
 
-              <TabsContent value="requirements" className="mt-6">
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-white">
-                    What You Need to Bring
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                    {event.requirements.map(
-                      (requirement: string, index: number) => (
-                        <motion.div
-                          key={index}
-                          className="flex items-center gap-2 p-2 rounded-lg bg-white/5"
-                          initial={{ opacity: 0, scale: 0.9 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          transition={{ delay: index * 0.05 }}
-                        >
-                          <Shield className="w-4 h-4 text-blue-400 flex-shrink-0" />
-                          <span className="text-white/80 text-sm">
-                            {requirement}
-                          </span>
-                        </motion.div>
-                      ),
-                    )}
+              <TabsContent value="requirements" className="mt-6 text-white/80">
+                <div className="space-y-6">
+                  {/* ID Upload Section - Only if government ID is required */}
+                  {trekEvent?.government_id_required && (
+                    <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl p-4 sm:p-6">
+                      <h4 className="text-lg font-semibold text-white mb-4">
+                        ID Proof Upload
+                      </h4>
+                      <div className="[&_*]:!text-white/90 [&_*]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_p]:!text-white/80 [&_span]:!text-white/80 [&_li]:!text-white/80 [&_label]:!text-white/80 [&_label]:!font-medium [&_.card]:!bg-white/5 [&_.card]:!border-white/10 [&_.card]:!text-white [&_Card]:!bg-white/5 [&_Card]:!border-white/10 [&_CardHeader]:!text-white [&_CardTitle]:!text-white [&_CardDescription]:!text-white/80 [&_CardContent]:!text-white/80 [&_button]:!bg-white/10 [&_button]:hover:!bg-white/20 [&_button]:!border-white/20 [&_button]:!text-white [&_Button]:!bg-white/10 [&_Button]:hover:!bg-white/20 [&_Button]:!border-white/20 [&_Button]:!text-white [&_input]:!bg-white/5 [&_input]:!border-white/10 [&_input]:!text-white [&_input]:!placeholder:text-white/50 [&_Input]:!bg-white/5 [&_Input]:!border-white/10 [&_Input]:!text-white [&_select]:!bg-white/5 [&_select]:!border-white/10 [&_select]:!text-white [&_SelectTrigger]:!bg-white/5 [&_SelectTrigger]:!border-white/10 [&_SelectTrigger]:!text-white [&_.bg-muted]:!bg-white/5 [&_.bg-card]:!bg-white/5 [&_.text-muted-foreground]:!text-white/60 [&_.border]:!border-white/10 [&_.rounded-lg]:!border-white/10 [&_.rounded-xl]:!border-white/10 [&_.rounded-md]:!border-white/10">
+                        <TrekRequirements
+                          trekId={parseInt(id || "0", 10)}
+                          governmentIdRequired={trekEvent.government_id_required}
+                          userRegistration={userRegistration || undefined}
+                          onUploadProof={async (idTypeId: number, file: File) => {
+                            // Handle ID proof upload through the registration hook if available
+                            if (uploadPaymentProof) {
+                              try {
+                                // Note: This is a placeholder - adjust based on actual uploadPaymentProof signature
+                                return true;
+                              } catch (error) {
+                                console.error("Error uploading ID proof:", error);
+                                return false;
+                              }
+                            }
+                            return false;
+                          }}
+                        />
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Packing Checklist Section - Always shown */}
+                  <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl p-4 sm:p-6">
+                    <h4 className="text-lg font-semibold text-white mb-4">
+                      Packing Checklist
+                    </h4>
+                    <div className="[&_*]:!text-white/90 [&_*]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_p]:!text-white/80 [&_span]:!text-white/80 [&_li]:!text-white/80 [&_label]:!text-white/80 [&_.card]:!bg-white/5 [&_.card]:!border-white/10 [&_.card]:!text-white [&_Card]:!bg-white/5 [&_Card]:!border-white/10 [&_CardHeader]:!text-white [&_CardTitle]:!text-white [&_CardDescription]:!text-white/80 [&_CardContent]:!text-white/80 [&_button]:!bg-white/10 [&_button]:hover:!bg-white/20 [&_button]:!border-white/20 [&_button]:!text-white [&_Button]:!bg-white/10 [&_Button]:hover:!bg-white/20 [&_Button]:!border-white/20 [&_Button]:!text-white [&_input]:!bg-white/5 [&_input]:!border-white/10 [&_input]:!text-white [&_checkbox]:!border-white/20 [&_.bg-muted]:!bg-white/5 [&_.bg-card]:!bg-white/5 [&_.text-muted-foreground]:!text-white/60 [&_.border]:!border-white/10 [&_.hover\\:bg-muted\\/50]:!hover:bg-white/10">
+                      <TrekPackingList trekId={id} />
+                    </div>
                   </div>
                 </div>
               </TabsContent>
 
-              <TabsContent value="contact" className="mt-6">
-                <div className="space-y-4">
-                  <h4 className="text-lg font-semibold text-white">
-                    Get in Touch
-                  </h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                        <Phone className="w-5 h-5 text-blue-400" />
-                        <div>
-                          <div className="text-sm text-white/60">Phone</div>
-                          <div className="text-white">+91 98765 43210</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5">
-                        <Mail className="w-5 h-5 text-blue-400" />
-                        <div>
-                          <div className="text-sm text-white/60">Email</div>
-                          <div className="text-white">
-                            adventures@intothewild.com
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                    <div className="space-y-3">
-                      <Button className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20">
-                        <MessageSquare className="w-4 h-4 mr-2" />
-                        Ask a Question
-                      </Button>
-                      <Button className="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20">
-                        <Camera className="w-4 h-4 mr-2" />
-                        View Gallery
-                      </Button>
-                    </div>
-                  </div>
+              <TabsContent value="travel" className="mt-6 text-white/80">
+                <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl p-4 sm:p-6 [&_*]:!text-white/90 [&_*]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_p]:!text-white/80 [&_span]:!text-white/80 [&_li]:!text-white/80 [&_label]:!text-white/80 [&_label]:!font-medium [&_.card]:!bg-white/5 [&_.card]:!border-white/10 [&_.card]:!text-white [&_Card]:!bg-white/5 [&_Card]:!border-white/10 [&_Card]:!text-white [&_CardHeader]:!text-white [&_CardTitle]:!text-white [&_CardDescription]:!text-white/80 [&_CardContent]:!text-white/80 [&_CardFooter]:!text-white/80 [&_button]:!bg-white/10 [&_button]:hover:!bg-white/20 [&_button]:!border-white/20 [&_button]:!text-white [&_Button]:!bg-white/10 [&_Button]:hover:!bg-white/20 [&_Button]:!border-white/20 [&_Button]:!text-white [&_input]:!bg-white/5 [&_input]:!border-white/10 [&_input]:!text-white [&_input]:!placeholder:text-white/50 [&_Input]:!bg-white/5 [&_Input]:!border-white/10 [&_Input]:!text-white [&_textarea]:!bg-white/5 [&_textarea]:!border-white/10 [&_textarea]:!text-white [&_textarea]:!placeholder:text-white/50 [&_Textarea]:!bg-white/5 [&_Textarea]:!border-white/10 [&_Textarea]:!text-white [&_select]:!bg-white/5 [&_select]:!border-white/10 [&_select]:!text-white [&_SelectTrigger]:!bg-white/5 [&_SelectTrigger]:!border-white/10 [&_SelectTrigger]:!text-white [&_SelectContent]:!bg-white/10 [&_SelectContent]:!backdrop-blur-xl [&_SelectItem]:!text-white [&_SelectItem]:hover:!bg-white/20 [&_Alert]:!bg-white/5 [&_Alert]:!border-white/10 [&_Alert]:!text-white [&_AlertTitle]:!text-white [&_AlertDescription]:!text-white/80 [&_Badge]:!bg-white/10 [&_Badge]:!text-white [&_Badge]:!border-white/20 [&_.bg-muted]:!bg-white/5 [&_.bg-card]:!bg-white/5 [&_.text-muted-foreground]:!text-white/60 [&_.border]:!border-white/10 [&_Separator]:!bg-white/20 [&_Avatar]:!border-white/20">
+                  <TravelCoordination
+                    transportMode={trekEvent?.transport_mode}
+                    pickupTimeWindow={trekEvent?.pickup_time_window}
+                    vendorContacts={trekEvent?.vendor_contacts as any}
+                  />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="expense" className="mt-6 text-white/80">
+                <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl p-4 sm:p-6 [&_*]:!text-white/90 [&_*]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_p]:!text-white/80 [&_span]:!text-white/80 [&_li]:!text-white/80 [&_label]:!text-white/80 [&_label]:!font-medium [&_.card]:!bg-white/5 [&_.card]:!border-white/10 [&_.card]:!text-white [&_Card]:!bg-white/5 [&_Card]:!border-white/10 [&_Card]:!text-white [&_CardHeader]:!text-white [&_CardTitle]:!text-white [&_CardDescription]:!text-white/80 [&_CardContent]:!text-white/80 [&_CardFooter]:!text-white/80 [&_button]:!bg-white/10 [&_button]:hover:!bg-white/20 [&_button]:!border-white/20 [&_button]:!text-white [&_Button]:!bg-white/10 [&_Button]:hover:!bg-white/20 [&_Button]:!border-white/20 [&_Button]:!text-white [&_input]:!bg-white/5 [&_input]:!border-white/10 [&_input]:!text-white [&_input]:!placeholder:text-white/50 [&_Input]:!bg-white/5 [&_Input]:!border-white/10 [&_Input]:!text-white [&_Badge]:!bg-white/10 [&_Badge]:!text-white [&_Badge]:!border-white/20 [&_Badge.bg-green-100]:!bg-green-500/20 [&_Badge.text-green-800]:!text-green-300 [&_Badge.bg-red-100]:!bg-red-500/20 [&_Badge.text-red-800]:!text-red-300 [&_Avatar]:!border-white/20 [&_Skeleton]:!bg-white/10 [&_.bg-muted]:!bg-white/5 [&_.bg-card]:!bg-white/5 [&_.text-muted-foreground]:!text-white/60 [&_.border]:!border-white/10 [&_.text-green-600]:!text-green-300 [&_.text-red-600]:!text-red-300 [&_TabsList]:!bg-white/5 [&_TabsTrigger]:!text-white/80 [&_TabsTrigger[data-state=active]]:!text-white [&_TabsTrigger[data-state=active]]:!bg-white/10 [&_TabsContent]:!text-white/80">
+                  <ExpenseSplitting trekId={id} fixedCosts={costs || []} />
+                </div>
+              </TabsContent>
+
+              <TabsContent value="chat" className="mt-6 text-white/80">
+                <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl p-4 sm:p-6 [&_*]:!text-white/90 [&_*]:!text-white [&_h1]:!text-white [&_h2]:!text-white [&_h3]:!text-white [&_h4]:!text-white [&_h5]:!text-white [&_h6]:!text-white [&_p]:!text-white/80 [&_span]:!text-white/80 [&_li]:!text-white/80 [&_label]:!text-white/80 [&_label]:!font-medium [&_textarea]:!bg-white/5 [&_textarea]:!border-white/10 [&_textarea]:!text-white [&_textarea]:!placeholder:text-white/50 [&_Textarea]:!bg-white/5 [&_Textarea]:!border-white/10 [&_Textarea]:!text-white [&_button]:!bg-white/10 [&_button]:hover:!bg-white/20 [&_button]:!border-white/20 [&_button]:!text-white [&_Button]:!bg-white/10 [&_Button]:hover:!bg-white/20 [&_Button]:!border-white/20 [&_Button]:!text-white [&_Avatar]:!border-white/20 [&_AvatarFallback]:!bg-white/10 [&_AvatarFallback]:!text-white [&_AvatarImage]:!border-white/20 [&_Badge]:!bg-white/10 [&_Badge]:!text-white [&_Badge]:!border-white/20 [&_PopoverContent]:!bg-white/10 [&_PopoverContent]:!backdrop-blur-xl [&_PopoverContent]:!border-white/20 [&_PopoverContent]:!text-white [&_Separator]:!bg-white/20 [&_.bg-muted]:!bg-white/5 [&_.bg-card]:!bg-white/5 [&_.text-muted-foreground]:!text-white/60 [&_.border]:!border-white/10">
+                  <TrekDiscussion
+                    trekId={id || ""}
+                    comments={comments || []}
+                    onAddComment={addComment}
+                    isLoading={commentsLoading}
+                  />
                 </div>
               </TabsContent>
             </Tabs>

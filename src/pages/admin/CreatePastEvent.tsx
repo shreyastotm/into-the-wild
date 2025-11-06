@@ -43,11 +43,11 @@ export default function CreatePastEvent() {
     const fileExt = file.name.split(".").pop();
     const filePath = `treks/${trekId}/${Date.now()}_${position}.${fileExt}`;
     const { error: uploadError } = await supabase.storage
-      .from("trek-images")
+      .from("trek-assets")
       .upload(filePath, file, { upsert: true, cacheControl: "3600" });
     if (uploadError) throw uploadError;
     const { data: publicUrlData } = supabase.storage
-      .from("trek-images")
+      .from("trek-assets")
       .getPublicUrl(filePath);
     return publicUrlData.publicUrl;
   }

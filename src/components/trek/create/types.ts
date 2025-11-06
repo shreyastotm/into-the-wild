@@ -63,6 +63,7 @@ export interface FormSubmissionData {
   packingList: Array<{ master_item_id: number; mandatory: boolean }>;
   costs: Array<{ description: string; amount: number; cost_type: string }>;
   tentInventory?: TentInventory[];
+  tags?: number[]; // Array of tag IDs to assign to the trek
 }
 
 // Step navigation

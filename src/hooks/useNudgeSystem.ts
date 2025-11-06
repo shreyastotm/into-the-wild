@@ -529,7 +529,7 @@ export const NUDGE_TEMPLATES: Omit<
     cta_label: "Explore Treks",
     cta_action: {
       type: "navigate",
-      path: "/events",
+      path: "/glass-events",
     },
     condition_rules: [
       {

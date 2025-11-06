@@ -72,7 +72,7 @@ const AppLayout = () => (
 // Redirect component for old trek-events URLs
 const TrekEventRedirect = () => {
   const { id } = useParams();
-  return <Navigate to={`/events/${id}`} replace />;
+  return <Navigate to={`/glass-event-details/${id}`} replace />;
 };
 
 function App() {
@@ -167,23 +167,6 @@ function App() {
                   </Route>
                 </Route>
 
-                <Route
-                  path="/events"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <TrekEvents />
-                    </Suspense>
-                  }
-                />
-                <Route
-                  path="/events/:id"
-                  element={
-                    <Suspense fallback={<LoadingSpinner />}>
-                      <TrekEventDetails />
-                    </Suspense>
-                  }
-                />
-
                 {/* Trek event creation - must be before backwards compatibility redirects */}
                 <Route element={<ProtectedRoute isAdminRoute />}>
                   <Route
@@ -199,7 +182,7 @@ function App() {
                 {/* Backwards compatibility redirects */}
                 <Route
                   path="/trek-events"
-                  element={<Navigate to="/events" replace />}
+                  element={<Navigate to="/glass-events" replace />}
                 />
                 <Route
                   path="/trek-events/:id"

@@ -315,7 +315,7 @@ const Dashboard = () => {
                 size="sm"
                 onClick={() => {
                   haptic.light();
-                  navigate("/events");
+                  navigate("/glass-events");
                 }}
                 className="glass-card hover:shadow-lg transition-all duration-300"
               >
@@ -358,7 +358,7 @@ const Dashboard = () => {
                   className="glass-card text-coral-600 hover:scale-105 shadow-xl font-bold hover:shadow-2xl transition-all duration-300"
                   onClick={() => {
                     haptic.medium();
-                    navigate("/events");
+                    navigate("/glass-events");
                   }}
                 >
                   Explore Treks

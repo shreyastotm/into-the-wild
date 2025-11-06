@@ -48,7 +48,7 @@ const Index = () => {
 
   const handleExploreTreks = () => {
     haptic.medium();
-    navigate("/events");
+    navigate("/glass-events");
   };
 
   useEffect(() => {

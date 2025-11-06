@@ -54,68 +54,172 @@ const EventCardsPreview: React.FC = () => {
           return;
         }
 
-        if (events && events.length > 0) {
-          const trekIds = events.map((e) => e.trek_id);
+        if (!events || events.length === 0) {
+          setLoading(false);
+          return;
+        }
 
-          // Fetch images for these events
-          const { data: images } = await supabase
-            .from("trek_event_images")
-            .select("trek_id, image_url, position")
-            .in("trek_id", trekIds)
-            .order("position", { ascending: true });
+        // Type guard to ensure events is an array
+        const validEvents = Array.isArray(events) ? events : [];
+        if (validEvents.length === 0) {
+          setLoading(false);
+          return;
+        }
 
-          // Group images by trek_id
-          const imagesByTrek: Record<number, string[]> = {};
-          (images || []).forEach((img) => {
-            if (!imagesByTrek[img.trek_id]) {
-              imagesByTrek[img.trek_id] = [];
-            }
-            imagesByTrek[img.trek_id].push(img.image_url);
-          });
-
-          // Transform to EventCard format
-          const transformedEvents: EventCard[] = events.map((event, index) => {
-            const eventImages = imagesByTrek[event.trek_id] || [];
-            // Use first image from database, fallback to event.image_url, then mock images
-            const primaryImage = eventImages[0] || event.image_url;
-            const allImages = primaryImage
-              ? [primaryImage, ...eventImages.slice(1)]
-              : [
-                  "https://images.unsplash.com/photo-1441974231531-c6227db76b6e?w=400&q=80",
-                  "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80",
-                  "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?w=400&q=80",
-                ];
-
-            return {
-              id: event.trek_id,
-              title: event.name || "Adventure Trek",
-              location: event.location || "Karnataka",
-              date: new Date(event.start_datetime).toLocaleDateString("en-IN", {
-                day: "numeric",
-                month: "short",
-                year: "numeric",
-              }),
-              difficulty: (event.difficulty?.toLowerCase() as "easy" | "moderate" | "hard") || "moderate",
-              participants: Math.floor((event.max_participants || 20) * 0.6),
-              maxParticipants: event.max_participants || 20,
-              cost: 0,
-              duration: event.duration ? `${event.duration}` : "2 Days",
-              images: allImages,
-              tags: event.event_type === "camping" 
-                ? ["Camping", "Adventure", "Community"]
-                : event.event_type === "jam_yard"
-                ? ["Workshop", "Skill", "Community"]
-                : event.location?.toLowerCase().includes("coorg")
-                ? ["Coffee", "Misty Hills", "Western Ghats"]
-                : event.location?.toLowerCase().includes("gokarna")
-                ? ["Beach", "Camping", "Sunset"]
-                : ["Western Ghats", "Nature", "Friends"],
-            };
-          });
-
-          if (transformedEvents.length > 0) {
-            setDbEvents(transformedEvents);
+        const trekIds = validEvents.map((e) => {
+          if (typeof e === 'object' && e !== null && 'trek_id' in e) {
+            return e.trek_id;
           }
+          return null;
+        }).filter((id): id is number => id !== null);
+
+        // Fetch images for these events
+        const { data: images, error: imgError } = await supabase
+          .from("trek_event_images")
+          .select("trek_id, image_url, position")
+          .in("trek_id", trekIds as any)
+          .order("position", { ascending: true });
+
+        if (imgError) {
+          console.warn("Error fetching images:", imgError);
+        }
+
+        // Helper function to convert storage path to public URL if needed
+        const getImageUrl = (imageUrl: string): string => {
+          if (!imageUrl || imageUrl.trim() === "") return "";
+          
+          // If it's already a full URL (http/https), check if it needs bucket migration
+          if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
+            // If URL points to old trek-images bucket, update to trek-assets bucket
+            if (imageUrl.includes("/storage/v1/object/public/trek-images/")) {
+              const updatedUrl = imageUrl.replace("/storage/v1/object/public/trek-images/", "/storage/v1/object/public/trek-assets/");
+              console.log(`🔄 Migrated URL from trek-images to trek-assets: ${imageUrl.substring(0, 80)}... -> ${updatedUrl.substring(0, 80)}...`);
+              return updatedUrl;
+            }
+            // If it already points to trek-assets or is external, return as is
+            return imageUrl;
+          }
+          
+          // If it's a storage path (starts with treks/ or trek-assets/), convert to public URL
+          // Trek images are stored in trek-assets bucket
+          let storagePath = imageUrl;
+          if (imageUrl.startsWith("trek-assets/")) {
+            storagePath = imageUrl.replace("trek-assets/", "");
+          } else if (imageUrl.startsWith("trek-images/")) {
+            storagePath = imageUrl.replace("trek-images/", "");
+          } else if (imageUrl.startsWith("treks/")) {
+            // Keep treks/ prefix as is for trek-assets bucket
+            storagePath = imageUrl;
+          }
+          
+          // Try to get public URL from trek-assets bucket
+          try {
+            const { data } = supabase.storage.from("trek-assets").getPublicUrl(storagePath);
+            if (data?.publicUrl) {
+              return data.publicUrl;
+            }
+          } catch (error) {
+            console.warn("Error getting public URL for image:", imageUrl, error);
+          }
+          
+          // Return as is (might be a relative path or other format)
+          return imageUrl;
+        };
+
+        // Group images by trek_id with type safety and URL conversion
+        const imagesByTrek: Record<number, string[]> = {};
+        if (images && Array.isArray(images)) {
+          images.forEach((img: any) => {
+            if (img && typeof img === 'object' && 'trek_id' in img && 'image_url' in img) {
+              const trekId = img.trek_id;
+              const imageUrl = img.image_url;
+              if (trekId && imageUrl && typeof imageUrl === 'string' && imageUrl.trim() !== '') {
+                if (!imagesByTrek[trekId]) {
+                  imagesByTrek[trekId] = [];
+                }
+                const publicUrl = getImageUrl(imageUrl);
+                if (publicUrl) {
+                  imagesByTrek[trekId].push(publicUrl);
+                }
+              }
+            }
+          });
+        }
+
+        // Transform to EventCard format with type safety
+        const transformedEvents: EventCard[] = validEvents.map((event, index) => {
+          // Type guard for event object
+          if (typeof event !== 'object' || event === null) {
+            return null;
+          }
+
+          const eventTrekId = 'trek_id' in event ? event.trek_id : null;
+          if (eventTrekId === null) return null;
+
+          const eventImages = imagesByTrek[eventTrekId] || [];
+          // Use first image from database, fallback to event.image_url
+          const eventImageUrl = 'image_url' in event && typeof event.image_url === 'string' 
+            ? getImageUrl(event.image_url)
+            : null;
+          const primaryImage = eventImages[0] || eventImageUrl;
+          
+          // Only use database images - no placeholder/fallback images
+          const allImages = primaryImage
+            ? [primaryImage, ...eventImages.slice(1)]
+            : eventImages.length > 0
+            ? eventImages
+            : eventImageUrl
+            ? [eventImageUrl]
+            : []; // Empty array - will show placeholder or no image in UI
+
+          const eventName = 'name' in event && typeof event.name === 'string' ? event.name : "Adventure Trek";
+          const eventLocation = 'location' in event && typeof event.location === 'string' ? event.location : "Karnataka";
+          const eventStartDatetime = 'start_datetime' in event && typeof event.start_datetime === 'string' 
+            ? event.start_datetime 
+            : new Date().toISOString();
+          const eventDifficulty = 'difficulty' in event && typeof event.difficulty === 'string'
+            ? (event.difficulty.toLowerCase() as "easy" | "moderate" | "hard")
+            : "moderate";
+          const eventMaxParticipants = 'max_participants' in event && typeof event.max_participants === 'number'
+            ? event.max_participants
+            : 20;
+          const eventDuration = 'duration' in event && typeof event.duration === 'string'
+            ? event.duration
+            : "2 Days";
+          const eventType = 'event_type' in event && typeof event.event_type === 'string'
+            ? event.event_type
+            : null;
+          const eventLocationLower = eventLocation.toLowerCase();
+
+          return {
+            id: eventTrekId,
+            title: eventName,
+            location: eventLocation,
+            date: new Date(eventStartDatetime).toLocaleDateString("en-IN", {
+              day: "numeric",
+              month: "short",
+              year: "numeric",
+            }),
+            difficulty: eventDifficulty,
+            participants: Math.floor(eventMaxParticipants * 0.6),
+            maxParticipants: eventMaxParticipants,
+            cost: 0,
+            duration: eventDuration,
+            images: allImages,
+            tags: eventType === "camping" 
+              ? ["Camping", "Adventure", "Community"]
+              : eventType === "jam_yard"
+              ? ["Workshop", "Skill", "Community"]
+              : eventLocationLower.includes("coorg")
+              ? ["Coffee", "Misty Hills", "Western Ghats"]
+              : eventLocationLower.includes("gokarna")
+              ? ["Beach", "Camping", "Sunset"]
+              : ["Western Ghats", "Nature", "Friends"],
+          };
+        }).filter((event): event is EventCard => event !== null);
+
+        if (transformedEvents.length > 0) {
+          setDbEvents(transformedEvents);
         }
       } catch (error) {
         console.warn("Error in fetchEvents:", error);
@@ -189,15 +293,18 @@ const EventCardsPreview: React.FC = () => {
     const intervals: { [key: number]: NodeJS.Timeout } = {};
 
     displayEvents.forEach((event) => {
-      intervals[event.id] = setInterval(
-        () => {
-          setCurrentImageIndices((prev) => ({
-            ...prev,
-            [event.id]: ((prev[event.id] || 0) + 1) % event.images.length,
-          }));
-        },
-        3000 + event.id * 500,
-      ); // Stagger the rotations
+      // Only create interval if event has images
+      if (event.images && event.images.length > 1) {
+        intervals[event.id] = setInterval(
+          () => {
+            setCurrentImageIndices((prev) => ({
+              ...prev,
+              [event.id]: ((prev[event.id] || 0) + 1) % event.images.length,
+            }));
+          },
+          3000 + event.id * 500,
+        ); // Stagger the rotations
+      }
     });
 
     return () => {
@@ -252,21 +359,31 @@ const EventCardsPreview: React.FC = () => {
               <div className="flex flex-col sm:flex-row">
                 {/* Image Section */}
                 <div className="relative w-full sm:w-48 h-48 sm:h-auto overflow-hidden">
-                  <AnimatePresence mode="wait">
-                    <motion.img
-                      key={currentImageIndex}
-                      src={event.images[currentImageIndex]}
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                      initial={{ opacity: 0, scale: 1.1 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.5 }}
-                    />
-                  </AnimatePresence>
+                  {event.images && event.images.length > 0 && event.images[currentImageIndex] ? (
+                    <AnimatePresence mode="wait">
+                      <motion.img
+                        key={currentImageIndex}
+                        src={event.images[currentImageIndex]}
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                        initial={{ opacity: 0, scale: 1.1 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.5 }}
+                        onError={(e) => {
+                          console.warn("Failed to load image:", event.images[currentImageIndex]);
+                          e.currentTarget.style.display = 'none';
+                        }}
+                      />
+                    </AnimatePresence>
+                  ) : (
+                    <div className="w-full h-full bg-gradient-to-br from-purple-900/40 via-orange-800/30 to-teal-900/40 flex items-center justify-center">
+                      <Mountain className="w-12 h-12 text-white/30" />
+                    </div>
+                  )}
 
                   {/* Image indicators */}
-                  {event.images.length > 1 && (
+                  {event.images && event.images.length > 1 && (
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-1">
                       {event.images.map((_, imgIndex) => (
                         <div

@@ -168,8 +168,8 @@ export const OrigamiHamburger: React.FC<OrigamiHamburgerProps> = ({
     const path = location.pathname;
     if (path === "/gallery" || path.startsWith("/glass-gallery"))
       return "gallery";
-    if (path === "/events" || path.startsWith("/glass-events")) return "events";
-    if (path.startsWith("/events/") || path.startsWith("/glass-event-details/"))
+    if (path === "/glass-events" || path.startsWith("/glass-events")) return "events";
+    if (path.startsWith("/glass-event-details/"))
       return "details";
     if (path === "/") return "landing";
     if (path === "/profile") return "profile";
@@ -191,7 +191,7 @@ export const OrigamiHamburger: React.FC<OrigamiHamburgerProps> = ({
 
   const navLinks = [
     { to: "/", label: "Home", icon: Home },
-    { to: "/events", label: "Events", icon: Calendar },
+    { to: "/glass-events", label: "Events", icon: Calendar },
     { to: "/forum", label: "Forum", icon: MessageSquare },
     { to: "/gallery", label: "Past Adventures", icon: Camera },
   ];

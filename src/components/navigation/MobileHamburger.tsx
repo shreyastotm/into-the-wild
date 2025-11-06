@@ -30,7 +30,7 @@ export function MobileHamburger() {
 
   const navLinks = [
     { to: "/", label: "Home" },
-    { to: "/events", label: "Events" },
+    { to: "/glass-events", label: "Events" },
     { to: "/forum", label: "Forum" },
     { to: "/gallery", label: "Past Adventures" },
     { to: "/faq", label: "FAQ" },

@@ -75,7 +75,7 @@ const SafetyTips = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/events">
+            <Link to="/glass-events">
               <Button size="lg" className="w-full sm:w-auto">
                 Browse Safe Treks
               </Button>

@@ -519,13 +519,13 @@ export function TrekImagesManager({
         : `treks/${trekId}/${timestamp}_${position || 1}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("trek-images")
+        .from("trek-assets")
         .upload(filePath, file, { upsert: true, cacheControl: "3600" });
 
       if (uploadError) throw uploadError;
 
       const { data: publicUrlData } = supabase.storage
-        .from("trek-images")
+        .from("trek-assets")
         .getPublicUrl(filePath);
 
       return {

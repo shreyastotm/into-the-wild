@@ -866,7 +866,7 @@ export function ProfileCompletionFunnel({
 
             <Button
               className="bg-gradient-to-r from-golden-500 to-coral-500 hover:from-golden-600 hover:to-coral-600 text-white"
-              onClick={() => (window.location.href = "/events")}
+              onClick={() => (window.location.href = "/glass-events")}
             >
               Explore Treks
               <Mountain className="w-4 h-4 ml-2" />

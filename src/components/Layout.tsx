@@ -39,16 +39,14 @@ const Layout: React.FC<LayoutProps> = (props) => {
   const isDashboard = location.pathname === "/dashboard";
   const isProfile = location.pathname === "/profile";
   const isCommunity = location.pathname === "/community";
-  // Glass pages now include main routes (/, /events, /gallery, /events/:id) as they all use glass theme
+  // Glass pages now include main routes (/, /glass-events, /gallery) as they all use glass theme
   const isGlassPage =
     location.pathname === "/" ||
     location.pathname === "/gallery" ||
-    location.pathname === "/events" ||
-    location.pathname.startsWith("/events/") ||
-    location.pathname === "/glass-landing" ||
-    location.pathname === "/glass-gallery" ||
     location.pathname === "/glass-events" ||
     location.pathname.startsWith("/glass-event-details/") ||
+    location.pathname === "/glass-landing" ||
+    location.pathname === "/glass-gallery" ||
     isProfile ||
     isCommunity ||
     isDashboard ||

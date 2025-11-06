@@ -77,14 +77,18 @@ const GlassMorphismLandingTrial: React.FC = () => {
       {/* Section 1: Hero Section */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden">
         {/* Dynamic Background with Parallax */}
-        <motion.div className="absolute inset-0 anime-sketch-blur" style={{ y: backgroundY }}>
+        <motion.div className="absolute inset-0 -z-10" style={{ y: backgroundY }}>
           <img
-            src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=1920&q=80"
-            alt="Mountain landscape"
-            className="w-full h-[120%] object-cover"
-            style={{ filter: "blur(15px) brightness(0.5) saturate(1.8) contrast(1.3) hue-rotate(5deg)" }}
+            src="/itw_new_BG.jpg"
+            alt="Karnataka Western Ghats mountain landscape"
+            className="absolute inset-0 w-full h-full object-cover object-center"
+            style={{ 
+              filter: "blur(0px) brightness(0.4) saturate(1.3)",
+              objectPosition: "50% 40%"
+            }}
           />
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/40 via-orange-800/30 to-teal-900/40 anime-motion-blur" />
+          {/* Enhanced gradient overlay for glass morphism theme */}
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-orange-800/40 to-teal-900/50" />
           <div
             className="absolute inset-0 sketchy-texture"
             style={{ background: "var(--glass-bg-overlay)" }}
@@ -96,16 +100,17 @@ const GlassMorphismLandingTrial: React.FC = () => {
 
         {/* Hero Content */}
         <motion.div
-          className="relative z-10 text-center max-w-4xl mx-auto px-6"
+          className="relative z-10 w-full text-center max-w-4xl mx-auto px-4 sm:px-6"
           style={{ y: textY }}
         >
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 1 }}
+            className="w-full"
           >
             <motion.h1
-              className="text-6xl md:text-8xl font-bold text-white mb-6 anime-sketch-text anime-bloom"
+              className="text-5xl sm:text-6xl md:text-8xl font-bold text-white mb-6 anime-sketch-text anime-bloom"
               initial={{ opacity: 0, scale: 0.8 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.2, delay: 0.2 }}
@@ -117,7 +122,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
             </motion.h1>
 
             <motion.p
-              className="text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed"
+              className="text-lg sm:text-xl md:text-2xl text-white/90 mb-8 max-w-2xl mx-auto leading-relaxed px-2"
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.5 }}
@@ -130,26 +135,34 @@ const GlassMorphismLandingTrial: React.FC = () => {
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, delay: 0.8 }}
-              className="flex flex-col sm:flex-row gap-4 justify-center items-center"
+              className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full"
             >
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/events")}
-                className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 anime-sketch-card anime-motion-blur"
+                onClick={() => navigate("/glass-events")}
+                className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 overflow-hidden"
               >
-                Start Your Adventure
-                <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                {/* Gloss/Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <span className="relative z-10 flex items-center">
+                  Start Your Adventure
+                  <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/gallery")}
-                className="group px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white font-semibold text-lg hover:bg-white/20 transition-all duration-300 anime-sketch-card anime-motion-blur"
+                className="group relative px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full text-white font-semibold text-lg hover:bg-white/20 hover:border-white/40 transition-all duration-300 overflow-hidden"
               >
-                <Play className="inline-block mr-2 w-5 h-5" />
-                Explore Gallery
+                {/* Gloss/Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <span className="relative z-10 flex items-center">
+                  <Play className="inline-block mr-2 w-5 h-5" />
+                  Explore Gallery
+                </span>
               </motion.button>
             </motion.div>
           </motion.div>
@@ -240,7 +253,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/events")}
+                onClick={() => navigate("/glass-events")}
                 className="group mt-8 px-6 py-3 bg-white/10 backdrop-blur-sm border border-green-400/30 rounded-full text-white hover:bg-green-400/20 transition-all duration-300 anime-sketch-card"
               >
                 Explore Events
@@ -354,7 +367,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/events")}
+                onClick={() => navigate("/glass-events")}
                 className="w-full px-6 py-3 bg-white/10 backdrop-blur-sm border border-amber-400/30 rounded-full text-white hover:bg-amber-400/20 transition-all duration-300 anime-sketch-card"
               >
                 View Sunday Treks
@@ -421,7 +434,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/events")}
+                onClick={() => navigate("/glass-events")}
                 className="w-full px-6 py-3 bg-white/10 backdrop-blur-sm border border-indigo-400/30 rounded-full text-white hover:bg-indigo-400/20 transition-all duration-300 anime-sketch-card"
               >
                 Explore Camping
@@ -636,11 +649,15 @@ const GlassMorphismLandingTrial: React.FC = () => {
             <motion.button
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => navigate("/events")}
-              className="group px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-blue-500/25 transition-all duration-300 anime-sketch-card anime-motion-blur"
+              onClick={() => navigate("/glass-events")}
+              className="group relative px-8 py-4 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-blue-500/50 transition-all duration-300 overflow-hidden"
             >
-              Try It Now
-              <Zap className="inline-block ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+              {/* Gloss/Shine effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+              <span className="relative z-10 flex items-center">
+                Try It Now
+                <Zap className="inline-block ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+              </span>
             </motion.button>
           </motion.div>
         </div>
@@ -743,7 +760,7 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/events")}
+                onClick={() => navigate("/glass-events")}
                 className="group mt-6 px-6 py-3 bg-white/10 backdrop-blur-sm border border-teal-400/30 rounded-full text-white hover:bg-teal-400/20 transition-all duration-300 anime-sketch-card"
               >
                 Join Communities
@@ -791,21 +808,29 @@ const GlassMorphismLandingTrial: React.FC = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                onClick={() => navigate("/events")}
-                className="group px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 anime-sketch-card anime-motion-blur"
+                onClick={() => navigate("/glass-events")}
+                className="group relative px-8 py-4 bg-gradient-to-r from-orange-500 to-purple-600 rounded-full text-white font-semibold text-lg shadow-2xl hover:shadow-orange-500/50 transition-all duration-300 overflow-hidden"
               >
-                Start Exploring
-                <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                {/* Gloss/Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <span className="relative z-10 flex items-center">
+                  Start Exploring
+                  <ArrowRight className="inline-block ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </span>
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => navigate("/gallery")}
-                className="group px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-full text-white font-semibold text-lg hover:bg-white/20 transition-all duration-300 anime-sketch-card anime-motion-blur"
+                className="group relative px-8 py-4 bg-white/10 backdrop-blur-sm border border-white/30 rounded-full text-white font-semibold text-lg hover:bg-white/20 hover:border-white/40 transition-all duration-300 overflow-hidden"
               >
-                <Play className="inline-block mr-2 w-5 h-5" />
-                Watch Demo
+                {/* Gloss/Shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
+                <span className="relative z-10 flex items-center">
+                  <Play className="inline-block mr-2 w-5 h-5" />
+                  Watch Demo
+                </span>
               </motion.button>
             </div>
 

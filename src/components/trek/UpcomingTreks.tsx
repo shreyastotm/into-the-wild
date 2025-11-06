@@ -259,7 +259,7 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
           <div
             key={trek.trek_id}
             className="bg-white rounded-lg shadow-md overflow-hidden cursor-pointer hover:shadow-lg transition-shadow group"
-            onClick={() => navigate(`/events/${trek.trek_id}`)}
+            onClick={() => navigate(`/glass-event-details/${trek.trek_id}`)}
           >
             <div className="h-56 bg-gray-200 relative overflow-hidden rounded-t-xl">
               {/* Image or Gradient Background */}

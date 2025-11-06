@@ -54,7 +54,7 @@ const Footer = () => {
               </li>
               <li>
                 <Link
-                  to="/events"
+                  to="/glass-events"
                   className="text-gray-600 hover:text-blue-600"
                 >
                   Events

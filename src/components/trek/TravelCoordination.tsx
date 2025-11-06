@@ -315,14 +315,22 @@ export const TravelCoordination: React.FC<TravelCoordinationProps> = ({
 
   if (!transportMode && !isAdmin) {
     return (
-      <Alert variant="default" className="bg-amber-50 border-amber-200">
-        <AlertCircle className="h-4 w-4 text-amber-600" />
-        <AlertTitle>Transport details not available</AlertTitle>
-        <AlertDescription>
-          Transport details have not been added for this trek yet. Check back
-          closer to the event date.
-        </AlertDescription>
-      </Alert>
+      <div className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-xl p-6">
+        <div className="flex items-start gap-4">
+          <div className="flex-shrink-0 w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center">
+            <AlertCircle className="h-5 w-5 text-amber-300" />
+          </div>
+          <div className="flex-1 space-y-2">
+            <h4 className="text-lg font-semibold text-white">
+              Transport details not available
+            </h4>
+            <p className="text-white/80 text-sm leading-relaxed">
+              Transport details have not been added for this trek yet. Check back
+              closer to the event date.
+            </p>
+          </div>
+        </div>
+      </div>
     );
   }
 

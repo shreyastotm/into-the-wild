@@ -44,7 +44,7 @@ export default function CreateTrekEvent() {
 
   const handleFormSubmit = async (data: FormSubmissionData) => {
     try {
-      const { trekData, packingList, costs, tentInventory: tentData } = data;
+      const { trekData, packingList, costs, tentInventory: tentData, tags } = data;
 
       // ✅ VALIDATION: Restrict Jam Yard creation to partners/admins
       if (trekData.event_type === EventType.JAM_YARD) {
@@ -96,6 +96,10 @@ export default function CreateTrekEvent() {
         partner_id: isPartner ? userProfile.user_id : null,
         created_by: userProfile?.user_id || null,
         status: "Draft" as const,
+        government_id_required: trekData.government_id_required || false,
+        itinerary: trekData.itinerary || null,
+        activity_schedule: trekData.activity_schedule || null,
+        volunteer_roles: trekData.volunteer_roles || null,
         jam_yard_details:
           trekData.event_type === EventType.JAM_YARD
             ? trekData.jam_yard_details
@@ -177,6 +181,23 @@ export default function CreateTrekEvent() {
         }
       }
 
+      // Step 5: Handle tag assignments
+      if (tags && tags.length > 0) {
+        const tagAssignments = tags.map((tagId) => ({
+          trek_id: trekId,
+          tag_id: tagId,
+        }));
+
+        const { error: tagError } = (await supabase
+          .from("trek_event_tag_assignments")
+          .insert(tagAssignments)) as any;
+
+        if (tagError) {
+          console.warn("Failed to assign tags:", tagError);
+          // Don't throw error - tags are optional
+        }
+      }
+
       const eventTypeDisplay =
         trekData.event_type === EventType.JAM_YARD
           ? "Jam Yard event"
@@ -191,7 +212,7 @@ export default function CreateTrekEvent() {
       });
 
       // Navigate to the created event
-      navigate(`/events/${trekId}`);
+      navigate(`/glass-event-details/${trekId}`);
     } catch (error: unknown) {
       const errorMessage =
         error instanceof Error ? error.message : "Failed to create trek event";
@@ -205,7 +226,7 @@ export default function CreateTrekEvent() {
   };
 
   const handleCancel = () => {
-    navigate("/events");
+    navigate("/glass-events");
   };
 
   if (loading) {

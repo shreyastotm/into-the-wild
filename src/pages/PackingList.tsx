@@ -81,7 +81,7 @@ const PackingList = () => {
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link to="/events">
+            <Link to="/glass-events">
               <Button size="lg" className="w-full sm:w-auto">
                 View Trek Details
               </Button>
