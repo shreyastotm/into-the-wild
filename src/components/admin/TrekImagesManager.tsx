@@ -41,6 +41,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { uploadTrekImage } from "@/utils/imageStorage";
 
 interface ExistingImage {
   id: number;
@@ -511,12 +512,21 @@ export function TrekImagesManager({
       file: File,
       position?: number,
     ): Promise<{ url: string; type: "image" | "video" }> => {
-      const fileExt = file.name.split(".").pop();
       const isVideo = file.type.startsWith("video/");
+      
+      // For images, use centralized utility
+      if (!isVideo && position) {
+        const url = await uploadTrekImage(file, trekId, position);
+        return {
+          url,
+          type: "image" as const,
+        };
+      }
+      
+      // For videos, handle separately (videos use different path structure)
+      const fileExt = file.name.split(".").pop();
       const timestamp = Date.now();
-      const filePath = isVideo
-        ? `treks/${trekId}/videos/${timestamp}.${fileExt}`
-        : `treks/${trekId}/${timestamp}_${position || 1}.${fileExt}`;
+      const filePath = `treks/${trekId}/videos/${timestamp}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from("trek-assets")
@@ -530,7 +540,7 @@ export function TrekImagesManager({
 
       return {
         url: publicUrlData.publicUrl,
-        type: isVideo ? "video" : "image",
+        type: "video" as const,
       };
     },
     [trekId],

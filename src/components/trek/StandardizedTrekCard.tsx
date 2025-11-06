@@ -215,10 +215,16 @@ export const StandardizedTrekCard: React.FC<StandardizedTrekCardProps> = ({
         {/* Footer */}
         <div className="mobile-trek-card-footer">
           {type === "event" ? (
-            <div className="flex items-center gap-1 font-bold text-lg text-primary">
-              <IndianRupee className="w-4 h-4" />
-              {price.toLocaleString("en-IN")}
-            </div>
+            price === 0 ? (
+              <Badge variant="secondary" className="font-bold text-lg">
+                Free
+              </Badge>
+            ) : (
+              <div className="flex items-center gap-1 font-bold text-lg text-primary">
+                <IndianRupee className="w-4 h-4" />
+                {price.toLocaleString("en-IN")}
+              </div>
+            )
           ) : null}
 
           {type === "event" ? (

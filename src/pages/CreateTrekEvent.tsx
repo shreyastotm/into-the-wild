@@ -10,6 +10,7 @@ import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFor
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { EventType, TentInventory } from "@/types/trek";
+import { uploadTrekImage } from "@/utils/imageStorage";
 
 export default function CreateTrekEvent() {
   const navigate = useNavigate();
@@ -196,6 +197,59 @@ export default function CreateTrekEvent() {
           console.warn("Failed to assign tags:", tagError);
           // Don't throw error - tags are optional
         }
+      }
+
+      // Step 6: Handle image uploads (up to 5 images)
+      const imagesToUpload = trekData.images?.filter((img): img is string => !!img) || 
+                            (trekData.image ? [trekData.image] : []);
+      
+      if (imagesToUpload.length > 0) {
+        const uploadPromises = imagesToUpload.map(async (base64Data, index) => {
+          try {
+            // Convert base64 data URL to File (without using fetch to avoid CSP violation)
+            const { base64ToFile } = await import("@/utils/imageUtils");
+            const file = base64ToFile(base64Data, `trek-${trekId}-image-${index + 1}.jpg`);
+
+            // Upload image to storage
+            const imageUrl = await uploadTrekImage(file, trekId, index + 1);
+
+            // Save to trek_event_images table
+            const { error: imgError } = await supabase
+              .from("trek_event_images")
+              .insert({
+                trek_id: trekId,
+                image_url: imageUrl,
+                position: index + 1,
+              });
+
+            if (imgError) {
+              console.warn(`Failed to save image ${index + 1} to trek_event_images:`, imgError);
+              // For the first image, also try saving to trek_events.image_url as fallback
+              if (index === 0) {
+                await supabase
+                  .from("trek_events")
+                  .update({ image_url: base64Data })
+                  .eq("trek_id", trekId);
+              }
+            }
+          } catch (imgError) {
+            console.warn(`Failed to upload image ${index + 1}:`, imgError);
+            // For the first image, try saving base64 directly to trek_events.image_url as fallback
+            if (index === 0) {
+              try {
+                await supabase
+                  .from("trek_events")
+                  .update({ image_url: base64Data })
+                  .eq("trek_id", trekId);
+              } catch (fallbackError) {
+                console.error("Failed to save image even as fallback:", fallbackError);
+              }
+            }
+          }
+        });
+
+        // Wait for all uploads to complete (don't fail if some fail)
+        await Promise.allSettled(uploadPromises);
       }
 
       const eventTypeDisplay =

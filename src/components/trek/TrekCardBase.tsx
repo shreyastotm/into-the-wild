@@ -376,7 +376,11 @@ const TrekCardBase: React.FC<TrekCardBaseProps> = ({
             <span>{formatIndianDate(startDate)}</span>
           </div>
           <div className="font-bold text-lg">
-            {formatCurrency(trek.cost, "INR")}
+            {trek.cost === 0 ? (
+              <Badge variant="secondary">Free</Badge>
+            ) : (
+              formatCurrency(trek.cost, "INR")
+            )}
           </div>
         </div>
 

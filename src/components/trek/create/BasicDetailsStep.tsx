@@ -15,8 +15,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { EventType } from "@/types/trek";
 
 interface BasicDetailsStepProps extends StepProps {
-  imagePreview: string | null;
-  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  imagePreview: string | null; // For backward compatibility
+  imagePreviews?: (string | null)[]; // New: array of image previews
+  handleImageChange: (e: React.ChangeEvent<HTMLInputElement>) => void; // For backward compatibility
+  handleImageChangeAtIndex?: (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => void;
+  removeImageAtIndex?: (index: number) => void;
   gpxFile: File | null;
   handleGpxChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
@@ -25,30 +28,48 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
   formData,
   setFormData,
   imagePreview,
+  imagePreviews = [],
   handleImageChange,
+  handleImageChangeAtIndex,
+  removeImageAtIndex,
   gpxFile,
   handleGpxChange,
   errors,
 }) => {
-  const [imgError, setImgError] = useState("");
+  const [imgErrors, setImgErrors] = useState<Record<number, string>>({});
 
-  const handleImageInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setImgError("");
+  const handleImageInputChange = (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImgErrors((prev) => {
+      const newErrors = { ...prev };
+      delete newErrors[index];
+      return newErrors;
+    });
     const file = e.target.files?.[0];
-    if (!file) return handleImageChange(e);
+    if (!file) {
+      if (handleImageChangeAtIndex) {
+        handleImageChangeAtIndex(index)(e);
+      } else if (index === 0) {
+        handleImageChange(e);
+      }
+      return;
+    }
 
     const validTypes = ["image/jpeg", "image/png", "image/webp"];
     if (!validTypes.includes(file.type)) {
-      setImgError("Only JPG, PNG, or WEBP images are allowed.");
+      setImgErrors((prev) => ({ ...prev, [index]: "Only JPG, PNG, or WEBP images are allowed." }));
       return;
     }
 
     if (file.size > 2 * 1024 * 1024) {
-      setImgError("Image must be less than 2MB.");
+      setImgErrors((prev) => ({ ...prev, [index]: "Image must be less than 2MB." }));
       return;
     }
 
-    handleImageChange(e);
+    if (handleImageChangeAtIndex) {
+      handleImageChangeAtIndex(index)(e);
+    } else if (index === 0) {
+      handleImageChange(e);
+    }
   };
 
   const eventTypeLabel =
@@ -103,27 +124,51 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
           />
         </div>
 
-        {/* Event Image */}
-        <div className="space-y-2">
-          <Label htmlFor="trek-image">Event Image</Label>
-          <Input
-            id="trek-image"
-            type="file"
-            accept="image/*"
-            onChange={handleImageInputChange}
-          />
-          {imgError && <div className="text-red-500 text-xs">{imgError}</div>}
-          {imagePreview && (
-            <div className="mt-2">
-              <img
-                src={imagePreview}
-                alt="Preview"
-                className="w-32 h-24 object-cover rounded-lg border"
-              />
-            </div>
-          )}
+        {/* Event Images - Up to 5 images */}
+        <div className="space-y-4">
+          <Label>Event Images (up to 5)</Label>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 5 }).map((_, index) => {
+              const preview = imagePreviews[index] || (index === 0 ? imagePreview : null);
+              return (
+                <div key={index} className="space-y-2">
+                  <Label htmlFor={`trek-image-${index}`} className="text-sm">
+                    Image {index + 1} {index === 0 && "(Primary)"}
+                  </Label>
+                  <Input
+                    id={`trek-image-${index}`}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageInputChange(index)}
+                  />
+                  {imgErrors[index] && (
+                    <div className="text-red-500 text-xs">{imgErrors[index]}</div>
+                  )}
+                  {preview && (
+                    <div className="relative mt-2">
+                      <img
+                        src={preview}
+                        alt={`Preview ${index + 1}`}
+                        className="w-full h-32 object-cover rounded-lg border"
+                      />
+                      {removeImageAtIndex && (
+                        <button
+                          type="button"
+                          onClick={() => removeImageAtIndex(index)}
+                          className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs hover:bg-red-600"
+                          aria-label={`Remove image ${index + 1}`}
+                        >
+                          ×
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
           <div className="text-gray-500 text-xs">
-            Upload a high-quality image (JPG, PNG, or WEBP, max 2MB)
+            Upload up to 5 high-quality images (JPG, PNG, or WEBP, max 2MB each). The first image will be used as the primary image.
           </div>
         </div>
 
@@ -224,6 +269,7 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
               name="base_price"
               type="number"
               min="0"
+              step="0.01"
               value={
                 formData.base_price === undefined ||
                 formData.base_price === null
@@ -232,9 +278,11 @@ export const BasicDetailsStep: React.FC<BasicDetailsStepProps> = ({
               }
               onChange={(e) => {
                 const val = e.target.value;
+                // Allow empty string, 0, or any positive number
+                const numValue = val === "" ? undefined : parseFloat(val);
                 setFormData((f) => ({
                   ...f,
-                  base_price: val === "" ? undefined : parseFloat(val),
+                  base_price: numValue,
                 }));
               }}
               required

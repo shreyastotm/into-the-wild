@@ -8,6 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { toast } from "@/components/ui/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { TrekEventStatus } from "@/types/trek";
+import { uploadTrekImage } from "@/utils/imageStorage";
 
 type Difficulty = "Easy" | "Moderate" | "Hard";
 
@@ -35,23 +37,6 @@ export default function CreatePastEvent() {
     });
   }, []);
 
-  async function uploadImageAndGetUrl(
-    file: File,
-    trekId: number,
-    position: number,
-  ): Promise<string> {
-    const fileExt = file.name.split(".").pop();
-    const filePath = `treks/${trekId}/${Date.now()}_${position}.${fileExt}`;
-    const { error: uploadError } = await supabase.storage
-      .from("trek-assets")
-      .upload(filePath, file, { upsert: true, cacheControl: "3600" });
-    if (uploadError) throw uploadError;
-    const { data: publicUrlData } = supabase.storage
-      .from("trek-assets")
-      .getPublicUrl(filePath);
-    return publicUrlData.publicUrl;
-  }
-
   const handleSubmit = useCallback(async () => {
     if (!canSubmit) return;
     setSubmitting(true);
@@ -71,7 +56,7 @@ export default function CreatePastEvent() {
         route_data: distanceKm ? { distance_km: Number(distanceKm) } : null,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString(),
-        status: "Archived",
+        status: TrekEventStatus.COMPLETED,
       } as const;
 
       const { data: created, error: insertErr } = await supabase
@@ -88,7 +73,7 @@ export default function CreatePastEvent() {
         if (!file) return;
         uploads.push(
           (async () => {
-            const url = await uploadImageAndGetUrl(file, trekId, index + 1);
+            const url = await uploadTrekImage(file, trekId, index + 1);
             const { error: imgErr } = await supabase
               .from("trek_event_images")
               .insert({

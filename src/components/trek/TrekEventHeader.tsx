@@ -112,10 +112,18 @@ export const TrekEventHeader: React.FC<TrekEventHeaderProps> = ({
           )}
         {cost !== undefined && (
           <div className="flex items-center">
-            <IndianRupee className="h-4 w-4 mr-1" />
-            <span className="font-medium text-foreground">
-              {formatCurrency(cost, "INR")}
-            </span>
+            {cost === 0 ? (
+              <Badge variant="secondary" className="font-medium">
+                Free
+              </Badge>
+            ) : (
+              <>
+                <IndianRupee className="h-4 w-4 mr-1" />
+                <span className="font-medium text-foreground">
+                  {formatCurrency(cost, "INR")}
+                </span>
+              </>
+            )}
           </div>
         )}
       </div>

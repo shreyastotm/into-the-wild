@@ -209,8 +209,16 @@ export const EventCard: React.FC<EventCardProps> = ({
         {/* Price and Participants */}
         <div className="flex justify-between items-center pt-2 border-t border-white/10">
           <div className="flex items-center gap-1">
-            <IndianRupee className="w-4 h-4 text-primary" />
-            <span className="font-bold text-foreground">{price}</span>
+            {price === 0 ? (
+              <Badge variant="secondary" className="font-bold">
+                Free
+              </Badge>
+            ) : (
+              <>
+                <IndianRupee className="w-4 h-4 text-primary" />
+                <span className="font-bold text-foreground">{price}</span>
+              </>
+            )}
           </div>
           <div className="flex items-center gap-1 text-muted-foreground">
             <Users className="w-4 h-4" />

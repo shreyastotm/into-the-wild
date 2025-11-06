@@ -332,10 +332,19 @@ export function useTrekRegistration(trek_id: string | number | undefined) {
       }
       await checkUserRegistration(trekIdNum);
 
-      // Show appropriate success message based on ID requirements
-      const successMessage = trekEvent.government_id_required
-        ? "Registration successful! Next steps: 1) Upload your government ID in the Requirements tab, 2) Complete payment and upload proof."
-        : "Please complete payment and upload proof to confirm your spot.";
+      // Show appropriate success message based on cost and ID requirements
+      const isFree = (trekEvent.cost || 0) === 0;
+      let successMessage: string;
+      
+      if (isFree) {
+        successMessage = trekEvent.government_id_required
+          ? "Registration successful! Next step: Upload your government ID in the Requirements tab."
+          : "Registration successful! You're all set.";
+      } else {
+        successMessage = trekEvent.government_id_required
+          ? "Registration successful! Next steps: 1) Upload your government ID in the Requirements tab, 2) Complete payment and upload proof."
+          : "Please complete payment and upload proof to confirm your spot.";
+      }
 
       toast({
         title: "Registration successful",

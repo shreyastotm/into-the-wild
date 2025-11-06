@@ -20,6 +20,7 @@ import { supabase } from "../../integrations/supabase/client";
 
 import { TrekImagesManager } from "@/components/admin/TrekImagesManager";
 import CreateTrekMultiStepFormNew from "@/components/trek/CreateTrekMultiStepFormNew";
+import { AdminTrekEvent } from "@/components/trek/create/types";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -79,6 +80,7 @@ interface TrekEvent {
   base_price?: number | null;
   max_participants: number;
   event_type?: EventType;
+  status?: TrekEventStatus | string | null;
 }
 
 const TrekEventsAdmin = () => {
@@ -202,7 +204,7 @@ const TrekEventsAdmin = () => {
       const { data, error: fetchError } = (await supabase
         .from("trek_events")
         .select(
-          "trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, event_type",
+          "trek_id, name, description, location, category, difficulty, start_datetime, end_datetime, base_price, max_participants, event_type, status",
         )
         .order("start_datetime", { ascending: false })) as any;
 
@@ -265,6 +267,16 @@ const TrekEventsAdmin = () => {
     return trekImages[trekId]?.length || 0;
   };
 
+  // Normalize status for display (handle legacy "Archived" status)
+  const normalizeStatus = (status: string | null | undefined): string => {
+    if (!status) return "";
+    // Convert legacy "Archived" status to "Completed" for display
+    if (status === "Archived") {
+      return TrekEventStatus.COMPLETED;
+    }
+    return status;
+  };
+
   const handleStatusChange = async (
     trekId: number,
     newStatus: TrekEventStatus,
@@ -283,20 +295,69 @@ const TrekEventsAdmin = () => {
           e.trek_id === trekId ? { ...e, status: newStatus } : e,
         ),
       );
-      // Optionally, show a success toast
-      // toast({ title: "Status Updated", description: `Event status changed to ${newStatus}` });
+      toast({
+        title: "Status Updated",
+        description: `Event status changed to ${newStatus}`,
+      });
     } catch (err: unknown) {
       const errorMessage =
         err instanceof Error ? err.message : "Failed to update status";
       setError(`Failed to update status: ${errorMessage}`);
       console.error("Status update error:", err);
-      // Optionally, show an error toast
-      // toast({ title: "Error Updating Status", description: err.message, variant: "destructive" });
+      toast({
+        title: "Error Updating Status",
+        description: errorMessage,
+        variant: "destructive",
+      });
     }
   };
 
-  const handleEdit = (event: TrekEvent) => {
-    setEventToEdit(event);
+  const handleEdit = async (event: TrekEvent) => {
+    // Fetch full event data including jam_yard_details, itinerary, etc.
+    try {
+      const { data: fullEventData, error } = await supabase
+        .from("trek_events")
+        .select("*")
+        .eq("trek_id", event.trek_id)
+        .single();
+
+      if (error) {
+        console.error("Error fetching full event data:", error);
+        toast({
+          title: "Error",
+          description: "Failed to load event details",
+          variant: "destructive",
+        });
+        // Fallback to basic event data
+        setEventToEdit(event);
+      } else {
+        // Map the full event data to AdminTrekEvent format
+        const eventToEditData: AdminTrekEvent = {
+          trek_id: fullEventData.trek_id,
+          name: fullEventData.name,
+          description: fullEventData.description,
+          location: fullEventData.location,
+          category: fullEventData.category,
+          difficulty: fullEventData.difficulty,
+          start_datetime: fullEventData.start_datetime,
+          end_datetime: fullEventData.end_datetime,
+          base_price: fullEventData.base_price,
+          max_participants: fullEventData.max_participants,
+          event_type: fullEventData.event_type as EventType,
+          status: fullEventData.status,
+          government_id_required: fullEventData.government_id_required,
+          itinerary: fullEventData.itinerary,
+          activity_schedule: fullEventData.activity_schedule,
+          volunteer_roles: fullEventData.volunteer_roles,
+          jam_yard_details: fullEventData.jam_yard_details,
+        };
+        setEventToEdit(eventToEditData);
+      }
+    } catch (err) {
+      console.error("Error in handleEdit:", err);
+      // Fallback to basic event data
+      setEventToEdit(event);
+    }
     setEditDialogOpen(true);
   };
 
@@ -509,7 +570,12 @@ const TrekEventsAdmin = () => {
         event.location.toLowerCase().includes(searchTerm.toLowerCase()));
 
     const matchesStatus =
-      !statusFilter || statusFilter === "all" || event.status === statusFilter;
+      !statusFilter ||
+      statusFilter === "all" ||
+      event.status === statusFilter ||
+      // Handle legacy "Archived" status - treat as "Completed" for filtering
+      (statusFilter === TrekEventStatus.COMPLETED &&
+        event.status === "Archived");
     const matchesType =
       !typeFilter || typeFilter === "all" || event.event_type === typeFilter;
 
@@ -576,10 +642,18 @@ const TrekEventsAdmin = () => {
     // Debug: Log the incoming data to understand the issue
 
     // Sanitize date fields before submission
+    // Remove image fields as they should be handled separately
+    const { image, images, ...trekDataWithoutImages } = trekData;
     const sanitizedTrekData = {
-      ...trekData,
+      ...trekDataWithoutImages,
       start_datetime: trekData.start_datetime || null,
       end_datetime: trekData.end_datetime || null,
+      // Preserve status if present
+      status: trekData.status || undefined,
+      // Include jam_yard_details for Jam Yard events
+      jam_yard_details: trekData.event_type === EventType.JAM_YARD 
+        ? trekData.jam_yard_details 
+        : undefined,
     };
 
     // Validate required fields before submission
@@ -709,7 +783,90 @@ const TrekEventsAdmin = () => {
         }
       }
 
-      // Step 5: Refresh UI
+      // Step 5: Handle image uploads (up to 5 images)
+      const imagesToUpload = images?.filter((img): img is string => !!img) || 
+                            (image ? [image] : []);
+      
+      if (imagesToUpload.length > 0) {
+        // Import uploadTrekImage dynamically to avoid circular dependencies
+        const { uploadTrekImage } = await import("@/utils/imageStorage");
+        
+        const uploadPromises = imagesToUpload.map(async (base64Data, index) => {
+          try {
+            // Convert base64 data URL to File (without using fetch to avoid CSP violation)
+            const { base64ToFile } = await import("@/utils/imageUtils");
+            const file = base64ToFile(base64Data, `trek-${trekIdToUpdate}-image-${index + 1}.jpg`);
+
+            // Upload image to storage
+            const imageUrl = await uploadTrekImage(file, trekIdToUpdate, index + 1);
+
+            // Check if image at this position already exists
+            const { data: existingImages, error: checkError } = await supabase
+              .from("trek_event_images")
+              .select("id")
+              .eq("trek_id", trekIdToUpdate)
+              .eq("position", index + 1)
+              .limit(1);
+
+            if (checkError && checkError.code !== 'PGRST116') {
+              // PGRST116 is "no rows returned" which is fine, ignore it
+              console.warn(`Error checking for existing image ${index + 1}:`, checkError);
+            }
+
+            const existingImage = existingImages && existingImages.length > 0 ? existingImages[0] : null;
+
+            if (existingImage) {
+              // Update existing image
+              const { error: updateError } = await supabase
+                .from("trek_event_images")
+                .update({ image_url: imageUrl })
+                .eq("id", existingImage.id);
+              
+              if (updateError) {
+                console.warn(`Failed to update image ${index + 1}:`, updateError);
+              }
+            } else {
+              // Insert new image
+              const { error: insertError } = await supabase
+                .from("trek_event_images")
+                .insert({
+                  trek_id: trekIdToUpdate,
+                  image_url: imageUrl,
+                  position: index + 1,
+                });
+
+              if (insertError) {
+                console.warn(`Failed to save image ${index + 1} to trek_event_images:`, insertError);
+                // For the first image, also try saving to trek_events.image_url as fallback
+                if (index === 0) {
+                  await supabase
+                    .from("trek_events")
+                    .update({ image_url: base64Data })
+                    .eq("trek_id", trekIdToUpdate);
+                }
+              }
+            }
+          } catch (imgError) {
+            console.warn(`Failed to upload image ${index + 1}:`, imgError);
+            // For the first image, try saving base64 directly to trek_events.image_url as fallback
+            if (index === 0) {
+              try {
+                await supabase
+                  .from("trek_events")
+                  .update({ image_url: base64Data })
+                  .eq("trek_id", trekIdToUpdate);
+              } catch (fallbackError) {
+                console.error("Failed to save image even as fallback:", fallbackError);
+              }
+            }
+          }
+        });
+
+        // Wait for all uploads to complete (don't fail if some fail)
+        await Promise.allSettled(uploadPromises);
+      }
+
+      // Step 6: Refresh UI
       await fetchEvents();
       setEditDialogOpen(false);
       setEventToEdit(null);
@@ -908,7 +1065,7 @@ const TrekEventsAdmin = () => {
 
                 <div className="mb-3">
                   <Select
-                    value={event.status || ""}
+                    value={normalizeStatus(event.status)}
                     onValueChange={(newStatusValue) => {
                       handleStatusChange(
                         event.trek_id,
@@ -1060,7 +1217,7 @@ const TrekEventsAdmin = () => {
                     </TableCell>
                     <TableCell className="min-w-[180px]">
                       <Select
-                        value={event.status || ""}
+                        value={normalizeStatus(event.status)}
                         onValueChange={(newStatusValue) => {
                           handleStatusChange(
                             event.trek_id,

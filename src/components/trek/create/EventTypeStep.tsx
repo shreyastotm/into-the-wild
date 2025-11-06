@@ -18,6 +18,11 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
   const isPartnerOrAdmin =
     userProfile?.user_type === "micro_community" ||
     userProfile?.user_type === "admin";
+  
+  const handleCardClick = (eventType: EventType) => {
+    setFormData((prev) => ({ ...prev, event_type: eventType }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
@@ -30,13 +35,24 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
       </div>
 
       <RadioGroup
-        value={formData.event_type}
+        value={formData.event_type || EventType.TREK}
         onValueChange={(value) =>
           setFormData((prev) => ({ ...prev, event_type: value as EventType }))
         }
         className="space-y-4"
       >
-        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+        <Card 
+          className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => handleCardClick(EventType.TREK)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleCardClick(EventType.TREK);
+            }
+          }}
+        >
           <div className="flex items-start space-x-3">
             <RadioGroupItem value={EventType.TREK} id="trek" className="mt-1" />
             <div className="flex-1">
@@ -59,7 +75,18 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
           </div>
         </Card>
 
-        <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer">
+        <Card 
+          className="p-4 hover:shadow-md transition-shadow cursor-pointer"
+          onClick={() => handleCardClick(EventType.CAMPING)}
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" || e.key === " ") {
+              e.preventDefault();
+              handleCardClick(EventType.CAMPING);
+            }
+          }}
+        >
           <div className="flex items-start space-x-3">
             <RadioGroupItem
               value={EventType.CAMPING}
@@ -89,7 +116,18 @@ export const EventTypeStep: React.FC<StepProps & { isEdit?: boolean }> = ({
 
         {/* Jam Yard card - only shown for partners and admins */}
         {isPartnerOrAdmin && (
-          <Card className="p-4 hover:shadow-md transition-shadow cursor-pointer border-orange-200">
+          <Card 
+            className="p-4 hover:shadow-md transition-shadow cursor-pointer border-orange-200"
+            onClick={() => handleCardClick(EventType.JAM_YARD)}
+            role="button"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" || e.key === " ") {
+                e.preventDefault();
+                handleCardClick(EventType.JAM_YARD);
+              }
+            }}
+          >
             <div className="flex items-start space-x-3">
               <RadioGroupItem
                 value={EventType.JAM_YARD}

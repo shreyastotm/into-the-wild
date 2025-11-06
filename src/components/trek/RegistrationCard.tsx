@@ -152,7 +152,13 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
             Registration
           </span>
           <span className="text-xl sm:text-2xl font-bold text-foreground dark:text-foreground">
-            {formatCurrency(trek.cost, "INR")}
+            {trek.cost === 0 ? (
+              <Badge variant="secondary" className="text-base px-3 py-1">
+                Free
+              </Badge>
+            ) : (
+              formatCurrency(trek.cost, "INR")
+            )}
           </span>
         </CardTitle>
       </CardHeader>
@@ -204,7 +210,7 @@ export const RegistrationCard: React.FC<RegistrationCardProps> = ({
                     userRegistration.booking_datetime,
                   ).toLocaleDateString()}
                 </p>
-                {userRegistration.payment_status === "Pending" && (
+                {userRegistration.payment_status === "Pending" && trek.cost > 0 && (
                   <div className="flex justify-center">
                     <FormSection
                       title="Upload Payment Proof"

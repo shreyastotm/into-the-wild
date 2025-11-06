@@ -90,7 +90,7 @@ export function UserImageUpload({
       const filePath = `user-contributions/${trekId}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
-        .from("trek-images")
+        .from("trek-assets")
         .upload(filePath, selectedFile, { cacheControl: "3600" });
 
       if (uploadError) throw uploadError;
@@ -98,7 +98,7 @@ export function UserImageUpload({
       // Get public URL
       const {
         data: { publicUrl },
-      } = supabase.storage.from("trek-images").getPublicUrl(filePath);
+      } = supabase.storage.from("trek-assets").getPublicUrl(filePath);
 
       // Save to database
       const { error: dbError } = await supabase
@@ -113,7 +113,7 @@ export function UserImageUpload({
 
       if (dbError) {
         // Clean up uploaded file if DB insert fails
-        await supabase.storage.from("trek-images").remove([filePath]);
+        await supabase.storage.from("trek-assets").remove([filePath]);
         throw dbError;
       }
 

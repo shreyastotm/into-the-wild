@@ -325,7 +325,13 @@ export const UpcomingTreks: React.FC<{ limit?: number }> = ({ limit = 3 }) => {
               {/* Footer */}
               <div className="flex items-center justify-between">
                 <div className="text-2xl font-bold text-primary">
-                  {formatCurrency(trek.base_price, "INR")}
+                  {trek.base_price === 0 ? (
+                    <Badge variant="secondary" className="text-xl">
+                      Free
+                    </Badge>
+                  ) : (
+                    formatCurrency(trek.base_price, "INR")
+                  )}
                 </div>
                 <Button variant="primary" size="sm" className="w-full">
                   View Details

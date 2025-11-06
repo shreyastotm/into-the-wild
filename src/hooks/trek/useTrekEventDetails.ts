@@ -47,6 +47,10 @@ interface TrekEvent {
   itinerary?: CampingItinerary | null;
   activity_schedule?: ActivitySchedule | null;
   volunteer_roles?: VolunteerRoles | null;
+  jam_yard_details?: {
+    skill_level?: string;
+    [key: string]: any;
+  } | null;
 }
 
 export function useTrekEventDetails(trek_id: string | undefined) {
@@ -111,6 +115,8 @@ export function useTrekEventDetails(trek_id: string | undefined) {
           itinerary: data.itinerary as CampingItinerary | null,
           activity_schedule: data.activity_schedule as ActivitySchedule | null,
           volunteer_roles: data.volunteer_roles as VolunteerRoles | null,
+          // Include jam_yard_details for skill_level access
+          jam_yard_details: data.jam_yard_details as any,
         });
       }
     } catch (error: unknown) {

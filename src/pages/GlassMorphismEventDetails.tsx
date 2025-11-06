@@ -45,11 +45,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useTrekCosts } from "@/hooks/trek/useTrekCosts";
 import { useTrekEventDetails } from "@/hooks/trek/useTrekEventDetails";
 import { useTrekRegistration } from "@/hooks/trek/useTrekRegistration";
+import { EventType } from "@/types/trek";
 import { useGA4Analytics } from "@/hooks/useGA4Analytics";
 import { useTrekCommunity } from "@/hooks/useTrekCommunity";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { formatIndianDate } from "@/utils/indianStandards";
+import { formatIndianDate, parseDuration } from "@/utils/indianStandards";
+import { getTrekImageUrl } from "@/utils/imageStorage";
 
 // Glass Panel Component
 interface GlassPanelProps {
@@ -103,13 +105,13 @@ const ImageCarousel: React.FC<ImageCarouselProps> = ({ images, eventName }) => {
   };
 
   return (
-    <div className="relative h-[70vh] rounded-2xl overflow-hidden">
+    <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] lg:aspect-square lg:h-[600px] rounded-2xl overflow-hidden">
       <AnimatePresence mode="wait">
         <motion.img
           key={currentIndex}
           src={images[currentIndex]}
           alt={`${eventName} - Image ${currentIndex + 1}`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover sm:object-contain lg:object-cover"
           initial={{ opacity: 0, scale: 1.1 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.9 }}
@@ -256,7 +258,7 @@ const GlassMorphismEventDetails = () => {
         const numericId = id ? parseInt(id, 10) : null;
         if (!numericId || isNaN(numericId)) return;
 
-        // Fetch images with ordering by position
+        // Fetch admin-uploaded images from trek_event_images table
         const { data: imagesData, error: imagesError } = await supabase
           .from("trek_event_images")
           .select("image_url, position")
@@ -264,57 +266,52 @@ const GlassMorphismEventDetails = () => {
           .order("position", { ascending: true });
 
         if (imagesError) {
-          console.error("❌ Error fetching images for trek", numericId, ":", imagesError);
+          console.error("❌ Error fetching trek_event_images for trek", numericId, ":", imagesError);
         } else {
-          console.log(`✅ Fetched ${imagesData?.length || 0} images for trek ${numericId}`);
-          if (imagesData && imagesData.length > 0) {
-            console.log("📸 Sample image:", imagesData[0]);
-          }
+          console.log(`✅ Fetched ${imagesData?.length || 0} admin images from trek_event_images for trek ${numericId}`);
         }
 
-        // Helper function to convert storage path to public URL if needed
-        const getImageUrl = (imageUrl: string): string => {
-          if (!imageUrl || imageUrl.trim() === "") return "";
-          
-          // If it's already a full URL (http/https), check if it needs bucket migration
-          if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-            // If URL points to old trek-images bucket, update to trek-assets bucket
-            if (imageUrl.includes("/storage/v1/object/public/trek-images/")) {
-              const updatedUrl = imageUrl.replace("/storage/v1/object/public/trek-images/", "/storage/v1/object/public/trek-assets/");
-              console.log(`🔄 Migrated URL from trek-images to trek-assets: ${imageUrl.substring(0, 80)}... -> ${updatedUrl.substring(0, 80)}...`);
-              return updatedUrl;
+        // ALSO fetch approved user-contributed images
+        const { data: userImagesData, error: userImagesError } = await supabase
+          .from("user_trek_images")
+          .select("image_url, created_at")
+          .eq("trek_id", numericId)
+          .eq("status", "approved")
+          .order("created_at", { ascending: true });
+
+        if (userImagesError) {
+          console.error("❌ Error fetching user_trek_images for trek", numericId, ":", userImagesError);
+        } else {
+          console.log(`✅ Fetched ${userImagesData?.length || 0} approved user images for trek ${numericId}`);
+        }
+
+        // Combine both sources: admin images first (ordered by position), then user images (ordered by date)
+        const allImageUrls: string[] = [];
+        
+        // Add admin images first
+        if (imagesData && imagesData.length > 0) {
+          imagesData.forEach((img: any) => {
+            if (img.image_url && img.image_url.trim() !== "") {
+              allImageUrls.push(img.image_url);
             }
-            // If it already points to trek-assets or is external, return as is
-            return imageUrl;
-          }
-          
-          // If it's a storage path (starts with treks/), convert to public URL
-          // Trek images are stored in trek-assets bucket
-          if (imageUrl.startsWith("treks/") || imageUrl.startsWith("trek-assets/") || imageUrl.startsWith("trek-images/")) {
-            let path = imageUrl;
-            if (imageUrl.startsWith("trek-assets/")) {
-              path = imageUrl.replace("trek-assets/", "");
-            } else if (imageUrl.startsWith("trek-images/")) {
-              path = imageUrl.replace("trek-images/", "");
-            } else if (imageUrl.startsWith("treks/")) {
-              // Keep treks/ prefix as is for trek-assets bucket
-              path = imageUrl;
+          });
+        }
+        
+        // Add approved user images
+        if (userImagesData && userImagesData.length > 0) {
+          userImagesData.forEach((img: any) => {
+            if (img.image_url && img.image_url.trim() !== "") {
+              allImageUrls.push(img.image_url);
             }
-            const { data } = supabase.storage.from("trek-assets").getPublicUrl(path);
-            return data.publicUrl;
-          }
-          
-          // Return as is (might be a relative path or other format)
-          return imageUrl;
-        };
+          });
+        }
 
         // Validate and filter image URLs, converting storage paths to public URLs
-        const validImages = imagesData
-          ?.filter((img: any) => img.image_url && img.image_url.trim() !== "")
-          .map((img: any) => getImageUrl(img.image_url))
-          .filter((url: string) => url !== "") || [];
+        const validImages = allImageUrls
+          .map((url: string) => getTrekImageUrl(url))
+          .filter((url: string) => url !== "");
 
-        console.log(`📊 Valid images after filtering: ${validImages.length} for trek ${numericId}`);
+        console.log(`📊 Valid images after filtering: ${validImages.length} for trek ${numericId} (${imagesData?.length || 0} admin + ${userImagesData?.length || 0} user)`);
 
         if (validImages.length > 0) {
           console.log(`✅ Using ${validImages.length} DB images for trek ${numericId}`);
@@ -323,7 +320,7 @@ const GlassMorphismEventDetails = () => {
           // Try to use image_url from trek_events as fallback
           if (trekEvent?.image_url && trekEvent.image_url.trim() !== "") {
             console.log(`⚠️ Using trek_events.image_url fallback for trek ${numericId}`);
-            const fallbackUrl = getImageUrl(trekEvent.image_url);
+            const fallbackUrl = getTrekImageUrl(trekEvent.image_url);
             setImages(fallbackUrl ? [fallbackUrl] : []);
           } else {
             console.log(`❌ Using placeholder images for trek ${numericId} (no DB images)`);
@@ -604,20 +601,9 @@ const GlassMorphismEventDetails = () => {
         }));
       }
 
-      // Fallback to duration-based itinerary
-      // Parse PostgreSQL interval format (e.g., "3 days" or "2 days 12:00:00")
-      const parseDurationDays = (durationStr: string | null | undefined): number => {
-        if (!durationStr) return 3; // Default
-        // PostgreSQL interval comes as string like "3 days" or "2 days 12:00:00"
-        const daysMatch = durationStr.match(/(\d+)\s*days?/i);
-        if (daysMatch) {
-          return parseInt(daysMatch[1], 10);
-        }
-        // Fallback: try to parse as number
-        const num = parseInt(durationStr, 10);
-        return isNaN(num) ? 3 : num;
-      };
-      const days = parseDurationDays(trekEvent.duration);
+        // Fallback to duration-based itinerary
+        // Parse PostgreSQL interval format (e.g., "3 days" or "2 days 12:00:00")
+        const days = parseInt(parseDuration(trekEvent.duration), 10) || 3;
       return Array.from({ length: days }, (_, i) => ({
         day: i + 1,
         title:
@@ -640,23 +626,33 @@ const GlassMorphismEventDetails = () => {
         ? trekEvent.location
         : (trekEvent.location as any)?.name || "Location TBD";
 
+    // For Jam Yard events, use skill_level from jam_yard_details instead of difficulty
+    let displayDifficulty: string;
+    if (trekEvent.event_type === EventType.JAM_YARD && trekEvent.jam_yard_details) {
+      const skillLevel = trekEvent.jam_yard_details?.skill_level;
+      if (skillLevel) {
+        // Capitalize skill level for display (beginner -> Beginner, etc.)
+        displayDifficulty = skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1);
+        // Handle "all" -> "All Levels"
+        if (skillLevel === "all") {
+          displayDifficulty = "All Levels";
+        }
+      } else {
+        // Fallback: if no skill_level but has difficulty (combined event), use difficulty
+        displayDifficulty = trekEvent.difficulty || "Moderate";
+      }
+    } else {
+      // For non-Jam Yard events, use difficulty field
+      displayDifficulty = trekEvent.difficulty || "Moderate";
+    }
+
     setEvent({
       trek_id: trekEvent.trek_id,
       name: trekEvent.trek_name || "Trek Event",
       description: trekEvent.description || "Join us for an amazing adventure!",
       location: locationStr,
-      difficulty: trekEvent.difficulty || "Moderate",
-      duration: (() => {
-        // Parse PostgreSQL interval to display format
-        if (!trekEvent.duration) return "3";
-        const daysMatch = trekEvent.duration.match(/(\d+)\s*days?/i);
-        if (daysMatch) {
-          return daysMatch[1];
-        }
-        // If it's already a number string, use it
-        const num = parseInt(trekEvent.duration, 10);
-        return isNaN(num) ? "3" : num.toString();
-      })(),
+      difficulty: displayDifficulty,
+      duration: parseDuration(trekEvent.duration),
       start_datetime: trekEvent.start_datetime,
       base_price: trekEvent.cost || 0,
       max_participants: trekEvent.max_participants || 20,
@@ -890,7 +886,29 @@ const GlassMorphismEventDetails = () => {
   }
 
   const getDifficultyConfig = (difficulty: string) => {
-    switch (difficulty?.toLowerCase()) {
+    const diffLower = difficulty?.toLowerCase();
+    
+    // Handle skill levels (for Jam Yard events)
+    if (diffLower === "beginner" || diffLower === "all levels") {
+      return {
+        icon: TreePine,
+        color: "text-green-400",
+        bg: "bg-green-500/20",
+      };
+    }
+    if (diffLower === "intermediate") {
+      return {
+        icon: Mountain,
+        color: "text-yellow-400",
+        bg: "bg-yellow-500/20",
+      };
+    }
+    if (diffLower === "advanced") {
+      return { icon: Zap, color: "text-red-400", bg: "bg-red-500/20" };
+    }
+    
+    // Handle traditional difficulty levels
+    switch (diffLower) {
       case "easy":
         return {
           icon: TreePine,
@@ -904,6 +922,7 @@ const GlassMorphismEventDetails = () => {
           bg: "bg-yellow-500/20",
         };
       case "hard":
+      case "difficult":
         return { icon: Zap, color: "text-red-400", bg: "bg-red-500/20" };
       case "expert":
         return { icon: Zap, color: "text-purple-400", bg: "bg-purple-500/20" };
@@ -1022,15 +1041,15 @@ const GlassMorphismEventDetails = () => {
       <div className="relative z-10 container mx-auto px-4 py-8 pt-24">
         <div className="max-w-6xl mx-auto">
           {/* Hero Section */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 mb-8 lg:items-start">
             {/* Image Carousel */}
-            <div>
+            <div className="w-full">
               <ImageCarousel images={event.images} eventName={event.name} />
             </div>
 
-            {/* Event Info Panel */}
-            <GlassPanel delay={0.2}>
-              <div className="space-y-6">
+            {/* Event Info Panel - Match height with carousel on desktop */}
+            <GlassPanel delay={0.2} className="lg:h-[600px] lg:flex lg:flex-col">
+              <div className="space-y-6 flex-1 flex flex-col lg:overflow-y-auto lg:pr-2">
                 {/* Title and Status */}
                 <div>
                   <div className="flex items-center gap-3 mb-2">
@@ -1081,10 +1100,7 @@ const GlassMorphismEventDetails = () => {
                       <div className="text-xs sm:text-sm text-white/60">Duration</div>
                       <div className="font-medium text-sm sm:text-base">
                         {(() => {
-                          // Parse duration for display
-                          const dur = event.duration || "1";
-                          const daysMatch = dur.match(/(\d+)/);
-                          const days = daysMatch ? daysMatch[1] : "1";
+                          const days = parseDuration(event.duration);
                           return `${days} ${days === "1" ? "day" : "days"}`;
                         })()}
                       </div>
@@ -1095,7 +1111,11 @@ const GlassMorphismEventDetails = () => {
                     <div className="min-w-0 flex-1">
                       <div className="text-xs sm:text-sm text-white/60">Cost</div>
                       <div className="font-medium text-sm sm:text-base">
-                        ₹{(event.base_price || 0).toLocaleString("en-IN")}
+                        {event.base_price === 0 ? (
+                          <Badge variant="secondary" className="text-white">Free</Badge>
+                        ) : (
+                          `₹${(event.base_price || 0).toLocaleString("en-IN")}`
+                        )}
                       </div>
                     </div>
                   </div>

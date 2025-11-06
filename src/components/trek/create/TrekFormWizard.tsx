@@ -40,9 +40,12 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
     formData,
     errors,
     imagePreview,
+    imagePreviews,
     gpxFile,
     setFormData,
     handleImageChange,
+    handleImageChangeAtIndex,
+    removeImageAtIndex,
     handleGpxChange,
     validateStep,
     resetForm,
@@ -235,10 +238,23 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
         mandatory: mandatoryPackingItems.has(itemId),
       }));
 
-      // Preparing submission data
+      // Normalize jam_yard_details equipment_provided to array before submission
+      const normalizedFormData = { ...formData };
+      if (
+        normalizedFormData.jam_yard_details?.equipment_provided &&
+        typeof normalizedFormData.jam_yard_details.equipment_provided ===
+          "string"
+      ) {
+        const items = normalizedFormData.jam_yard_details.equipment_provided
+          .split(",")
+          .map((item) => item.trim())
+          .filter(Boolean);
+        normalizedFormData.jam_yard_details.equipment_provided = items;
+      }
 
+      // Preparing submission data
       const submissionData: FormSubmissionData = {
-        trekData: formData,
+        trekData: normalizedFormData,
         packingList,
         costs,
         tentInventory:
@@ -275,7 +291,10 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
           <BasicDetailsStep
             {...stepProps}
             imagePreview={imagePreview}
+            imagePreviews={imagePreviews}
             handleImageChange={handleImageChange}
+            handleImageChangeAtIndex={handleImageChangeAtIndex}
+            removeImageAtIndex={removeImageAtIndex}
             gpxFile={gpxFile}
             handleGpxChange={handleGpxChange}
           />
@@ -423,7 +442,11 @@ export const TrekFormWizard: React.FC<TrekFormWizardProps> = ({
                     : "Creating..."
                   : trekToEdit
                     ? "Update Event"
-                    : `Create ${formData.event_type === EventType.CAMPING ? "Camping Event" : "Trek"}`}
+                    : formData.event_type === EventType.CAMPING
+                      ? "Create Camping Event"
+                      : formData.event_type === EventType.JAM_YARD
+                        ? "Create Jam Yard Event"
+                        : "Create Trek Event"}
               </Button>
             ) : (
               <Button

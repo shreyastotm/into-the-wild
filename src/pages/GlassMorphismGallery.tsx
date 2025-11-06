@@ -22,6 +22,7 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
 import { formatIndianDate } from "@/utils/indianStandards";
+import { getTrekImageUrl } from "@/utils/imageStorage";
 import {
   fetchTrekEngagement,
   fetchTrekParticipants,
@@ -859,13 +860,17 @@ export default function GlassMorphismGallery() {
           // Continue without images rather than failing
         }
 
-        // Group images by trek_id
+        // Group images by trek_id with URL conversion
         const imagesByTrek: Record<number, string[]> = {};
         (images || []).forEach((img) => {
           if (!imagesByTrek[img.trek_id]) {
             imagesByTrek[img.trek_id] = [];
           }
-          imagesByTrek[img.trek_id].push(img.image_url);
+          // Convert image URL to public URL if needed
+          const publicUrl = getTrekImageUrl(img.image_url);
+          if (publicUrl) {
+            imagesByTrek[img.trek_id].push(publicUrl);
+          }
         });
 
         // Generate tags based on location/difficulty since trek_event_tags table doesn't exist

@@ -25,7 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import { formatIndianDate } from "@/utils/indianStandards";
+import { formatIndianDate, parseDuration } from "@/utils/indianStandards";
+import { getTrekImageUrl } from "@/utils/imageStorage";
 import {
   checkUserRegistration,
   fetchTrekEngagement,
@@ -74,9 +75,13 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
   const [isHovered, setIsHovered] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  const images = event.images || [
-    "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80",
-  ];
+  // Fix: Check if images array is empty, not just falsy
+  // Empty arrays [] are truthy, so || won't trigger fallback
+  const images = (event.images && event.images.length > 0) 
+    ? event.images 
+    : [
+        "https://images.unsplash.com/photo-1464822759844-d150baec0494?w=800&q=80",
+      ];
 
   // Auto-rotate images
   useEffect(() => {
@@ -90,7 +95,29 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
 
   // Get difficulty icon and color
   const getDifficultyConfig = (difficulty: string) => {
-    switch (difficulty?.toLowerCase()) {
+    const diffLower = difficulty?.toLowerCase();
+    
+    // Handle skill levels (for Jam Yard events)
+    if (diffLower === "beginner" || diffLower === "all levels") {
+      return {
+        icon: TreePine,
+        color: "text-green-400",
+        bg: "bg-green-500/20",
+      };
+    }
+    if (diffLower === "intermediate") {
+      return {
+        icon: Mountain,
+        color: "text-yellow-400",
+        bg: "bg-yellow-500/20",
+      };
+    }
+    if (diffLower === "advanced") {
+      return { icon: Zap, color: "text-red-400", bg: "bg-red-500/20" };
+    }
+    
+    // Handle traditional difficulty levels
+    switch (diffLower) {
       case "easy":
         return {
           icon: TreePine,
@@ -104,6 +131,7 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
           bg: "bg-yellow-500/20",
         };
       case "hard":
+      case "difficult":
         return { icon: Zap, color: "text-red-400", bg: "bg-red-500/20" };
       case "expert":
         return { icon: Zap, color: "text-purple-400", bg: "bg-purple-500/20" };
@@ -193,7 +221,9 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
   return (
     <motion.div
       className={cn(
-        "group relative overflow-hidden cursor-pointer h-[620px]",
+        "group relative overflow-hidden cursor-pointer flex flex-col",
+        // Mobile: Compact Instagram-like, Desktop: Taller card
+        "h-auto min-h-[520px] sm:min-h-[580px] md:h-[620px]",
         // Enhanced transparency with better contrast
         "bg-white/8 dark:bg-gray-900/8",
         "backdrop-blur-xl backdrop-saturate-150",
@@ -212,8 +242,6 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
         "before:absolute before:inset-0 before:rounded-3xl",
         "before:bg-gradient-to-br before:from-white/20 before:via-transparent before:to-transparent",
         "before:opacity-0 hover:before:opacity-100 before:transition-opacity before:duration-300",
-        // Flex layout for consistent spacing
-        "flex flex-col",
       )}
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -262,20 +290,31 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
         <div className="absolute top-0 left-0 w-full h-1/3 bg-gradient-to-b from-white/10 to-transparent rounded-t-3xl" />
       </div>
 
-      {/* Image Section */}
-      <div className="relative h-[280px] overflow-hidden">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={currentImageIndex}
-            src={images[currentImageIndex]}
-            alt={event.name}
-            className="w-full h-full object-cover"
-            initial={{ opacity: 0, scale: 1.1 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            transition={{ duration: 0.5 }}
-          />
-        </AnimatePresence>
+      {/* Image Section - Instagram-like aspect ratios */}
+      <div className="relative w-full aspect-[4/5] sm:aspect-[3/4] md:aspect-square lg:aspect-[4/3] overflow-hidden">
+        {images && images.length > 0 && images[currentImageIndex] ? (
+          <AnimatePresence mode="wait">
+            <motion.img
+              key={currentImageIndex}
+              src={images[currentImageIndex]}
+              alt={event.name}
+              className="w-full h-full object-cover sm:object-contain md:object-cover"
+              initial={{ opacity: 0, scale: 1.1 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.5 }}
+              onError={(e) => {
+                console.warn("Failed to load image:", images[currentImageIndex]);
+                // Hide broken image and show placeholder
+                e.currentTarget.style.display = 'none';
+              }}
+            />
+          </AnimatePresence>
+        ) : (
+          <div className="w-full h-full bg-gradient-to-br from-purple-900/40 via-orange-800/30 to-teal-900/40 flex items-center justify-center">
+            <Mountain className="w-12 h-12 text-white/30" />
+          </div>
+        )}
 
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -384,8 +423,8 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
         )}
       </div>
 
-      {/* Content Section - Optimized spacing */}
-      <div className="p-6 h-[340px] flex flex-col justify-between">
+      {/* Content Section - Flexible height */}
+      <div className="p-4 sm:p-6 flex-1 flex flex-col justify-between min-h-0">
         {/* Title and Location */}
         <div className="space-y-3">
           <h3 className="text-xl font-bold text-white line-clamp-1 leading-tight">
@@ -412,26 +451,26 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
           </div>
         </div>
 
-        {/* Tags - Full Display */}
-        <div className="flex flex-wrap gap-1">
+        {/* Tags - Full Display with better spacing */}
+        <div className="flex flex-wrap gap-1.5">
           {event.tags?.map((tag) => {
             const TagIcon = getTagIcon(tag.name);
             return (
               <Badge
                 key={tag.id}
                 className={cn(
-                  "text-xs px-2 py-1 backdrop-blur-sm border flex items-center gap-1 max-w-[60px]",
+                  "text-xs px-2.5 py-1 backdrop-blur-sm border flex items-center gap-1.5 min-w-fit",
                   getTagColor(tag.name),
                 )}
               >
                 {typeof TagIcon === "string" ? (
-                  <span className="text-xs">{TagIcon}</span>
+                  <span className="text-xs flex-shrink-0">{TagIcon}</span>
                 ) : (
                   <TagIcon className="w-3 h-3 flex-shrink-0" />
                 )}
-                <span className="truncate text-xs">
-                  {tag.name.length > 6
-                    ? `${tag.name.substring(0, 6)}...`
+                <span className="whitespace-nowrap text-xs">
+                  {tag.name.length > 14
+                    ? `${tag.name.substring(0, 14)}...`
                     : tag.name}
                 </span>
               </Badge>
@@ -458,10 +497,16 @@ const GlassEventCard: React.FC<GlassEventCardProps> = ({
             </div>
           </div>
 
-          {event.cost && (
+          {event.cost !== undefined && event.cost !== null && (
             <div className="flex items-center gap-1 font-semibold text-green-400">
-              <IndianRupee className="w-4 h-4" />
-              <span>{event.cost.toLocaleString("en-IN")}</span>
+              {event.cost === 0 ? (
+                <Badge variant="secondary" className="text-white">Free</Badge>
+              ) : (
+                <>
+                  <IndianRupee className="w-4 h-4" />
+                  <span>{event.cost.toLocaleString("en-IN")}</span>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -516,6 +561,13 @@ const GlassMorphismEvents = () => {
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  
+  // Debug: Log component mount to verify file is being used
+  useEffect(() => {
+    console.log("🔵 GlassMorphismEvents component mounted/updated - File: GlassMorphismEvents.tsx");
+    console.log("🔵 Registration query: Excluding 'Cancelled', including all other statuses");
+    console.log("🔵 Tags: max-w removed, 14 char limit, min-w-fit");
+  }, []);
 
   // Fetch upcoming events from database
   useEffect(() => {
@@ -526,11 +578,22 @@ const GlassMorphismEvents = () => {
         const { data: treks, error } = await supabase
           .from("trek_events")
           .select(
-            "trek_id, name, description, location, difficulty, start_datetime, duration, base_price, max_participants, image_url, event_type",
+            "trek_id, name, description, location, difficulty, start_datetime, duration, base_price, max_participants, image_url, event_type, jam_yard_details",
           )
           .gt("start_datetime", new Date().toISOString())
           .order("start_datetime", { ascending: true })
           .limit(12);
+
+        // DEBUG: Log duration values from database
+        if (treks) {
+          treks.forEach(trek => {
+            console.log(`🔍 DEBUG: Trek ${trek.trek_id} (${trek.name}) duration:`, {
+              raw: trek.duration,
+              type: typeof trek.duration,
+              parsed: parseDuration(trek.duration)
+            });
+          });
+        }
 
         if (error) throw error;
 
@@ -583,7 +646,7 @@ const GlassMorphismEvents = () => {
           });
         });
 
-        // Fetch images from trek_event_images table
+        // Fetch admin-uploaded images from trek_event_images table
         const { data: images, error: imgError } = await supabase
           .from("trek_event_images")
           .select("trek_id, image_url, position")
@@ -591,70 +654,67 @@ const GlassMorphismEvents = () => {
           .order("position", { ascending: true });
 
         if (imgError) {
-          console.error("❌ Error fetching trek images:", imgError);
+          console.error("❌ Error fetching trek_event_images:", imgError);
+          console.error("❌ Error code:", imgError.code);
+          console.error("❌ Error message:", imgError.message);
           console.error("❌ Error details:", JSON.stringify(imgError, null, 2));
+          console.error("❌ Query details:", {
+            table: "trek_event_images",
+            trekIds,
+            queryType: "SELECT with IN clause"
+          });
         } else {
-          console.log("✅ Fetched from trek_event_images:", images?.length || 0, "images for", trekIds.length, "treks");
-          console.log("✅ Raw images data:", images);
+          console.log("✅ Fetched from trek_event_images:", images?.length || 0, "admin images for", trekIds.length, "treks");
           if (images && images.length > 0) {
-            console.log("📸 Sample image data:", images[0]);
-            console.log("📸 All images:", images);
+            console.log("📸 Images found:", images.map(img => ({
+              trek_id: img.trek_id,
+              position: img.position,
+              url_preview: img.image_url?.substring(0, 60) + "..."
+            })));
           } else {
-            console.warn("⚠️ No images returned - This could mean:");
-            console.warn("  1. Images don't exist in database for these treks");
-            console.warn("  2. RLS policies are blocking access");
-            console.warn("  3. Data type mismatch in trek_id");
+            console.warn("⚠️ No images found in trek_event_images for treks:", trekIds);
           }
         }
 
-        // Helper function to convert storage path to public URL if needed
-        const getImageUrl = (imageUrl: string): string => {
-          if (!imageUrl || imageUrl.trim() === "") return "";
-          
-          // If it's already a full URL (http/https), check if it needs bucket migration
-          if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-            // If URL points to old trek-images bucket, update to trek-assets bucket
-            if (imageUrl.includes("/storage/v1/object/public/trek-images/")) {
-              const updatedUrl = imageUrl.replace("/storage/v1/object/public/trek-images/", "/storage/v1/object/public/trek-assets/");
-              console.log(`🔄 Migrated URL from trek-images to trek-assets: ${imageUrl.substring(0, 80)}... -> ${updatedUrl.substring(0, 80)}...`);
-              return updatedUrl;
-            }
-            // If it already points to trek-assets or is external, return as is
-            return imageUrl;
-          }
-          
-          // If it's a storage path (starts with treks/), convert to public URL
-          // Trek images are stored in trek-assets bucket
-          if (imageUrl.startsWith("treks/") || imageUrl.startsWith("trek-assets/") || imageUrl.startsWith("trek-images/")) {
-            let path = imageUrl;
-            if (imageUrl.startsWith("trek-assets/")) {
-              path = imageUrl.replace("trek-assets/", "");
-            } else if (imageUrl.startsWith("trek-images/")) {
-              path = imageUrl.replace("trek-images/", "");
-            } else if (imageUrl.startsWith("treks/")) {
-              // Keep treks/ prefix as is for trek-assets bucket
-              path = imageUrl;
-            }
-            const { data } = supabase.storage.from("trek-assets").getPublicUrl(path);
-            return data.publicUrl;
-          }
-          
-          // Return as is (might be a relative path or other format)
-          return imageUrl;
-        };
+        // ALSO fetch approved user-contributed images
+        const { data: userImages, error: userImgError } = await supabase
+          .from("user_trek_images")
+          .select("trek_id, image_url, created_at")
+          .in("trek_id", trekIds)
+          .eq("status", "approved")
+          .order("created_at", { ascending: true });
+
+        if (userImgError) {
+          console.warn("⚠️ Error fetching user_trek_images:", userImgError);
+        } else {
+          console.log(`✅ Fetched ${userImages?.length || 0} approved user images for ${trekIds.length} treks`);
+        }
+
+        // Combine both sources: admin images first, then user images
+        const allImages = [
+          ...(images || []).map((img: any) => ({ ...img, source: 'admin' })),
+          ...(userImages || []).map((img: any) => ({ 
+            trek_id: img.trek_id, 
+            image_url: img.image_url, 
+            position: 999, // User images go after admin images
+            source: 'user' 
+          }))
+        ];
+
+        // Use centralized image URL conversion utility
 
         // Group images by trek_id with validation and URL conversion
         const imagesByTrek: Record<number, string[]> = {};
-        (images || []).forEach((img) => {
+        allImages.forEach((img) => {
           if (!imagesByTrek[img.trek_id]) {
             imagesByTrek[img.trek_id] = [];
           }
           // Only add valid, non-empty image URLs (convert storage paths to public URLs)
           if (img.image_url && img.image_url.trim() !== "") {
-            const publicUrl = getImageUrl(img.image_url);
+            const publicUrl = getTrekImageUrl(img.image_url);
             if (publicUrl && publicUrl.trim() !== "") {
               imagesByTrek[img.trek_id].push(publicUrl);
-              console.log(`✅ Processed image for trek ${img.trek_id} at position ${img.position}: ${publicUrl.substring(0, 60)}...`);
+              console.log(`✅ Processed ${img.source} image for trek ${img.trek_id} at position ${img.position}: ${publicUrl.substring(0, 60)}...`);
             } else {
               console.warn(`⚠️ Failed to process image URL for trek ${img.trek_id}:`, img.image_url);
             }
@@ -689,15 +749,26 @@ const GlassMorphismEvents = () => {
             if (!imagesByTrek[trek.trek_id]) {
               imagesByTrek[trek.trek_id] = [];
             }
-            const publicUrl = getImageUrl(imageUrl);
-            if (publicUrl && publicUrl.trim() !== "") {
-              imagesByTrek[trek.trek_id].push(publicUrl);
-              console.log(`✅ Added fallback image from trek_events.image_url for trek ${trek.trek_id}: ${publicUrl.substring(0, 60)}...`);
+            
+            // Check if it's a base64 data URL (like Trek 190)
+            const isBase64 = imageUrl.startsWith('data:image/');
+            
+            if (isBase64) {
+              // Use base64 images directly without conversion
+              imagesByTrek[trek.trek_id].push(imageUrl);
+              console.log(`✅ Added base64 image from trek_events.image_url for trek ${trek.trek_id}: ${imageUrl.substring(0, 60)}...`);
             } else {
-              console.warn(`⚠️ Failed to convert image_url for trek ${trek.trek_id}:`, {
-                original: imageUrl,
-                converted: publicUrl
-              });
+              // For storage paths, use getTrekImageUrl conversion
+              const publicUrl = getTrekImageUrl(imageUrl);
+              if (publicUrl && publicUrl.trim() !== "") {
+                imagesByTrek[trek.trek_id].push(publicUrl);
+                console.log(`✅ Added fallback image from trek_events.image_url for trek ${trek.trek_id}: ${publicUrl.substring(0, 60)}...`);
+              } else {
+                console.warn(`⚠️ Failed to convert image_url for trek ${trek.trek_id}:`, {
+                  original: imageUrl,
+                  converted: publicUrl
+                });
+              }
             }
           } else {
             console.warn(`⚠️ Invalid image_url for trek ${trek.trek_id} (${trek.name}):`, {
@@ -713,23 +784,36 @@ const GlassMorphismEvents = () => {
 
         console.log("📊 Final images by trek:", Object.keys(imagesByTrek).length, "treks have images after fallback");
 
-        // Fetch registration counts
+        // Fetch registration counts - include all non-cancelled registrations
+        // Payment status can be: Paid, paid, Confirmed, confirmed, Pending, pending, etc.
         const { data: registrations, error: regError } = await supabase
           .from("trek_registrations")
-          .select("trek_id")
+          .select("trek_id, payment_status")
           .in("trek_id", trekIds)
-          .eq("payment_status", "Paid");
+          .neq("payment_status", "Cancelled");
 
         if (regError) {
           console.warn("Error fetching registrations:", regError);
+        } else {
+          console.log(`✅ Fetched ${registrations?.length || 0} registrations (excluding cancelled) for ${trekIds.length} treks`);
+          // Log payment status breakdown for debugging
+          if (registrations && registrations.length > 0) {
+            const statusBreakdown = registrations.reduce((acc: any, reg: any) => {
+              acc[reg.payment_status] = (acc[reg.payment_status] || 0) + 1;
+              return acc;
+            }, {});
+            console.log("📊 Payment status breakdown:", statusBreakdown);
+          }
         }
 
-        // Count registrations by trek
+        // Count registrations by trek (all non-cancelled)
         const registrationCounts: Record<number, number> = {};
         (registrations || []).forEach((reg) => {
           registrationCounts[reg.trek_id] =
             (registrationCounts[reg.trek_id] || 0) + 1;
         });
+        
+        console.log("📊 Registration counts by trek:", registrationCounts);
 
         // Fetch participants and engagement for all treks in parallel
         const participantsPromises = trekIds.map((id) =>
@@ -853,27 +937,42 @@ const GlassMorphismEvents = () => {
         });
 
         // Transform data to match expected format
-        const transformedEvents = treks.map((trek, index) => ({
-          trek_id: trek.trek_id,
-          name: trek.name,
-          description:
-            trek.description ||
-            `Join us for an exciting ${trek.difficulty?.toLowerCase() || "moderate"} adventure in ${trek.location || "beautiful landscapes"}.`,
-          location: trek.location || "Location TBD",
-          difficulty: trek.difficulty || "Moderate",
-          duration: (() => {
-            // Parse PostgreSQL interval to display format
-            if (!trek.duration) return "1";
-            // Handle interval type (PostgreSQL returns as string like "3 days" or "2 days 12:00:00")
-            const durationStr = String(trek.duration);
-            const daysMatch = durationStr.match(/(\d+)\s*days?/i);
-            if (daysMatch) {
-              return daysMatch[1];
+        const transformedEvents = treks.map((trek, index) => {
+          // For Jam Yard events, use skill_level from jam_yard_details instead of difficulty
+          let displayDifficulty: string;
+          
+          if (trek.event_type === "jam_yard" && trek.jam_yard_details) {
+            const skillLevel = trek.jam_yard_details?.skill_level;
+            if (skillLevel) {
+              // Capitalize skill level for display (beginner -> Beginner, etc.)
+              displayDifficulty = skillLevel.charAt(0).toUpperCase() + skillLevel.slice(1);
+              // Handle "all" -> "All Levels"
+              if (skillLevel === "all") {
+                displayDifficulty = "All Levels";
+              }
+            } else {
+              // Fallback: if no skill_level but has difficulty (combined event), use difficulty
+              displayDifficulty = trek.difficulty || "Moderate";
             }
-            // If it's already a number string, use it
-            const num = parseInt(durationStr, 10);
-            return isNaN(num) ? "1" : num.toString();
-          })(),
+          } else {
+            // For non-Jam Yard events, use difficulty field
+            displayDifficulty = trek.difficulty || "Moderate";
+          }
+          
+          // Debug logging for difficulty
+          if (!displayDifficulty) {
+            console.warn(`⚠️ Trek ${trek.trek_id} (${trek.name}) has no difficulty/skill_level value`);
+          }
+          
+          return {
+            trek_id: trek.trek_id,
+            name: trek.name,
+            description:
+              trek.description ||
+              `Join us for an exciting ${displayDifficulty?.toLowerCase() || "moderate"} adventure in ${trek.location || "beautiful landscapes"}.`,
+            location: trek.location || "Location TBD",
+            difficulty: displayDifficulty,
+          duration: parseDuration(trek.duration),
           start_datetime: trek.start_datetime,
           cost: trek.base_price,
           max_participants: trek.max_participants || 20,
@@ -888,7 +987,9 @@ const GlassMorphismEvents = () => {
             // But keeping as extra safety check
             if (trek.image_url && trek.image_url.trim() !== "") {
               console.log(`⚠️ Using trek_events.image_url fallback (late check) for trek ${trek.trek_id}`);
-              return [trek.image_url];
+              // Process the URL through getTrekImageUrl to ensure it's a valid public URL
+              const processedUrl = getTrekImageUrl(trek.image_url);
+              return processedUrl ? [processedUrl] : [];
             }
             console.log(`❌ Using placeholder images for trek ${trek.trek_id} (no DB images)`);
             console.log(`   Trek data: name="${trek.name}", image_url="${trek.image_url || 'null'}"`);
@@ -937,16 +1038,17 @@ const GlassMorphismEvents = () => {
                   })(),
                 ];
           })(),
-          tags: tagsByTrek[trek.trek_id]?.length > 0 
-            ? tagsByTrek[trek.trek_id] 
-            : generateFallbackTags(trek),
-          registration_status: "open" as const,
-          days_until_event: calculateDaysUntil(trek.start_datetime),
-          registeredFriends: participantsByTrek[trek.trek_id] || [],
-          likeCount: engagementByTrek[trek.trek_id]?.likes || 0,
-          viewCount: engagementByTrek[trek.trek_id]?.views || 0,
-          isRegistered: isRegisteredByTrek[trek.trek_id] || false,
-        }));
+            tags: tagsByTrek[trek.trek_id]?.length > 0 
+              ? tagsByTrek[trek.trek_id] 
+              : generateFallbackTags(trek),
+            registration_status: "open" as const,
+            days_until_event: calculateDaysUntil(trek.start_datetime),
+            registeredFriends: participantsByTrek[trek.trek_id] || [],
+            likeCount: engagementByTrek[trek.trek_id]?.likes || 0,
+            viewCount: engagementByTrek[trek.trek_id]?.views || 0,
+            isRegistered: isRegisteredByTrek[trek.trek_id] || false,
+          };
+        });
 
         setEvents(transformedEvents);
       } catch (error) {

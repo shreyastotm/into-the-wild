@@ -75,12 +75,16 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   variant={
                     formData.event_type === EventType.CAMPING
                       ? "default"
-                      : "secondary"
+                      : formData.event_type === EventType.JAM_YARD
+                        ? "default"
+                        : "secondary"
                   }
                 >
                   {formData.event_type === EventType.CAMPING
                     ? "🏕️ Camping Event"
-                    : "🥾 Trek Event"}
+                    : formData.event_type === EventType.JAM_YARD
+                      ? "🏃 Jam Yard Event"
+                      : "🥾 Trek Event"}
                 </Badge>
               </div>
               <h4 className="font-semibold text-lg">{formData.name}</h4>
@@ -189,9 +193,15 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({
                   (refundable)
                 </span>
               </div>
-              <span className="text-lg font-semibold text-green-600">
-                ₹{formData.base_price?.toFixed(2)}
-              </span>
+              {formData.base_price === 0 ? (
+                <Badge variant="secondary" className="text-lg font-semibold">
+                  Free
+                </Badge>
+              ) : (
+                <span className="text-lg font-semibold text-green-600">
+                  ₹{formData.base_price?.toFixed(2)}
+                </span>
+              )}
             </div>
 
             <p className="text-xs text-muted-foreground">

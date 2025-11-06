@@ -231,9 +231,22 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
         </Label>
         <Textarea
           id="equipment_provided"
-          value={jamYardData.equipment_provided?.join(", ") || ""}
+          value={
+            Array.isArray(jamYardData.equipment_provided)
+              ? jamYardData.equipment_provided.join(", ")
+              : typeof jamYardData.equipment_provided === "string"
+                ? jamYardData.equipment_provided
+                : ""
+          }
           onChange={(e) => {
-            const items = e.target.value
+            // Store as string while typing to allow free-form input
+            const value = e.target.value;
+            updateJamYardField("equipment_provided", value);
+          }}
+          onBlur={(e) => {
+            // Convert to array when user finishes editing
+            const value = e.target.value;
+            const items = value
               .split(",")
               .map((item) => item.trim())
               .filter(Boolean);
@@ -243,7 +256,7 @@ export const JamYardDetailsStep: React.FC<JamYardDetailsStepProps> = ({
           rows={2}
         />
         <p className="text-xs text-muted-foreground mt-1">
-          Enter items separated by commas
+          Enter items separated by commas. Press Tab or click outside to save.
         </p>
       </div>
 

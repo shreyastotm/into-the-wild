@@ -29,10 +29,10 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [imagePreviews, setImagePreviews] = useState<(string | null)[]>(Array(5).fill(null));
   const [gpxFile, setGpxFile] = useState<File | null>(null);
 
-  // Handle image upload
+  // Handle single image upload (for backward compatibility)
   const handleImageChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
       const file = e.target.files?.[0];
@@ -40,14 +40,66 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
         const reader = new FileReader();
         reader.onload = (event) => {
           const result = event.target?.result as string;
-          setImagePreview(result);
-          setFormData((prev) => ({ ...prev, image: result }));
+          // Update first image slot
+          setImagePreviews((prev) => {
+            const newPreviews = [...prev];
+            newPreviews[0] = result;
+            return newPreviews;
+          });
+          setFormData((prev) => {
+            const images = prev.images || [];
+            images[0] = result;
+            return { ...prev, image: result, images };
+          });
         };
         reader.readAsDataURL(file);
       }
     },
     [],
   );
+
+  // Handle multiple image uploads
+  const handleImageChangeAtIndex = useCallback(
+    (index: number) => (e: React.ChangeEvent<HTMLInputElement>) => {
+      const file = e.target.files?.[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          const result = event.target?.result as string;
+          setImagePreviews((prev) => {
+            const newPreviews = [...prev];
+            newPreviews[index] = result;
+            return newPreviews;
+          });
+          setFormData((prev) => {
+            const images = prev.images || Array(5).fill(null);
+            images[index] = result;
+            // Also set first image for backward compatibility
+            const image = index === 0 ? result : prev.image;
+            return { ...prev, image, images };
+          });
+        };
+        reader.readAsDataURL(file);
+      }
+    },
+    [],
+  );
+
+  // Remove image at index
+  const removeImageAtIndex = useCallback((index: number) => {
+    setImagePreviews((prev) => {
+      const newPreviews = [...prev];
+      newPreviews[index] = null;
+      return newPreviews;
+    });
+    setFormData((prev) => {
+      const images = prev.images || Array(5).fill(null);
+      images[index] = undefined;
+      // Also clear first image if removing index 0
+      const image = index === 0 ? undefined : prev.image;
+      return { ...prev, image, images };
+    });
+  }, []);
 
   // Handle GPX file upload
   const handleGpxChange = useCallback(
@@ -83,11 +135,13 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
           }
           if (
             formData.base_price === undefined ||
-            formData.base_price === null ||
-            formData.base_price < 0
+            formData.base_price === null
           ) {
             newErrors.base_price =
-              "Registration fee must be a valid positive number.";
+              "Registration fee is required. Enter 0 for free events.";
+          } else if (formData.base_price < 0) {
+            newErrors.base_price =
+              "Registration fee cannot be negative. Enter 0 for free events.";
           }
           if (
             formData.max_participants === undefined ||
@@ -121,11 +175,13 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
           }
           if (
             formData.base_price === undefined ||
-            formData.base_price === null ||
-            formData.base_price < 0
+            formData.base_price === null
           ) {
             newErrors.base_price =
-              "Registration fee is required and must be positive.";
+              "Registration fee is required. Enter 0 for free events.";
+          } else if (formData.base_price < 0) {
+            newErrors.base_price =
+              "Registration fee cannot be negative. Enter 0 for free events.";
           }
           if (
             formData.max_participants === undefined ||
@@ -163,7 +219,7 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
       status: "Draft",
     });
     setErrors({});
-    setImagePreview(null);
+    setImagePreviews(Array(5).fill(null));
     setGpxFile(null);
   }, []);
 
@@ -186,12 +242,15 @@ export const useTrekForm = (initialData?: AdminTrekEvent) => {
     // State
     formData,
     errors,
-    imagePreview,
+    imagePreview: imagePreviews[0], // For backward compatibility
+    imagePreviews, // New: array of all image previews
     gpxFile,
 
     // Actions
     setFormData: updateFormData,
-    handleImageChange,
+    handleImageChange, // For backward compatibility
+    handleImageChangeAtIndex, // New: handle image at specific index
+    removeImageAtIndex, // New: remove image at index
     handleGpxChange,
     validateStep,
     clearError,

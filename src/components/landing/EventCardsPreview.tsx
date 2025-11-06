@@ -13,6 +13,7 @@ import React, { useEffect, useState } from "react";
 
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import { getTrekImageUrl } from "@/utils/imageStorage";
 
 interface EventCard {
   id: number;
@@ -84,47 +85,7 @@ const EventCardsPreview: React.FC = () => {
           console.warn("Error fetching images:", imgError);
         }
 
-        // Helper function to convert storage path to public URL if needed
-        const getImageUrl = (imageUrl: string): string => {
-          if (!imageUrl || imageUrl.trim() === "") return "";
-          
-          // If it's already a full URL (http/https), check if it needs bucket migration
-          if (imageUrl.startsWith("http://") || imageUrl.startsWith("https://")) {
-            // If URL points to old trek-images bucket, update to trek-assets bucket
-            if (imageUrl.includes("/storage/v1/object/public/trek-images/")) {
-              const updatedUrl = imageUrl.replace("/storage/v1/object/public/trek-images/", "/storage/v1/object/public/trek-assets/");
-              console.log(`🔄 Migrated URL from trek-images to trek-assets: ${imageUrl.substring(0, 80)}... -> ${updatedUrl.substring(0, 80)}...`);
-              return updatedUrl;
-            }
-            // If it already points to trek-assets or is external, return as is
-            return imageUrl;
-          }
-          
-          // If it's a storage path (starts with treks/ or trek-assets/), convert to public URL
-          // Trek images are stored in trek-assets bucket
-          let storagePath = imageUrl;
-          if (imageUrl.startsWith("trek-assets/")) {
-            storagePath = imageUrl.replace("trek-assets/", "");
-          } else if (imageUrl.startsWith("trek-images/")) {
-            storagePath = imageUrl.replace("trek-images/", "");
-          } else if (imageUrl.startsWith("treks/")) {
-            // Keep treks/ prefix as is for trek-assets bucket
-            storagePath = imageUrl;
-          }
-          
-          // Try to get public URL from trek-assets bucket
-          try {
-            const { data } = supabase.storage.from("trek-assets").getPublicUrl(storagePath);
-            if (data?.publicUrl) {
-              return data.publicUrl;
-            }
-          } catch (error) {
-            console.warn("Error getting public URL for image:", imageUrl, error);
-          }
-          
-          // Return as is (might be a relative path or other format)
-          return imageUrl;
-        };
+        // Use centralized image URL conversion utility
 
         // Group images by trek_id with type safety and URL conversion
         const imagesByTrek: Record<number, string[]> = {};
@@ -137,7 +98,7 @@ const EventCardsPreview: React.FC = () => {
                 if (!imagesByTrek[trekId]) {
                   imagesByTrek[trekId] = [];
                 }
-                const publicUrl = getImageUrl(imageUrl);
+                const publicUrl = getTrekImageUrl(imageUrl);
                 if (publicUrl) {
                   imagesByTrek[trekId].push(publicUrl);
                 }
@@ -159,7 +120,7 @@ const EventCardsPreview: React.FC = () => {
           const eventImages = imagesByTrek[eventTrekId] || [];
           // Use first image from database, fallback to event.image_url
           const eventImageUrl = 'image_url' in event && typeof event.image_url === 'string' 
-            ? getImageUrl(event.image_url)
+            ? getTrekImageUrl(event.image_url)
             : null;
           const primaryImage = eventImages[0] || eventImageUrl;
           

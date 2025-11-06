@@ -12,7 +12,8 @@ export interface AdminTrekEvent {
   difficulty?: string;
   base_price?: number; // Required in validation but optional during form filling
   max_participants?: number; // Required in validation but optional during form filling
-  image?: string;
+  image?: string; // Legacy single image (for backward compatibility)
+  images?: string[]; // Array of base64 image strings (up to 5)
   gpx_file?: string;
   status?: string;
   government_id_required?: boolean;
